@@ -1,0 +1,75 @@
+{
+    "type": "event_callback",
+    "event": {
+        "ts": "1645228769.569399",
+        "team": "T017GL5AV5E",
+        "text": "testing multiple repeated links <https://api.slack.com/events/url_verification> <https://api.slack.com/events/url_verification> <https://api.slack.com/authentication/verifying-requests-from-slack> <https://github.com/watzon/marionette>",
+        "type": "message",
+        "user": "U016SQZLFEE",
+        "blocks": [
+            {
+                "type": "rich_text",
+                "block_id": "uj=t",
+                "elements": [
+                    {
+                        "type": "rich_text_section",
+                        "elements": [
+                            {
+                                "text": "tesitng multiple repeated links ",
+                                "type": "text"
+                            },
+                            {
+                                "url": "https://api.slack.com/events/url_verification",
+                                "type": "link"
+                            },
+                            {
+                                "text": " ",
+                                "type": "text"
+                            },
+                            {
+                                "url": "https://api.slack.com/events/url_verification",
+                                "type": "link"
+                            },
+                            {
+                                "text": " ",
+                                "type": "text"
+                            },
+                            {
+                                "url": "https://api.slack.com/authentication/verifying-requests-from-slack",
+                                "type": "link"
+                            },
+                            {
+                                "text": " ",
+                                "type": "text"
+                            },
+                            {
+                                "url": "https://github.com/watzon/marionette",
+                                "type": "link"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "channel": "C032TLM43GA",
+        "event_ts": "1645228769.569399",
+        "channel_type": "channel",
+        "client_msg_id": "df8c8743-f186-4a99-aa07-316bda8ddf1f"
+    },
+    "token": "E6FV7uzAaZoqjhbU56ZKNnIk",
+    "team_id": "T017GL5AV5E",
+    "event_id": "Ev033DKP4WGP",
+    "api_app_id": "A031L6N0Q3G",
+    "event_time": 1645228769,
+    "event_context": "4-eyJldCI6Im1lc3NhZ2UiLCJ0aWQiOiJUMDE3R0w1QVY1RSIsImFpZCI6IkEwMzFMNk4wUTNHIiwiY2lkIjoiQzAzMlRMTTQzR0EifQ",
+    "authorizations": [
+        {
+            "is_bot": false,
+            "team_id": "T017GL5AV5E",
+            "user_id": "U016SQZLFEE",
+            "enterprise_id": null,
+            "is_enterprise_install": false
+        }
+    ],
+    "is_ext_shared_channel": false
+}

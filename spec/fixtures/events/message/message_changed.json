@@ -1,0 +1,179 @@
+{
+    "type": "event_callback",
+    "event": {
+        "ts": "1645228770.000500",
+        "type": "message",
+        "hidden": true,
+        "channel": "C032TLM43GA",
+        "message": {
+            "ts": "1645228769.569399",
+            "team": "T017GL5AV5E",
+            "text": "tesitng multiple repeated links <https://api.slack.com/events/url_verification> <https://api.slack.com/events/url_verification> <https://api.slack.com/authentication/verifying-requests-from-slack> <https://github.com/watzon/marionette>",
+            "type": "message",
+            "user": "U016SQZLFEE",
+            "blocks": [
+                {
+                    "type": "rich_text",
+                    "block_id": "uj=t",
+                    "elements": [
+                        {
+                            "type": "rich_text_section",
+                            "elements": [
+                                {
+                                    "text": "tesitng multiple repeated links ",
+                                    "type": "text"
+                                },
+                                {
+                                    "url": "https://api.slack.com/events/url_verification",
+                                    "type": "link"
+                                },
+                                {
+                                    "text": " ",
+                                    "type": "text"
+                                },
+                                {
+                                    "url": "https://api.slack.com/events/url_verification",
+                                    "type": "link"
+                                },
+                                {
+                                    "text": " ",
+                                    "type": "text"
+                                },
+                                {
+                                    "url": "https://api.slack.com/authentication/verifying-requests-from-slack",
+                                    "type": "link"
+                                },
+                                {
+                                    "text": " ",
+                                    "type": "text"
+                                },
+                                {
+                                    "url": "https://github.com/watzon/marionette",
+                                    "type": "link"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "attachments": [
+                {
+                    "id": 1,
+                    "text": "Verifies ownership of an Events API Request URL",
+                    "title": "url_verification eventAPI event",
+                    "fallback": "Slack API: url_verification eventAPI event",
+                    "from_url": "https://api.slack.com/events/url_verification",
+                    "thumb_url": "https://a.slack-edge.com/80588/img/services/api_200.png",
+                    "title_link": "https://api.slack.com/events/url_verification",
+                    "thumb_width": 200,
+                    "original_url": "https://api.slack.com/events/url_verification",
+                    "service_icon": "https://a.slack-edge.com/80588/marketing/img/meta/favicon-32.png",
+                    "service_name": "Slack API",
+                    "thumb_height": 200
+                },
+                {
+                    "id": 2,
+                    "text": "Slack signs its requests using a secret that's unique to your app. With the help of signing secrets, your app can more confidently verify whether requests from us are authentic.",
+                    "title": "Verifying requests from Slack",
+                    "fallback": "Slack API: Verifying requests from Slack",
+                    "from_url": "https://api.slack.com/authentication/verifying-requests-from-slack",
+                    "thumb_url": "https://a.slack-edge.com/80588/img/services/api_200.png",
+                    "title_link": "https://api.slack.com/authentication/verifying-requests-from-slack",
+                    "thumb_width": 200,
+                    "original_url": "https://api.slack.com/authentication/verifying-requests-from-slack",
+                    "service_icon": "https://a.slack-edge.com/80588/marketing/img/meta/favicon-32.png",
+                    "service_name": "Slack API",
+                    "thumb_height": 200
+                },
+                {
+                    "id": 3,
+                    "text": "Selenium alternative for Crystal. Browser manipulation without the Java overhead. - GitHub - watzon/marionette: Selenium alternative for Crystal. Browser manipulation without the Java overhead.",
+                    "title": "GitHub - watzon/marionette: Selenium alternative for Crystal. Browser manipulation without the Java overhead.",
+                    "fallback": "GitHub: GitHub - watzon/marionette: Selenium alternative for Crystal. Browser manipulation without the Java overhead.",
+                    "from_url": "https://github.com/watzon/marionette",
+                    "image_url": "https://opengraph.githubassets.com/45da76e9555d79b249845d379df733ce3802769b6763c288e1ff4fe45233b943/watzon/marionette",
+                    "title_link": "https://github.com/watzon/marionette",
+                    "image_bytes": 59906,
+                    "image_width": 500,
+                    "image_height": 250,
+                    "original_url": "https://github.com/watzon/marionette",
+                    "service_icon": "https://a.slack-edge.com/80588/img/unfurl_icons/github.png",
+                    "service_name": "GitHub"
+                }
+            ],
+            "client_msg_id": "df8c8743-f186-4a99-aa07-316bda8ddf1f"
+        },
+        "subtype": "message_changed",
+        "event_ts": "1645228770.000500",
+        "channel_type": "channel",
+        "previous_message": {
+            "ts": "1645228769.569399",
+            "team": "T017GL5AV5E",
+            "text": "tesitng multiple repeated links <https://api.slack.com/events/url_verification> <https://api.slack.com/events/url_verification> <https://api.slack.com/authentication/verifying-requests-from-slack> <https://github.com/watzon/marionette>",
+            "type": "message",
+            "user": "U016SQZLFEE",
+            "blocks": [
+                {
+                    "type": "rich_text",
+                    "block_id": "uj=t",
+                    "elements": [
+                        {
+                            "type": "rich_text_section",
+                            "elements": [
+                                {
+                                    "text": "tesitng multiple repeated links ",
+                                    "type": "text"
+                                },
+                                {
+                                    "url": "https://api.slack.com/events/url_verification",
+                                    "type": "link"
+                                },
+                                {
+                                    "text": " ",
+                                    "type": "text"
+                                },
+                                {
+                                    "url": "https://api.slack.com/events/url_verification",
+                                    "type": "link"
+                                },
+                                {
+                                    "text": " ",
+                                    "type": "text"
+                                },
+                                {
+                                    "url": "https://api.slack.com/authentication/verifying-requests-from-slack",
+                                    "type": "link"
+                                },
+                                {
+                                    "text": " ",
+                                    "type": "text"
+                                },
+                                {
+                                    "url": "https://github.com/watzon/marionette",
+                                    "type": "link"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "client_msg_id": "df8c8743-f186-4a99-aa07-316bda8ddf1f"
+        }
+    },
+    "token": "E6FV7uzAaZoqjhbU56ZKNnIk",
+    "team_id": "T017GL5AV5E",
+    "event_id": "Ev033U7U7BC2",
+    "api_app_id": "A031L6N0Q3G",
+    "event_time": 1645228770,
+    "event_context": "4-eyJldCI6Im1lc3NhZ2UiLCJ0aWQiOiJUMDE3R0w1QVY1RSIsImFpZCI6IkEwMzFMNk4wUTNHIiwiY2lkIjoiQzAzMlRMTTQzR0EifQ",
+    "authorizations": [
+        {
+            "is_bot": false,
+            "team_id": "T017GL5AV5E",
+            "user_id": "U016SQZLFEE",
+            "enterprise_id": null,
+            "is_enterprise_install": false
+        }
+    ],
+    "is_ext_shared_channel": false
+}
