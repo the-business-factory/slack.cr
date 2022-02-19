@@ -29,6 +29,6 @@ module Slack
       end
     end
 
-    result = default || Slack::VerifiedEvent.new(original)
+    default || Slack::VerifiedEvent.new(original)
   end
 end
