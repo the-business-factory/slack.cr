@@ -38,7 +38,6 @@ def process_request(request : HTTP::Request)
   when .is_a?(Slack::UrlVerificationEvent)
     json(event_payload.response.to_json)
   else
-    save_event!(event_payload.event, request.body.to_s)
     handle_event(event_payload.event)
   end
 end
