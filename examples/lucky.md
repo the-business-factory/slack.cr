@@ -11,13 +11,13 @@ class SlackEvent < BaseModel
 end
 ```
 
-```
+```crystal
 class SaveSlackEvent < SlackEvent::SaveOperation
   permit_columns data
 end
 ```
 
-```
+```crystal
 abstract class WebhookAction < Lucky::Action
   disable_cookies
   accepted_formats [:json]
@@ -25,7 +25,7 @@ abstract class WebhookAction < Lucky::Action
 end
 ```
 
-```
+```crystal
 class Api::SlackEvents::Create < WebhookAction
   post "/api/slack_events" do
     event_payload = Slack.process_request(event)
