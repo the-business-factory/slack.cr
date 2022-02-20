@@ -8,9 +8,12 @@ class Slack::Events::Message < Slack::Event
 
   property attachments : Array(Attachment)?,
     blocks : Array(JSON::Any),
+    channel : String?,
     channel_type : String?,
-    team : String?,
-    text : String
+    client_msg_id : String,
+    team : String,
+    text : String,
+    user : String
 
   @[JSON::Field(converter: Slack::DecimalTimeStampConverter)]
   property ts : Time
