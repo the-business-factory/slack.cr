@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Crystal Docs 1.2.2">
+<meta name="crystal_docs.project_version" content="main">
+<meta name="crystal_docs.project_name" content="slack">
+
+
+
+<link href="../../css/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="../../js/doc.js"></script>
+
+  <meta name="repository-name" content="slack">
+  <title>Slack::Webhooks::Signature - slack main</title>
+  <script type="text/javascript">
+    CrystalDocs.base_path = "../../";
+  </script>
+</head>
+<body>
+
+<svg class="hidden">
+  <symbol id="octicon-link" viewBox="0 0 16 16">
+    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+  </symbol>
+</svg>
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="search-box">
+      <input type="search" class="search-input" placeholder="Search..." spellcheck="false" aria-label="Search">
+    </div>
+
+    <div class="project-summary">
+      <h1 class="project-name">
+        <a href="../../index.html">
+          slack
+        </a>
+      </h1>
+
+      <span class="project-version">
+        main
+      </span>
+    </div>
+  </div>
+
+  <div class="search-results hidden">
+    <ul class="search-list"></ul>
+  </div>
+
+  <div class="types-list">
+    <ul>
+  
+  <li class="parent open current" data-id="slack/Slack" data-name="slack">
+      <a href="../../Slack.html">Slack</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/DecimalTimeStampConverter" data-name="slack::decimaltimestampconverter">
+      <a href="../../Slack/DecimalTimeStampConverter.html">DecimalTimeStampConverter</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Event" data-name="slack::event">
+      <a href="../../Slack/Event.html">Event</a>
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/Events" data-name="slack::events">
+      <a href="../../Slack/Events.html">Events</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/Events/AppHomeOpened" data-name="slack::events::apphomeopened">
+      <a href="../../Slack/Events/AppHomeOpened.html">AppHomeOpened</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Events/AppUninstalled" data-name="slack::events::appuninstalled">
+      <a href="../../Slack/Events/AppUninstalled.html">AppUninstalled</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Events/Attachment" data-name="slack::events::attachment">
+      <a href="../../Slack/Events/Attachment.html">Attachment</a>
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/Events/Message" data-name="slack::events::message">
+      <a href="../../Slack/Events/Message.html">Message</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/Events/Message/BotAdd" data-name="slack::events::message::botadd">
+      <a href="../../Slack/Events/Message/BotAdd.html">BotAdd</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Events/Message/ChannelJoin" data-name="slack::events::message::channeljoin">
+      <a href="../../Slack/Events/Message/ChannelJoin.html">ChannelJoin</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Events/Message/MessageChanged" data-name="slack::events::message::messagechanged">
+      <a href="../../Slack/Events/Message/MessageChanged.html">MessageChanged</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Events/Message/MessageDeleted" data-name="slack::events::message::messagedeleted">
+      <a href="../../Slack/Events/Message/MessageDeleted.html">MessageDeleted</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Events/MessageSubtype" data-name="slack::events::messagesubtype">
+      <a href="../../Slack/Events/MessageSubtype.html">MessageSubtype</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Events/ReactionAdded" data-name="slack::events::reactionadded">
+      <a href="../../Slack/Events/ReactionAdded.html">ReactionAdded</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Events/ReactionRemoved" data-name="slack::events::reactionremoved">
+      <a href="../../Slack/Events/ReactionRemoved.html">ReactionRemoved</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Events/TokensRevoked" data-name="slack::events::tokensrevoked">
+      <a href="../../Slack/Events/TokensRevoked.html">TokensRevoked</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/HabitatSettings" data-name="slack::habitatsettings">
+      <a href="../../Slack/HabitatSettings.html">HabitatSettings</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/SerializableEvent" data-name="slack::serializableevent">
+      <a href="../../Slack/SerializableEvent.html">SerializableEvent</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/UrlVerificationEvent" data-name="slack::urlverificationevent">
+      <a href="../../Slack/UrlVerificationEvent.html">UrlVerificationEvent</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/VerifiedEvent" data-name="slack::verifiedevent">
+      <a href="../../Slack/VerifiedEvent.html">VerifiedEvent</a>
+      
+    </li>
+  
+  <li class="parent open current" data-id="slack/Slack/Webhooks" data-name="slack::webhooks">
+      <a href="../../Slack/Webhooks.html">Webhooks</a>
+      
+        <ul>
+  
+  <li class=" current" data-id="slack/Slack/Webhooks/Signature" data-name="slack::webhooks::signature">
+      <a href="../../Slack/Webhooks/Signature.html">Signature</a>
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/Webhooks/VerifiedRequest" data-name="slack::webhooks::verifiedrequest">
+      <a href="../../Slack/Webhooks/VerifiedRequest.html">VerifiedRequest</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/Webhooks/VerifiedRequest/ReplayAttackError" data-name="slack::webhooks::verifiedrequest::replayattackerror">
+      <a href="../../Slack/Webhooks/VerifiedRequest/ReplayAttackError.html">ReplayAttackError</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Webhooks/VerifiedRequest/SignatureMismatchError" data-name="slack::webhooks::verifiedrequest::signaturemismatcherror">
+      <a href="../../Slack/Webhooks/VerifiedRequest/SignatureMismatchError.html">SignatureMismatchError</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+</ul>
+
+  </div>
+</div>
+
+
+<div class="main-content">
+<h1 class="type-name">
+
+  <span class="kind">class</span> Slack::Webhooks::Signature
+
+</h1>
+
+
+  <ul class="superclass-hierarchy"><li class="superclass"><a href="../../Slack/Webhooks/Signature.html">Slack::Webhooks::Signature</a></li><li class="superclass">Reference</li><li class="superclass">Object</li></ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <h2>
+    <a id="defined-in" class="anchor" href="#defined-in">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Defined in:
+  </h2>
+  
+    
+      <a href="https://github.com/the-business-factory/slack.cr/blob/b268d8b268e8f9da78ae66a09828eddcab5c75bc/src/slack/webhooks/signature.cr#L3" target="_blank">
+        slack/webhooks/signature.cr
+      </a>
+    
+    <br/>
+  
+
+
+
+
+
+  <h2>
+    <a id="constructors" class="anchor" href="#constructors">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Constructors
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#new%28slack_timestamp%3AString%2Cbody%3AString%29-class-method" class="signature"><strong>.new</strong>(slack_timestamp : String, body : String)</a>
+        
+      </li>
+    
+  </ul>
+
+
+
+
+
+  <h2>
+    <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#basestring%3AString-instance-method" class="signature"><strong>#basestring</strong> : String</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#compute-instance-method" class="signature"><strong>#compute</strong></a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#signing_secret%28%2Aargs%2C%2A%2Aoptions%29-instance-method" class="signature"><strong>#signing_secret</strong>(*args, **options)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#signing_secret%28%2Aargs%2C%2A%2Aoptions%2C%26%29-instance-method" class="signature"><strong>#signing_secret</strong>(*args, **options, &)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#signing_secret_version%28%2Aargs%2C%2A%2Aoptions%29-instance-method" class="signature"><strong>#signing_secret_version</strong>(*args, **options)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#signing_secret_version%28%2Aargs%2C%2A%2Aoptions%2C%26%29-instance-method" class="signature"><strong>#signing_secret_version</strong>(*args, **options, &)</a>
+        
+      </li>
+    
+  </ul>
+
+
+
+
+
+<div class="methods-inherited">
+  
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+  
+</div>
+
+
+  <h2>
+    <a id="constructor-detail" class="anchor" href="#constructor-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Constructor Detail
+  </h2>
+  
+    <div class="entry-detail" id="new(slack_timestamp:String,body:String)-class-method">
+      <div class="signature">
+        
+        def self.<strong>new</strong>(slack_timestamp : String, body : String)
+
+        <a class="method-permalink" href="#new%28slack_timestamp%3AString%2Cbody%3AString%29-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/b268d8b268e8f9da78ae66a09828eddcab5c75bc/src/slack/webhooks/signature.cr#L7" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+
+
+
+  <h2>
+    <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Detail
+  </h2>
+  
+    <div class="entry-detail" id="basestring:String-instance-method">
+      <div class="signature">
+        
+        def <strong>basestring</strong> : String
+
+        <a class="method-permalink" href="#basestring%3AString-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/b268d8b268e8f9da78ae66a09828eddcab5c75bc/src/slack/webhooks/signature.cr#L10" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="compute-instance-method">
+      <div class="signature">
+        
+        def <strong>compute</strong>
+
+        <a class="method-permalink" href="#compute-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/b268d8b268e8f9da78ae66a09828eddcab5c75bc/src/slack/webhooks/signature.cr#L14" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="signing_secret(*args,**options)-instance-method">
+      <div class="signature">
+        
+        def <strong>signing_secret</strong>(*args, **options)
+
+        <a class="method-permalink" href="#signing_secret%28%2Aargs%2C%2A%2Aoptions%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/b268d8b268e8f9da78ae66a09828eddcab5c75bc/src/slack/webhooks/signature.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="signing_secret(*args,**options,&amp;)-instance-method">
+      <div class="signature">
+        
+        def <strong>signing_secret</strong>(*args, **options, &)
+
+        <a class="method-permalink" href="#signing_secret%28%2Aargs%2C%2A%2Aoptions%2C%26%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/b268d8b268e8f9da78ae66a09828eddcab5c75bc/src/slack/webhooks/signature.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="signing_secret_version(*args,**options)-instance-method">
+      <div class="signature">
+        
+        def <strong>signing_secret_version</strong>(*args, **options)
+
+        <a class="method-permalink" href="#signing_secret_version%28%2Aargs%2C%2A%2Aoptions%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/b268d8b268e8f9da78ae66a09828eddcab5c75bc/src/slack/webhooks/signature.cr#L5" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="signing_secret_version(*args,**options,&amp;)-instance-method">
+      <div class="signature">
+        
+        def <strong>signing_secret_version</strong>(*args, **options, &)
+
+        <a class="method-permalink" href="#signing_secret_version%28%2Aargs%2C%2A%2Aoptions%2C%26%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/b268d8b268e8f9da78ae66a09828eddcab5c75bc/src/slack/webhooks/signature.cr#L5" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+
+
+</div>
+
+</body>
+</html>

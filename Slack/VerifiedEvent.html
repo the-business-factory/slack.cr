@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Crystal Docs 1.2.2">
+<meta name="crystal_docs.project_version" content="main">
+<meta name="crystal_docs.project_name" content="slack">
+
+
+
+<link href="../css/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="../js/doc.js"></script>
+
+  <meta name="repository-name" content="slack">
+  <title>Slack::VerifiedEvent - slack main</title>
+  <script type="text/javascript">
+    CrystalDocs.base_path = "../";
+  </script>
+</head>
+<body>
+
+<svg class="hidden">
+  <symbol id="octicon-link" viewBox="0 0 16 16">
+    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+  </symbol>
+</svg>
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="search-box">
+      <input type="search" class="search-input" placeholder="Search..." spellcheck="false" aria-label="Search">
+    </div>
+
+    <div class="project-summary">
+      <h1 class="project-name">
+        <a href="../index.html">
+          slack
+        </a>
+      </h1>
+
+      <span class="project-version">
+        main
+      </span>
+    </div>
+  </div>
+
+  <div class="search-results hidden">
+    <ul class="search-list"></ul>
+  </div>
+
+  <div class="types-list">
+    <ul>
+  
+  <li class="parent open current" data-id="slack/Slack" data-name="slack">
+      <a href="../Slack.html">Slack</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/DecimalTimeStampConverter" data-name="slack::decimaltimestampconverter">
+      <a href="../Slack/DecimalTimeStampConverter.html">DecimalTimeStampConverter</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Event" data-name="slack::event">
+      <a href="../Slack/Event.html">Event</a>
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/Events" data-name="slack::events">
+      <a href="../Slack/Events.html">Events</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/Events/AppHomeOpened" data-name="slack::events::apphomeopened">
+      <a href="../Slack/Events/AppHomeOpened.html">AppHomeOpened</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Events/AppUninstalled" data-name="slack::events::appuninstalled">
+      <a href="../Slack/Events/AppUninstalled.html">AppUninstalled</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Events/Attachment" data-name="slack::events::attachment">
+      <a href="../Slack/Events/Attachment.html">Attachment</a>
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/Events/Message" data-name="slack::events::message">
+      <a href="../Slack/Events/Message.html">Message</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/Events/Message/BotAdd" data-name="slack::events::message::botadd">
+      <a href="../Slack/Events/Message/BotAdd.html">BotAdd</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Events/Message/ChannelJoin" data-name="slack::events::message::channeljoin">
+      <a href="../Slack/Events/Message/ChannelJoin.html">ChannelJoin</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Events/Message/MessageChanged" data-name="slack::events::message::messagechanged">
+      <a href="../Slack/Events/Message/MessageChanged.html">MessageChanged</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Events/Message/MessageDeleted" data-name="slack::events::message::messagedeleted">
+      <a href="../Slack/Events/Message/MessageDeleted.html">MessageDeleted</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Events/MessageSubtype" data-name="slack::events::messagesubtype">
+      <a href="../Slack/Events/MessageSubtype.html">MessageSubtype</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Events/ReactionAdded" data-name="slack::events::reactionadded">
+      <a href="../Slack/Events/ReactionAdded.html">ReactionAdded</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Events/ReactionRemoved" data-name="slack::events::reactionremoved">
+      <a href="../Slack/Events/ReactionRemoved.html">ReactionRemoved</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Events/TokensRevoked" data-name="slack::events::tokensrevoked">
+      <a href="../Slack/Events/TokensRevoked.html">TokensRevoked</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/HabitatSettings" data-name="slack::habitatsettings">
+      <a href="../Slack/HabitatSettings.html">HabitatSettings</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/SerializableEvent" data-name="slack::serializableevent">
+      <a href="../Slack/SerializableEvent.html">SerializableEvent</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/UrlVerificationEvent" data-name="slack::urlverificationevent">
+      <a href="../Slack/UrlVerificationEvent.html">UrlVerificationEvent</a>
+      
+    </li>
+  
+  <li class=" current" data-id="slack/Slack/VerifiedEvent" data-name="slack::verifiedevent">
+      <a href="../Slack/VerifiedEvent.html">VerifiedEvent</a>
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/Webhooks" data-name="slack::webhooks">
+      <a href="../Slack/Webhooks.html">Webhooks</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/Webhooks/Signature" data-name="slack::webhooks::signature">
+      <a href="../Slack/Webhooks/Signature.html">Signature</a>
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/Webhooks/VerifiedRequest" data-name="slack::webhooks::verifiedrequest">
+      <a href="../Slack/Webhooks/VerifiedRequest.html">VerifiedRequest</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/Webhooks/VerifiedRequest/ReplayAttackError" data-name="slack::webhooks::verifiedrequest::replayattackerror">
+      <a href="../Slack/Webhooks/VerifiedRequest/ReplayAttackError.html">ReplayAttackError</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Webhooks/VerifiedRequest/SignatureMismatchError" data-name="slack::webhooks::verifiedrequest::signaturemismatcherror">
+      <a href="../Slack/Webhooks/VerifiedRequest/SignatureMismatchError.html">SignatureMismatchError</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+</ul>
+
+  </div>
+</div>
+
+
+<div class="main-content">
+<h1 class="type-name">
+
+  <span class="kind">class</span> Slack::VerifiedEvent
+
+</h1>
+
+
+  <ul class="superclass-hierarchy"><li class="superclass"><a href="../Slack/VerifiedEvent.html">Slack::VerifiedEvent</a></li><li class="superclass">Reference</li><li class="superclass">Object</li></ul>
+
+
+
+
+
+
+
+
+  <h2>
+    <a id="included-modules" class="anchor" href="#included-modules">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Included Modules
+  </h2>
+  <ul class="other-types-list">
+    
+      <li class="other-type">JSON::Serializable</li>
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+  <h2>
+    <a id="defined-in" class="anchor" href="#defined-in">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Defined in:
+  </h2>
+  
+    
+      <a href="https://github.com/the-business-factory/slack.cr/blob/b268d8b268e8f9da78ae66a09828eddcab5c75bc/src/slack/verified_event.cr#L1" target="_blank">
+        slack/verified_event.cr
+      </a>
+    
+    <br/>
+  
+
+
+
+
+
+  <h2>
+    <a id="constructors" class="anchor" href="#constructors">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Constructors
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#new%28pull%3AJSON%3A%3APullParser%29-class-method" class="signature"><strong>.new</strong>(pull : JSON::PullParser)</a>
+        
+      </li>
+    
+  </ul>
+
+
+
+
+
+  <h2>
+    <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#api_app_id%3AString-instance-method" class="signature"><strong>#api_app_id</strong> : String</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#api_app_id%3D%28api_app_id%3AString%29-instance-method" class="signature"><strong>#api_app_id=</strong>(api_app_id : String)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#authorizations%3AArray%28JSON%3A%3AAny%29%3F-instance-method" class="signature"><strong>#authorizations</strong> : Array(JSON::Any)?</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#authorizations%3D%28authorizations%3AArray%28JSON%3A%3AAny%29%3F%29-instance-method" class="signature"><strong>#authorizations=</strong>(authorizations : Array(JSON::Any)?)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#event%3ASlack%3A%3AEvent-instance-method" class="signature"><strong>#event</strong> : Slack::Event</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#event%3D%28event%3ASlack%3A%3AEvent%29-instance-method" class="signature"><strong>#event=</strong>(event : Slack::Event)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#event_context%3AString%3F-instance-method" class="signature"><strong>#event_context</strong> : String?</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#event_context%3D%28event_context%3AString%3F%29-instance-method" class="signature"><strong>#event_context=</strong>(event_context : String?)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#event_id%3AString-instance-method" class="signature"><strong>#event_id</strong> : String</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#event_id%3D%28event_id%3AString%29-instance-method" class="signature"><strong>#event_id=</strong>(event_id : String)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#event_time%3ATime-instance-method" class="signature"><strong>#event_time</strong> : Time</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#event_time%3D%28event_time%3ATime%29-instance-method" class="signature"><strong>#event_time=</strong>(event_time : Time)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#team_id%3AString-instance-method" class="signature"><strong>#team_id</strong> : String</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#team_id%3D%28team_id%3AString%29-instance-method" class="signature"><strong>#team_id=</strong>(team_id : String)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#token%3AString-instance-method" class="signature"><strong>#token</strong> : String</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#token%3D%28token%3AString%29-instance-method" class="signature"><strong>#token=</strong>(token : String)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#type%3AString-instance-method" class="signature"><strong>#type</strong> : String</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#type%3D%28type%3AString%29-instance-method" class="signature"><strong>#type=</strong>(type : String)</a>
+        
+      </li>
+    
+  </ul>
+
+
+
+
+
+<div class="methods-inherited">
+  
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+  
+</div>
+
+
+  <h2>
+    <a id="constructor-detail" class="anchor" href="#constructor-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Constructor Detail
+  </h2>
+  
+    <div class="entry-detail" id="new(pull:JSON::PullParser)-class-method">
+      <div class="signature">
+        
+        def self.<strong>new</strong>(pull : JSON::PullParser)
+
+        <a class="method-permalink" href="#new%28pull%3AJSON%3A%3APullParser%29-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/b268d8b268e8f9da78ae66a09828eddcab5c75bc/src/slack/verified_event.cr#L2" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+
+
+
+  <h2>
+    <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Detail
+  </h2>
+  
+    <div class="entry-detail" id="api_app_id:String-instance-method">
+      <div class="signature">
+        
+        def <strong>api_app_id</strong> : String
+
+        <a class="method-permalink" href="#api_app_id%3AString-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/b268d8b268e8f9da78ae66a09828eddcab5c75bc/src/slack/verified_event.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="api_app_id=(api_app_id:String)-instance-method">
+      <div class="signature">
+        
+        def <strong>api_app_id=</strong>(api_app_id : String)
+
+        <a class="method-permalink" href="#api_app_id%3D%28api_app_id%3AString%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/b268d8b268e8f9da78ae66a09828eddcab5c75bc/src/slack/verified_event.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="authorizations:Array(JSON::Any)?-instance-method">
+      <div class="signature">
+        
+        def <strong>authorizations</strong> : Array(JSON::Any)?
+
+        <a class="method-permalink" href="#authorizations%3AArray%28JSON%3A%3AAny%29%3F-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/b268d8b268e8f9da78ae66a09828eddcab5c75bc/src/slack/verified_event.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="authorizations=(authorizations:Array(JSON::Any)?)-instance-method">
+      <div class="signature">
+        
+        def <strong>authorizations=</strong>(authorizations : Array(JSON::Any)?)
+
+        <a class="method-permalink" href="#authorizations%3D%28authorizations%3AArray%28JSON%3A%3AAny%29%3F%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/b268d8b268e8f9da78ae66a09828eddcab5c75bc/src/slack/verified_event.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="event:Slack::Event-instance-method">
+      <div class="signature">
+        
+        def <strong>event</strong> : <a href="../Slack/Event.html">Slack::Event</a>
+
+        <a class="method-permalink" href="#event%3ASlack%3A%3AEvent-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/b268d8b268e8f9da78ae66a09828eddcab5c75bc/src/slack/verified_event.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="event=(event:Slack::Event)-instance-method">
+      <div class="signature">
+        
+        def <strong>event=</strong>(event : <a href="../Slack/Event.html">Slack::Event</a>)
+
+        <a class="method-permalink" href="#event%3D%28event%3ASlack%3A%3AEvent%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/b268d8b268e8f9da78ae66a09828eddcab5c75bc/src/slack/verified_event.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="event_context:String?-instance-method">
+      <div class="signature">
+        
+        def <strong>event_context</strong> : String?
+
+        <a class="method-permalink" href="#event_context%3AString%3F-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/b268d8b268e8f9da78ae66a09828eddcab5c75bc/src/slack/verified_event.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="event_context=(event_context:String?)-instance-method">
+      <div class="signature">
+        
+        def <strong>event_context=</strong>(event_context : String?)
+
+        <a class="method-permalink" href="#event_context%3D%28event_context%3AString%3F%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/b268d8b268e8f9da78ae66a09828eddcab5c75bc/src/slack/verified_event.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="event_id:String-instance-method">
+      <div class="signature">
+        
+        def <strong>event_id</strong> : String
+
+        <a class="method-permalink" href="#event_id%3AString-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/b268d8b268e8f9da78ae66a09828eddcab5c75bc/src/slack/verified_event.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="event_id=(event_id:String)-instance-method">
+      <div class="signature">
+        
+        def <strong>event_id=</strong>(event_id : String)
+
+        <a class="method-permalink" href="#event_id%3D%28event_id%3AString%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/b268d8b268e8f9da78ae66a09828eddcab5c75bc/src/slack/verified_event.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="event_time:Time-instance-method">
+      <div class="signature">
+        
+        def <strong>event_time</strong> : Time
+
+        <a class="method-permalink" href="#event_time%3ATime-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/b268d8b268e8f9da78ae66a09828eddcab5c75bc/src/slack/verified_event.cr#L14" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="event_time=(event_time:Time)-instance-method">
+      <div class="signature">
+        
+        def <strong>event_time=</strong>(event_time : Time)
+
+        <a class="method-permalink" href="#event_time%3D%28event_time%3ATime%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/b268d8b268e8f9da78ae66a09828eddcab5c75bc/src/slack/verified_event.cr#L14" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="team_id:String-instance-method">
+      <div class="signature">
+        
+        def <strong>team_id</strong> : String
+
+        <a class="method-permalink" href="#team_id%3AString-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/b268d8b268e8f9da78ae66a09828eddcab5c75bc/src/slack/verified_event.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="team_id=(team_id:String)-instance-method">
+      <div class="signature">
+        
+        def <strong>team_id=</strong>(team_id : String)
+
+        <a class="method-permalink" href="#team_id%3D%28team_id%3AString%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/b268d8b268e8f9da78ae66a09828eddcab5c75bc/src/slack/verified_event.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="token:String-instance-method">
+      <div class="signature">
+        
+        def <strong>token</strong> : String
+
+        <a class="method-permalink" href="#token%3AString-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/b268d8b268e8f9da78ae66a09828eddcab5c75bc/src/slack/verified_event.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="token=(token:String)-instance-method">
+      <div class="signature">
+        
+        def <strong>token=</strong>(token : String)
+
+        <a class="method-permalink" href="#token%3D%28token%3AString%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/b268d8b268e8f9da78ae66a09828eddcab5c75bc/src/slack/verified_event.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="type:String-instance-method">
+      <div class="signature">
+        
+        def <strong>type</strong> : String
+
+        <a class="method-permalink" href="#type%3AString-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/b268d8b268e8f9da78ae66a09828eddcab5c75bc/src/slack/verified_event.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="type=(type:String)-instance-method">
+      <div class="signature">
+        
+        def <strong>type=</strong>(type : String)
+
+        <a class="method-permalink" href="#type%3D%28type%3AString%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/b268d8b268e8f9da78ae66a09828eddcab5c75bc/src/slack/verified_event.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+
+
+</div>
+
+</body>
+</html>
