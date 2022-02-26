@@ -35,7 +35,7 @@ require "slack"
 def process_request(request : HTTP::Request)
   event_payload = Slack.process_request(event)
   case event_payload
-  when .is_a?(Slack::UrlVerificationEvent)
+  when .is_a?(Slack::UrlVerification)
     json(event_payload.response.to_json)
   else
     handle_event(event_payload.event)

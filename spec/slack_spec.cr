@@ -206,7 +206,7 @@ describe Slack do
 
   it "should handle url verification events" do
     request = build_request("url_verification")
-    event = Slack.process_request(request).as(Slack::UrlVerificationEvent)
+    event = Slack.process_request(request).as(Slack::UrlVerification)
     expected_json = {
       "challenge" => "3eZbrw1aBm2rZgRNFdxV2595E9CY3gmdALWMmHkvFXO7tYXAYM8P",
     }.to_json

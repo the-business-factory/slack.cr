@@ -30,7 +30,7 @@ class Api::SlackEvents::Create < WebhookAction
   post "/api/slack_events" do
     event_payload = Slack.process_request(event)
     case event_payload
-    when .is_a?(Slack::UrlVerificationEvent)
+    when .is_a?(Slack::UrlVerification)
       json(event_payload.response.to_json)
     else
       save_event!(event_payload.event, request.body.to_s)
