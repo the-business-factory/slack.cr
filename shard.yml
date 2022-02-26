@@ -8,6 +8,10 @@ crystal: 1.3.2
 
 license: MIT
 
+targets:
+  slack:
+    main: src/slack.cr
+
 dependencies:
   habitat:
     git: https://github.com/luckyframework/habitat.git

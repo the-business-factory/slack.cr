@@ -1,4 +1,4 @@
-class Slack::UrlVerificationEvent
+class Slack::UrlVerification
   include JSON::Serializable
 
   property challenge : String, token : String, type : String

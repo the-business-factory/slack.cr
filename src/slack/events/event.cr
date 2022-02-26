@@ -1,5 +1,3 @@
-require "./serializable_event.cr"
-
 class Slack::Event
   include JSON::Serializable
   include Slack::SerializableEvent
