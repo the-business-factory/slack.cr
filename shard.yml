@@ -22,3 +22,5 @@ development_dependencies:
     version: ~> 0.14.3
   lucky_env:
     github: luckyframework/lucky_env
+  vcr:
+    github: spoved/vcr.cr

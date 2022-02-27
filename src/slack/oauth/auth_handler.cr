@@ -2,12 +2,17 @@
 class Slack::AuthHandler
   delegate client_id, client_secret, to: Slack.settings
 
+  property http_client
+
+  def initialize(@http_client : HTTP::Client.class = HTTP::Client)
+  end
+
   Habitat.create do
     setting oauth_redirect_url : String = ENV["OAUTH_REDIRECT_URL"]
   end
 
-  def self.run(request : HTTP::Request)
-    new.authenticate_user(request)
+  def self.run(request : HTTP::Request, http_client = HTTP::Client)
+    new(http_client).authenticate_user(request)
   end
 
   def redirect_url
@@ -18,7 +23,7 @@ class Slack::AuthHandler
     code = request.query_params["code"]
     headers = HTTP::Headers.new
     headers["Content-Type"] = "application/x-www-form-urlencoded"
-    response = HTTP::Client.post(
+    response = http_client.post(
       url: "https://slack.com/api/oauth.v2.access",
       headers: headers,
       form: URI::Params.encode({
@@ -33,6 +38,6 @@ class Slack::AuthHandler
   end
 
   private def scope
-    Slack.app_scopes.join(",")
+    Slack.settings.app_scopes.join(",")
   end
 end
