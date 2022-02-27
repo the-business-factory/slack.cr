@@ -1,6 +1,2 @@
-# {
-#     "ok": false,
-#     "error": "invalid_client_id"
-# }
-struct Slack::Auth::Error
+class Slack::Auth::Error < Exception
 end

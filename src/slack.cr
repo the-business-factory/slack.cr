@@ -2,6 +2,7 @@ require "habitat"
 require "http"
 require "json"
 require "./slack/mixins/**"
+require "./slack/api/**"
 require "./slack/events/**"
 
 module Slack
