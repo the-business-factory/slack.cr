@@ -13,7 +13,7 @@
 <script type="text/javascript" src="../js/doc.js"></script>
 
   <meta name="repository-name" content="slack">
-  <title>Slack::HabitatSettings - slack main</title>
+  <title>Slack::AuthHandler - slack main</title>
   <script type="text/javascript">
     CrystalDocs.base_path = "../";
   </script>
@@ -136,7 +136,7 @@
       
     </li>
   
-  <li class="parent " data-id="slack/Slack/AuthHandler" data-name="slack::authhandler">
+  <li class="parent open current" data-id="slack/Slack/AuthHandler" data-name="slack::authhandler">
       <a href="../Slack/AuthHandler.html">AuthHandler</a>
       
         <ul>
@@ -241,7 +241,7 @@
       
     </li>
   
-  <li class=" current" data-id="slack/Slack/HabitatSettings" data-name="slack::habitatsettings">
+  <li class=" " data-id="slack/Slack/HabitatSettings" data-name="slack::habitatsettings">
       <a href="../Slack/HabitatSettings.html">HabitatSettings</a>
       
     </li>
@@ -310,19 +310,46 @@
 <div class="main-content">
 <h1 class="type-name">
 
-  <span class="kind">class</span> Slack::HabitatSettings
+  <span class="kind">class</span> Slack::AuthHandler
 
 </h1>
 
 
-  <ul class="superclass-hierarchy"><li class="superclass"><a href="../Slack/HabitatSettings.html">Slack::HabitatSettings</a></li><li class="superclass">Reference</li><li class="superclass">Object</li></ul>
+  <ul class="superclass-hierarchy"><li class="superclass"><a href="../Slack/AuthHandler.html">Slack::AuthHandler</a></li><li class="superclass">Reference</li><li class="superclass">Object</li></ul>
+
+
+
+
+  <h2>
+    <a id="overview" class="anchor" href="#overview">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Overview
+  </h2>
+
+  <p>https://api.slack.com/authentication/oauth-v2</p>
 
 
 
 
 
-
-
+  <h2>
+    <a id="included-modules" class="anchor" href="#included-modules">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Included Modules
+  </h2>
+  <ul class="other-types-list">
+    
+      <li class="other-type">Habitat::SettingsHelpers</li>
+    
+      <li class="other-type">Habitat::TempConfig</li>
+    
+  </ul>
 
 
 
@@ -343,8 +370,8 @@
   </h2>
   
     
-      <a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack.cr#L9" target="_blank">
-        slack.cr
+      <a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/oauth/auth_handler.cr#L2" target="_blank">
+        slack/oauth/auth_handler.cr
       </a>
     
     <br/>
@@ -352,7 +379,43 @@
 
 
 
+  
+    <h2>
+      <a id="constant-summary" class="anchor" href="#constant-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+      Constant Summary
+    </h2>
+  
+  <dl>
+    
+      <dt class="entry-const" id="HABITAT_SETTINGS">
+        <strong>HABITAT_SETTINGS</strong> = <code>[{decl: oauth_redirect_url : <span class="t">String</span> <span class="o">=</span> <span class="t">ENV</span>[<span class="s">&quot;OAUTH_REDIRECT_URL&quot;</span>], example: <span class="n">nil</span>, validation: <span class="n">nil</span>}] <span class="k">of</span> <span class="t">Nil</span></code>
+      </dt>
+      
+    
+  </dl>
 
+
+
+  <h2>
+    <a id="constructors" class="anchor" href="#constructors">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Constructors
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#new%28http_client%3AHTTP%3A%3AClient.class%3DHTTP%3A%3AClient%29-class-method" class="signature"><strong>.new</strong>(http_client : <span class="t">HTTP</span><span class="t">::</span><span class="t">Client</span>.<span class="k">class</span> = <span class="t">HTTP</span><span class="t">::</span><span class="t">Client</span>)</a>
+        
+      </li>
+    
+  </ul>
 
 
 
@@ -367,117 +430,80 @@
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#app_scopes%3AArray%28String%29-class-method" class="signature"><strong>.app_scopes</strong> : Array(String)</a>
+        <a href="#configure%28%26%29-class-method" class="signature"><strong>.configure</strong>(&)</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#app_scopes%3D%28value%3AArray%28String%29%29-class-method" class="signature"><strong>.app_scopes=</strong>(value : Array(String))</a>
+        <a href="#run%28request%3AHTTP%3A%3ARequest%2Chttp_client%3DHTTP%3A%3AClient%29-class-method" class="signature"><strong>.run</strong>(request : HTTP::Request, http_client = <span class="t">HTTP</span><span class="t">::</span><span class="t">Client</span>)</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#app_scopes%3F-class-method" class="signature"><strong>.app_scopes?</strong></a>
-        
-          <div class="summary"><p>Used for checking missing settings on non-nilable types It's advised to use app_scopes in your apps to ensure the propper type is checked.</p></div>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#client_id%3AString-class-method" class="signature"><strong>.client_id</strong> : String</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#client_id%3D%28value%3AString%29-class-method" class="signature"><strong>.client_id=</strong>(value : String)</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#client_id%3F-class-method" class="signature"><strong>.client_id?</strong></a>
-        
-          <div class="summary"><p>Used for checking missing settings on non-nilable types It's advised to use client_id in your apps to ensure the propper type is checked.</p></div>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#client_secret%3AString-class-method" class="signature"><strong>.client_secret</strong> : String</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#client_secret%3D%28value%3AString%29-class-method" class="signature"><strong>.client_secret=</strong>(value : String)</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#client_secret%3F-class-method" class="signature"><strong>.client_secret?</strong></a>
-        
-          <div class="summary"><p>Used for checking missing settings on non-nilable types It's advised to use client_secret in your apps to ensure the propper type is checked.</p></div>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#signing_secret%3AString-class-method" class="signature"><strong>.signing_secret</strong> : String</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#signing_secret%3D%28value%3AString%29-class-method" class="signature"><strong>.signing_secret=</strong>(value : String)</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#signing_secret%3F-class-method" class="signature"><strong>.signing_secret?</strong></a>
-        
-          <div class="summary"><p>Used for checking missing settings on non-nilable types It's advised to use signing_secret in your apps to ensure the propper type is checked.</p></div>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#signing_secret_version%3AString-class-method" class="signature"><strong>.signing_secret_version</strong> : String</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#signing_secret_version%3D%28value%3AString%29-class-method" class="signature"><strong>.signing_secret_version=</strong>(value : String)</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#signing_secret_version%3F-class-method" class="signature"><strong>.signing_secret_version?</strong></a>
-        
-          <div class="summary"><p>Used for checking missing settings on non-nilable types It's advised to use signing_secret_version in your apps to ensure the propper type is checked.</p></div>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#to_h-class-method" class="signature"><strong>.to_h</strong></a>
-        
-          <div class="summary"><p>Generates a hash using the provided values</p></div>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#webhook_delivery_time_limit%3ATime%3A%3ASpan-class-method" class="signature"><strong>.webhook_delivery_time_limit</strong> : Time::Span</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#webhook_delivery_time_limit%3D%28value%3ATime%3A%3ASpan%29-class-method" class="signature"><strong>.webhook_delivery_time_limit=</strong>(value : Time::Span)</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#webhook_delivery_time_limit%3F-class-method" class="signature"><strong>.webhook_delivery_time_limit?</strong></a>
-        
-          <div class="summary"><p>Used for checking missing settings on non-nilable types It's advised to use webhook_delivery_time_limit in your apps to ensure the propper type is checked.</p></div>
+        <a href="#settings-class-method" class="signature"><strong>.settings</strong></a>
         
       </li>
     
   </ul>
 
 
+
+  <h2>
+    <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#authenticate_user%28request%3AHTTP%3A%3ARequest%29-instance-method" class="signature"><strong>#authenticate_user</strong>(request : HTTP::Request)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#client_id%28%2Aargs%2C%2A%2Aoptions%29-instance-method" class="signature"><strong>#client_id</strong>(*args, **options)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#client_id%28%2Aargs%2C%2A%2Aoptions%2C%26%29-instance-method" class="signature"><strong>#client_id</strong>(*args, **options, &)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#client_secret%28%2Aargs%2C%2A%2Aoptions%29-instance-method" class="signature"><strong>#client_secret</strong>(*args, **options)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#client_secret%28%2Aargs%2C%2A%2Aoptions%2C%26%29-instance-method" class="signature"><strong>#client_secret</strong>(*args, **options, &)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#http_client%3AHTTP%3A%3AClient.class-instance-method" class="signature"><strong>#http_client</strong> : HTTP::Client.class</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#http_client%3D%28http_client%29-instance-method" class="signature"><strong>#http_client=</strong>(http_client)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#redirect_url-instance-method" class="signature"><strong>#redirect_url</strong></a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#settings-instance-method" class="signature"><strong>#settings</strong></a>
+        
+      </li>
+    
+  </ul>
 
 
 
@@ -505,8 +531,54 @@
 
 
   
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+  
 </div>
 
+
+  <h2>
+    <a id="constructor-detail" class="anchor" href="#constructor-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Constructor Detail
+  </h2>
+  
+    <div class="entry-detail" id="new(http_client:HTTP::Client.class=HTTP::Client)-class-method">
+      <div class="signature">
+        
+        def self.<strong>new</strong>(http_client : <span class="t">HTTP</span><span class="t">::</span><span class="t">Client</span>.<span class="k">class</span> = <span class="t">HTTP</span><span class="t">::</span><span class="t">Client</span>)
+
+        <a class="method-permalink" href="#new%28http_client%3AHTTP%3A%3AClient.class%3DHTTP%3A%3AClient%29-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/oauth/auth_handler.cr#L7" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
 
 
 
@@ -519,321 +591,210 @@
     Class Method Detail
   </h2>
   
-    <div class="entry-detail" id="app_scopes:Array(String)-class-method">
+    <div class="entry-detail" id="configure(&amp;)-class-method">
       <div class="signature">
         
-        def self.<strong>app_scopes</strong> : Array(String)
+        def self.<strong>configure</strong>(&)
 
-        <a class="method-permalink" href="#app_scopes%3AArray%28String%29-class-method">#</a>
+        <a class="method-permalink" href="#configure%28%26%29-class-method">#</a>
       </div>
       
       <br/>
       <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/oauth/auth_handler.cr#L10" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="app_scopes=(value:Array(String))-class-method">
+    <div class="entry-detail" id="run(request:HTTP::Request,http_client=HTTP::Client)-class-method">
       <div class="signature">
         
-        def self.<strong>app_scopes=</strong>(value : Array(String))
+        def self.<strong>run</strong>(request : HTTP::Request, http_client = <span class="t">HTTP</span><span class="t">::</span><span class="t">Client</span>)
 
-        <a class="method-permalink" href="#app_scopes%3D%28value%3AArray%28String%29%29-class-method">#</a>
+        <a class="method-permalink" href="#run%28request%3AHTTP%3A%3ARequest%2Chttp_client%3DHTTP%3A%3AClient%29-class-method">#</a>
       </div>
       
       <br/>
       <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/oauth/auth_handler.cr#L14" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="app_scopes?-class-method">
+    <div class="entry-detail" id="settings-class-method">
       <div class="signature">
         
-        def self.<strong>app_scopes?</strong>
+        def self.<strong>settings</strong>
 
-        <a class="method-permalink" href="#app_scopes%3F-class-method">#</a>
-      </div>
-      
-        <div class="doc">
-          
-          <p>Used for checking missing settings on non-nilable types
-It's advised to use app_scopes in your apps to ensure
-the propper type is checked.</p>
-        </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="client_id:String-class-method">
-      <div class="signature">
-        
-        def self.<strong>client_id</strong> : String
-
-        <a class="method-permalink" href="#client_id%3AString-class-method">#</a>
+        <a class="method-permalink" href="#settings-class-method">#</a>
       </div>
       
       <br/>
       <div>
         
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="client_id=(value:String)-class-method">
-      <div class="signature">
-        
-        def self.<strong>client_id=</strong>(value : String)
-
-        <a class="method-permalink" href="#client_id%3D%28value%3AString%29-class-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="client_id?-class-method">
-      <div class="signature">
-        
-        def self.<strong>client_id?</strong>
-
-        <a class="method-permalink" href="#client_id%3F-class-method">#</a>
-      </div>
-      
-        <div class="doc">
-          
-          <p>Used for checking missing settings on non-nilable types
-It's advised to use client_id in your apps to ensure
-the propper type is checked.</p>
-        </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="client_secret:String-class-method">
-      <div class="signature">
-        
-        def self.<strong>client_secret</strong> : String
-
-        <a class="method-permalink" href="#client_secret%3AString-class-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="client_secret=(value:String)-class-method">
-      <div class="signature">
-        
-        def self.<strong>client_secret=</strong>(value : String)
-
-        <a class="method-permalink" href="#client_secret%3D%28value%3AString%29-class-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="client_secret?-class-method">
-      <div class="signature">
-        
-        def self.<strong>client_secret?</strong>
-
-        <a class="method-permalink" href="#client_secret%3F-class-method">#</a>
-      </div>
-      
-        <div class="doc">
-          
-          <p>Used for checking missing settings on non-nilable types
-It's advised to use client_secret in your apps to ensure
-the propper type is checked.</p>
-        </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="signing_secret:String-class-method">
-      <div class="signature">
-        
-        def self.<strong>signing_secret</strong> : String
-
-        <a class="method-permalink" href="#signing_secret%3AString-class-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="signing_secret=(value:String)-class-method">
-      <div class="signature">
-        
-        def self.<strong>signing_secret=</strong>(value : String)
-
-        <a class="method-permalink" href="#signing_secret%3D%28value%3AString%29-class-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="signing_secret?-class-method">
-      <div class="signature">
-        
-        def self.<strong>signing_secret?</strong>
-
-        <a class="method-permalink" href="#signing_secret%3F-class-method">#</a>
-      </div>
-      
-        <div class="doc">
-          
-          <p>Used for checking missing settings on non-nilable types
-It's advised to use signing_secret in your apps to ensure
-the propper type is checked.</p>
-        </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="signing_secret_version:String-class-method">
-      <div class="signature">
-        
-        def self.<strong>signing_secret_version</strong> : String
-
-        <a class="method-permalink" href="#signing_secret_version%3AString-class-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="signing_secret_version=(value:String)-class-method">
-      <div class="signature">
-        
-        def self.<strong>signing_secret_version=</strong>(value : String)
-
-        <a class="method-permalink" href="#signing_secret_version%3D%28value%3AString%29-class-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="signing_secret_version?-class-method">
-      <div class="signature">
-        
-        def self.<strong>signing_secret_version?</strong>
-
-        <a class="method-permalink" href="#signing_secret_version%3F-class-method">#</a>
-      </div>
-      
-        <div class="doc">
-          
-          <p>Used for checking missing settings on non-nilable types
-It's advised to use signing_secret_version in your apps to ensure
-the propper type is checked.</p>
-        </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="to_h-class-method">
-      <div class="signature">
-        
-        def self.<strong>to_h</strong>
-
-        <a class="method-permalink" href="#to_h-class-method">#</a>
-      </div>
-      
-        <div class="doc">
-          
-          <p>Generates a hash using the provided values</p>
-        </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="webhook_delivery_time_limit:Time::Span-class-method">
-      <div class="signature">
-        
-        def self.<strong>webhook_delivery_time_limit</strong> : Time::Span
-
-        <a class="method-permalink" href="#webhook_delivery_time_limit%3ATime%3A%3ASpan-class-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="webhook_delivery_time_limit=(value:Time::Span)-class-method">
-      <div class="signature">
-        
-        def self.<strong>webhook_delivery_time_limit=</strong>(value : Time::Span)
-
-        <a class="method-permalink" href="#webhook_delivery_time_limit%3D%28value%3ATime%3A%3ASpan%29-class-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="webhook_delivery_time_limit?-class-method">
-      <div class="signature">
-        
-        def self.<strong>webhook_delivery_time_limit?</strong>
-
-        <a class="method-permalink" href="#webhook_delivery_time_limit%3F-class-method">#</a>
-      </div>
-      
-        <div class="doc">
-          
-          <p>Used for checking missing settings on non-nilable types
-It's advised to use webhook_delivery_time_limit in your apps to ensure
-the propper type is checked.</p>
-        </div>
-      
-      <br/>
-      <div>
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/oauth/auth_handler.cr#L10" target="_blank">View source</a>]
         
       </div>
     </div>
   
 
 
+
+  <h2>
+    <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Detail
+  </h2>
+  
+    <div class="entry-detail" id="authenticate_user(request:HTTP::Request)-instance-method">
+      <div class="signature">
+        
+        def <strong>authenticate_user</strong>(request : HTTP::Request)
+
+        <a class="method-permalink" href="#authenticate_user%28request%3AHTTP%3A%3ARequest%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/oauth/auth_handler.cr#L22" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="client_id(*args,**options)-instance-method">
+      <div class="signature">
+        
+        def <strong>client_id</strong>(*args, **options)
+
+        <a class="method-permalink" href="#client_id%28%2Aargs%2C%2A%2Aoptions%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/oauth/auth_handler.cr#L3" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="client_id(*args,**options,&amp;)-instance-method">
+      <div class="signature">
+        
+        def <strong>client_id</strong>(*args, **options, &)
+
+        <a class="method-permalink" href="#client_id%28%2Aargs%2C%2A%2Aoptions%2C%26%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/oauth/auth_handler.cr#L3" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="client_secret(*args,**options)-instance-method">
+      <div class="signature">
+        
+        def <strong>client_secret</strong>(*args, **options)
+
+        <a class="method-permalink" href="#client_secret%28%2Aargs%2C%2A%2Aoptions%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/oauth/auth_handler.cr#L3" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="client_secret(*args,**options,&amp;)-instance-method">
+      <div class="signature">
+        
+        def <strong>client_secret</strong>(*args, **options, &)
+
+        <a class="method-permalink" href="#client_secret%28%2Aargs%2C%2A%2Aoptions%2C%26%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/oauth/auth_handler.cr#L3" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="http_client:HTTP::Client.class-instance-method">
+      <div class="signature">
+        
+        def <strong>http_client</strong> : HTTP::Client.class
+
+        <a class="method-permalink" href="#http_client%3AHTTP%3A%3AClient.class-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/oauth/auth_handler.cr#L5" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="http_client=(http_client)-instance-method">
+      <div class="signature">
+        
+        def <strong>http_client=</strong>(http_client)
+
+        <a class="method-permalink" href="#http_client%3D%28http_client%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/oauth/auth_handler.cr#L5" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="redirect_url-instance-method">
+      <div class="signature">
+        
+        def <strong>redirect_url</strong>
+
+        <a class="method-permalink" href="#redirect_url-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/oauth/auth_handler.cr#L18" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="settings-instance-method">
+      <div class="signature">
+        
+        def <strong>settings</strong>
+
+        <a class="method-permalink" href="#settings-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/oauth/auth_handler.cr#L10" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
 
 
 

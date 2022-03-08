@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Crystal Docs 1.2.2">
+<meta name="crystal_docs.project_version" content="main">
+<meta name="crystal_docs.project_name" content="slack">
+
+
+
+<link href="../../css/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="../../js/doc.js"></script>
+
+  <meta name="repository-name" content="slack">
+  <title>Slack::Api::Channel - slack main</title>
+  <script type="text/javascript">
+    CrystalDocs.base_path = "../../";
+  </script>
+</head>
+<body>
+
+<svg class="hidden">
+  <symbol id="octicon-link" viewBox="0 0 16 16">
+    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+  </symbol>
+</svg>
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="search-box">
+      <input type="search" class="search-input" placeholder="Search..." spellcheck="false" aria-label="Search">
+    </div>
+
+    <div class="project-summary">
+      <h1 class="project-name">
+        <a href="../../index.html">
+          slack
+        </a>
+      </h1>
+
+      <span class="project-version">
+        main
+      </span>
+    </div>
+  </div>
+
+  <div class="search-results hidden">
+    <ul class="search-list"></ul>
+  </div>
+
+  <div class="types-list">
+    <ul>
+  
+  <li class=" " data-id="slack/ContentTypes" data-name="contenttypes">
+      <a href="../../ContentTypes.html">ContentTypes</a>
+      
+    </li>
+  
+  <li class="parent open current" data-id="slack/Slack" data-name="slack">
+      <a href="../../Slack.html">Slack</a>
+      
+        <ul>
+  
+  <li class="parent open current" data-id="slack/Slack/Api" data-name="slack::api">
+      <a href="../../Slack/Api.html">Api</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/Api/Base" data-name="slack::api::base">
+      <a href="../../Slack/Api/Base.html">Base</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Api/BaseModel" data-name="slack::api::basemodel">
+      <a href="../../Slack/Api/BaseModel.html">BaseModel</a>
+      
+    </li>
+  
+  <li class=" current" data-id="slack/Slack/Api/Channel" data-name="slack::api::channel">
+      <a href="../../Slack/Api/Channel.html">Channel</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Api/ConversationsInfo" data-name="slack::api::conversationsinfo">
+      <a href="../../Slack/Api/ConversationsInfo.html">ConversationsInfo</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Api/Error" data-name="slack::api::error">
+      <a href="../../Slack/Api/Error.html">Error</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Api/Team" data-name="slack::api::team">
+      <a href="../../Slack/Api/Team.html">Team</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Api/TeamInfo" data-name="slack::api::teaminfo">
+      <a href="../../Slack/Api/TeamInfo.html">TeamInfo</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/Auth" data-name="slack::auth">
+      <a href="../../Slack/Auth.html">Auth</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/Auth/Enterprise" data-name="slack::auth::enterprise">
+      <a href="../../Slack/Auth/Enterprise.html">Enterprise</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Auth/Error" data-name="slack::auth::error">
+      <a href="../../Slack/Auth/Error.html">Error</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Auth/Team" data-name="slack::auth::team">
+      <a href="../../Slack/Auth/Team.html">Team</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Auth/User" data-name="slack::auth::user">
+      <a href="../../Slack/Auth/User.html">User</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/AuthHandler" data-name="slack::authhandler">
+      <a href="../../Slack/AuthHandler.html">AuthHandler</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/AuthHandler/HabitatSettings" data-name="slack::authhandler::habitatsettings">
+      <a href="../../Slack/AuthHandler/HabitatSettings.html">HabitatSettings</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/AuthResponse" data-name="slack::authresponse">
+      <a href="../../Slack/AuthResponse.html">AuthResponse</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/DecimalTimeStampConverter" data-name="slack::decimaltimestampconverter">
+      <a href="../../Slack/DecimalTimeStampConverter.html">DecimalTimeStampConverter</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Event" data-name="slack::event">
+      <a href="../../Slack/Event.html">Event</a>
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/Events" data-name="slack::events">
+      <a href="../../Slack/Events.html">Events</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/Events/AppHomeOpened" data-name="slack::events::apphomeopened">
+      <a href="../../Slack/Events/AppHomeOpened.html">AppHomeOpened</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Events/AppUninstalled" data-name="slack::events::appuninstalled">
+      <a href="../../Slack/Events/AppUninstalled.html">AppUninstalled</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Events/Attachment" data-name="slack::events::attachment">
+      <a href="../../Slack/Events/Attachment.html">Attachment</a>
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/Events/Message" data-name="slack::events::message">
+      <a href="../../Slack/Events/Message.html">Message</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/Events/Message/BotAdd" data-name="slack::events::message::botadd">
+      <a href="../../Slack/Events/Message/BotAdd.html">BotAdd</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Events/Message/ChannelJoin" data-name="slack::events::message::channeljoin">
+      <a href="../../Slack/Events/Message/ChannelJoin.html">ChannelJoin</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Events/Message/MessageChanged" data-name="slack::events::message::messagechanged">
+      <a href="../../Slack/Events/Message/MessageChanged.html">MessageChanged</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Events/Message/MessageDeleted" data-name="slack::events::message::messagedeleted">
+      <a href="../../Slack/Events/Message/MessageDeleted.html">MessageDeleted</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Events/MessageSubtype" data-name="slack::events::messagesubtype">
+      <a href="../../Slack/Events/MessageSubtype.html">MessageSubtype</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Events/ReactionAdded" data-name="slack::events::reactionadded">
+      <a href="../../Slack/Events/ReactionAdded.html">ReactionAdded</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Events/ReactionRemoved" data-name="slack::events::reactionremoved">
+      <a href="../../Slack/Events/ReactionRemoved.html">ReactionRemoved</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Events/TokensRevoked" data-name="slack::events::tokensrevoked">
+      <a href="../../Slack/Events/TokensRevoked.html">TokensRevoked</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/HabitatSettings" data-name="slack::habitatsettings">
+      <a href="../../Slack/HabitatSettings.html">HabitatSettings</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/SerializableEvent" data-name="slack::serializableevent">
+      <a href="../../Slack/SerializableEvent.html">SerializableEvent</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/UrlVerification" data-name="slack::urlverification">
+      <a href="../../Slack/UrlVerification.html">UrlVerification</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/VerifiedEvent" data-name="slack::verifiedevent">
+      <a href="../../Slack/VerifiedEvent.html">VerifiedEvent</a>
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/Webhooks" data-name="slack::webhooks">
+      <a href="../../Slack/Webhooks.html">Webhooks</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/Webhooks/Signature" data-name="slack::webhooks::signature">
+      <a href="../../Slack/Webhooks/Signature.html">Signature</a>
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/Webhooks/VerifiedRequest" data-name="slack::webhooks::verifiedrequest">
+      <a href="../../Slack/Webhooks/VerifiedRequest.html">VerifiedRequest</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/Webhooks/VerifiedRequest/ReplayAttackError" data-name="slack::webhooks::verifiedrequest::replayattackerror">
+      <a href="../../Slack/Webhooks/VerifiedRequest/ReplayAttackError.html">ReplayAttackError</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Webhooks/VerifiedRequest/SignatureMismatchError" data-name="slack::webhooks::verifiedrequest::signaturemismatcherror">
+      <a href="../../Slack/Webhooks/VerifiedRequest/SignatureMismatchError.html">SignatureMismatchError</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+</ul>
+
+  </div>
+</div>
+
+
+<div class="main-content">
+<h1 class="type-name">
+
+  <span class="kind">struct</span> Slack::Api::Channel
+
+</h1>
+
+
+  <ul class="superclass-hierarchy"><li class="superclass"><a href="../../Slack/Api/Channel.html">Slack::Api::Channel</a></li><li class="superclass"><a href="../../Slack/Api/BaseModel.html">Slack::Api::BaseModel</a></li><li class="superclass">Struct</li><li class="superclass">Value</li><li class="superclass">Object</li></ul>
+
+
+
+
+
+
+
+
+  <h2>
+    <a id="included-modules" class="anchor" href="#included-modules">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Included Modules
+  </h2>
+  <ul class="other-types-list">
+    
+      <li class="other-type">JSON::Serializable</li>
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+  <h2>
+    <a id="defined-in" class="anchor" href="#defined-in">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Defined in:
+  </h2>
+  
+    
+      <a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L1" target="_blank">
+        slack/api/models/channel.cr
+      </a>
+    
+    <br/>
+  
+
+
+
+
+
+  <h2>
+    <a id="constructors" class="anchor" href="#constructors">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Constructors
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#new%28pull%3AJSON%3A%3APullParser%29-class-method" class="signature"><strong>.new</strong>(pull : JSON::PullParser)</a>
+        
+      </li>
+    
+  </ul>
+
+
+
+  <h2>
+    <a id="class-method-summary" class="anchor" href="#class-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Class Method Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#from_json%28json%3AString%7CIO%29-class-method" class="signature"><strong>.from_json</strong>(json : String | IO)</a>
+        
+      </li>
+    
+  </ul>
+
+
+
+  <h2>
+    <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#created%3AInt32-instance-method" class="signature"><strong>#created</strong> : Int32</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#created%3D%28created%3AInt32%29-instance-method" class="signature"><strong>#created=</strong>(created : Int32)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#creator%3AString-instance-method" class="signature"><strong>#creator</strong> : String</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#creator%3D%28creator%3AString%29-instance-method" class="signature"><strong>#creator=</strong>(creator : String)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#id%3AString-instance-method" class="signature"><strong>#id</strong> : String</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#id%3D%28id%3AString%29-instance-method" class="signature"><strong>#id=</strong>(id : String)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#is_archived%3ABool-instance-method" class="signature"><strong>#is_archived</strong> : Bool</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#is_archived%3D%28is_archived%3ABool%29-instance-method" class="signature"><strong>#is_archived=</strong>(is_archived : Bool)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#is_changed%3ABool%3F-instance-method" class="signature"><strong>#is_changed</strong> : Bool?</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#is_changed%3D%28is_changed%3ABool%3F%29-instance-method" class="signature"><strong>#is_changed=</strong>(is_changed : Bool?)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#is_general%3ABool-instance-method" class="signature"><strong>#is_general</strong> : Bool</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#is_general%3D%28is_general%3ABool%29-instance-method" class="signature"><strong>#is_general=</strong>(is_general : Bool)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#is_member%3ABool-instance-method" class="signature"><strong>#is_member</strong> : Bool</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#is_member%3D%28is_member%3ABool%29-instance-method" class="signature"><strong>#is_member=</strong>(is_member : Bool)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#is_mpim%3ABool-instance-method" class="signature"><strong>#is_mpim</strong> : Bool</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#is_mpim%3D%28is_mpim%3ABool%29-instance-method" class="signature"><strong>#is_mpim=</strong>(is_mpim : Bool)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#is_org_shared%3ABool-instance-method" class="signature"><strong>#is_org_shared</strong> : Bool</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#is_org_shared%3D%28is_org_shared%3ABool%29-instance-method" class="signature"><strong>#is_org_shared=</strong>(is_org_shared : Bool)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#is_private%3ABool-instance-method" class="signature"><strong>#is_private</strong> : Bool</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#is_private%3D%28is_private%3ABool%29-instance-method" class="signature"><strong>#is_private=</strong>(is_private : Bool)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#is_shared%3ABool-instance-method" class="signature"><strong>#is_shared</strong> : Bool</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#is_shared%3D%28is_shared%3ABool%29-instance-method" class="signature"><strong>#is_shared=</strong>(is_shared : Bool)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#last_read%3ATime%3F-instance-method" class="signature"><strong>#last_read</strong> : Time?</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#last_read%3D%28last_read%3ATime%3F%29-instance-method" class="signature"><strong>#last_read=</strong>(last_read : Time?)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#latest%3AJSON%3A%3AAny%3F-instance-method" class="signature"><strong>#latest</strong> : JSON::Any?</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#latest%3D%28latest%3AJSON%3A%3AAny%3F%29-instance-method" class="signature"><strong>#latest=</strong>(latest : JSON::Any?)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#members%3AArray%28String%29%3F-instance-method" class="signature"><strong>#members</strong> : Array(String)?</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#members%3D%28members%3AArray%28String%29%3F%29-instance-method" class="signature"><strong>#members=</strong>(members : Array(String)?)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#name%3AString-instance-method" class="signature"><strong>#name</strong> : String</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#name%3D%28name%3AString%29-instance-method" class="signature"><strong>#name=</strong>(name : String)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#name_normalized%3AString-instance-method" class="signature"><strong>#name_normalized</strong> : String</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#name_normalized%3D%28name_normalized%3AString%29-instance-method" class="signature"><strong>#name_normalized=</strong>(name_normalized : String)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#previous_names%3AArray%28String%29-instance-method" class="signature"><strong>#previous_names</strong> : Array(String)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#previous_names%3D%28previous_names%3AArray%28String%29%29-instance-method" class="signature"><strong>#previous_names=</strong>(previous_names : Array(String))</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#purpose%3AJSON%3A%3AAny-instance-method" class="signature"><strong>#purpose</strong> : JSON::Any</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#purpose%3D%28purpose%3AJSON%3A%3AAny%29-instance-method" class="signature"><strong>#purpose=</strong>(purpose : JSON::Any)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#topic%3AJSON%3A%3AAny-instance-method" class="signature"><strong>#topic</strong> : JSON::Any</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#topic%3D%28topic%3AJSON%3A%3AAny%29-instance-method" class="signature"><strong>#topic=</strong>(topic : JSON::Any)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#unread_count%3AInt16%3F-instance-method" class="signature"><strong>#unread_count</strong> : Int16?</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#unread_count%3D%28unread_count%3AInt16%3F%29-instance-method" class="signature"><strong>#unread_count=</strong>(unread_count : Int16?)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#unread_count_display%3AInt16%3F-instance-method" class="signature"><strong>#unread_count_display</strong> : Int16?</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#unread_count_display%3D%28unread_count_display%3AInt16%3F%29-instance-method" class="signature"><strong>#unread_count_display=</strong>(unread_count_display : Int16?)</a>
+        
+      </li>
+    
+  </ul>
+
+
+
+
+
+<div class="methods-inherited">
+  
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+  <h3>Constructor methods inherited from struct <code><a href="../../Slack/Api/BaseModel.html">Slack::Api::BaseModel</a></code></h3>
+  
+  
+    <a href="../../Slack/Api/BaseModel.html#new%28pull%3AJSON%3A%3APullParser%29-class-method" class="tooltip">
+      <span>new(pull : JSON::PullParser)</span>
+    new</a>
+    
+  
+
+
+    
+
+  <h3>Class methods inherited from struct <code><a href="../../Slack/Api/BaseModel.html">Slack::Api::BaseModel</a></code></h3>
+  
+  
+    <a href="../../Slack/Api/BaseModel.html#keyed_json_object%28json%3AString%7CIO%2Cfind_key%3AString%29-class-method" class="tooltip">
+      <span>keyed_json_object(json : String | IO, find_key : String)</span>
+    keyed_json_object</a>
+    
+  
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+  
+</div>
+
+
+  <h2>
+    <a id="constructor-detail" class="anchor" href="#constructor-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Constructor Detail
+  </h2>
+  
+    <div class="entry-detail" id="new(pull:JSON::PullParser)-class-method">
+      <div class="signature">
+        
+        def self.<strong>new</strong>(pull : JSON::PullParser)
+
+        <a class="method-permalink" href="#new%28pull%3AJSON%3A%3APullParser%29-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L2" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+
+  <h2>
+    <a id="class-method-detail" class="anchor" href="#class-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Class Method Detail
+  </h2>
+  
+    <div class="entry-detail" id="from_json(json:String|IO)-class-method">
+      <div class="signature">
+        
+        def self.<strong>from_json</strong>(json : String | IO)
+
+        <a class="method-permalink" href="#from_json%28json%3AString%7CIO%29-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L28" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+
+  <h2>
+    <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Detail
+  </h2>
+  
+    <div class="entry-detail" id="created:Int32-instance-method">
+      <div class="signature">
+        
+        def <strong>created</strong> : Int32
+
+        <a class="method-permalink" href="#created%3AInt32-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="created=(created:Int32)-instance-method">
+      <div class="signature">
+        
+        def <strong>created=</strong>(created : Int32)
+
+        <a class="method-permalink" href="#created%3D%28created%3AInt32%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="creator:String-instance-method">
+      <div class="signature">
+        
+        def <strong>creator</strong> : String
+
+        <a class="method-permalink" href="#creator%3AString-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="creator=(creator:String)-instance-method">
+      <div class="signature">
+        
+        def <strong>creator=</strong>(creator : String)
+
+        <a class="method-permalink" href="#creator%3D%28creator%3AString%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="id:String-instance-method">
+      <div class="signature">
+        
+        def <strong>id</strong> : String
+
+        <a class="method-permalink" href="#id%3AString-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="id=(id:String)-instance-method">
+      <div class="signature">
+        
+        def <strong>id=</strong>(id : String)
+
+        <a class="method-permalink" href="#id%3D%28id%3AString%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="is_archived:Bool-instance-method">
+      <div class="signature">
+        
+        def <strong>is_archived</strong> : Bool
+
+        <a class="method-permalink" href="#is_archived%3ABool-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="is_archived=(is_archived:Bool)-instance-method">
+      <div class="signature">
+        
+        def <strong>is_archived=</strong>(is_archived : Bool)
+
+        <a class="method-permalink" href="#is_archived%3D%28is_archived%3ABool%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="is_changed:Bool?-instance-method">
+      <div class="signature">
+        
+        def <strong>is_changed</strong> : Bool?
+
+        <a class="method-permalink" href="#is_changed%3ABool%3F-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="is_changed=(is_changed:Bool?)-instance-method">
+      <div class="signature">
+        
+        def <strong>is_changed=</strong>(is_changed : Bool?)
+
+        <a class="method-permalink" href="#is_changed%3D%28is_changed%3ABool%3F%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="is_general:Bool-instance-method">
+      <div class="signature">
+        
+        def <strong>is_general</strong> : Bool
+
+        <a class="method-permalink" href="#is_general%3ABool-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="is_general=(is_general:Bool)-instance-method">
+      <div class="signature">
+        
+        def <strong>is_general=</strong>(is_general : Bool)
+
+        <a class="method-permalink" href="#is_general%3D%28is_general%3ABool%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="is_member:Bool-instance-method">
+      <div class="signature">
+        
+        def <strong>is_member</strong> : Bool
+
+        <a class="method-permalink" href="#is_member%3ABool-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="is_member=(is_member:Bool)-instance-method">
+      <div class="signature">
+        
+        def <strong>is_member=</strong>(is_member : Bool)
+
+        <a class="method-permalink" href="#is_member%3D%28is_member%3ABool%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="is_mpim:Bool-instance-method">
+      <div class="signature">
+        
+        def <strong>is_mpim</strong> : Bool
+
+        <a class="method-permalink" href="#is_mpim%3ABool-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="is_mpim=(is_mpim:Bool)-instance-method">
+      <div class="signature">
+        
+        def <strong>is_mpim=</strong>(is_mpim : Bool)
+
+        <a class="method-permalink" href="#is_mpim%3D%28is_mpim%3ABool%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="is_org_shared:Bool-instance-method">
+      <div class="signature">
+        
+        def <strong>is_org_shared</strong> : Bool
+
+        <a class="method-permalink" href="#is_org_shared%3ABool-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="is_org_shared=(is_org_shared:Bool)-instance-method">
+      <div class="signature">
+        
+        def <strong>is_org_shared=</strong>(is_org_shared : Bool)
+
+        <a class="method-permalink" href="#is_org_shared%3D%28is_org_shared%3ABool%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="is_private:Bool-instance-method">
+      <div class="signature">
+        
+        def <strong>is_private</strong> : Bool
+
+        <a class="method-permalink" href="#is_private%3ABool-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="is_private=(is_private:Bool)-instance-method">
+      <div class="signature">
+        
+        def <strong>is_private=</strong>(is_private : Bool)
+
+        <a class="method-permalink" href="#is_private%3D%28is_private%3ABool%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="is_shared:Bool-instance-method">
+      <div class="signature">
+        
+        def <strong>is_shared</strong> : Bool
+
+        <a class="method-permalink" href="#is_shared%3ABool-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="is_shared=(is_shared:Bool)-instance-method">
+      <div class="signature">
+        
+        def <strong>is_shared=</strong>(is_shared : Bool)
+
+        <a class="method-permalink" href="#is_shared%3D%28is_shared%3ABool%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="last_read:Time?-instance-method">
+      <div class="signature">
+        
+        def <strong>last_read</strong> : Time?
+
+        <a class="method-permalink" href="#last_read%3ATime%3F-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L26" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="last_read=(last_read:Time?)-instance-method">
+      <div class="signature">
+        
+        def <strong>last_read=</strong>(last_read : Time?)
+
+        <a class="method-permalink" href="#last_read%3D%28last_read%3ATime%3F%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L26" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="latest:JSON::Any?-instance-method">
+      <div class="signature">
+        
+        def <strong>latest</strong> : JSON::Any?
+
+        <a class="method-permalink" href="#latest%3AJSON%3A%3AAny%3F-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="latest=(latest:JSON::Any?)-instance-method">
+      <div class="signature">
+        
+        def <strong>latest=</strong>(latest : JSON::Any?)
+
+        <a class="method-permalink" href="#latest%3D%28latest%3AJSON%3A%3AAny%3F%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="members:Array(String)?-instance-method">
+      <div class="signature">
+        
+        def <strong>members</strong> : Array(String)?
+
+        <a class="method-permalink" href="#members%3AArray%28String%29%3F-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="members=(members:Array(String)?)-instance-method">
+      <div class="signature">
+        
+        def <strong>members=</strong>(members : Array(String)?)
+
+        <a class="method-permalink" href="#members%3D%28members%3AArray%28String%29%3F%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="name:String-instance-method">
+      <div class="signature">
+        
+        def <strong>name</strong> : String
+
+        <a class="method-permalink" href="#name%3AString-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="name=(name:String)-instance-method">
+      <div class="signature">
+        
+        def <strong>name=</strong>(name : String)
+
+        <a class="method-permalink" href="#name%3D%28name%3AString%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="name_normalized:String-instance-method">
+      <div class="signature">
+        
+        def <strong>name_normalized</strong> : String
+
+        <a class="method-permalink" href="#name_normalized%3AString-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="name_normalized=(name_normalized:String)-instance-method">
+      <div class="signature">
+        
+        def <strong>name_normalized=</strong>(name_normalized : String)
+
+        <a class="method-permalink" href="#name_normalized%3D%28name_normalized%3AString%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="previous_names:Array(String)-instance-method">
+      <div class="signature">
+        
+        def <strong>previous_names</strong> : Array(String)
+
+        <a class="method-permalink" href="#previous_names%3AArray%28String%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="previous_names=(previous_names:Array(String))-instance-method">
+      <div class="signature">
+        
+        def <strong>previous_names=</strong>(previous_names : Array(String))
+
+        <a class="method-permalink" href="#previous_names%3D%28previous_names%3AArray%28String%29%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="purpose:JSON::Any-instance-method">
+      <div class="signature">
+        
+        def <strong>purpose</strong> : JSON::Any
+
+        <a class="method-permalink" href="#purpose%3AJSON%3A%3AAny-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="purpose=(purpose:JSON::Any)-instance-method">
+      <div class="signature">
+        
+        def <strong>purpose=</strong>(purpose : JSON::Any)
+
+        <a class="method-permalink" href="#purpose%3D%28purpose%3AJSON%3A%3AAny%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="topic:JSON::Any-instance-method">
+      <div class="signature">
+        
+        def <strong>topic</strong> : JSON::Any
+
+        <a class="method-permalink" href="#topic%3AJSON%3A%3AAny-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="topic=(topic:JSON::Any)-instance-method">
+      <div class="signature">
+        
+        def <strong>topic=</strong>(topic : JSON::Any)
+
+        <a class="method-permalink" href="#topic%3D%28topic%3AJSON%3A%3AAny%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="unread_count:Int16?-instance-method">
+      <div class="signature">
+        
+        def <strong>unread_count</strong> : Int16?
+
+        <a class="method-permalink" href="#unread_count%3AInt16%3F-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="unread_count=(unread_count:Int16?)-instance-method">
+      <div class="signature">
+        
+        def <strong>unread_count=</strong>(unread_count : Int16?)
+
+        <a class="method-permalink" href="#unread_count%3D%28unread_count%3AInt16%3F%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="unread_count_display:Int16?-instance-method">
+      <div class="signature">
+        
+        def <strong>unread_count_display</strong> : Int16?
+
+        <a class="method-permalink" href="#unread_count_display%3AInt16%3F-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="unread_count_display=(unread_count_display:Int16?)-instance-method">
+      <div class="signature">
+        
+        def <strong>unread_count_display=</strong>(unread_count_display : Int16?)
+
+        <a class="method-permalink" href="#unread_count_display%3D%28unread_count_display%3AInt16%3F%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/api/models/channel.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+
+
+</div>
+
+</body>
+</html>

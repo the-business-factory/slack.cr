@@ -13,7 +13,7 @@
 <script type="text/javascript" src="../../js/doc.js"></script>
 
   <meta name="repository-name" content="slack">
-  <title>Slack::Events::Attachment - slack main</title>
+  <title>Slack::Auth::User - slack main</title>
   <script type="text/javascript">
     CrystalDocs.base_path = "../../";
   </script>
@@ -106,7 +106,7 @@
       
     </li>
   
-  <li class="parent " data-id="slack/Slack/Auth" data-name="slack::auth">
+  <li class="parent open current" data-id="slack/Slack/Auth" data-name="slack::auth">
       <a href="../../Slack/Auth.html">Auth</a>
       
         <ul>
@@ -126,7 +126,7 @@
       
     </li>
   
-  <li class=" " data-id="slack/Slack/Auth/User" data-name="slack::auth::user">
+  <li class=" current" data-id="slack/Slack/Auth/User" data-name="slack::auth::user">
       <a href="../../Slack/Auth/User.html">User</a>
       
     </li>
@@ -166,7 +166,7 @@
       
     </li>
   
-  <li class="parent open current" data-id="slack/Slack/Events" data-name="slack::events">
+  <li class="parent " data-id="slack/Slack/Events" data-name="slack::events">
       <a href="../../Slack/Events.html">Events</a>
       
         <ul>
@@ -181,7 +181,7 @@
       
     </li>
   
-  <li class=" current" data-id="slack/Slack/Events/Attachment" data-name="slack::events::attachment">
+  <li class=" " data-id="slack/Slack/Events/Attachment" data-name="slack::events::attachment">
       <a href="../../Slack/Events/Attachment.html">Attachment</a>
       
     </li>
@@ -310,12 +310,12 @@
 <div class="main-content">
 <h1 class="type-name">
 
-  <span class="kind">struct</span> Slack::Events::Attachment
+  <span class="kind">struct</span> Slack::Auth::User
 
 </h1>
 
 
-  <ul class="superclass-hierarchy"><li class="superclass"><a href="../../Slack/Events/Attachment.html">Slack::Events::Attachment</a></li><li class="superclass">Struct</li><li class="superclass">Value</li><li class="superclass">Object</li></ul>
+  <ul class="superclass-hierarchy"><li class="superclass"><a href="../../Slack/Auth/User.html">Slack::Auth::User</a></li><li class="superclass">Struct</li><li class="superclass">Value</li><li class="superclass">Object</li></ul>
 
 
 
@@ -357,8 +357,8 @@
   </h2>
   
     
-      <a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/events/attachment.cr#L1" target="_blank">
-        slack/events/attachment.cr
+      <a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/oauth/user.cr#L1" target="_blank">
+        slack/oauth/user.cr
       </a>
     
     <br/>
@@ -400,82 +400,62 @@
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#fallback%3AString-instance-method" class="signature"><strong>#fallback</strong> : String</a>
+        <a href="#access_token%3AString%3F-instance-method" class="signature"><strong>#access_token</strong> : String?</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#fallback%3D%28fallback%3AString%29-instance-method" class="signature"><strong>#fallback=</strong>(fallback : String)</a>
+        <a href="#access_token%3D%28access_token%3AString%3F%29-instance-method" class="signature"><strong>#access_token=</strong>(access_token : String?)</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#id%3AInt16-instance-method" class="signature"><strong>#id</strong> : Int16</a>
+        <a href="#expires_in%3AInt32%3F-instance-method" class="signature"><strong>#expires_in</strong> : Int32?</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#id%3D%28id%3AInt16%29-instance-method" class="signature"><strong>#id=</strong>(id : Int16)</a>
+        <a href="#expires_in%3D%28expires_in%3AInt32%3F%29-instance-method" class="signature"><strong>#expires_in=</strong>(expires_in : Int32?)</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#original_url%3AString-instance-method" class="signature"><strong>#original_url</strong> : String</a>
+        <a href="#id%3AString-instance-method" class="signature"><strong>#id</strong> : String</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#original_url%3D%28original_url%3AString%29-instance-method" class="signature"><strong>#original_url=</strong>(original_url : String)</a>
+        <a href="#id%3D%28id%3AString%29-instance-method" class="signature"><strong>#id=</strong>(id : String)</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#service_icon%3AString-instance-method" class="signature"><strong>#service_icon</strong> : String</a>
+        <a href="#refresh_token%3AString%3F-instance-method" class="signature"><strong>#refresh_token</strong> : String?</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#service_icon%3D%28service_icon%3AString%29-instance-method" class="signature"><strong>#service_icon=</strong>(service_icon : String)</a>
+        <a href="#refresh_token%3D%28refresh_token%3AString%3F%29-instance-method" class="signature"><strong>#refresh_token=</strong>(refresh_token : String?)</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#service_name%3AString-instance-method" class="signature"><strong>#service_name</strong> : String</a>
+        <a href="#scope%3AString%3F-instance-method" class="signature"><strong>#scope</strong> : String?</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#service_name%3D%28service_name%3AString%29-instance-method" class="signature"><strong>#service_name=</strong>(service_name : String)</a>
+        <a href="#scope%3D%28scope%3AString%3F%29-instance-method" class="signature"><strong>#scope=</strong>(scope : String?)</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#text%3AString-instance-method" class="signature"><strong>#text</strong> : String</a>
+        <a href="#token_type%3AString%3F-instance-method" class="signature"><strong>#token_type</strong> : String?</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#text%3D%28text%3AString%29-instance-method" class="signature"><strong>#text=</strong>(text : String)</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#title%3AString-instance-method" class="signature"><strong>#title</strong> : String</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#title%3D%28title%3AString%29-instance-method" class="signature"><strong>#title=</strong>(title : String)</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#title_link%3AString-instance-method" class="signature"><strong>#title_link</strong> : String</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#title_link%3D%28title_link%3AString%29-instance-method" class="signature"><strong>#title_link=</strong>(title_link : String)</a>
+        <a href="#token_type%3D%28token_type%3AString%3F%29-instance-method" class="signature"><strong>#token_type=</strong>(token_type : String?)</a>
         
       </li>
     
@@ -550,7 +530,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/events/attachment.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/oauth/user.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -569,258 +549,194 @@
     Instance Method Detail
   </h2>
   
-    <div class="entry-detail" id="fallback:String-instance-method">
+    <div class="entry-detail" id="access_token:String?-instance-method">
       <div class="signature">
         
-        def <strong>fallback</strong> : String
+        def <strong>access_token</strong> : String?
 
-        <a class="method-permalink" href="#fallback%3AString-instance-method">#</a>
+        <a class="method-permalink" href="#access_token%3AString%3F-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/events/attachment.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/oauth/user.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="fallback=(fallback:String)-instance-method">
+    <div class="entry-detail" id="access_token=(access_token:String?)-instance-method">
       <div class="signature">
         
-        def <strong>fallback=</strong>(fallback : String)
+        def <strong>access_token=</strong>(access_token : String?)
 
-        <a class="method-permalink" href="#fallback%3D%28fallback%3AString%29-instance-method">#</a>
+        <a class="method-permalink" href="#access_token%3D%28access_token%3AString%3F%29-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/events/attachment.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/oauth/user.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="id:Int16-instance-method">
+    <div class="entry-detail" id="expires_in:Int32?-instance-method">
       <div class="signature">
         
-        def <strong>id</strong> : Int16
+        def <strong>expires_in</strong> : Int32?
 
-        <a class="method-permalink" href="#id%3AInt16-instance-method">#</a>
+        <a class="method-permalink" href="#expires_in%3AInt32%3F-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/events/attachment.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/oauth/user.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="id=(id:Int16)-instance-method">
+    <div class="entry-detail" id="expires_in=(expires_in:Int32?)-instance-method">
       <div class="signature">
         
-        def <strong>id=</strong>(id : Int16)
+        def <strong>expires_in=</strong>(expires_in : Int32?)
 
-        <a class="method-permalink" href="#id%3D%28id%3AInt16%29-instance-method">#</a>
+        <a class="method-permalink" href="#expires_in%3D%28expires_in%3AInt32%3F%29-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/events/attachment.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/oauth/user.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="original_url:String-instance-method">
+    <div class="entry-detail" id="id:String-instance-method">
       <div class="signature">
         
-        def <strong>original_url</strong> : String
+        def <strong>id</strong> : String
 
-        <a class="method-permalink" href="#original_url%3AString-instance-method">#</a>
+        <a class="method-permalink" href="#id%3AString-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/events/attachment.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/oauth/user.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="original_url=(original_url:String)-instance-method">
+    <div class="entry-detail" id="id=(id:String)-instance-method">
       <div class="signature">
         
-        def <strong>original_url=</strong>(original_url : String)
+        def <strong>id=</strong>(id : String)
 
-        <a class="method-permalink" href="#original_url%3D%28original_url%3AString%29-instance-method">#</a>
+        <a class="method-permalink" href="#id%3D%28id%3AString%29-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/events/attachment.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/oauth/user.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="service_icon:String-instance-method">
+    <div class="entry-detail" id="refresh_token:String?-instance-method">
       <div class="signature">
         
-        def <strong>service_icon</strong> : String
+        def <strong>refresh_token</strong> : String?
 
-        <a class="method-permalink" href="#service_icon%3AString-instance-method">#</a>
+        <a class="method-permalink" href="#refresh_token%3AString%3F-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/events/attachment.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/oauth/user.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="service_icon=(service_icon:String)-instance-method">
+    <div class="entry-detail" id="refresh_token=(refresh_token:String?)-instance-method">
       <div class="signature">
         
-        def <strong>service_icon=</strong>(service_icon : String)
+        def <strong>refresh_token=</strong>(refresh_token : String?)
 
-        <a class="method-permalink" href="#service_icon%3D%28service_icon%3AString%29-instance-method">#</a>
+        <a class="method-permalink" href="#refresh_token%3D%28refresh_token%3AString%3F%29-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/events/attachment.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/oauth/user.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="service_name:String-instance-method">
+    <div class="entry-detail" id="scope:String?-instance-method">
       <div class="signature">
         
-        def <strong>service_name</strong> : String
+        def <strong>scope</strong> : String?
 
-        <a class="method-permalink" href="#service_name%3AString-instance-method">#</a>
+        <a class="method-permalink" href="#scope%3AString%3F-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/events/attachment.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/oauth/user.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="service_name=(service_name:String)-instance-method">
+    <div class="entry-detail" id="scope=(scope:String?)-instance-method">
       <div class="signature">
         
-        def <strong>service_name=</strong>(service_name : String)
+        def <strong>scope=</strong>(scope : String?)
 
-        <a class="method-permalink" href="#service_name%3D%28service_name%3AString%29-instance-method">#</a>
+        <a class="method-permalink" href="#scope%3D%28scope%3AString%3F%29-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/events/attachment.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/oauth/user.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="text:String-instance-method">
+    <div class="entry-detail" id="token_type:String?-instance-method">
       <div class="signature">
         
-        def <strong>text</strong> : String
+        def <strong>token_type</strong> : String?
 
-        <a class="method-permalink" href="#text%3AString-instance-method">#</a>
+        <a class="method-permalink" href="#token_type%3AString%3F-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/events/attachment.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/oauth/user.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="text=(text:String)-instance-method">
+    <div class="entry-detail" id="token_type=(token_type:String?)-instance-method">
       <div class="signature">
         
-        def <strong>text=</strong>(text : String)
+        def <strong>token_type=</strong>(token_type : String?)
 
-        <a class="method-permalink" href="#text%3D%28text%3AString%29-instance-method">#</a>
+        <a class="method-permalink" href="#token_type%3D%28token_type%3AString%3F%29-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/events/attachment.cr#L4" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="title:String-instance-method">
-      <div class="signature">
-        
-        def <strong>title</strong> : String
-
-        <a class="method-permalink" href="#title%3AString-instance-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/events/attachment.cr#L4" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="title=(title:String)-instance-method">
-      <div class="signature">
-        
-        def <strong>title=</strong>(title : String)
-
-        <a class="method-permalink" href="#title%3D%28title%3AString%29-instance-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/events/attachment.cr#L4" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="title_link:String-instance-method">
-      <div class="signature">
-        
-        def <strong>title_link</strong> : String
-
-        <a class="method-permalink" href="#title_link%3AString-instance-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/events/attachment.cr#L4" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="title_link=(title_link:String)-instance-method">
-      <div class="signature">
-        
-        def <strong>title_link=</strong>(title_link : String)
-
-        <a class="method-permalink" href="#title_link%3D%28title_link%3AString%29-instance-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/events/attachment.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/oauth/user.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>

@@ -13,9 +13,9 @@
 <script type="text/javascript" src="js/doc.js"></script>
 
   <meta name="repository-name" content="slack">
-  <title>slack main</title>
+  <title>ContentTypes - slack main</title>
   <script type="text/javascript">
-  CrystalDocs.base_path = "";
+    CrystalDocs.base_path = "";
   </script>
 </head>
 <body>
@@ -51,7 +51,7 @@
   <div class="types-list">
     <ul>
   
-  <li class=" " data-id="slack/ContentTypes" data-name="contenttypes">
+  <li class=" current" data-id="slack/ContentTypes" data-name="contenttypes">
       <a href="ContentTypes.html">ContentTypes</a>
       
     </li>
@@ -308,163 +308,241 @@
 
 
 <div class="main-content">
-<h1><a id="slack.cr" class="anchor" href="#slack.cr">  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>slack.cr</h1>
-<p>Crystal client for building Slack apps and tools using the Slack API.</p>
-<h2><a id="installation" class="anchor" href="#installation">
+<h1 class="type-name">
+
+  <span class="kind">enum</span> ContentTypes
+
+</h1>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <h2>
+    <a id="defined-in" class="anchor" href="#defined-in">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
-</a>Installation</h2>
-<ol>
-<li>
-<p>Add the dependency to your <code>shard.yml</code>:</p>
-<pre><code class="language-yaml">dependencies:
-  slack:
-    github: the-business-factory/slack.cr</code></pre>
-</li>
-<li>
-<p>Run <code>shards install</code></p>
-</li>
-</ol>
-<h2><a id="usage" class="anchor" href="#usage">
+</a>
+    Defined in:
+  </h2>
+  
+    
+      <a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/mixins/content_types.cr#L1" target="_blank">
+        slack/mixins/content_types.cr
+      </a>
+    
+    <br/>
+  
+
+
+
+  
+    <h2>
+      <a id="enum-members" class="anchor" href="#enum-members">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
-</a>Usage</h2>
-<h3><a id="configuration" class="anchor" href="#configuration">
+</a>
+      Enum Members
+    </h2>
+  
+  <dl>
+    
+      <dt class="entry-const" id="FormEncoded">
+        <strong>FormEncoded</strong> = <code><span class="n">0</span></code>
+      </dt>
+      
+    
+      <dt class="entry-const" id="JSON">
+        <strong>JSON</strong> = <code><span class="n">1</span></code>
+      </dt>
+      
+    
+  </dl>
+
+
+
+
+
+
+
+  <h2>
+    <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
-</a>Configuration</h3>
-<pre><code class="language-crystal"><span class="t">Slack</span>.configure <span class="k">do</span> <span class="o">|</span>config<span class="o">|</span>
-  config.app_scopes <span class="o">=</span> [<span class="s">&quot;incoming-webhook&quot;</span>] <span class="c"># Array(String)</span>
-  config.client_id <span class="o">=</span> <span class="t">ENV</span>[<span class="s">&quot;SLACK_CLIENT_ID&quot;</span>] <span class="c"># String</span>
-  config.client_secret <span class="o">=</span> <span class="t">ENV</span>[<span class="s">&quot;SLACK_CLIENT_SECRET&quot;</span>] <span class="c"># String</span>
-  config.signing_secret <span class="o">=</span> <span class="t">ENV</span>[<span class="s">&quot;SLACK_SIGNING_SECRET&quot;</span>] <span class="c"># String</span>
-  config.signing_secret_version <span class="o">=</span> <span class="s">&quot;v0&quot;</span> <span class="c"># String</span>
-  config.webhook_delivery_time_limit <span class="o">=</span> <span class="n">5</span>.minutes <span class="c"># Time::Span</span>
-<span class="k">end</span></code></pre>
-<h3><a id="processing-webhooks" class="anchor" href="#processing-webhooks">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>Processing Webhooks</h3>
-<pre><code class="language-crystal"><span class="k">require</span> <span class="s">&quot;slack&quot;</span>
+</a>
+    Instance Method Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#form_encoded%3F-instance-method" class="signature"><strong>#form_encoded?</strong></a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#json%3F-instance-method" class="signature"><strong>#json?</strong></a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#to_s-instance-method" class="signature"><strong>#to_s</strong></a>
+        
+          <div class="summary"><p>Returns a <code>String</code> representation of this enum member.</p></div>
+        
+      </li>
+    
+  </ul>
 
-<span class="k">def</span> <span class="m">process_request</span>(request : <span class="t">HTTP</span><span class="t">::</span><span class="t">Request</span>)
-  event_payload <span class="o">=</span> <span class="t">Slack</span>.process_request(event)
-  <span class="k">case</span> event_payload
-  <span class="k">when</span> .<span class="k">is_a?</span>(<span class="t">Slack</span><span class="t">::</span><span class="t">UrlVerification</span>)
-    json(event_payload.response.to_json)
-  <span class="k">else</span>
-    handle_event(event_payload.event)
-  <span class="k">end</span>
-<span class="k">end</span>
 
-<span class="c"># You can easily handle only the events you expect back, with type safety.</span>
-<span class="k">def</span> <span class="m">handle_event</span>(event : <span class="t">Slack</span><span class="t">::</span><span class="t">Event</span><span class="t">::</span><span class="t">Message</span><span class="t">::</span><span class="t">MessageChanged</span>)
-  pp event.message.text
-<span class="k">end</span>
 
-<span class="c"># And of course sometimes, you just want to ignore things you don&#39;t expect.</span>
-<span class="k">def</span> <span class="m">handle_event</span>(unhandled_event)
-<span class="k">end</span></code></pre>
-<h3><a id="o-auth-configuration-optional" class="anchor" href="#o-auth-configuration-optional">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>OAuth Configuration (Optional)</h3>
-<p>slack.cr comes bundled with handling of Slack OAuth flow, allowing the use of tokens for web and other API calls.</p>
-<pre><code class="language-crystal"><span class="t">Slack</span><span class="t">::</span><span class="t">AuthHandler</span>.configure <span class="k">do</span> <span class="o">|</span>config<span class="o">|</span>
-  config.oauth_redirect_url <span class="o">=</span> <span class="t">ENV</span>[<span class="s">&quot;OAUTH_REDIRECT_URL&quot;</span>]
-<span class="k">end</span></code></pre>
-<pre><code class="language-crystal"><span class="c"># Simple Example from a small Lucky app</span>
-<span class="k">require</span> <span class="s">&quot;slack/oauth&quot;</span>
-<span class="k">class</span> <span class="t">SlackAuth</span> <span class="o">&lt;</span> <span class="t">BrowserAction</span>
-  <span class="k">include</span> <span class="t">Auth</span><span class="t">::</span><span class="t">AllowGuests</span>
 
-  get <span class="s">&quot;/slack/auth&quot;</span> <span class="k">do</span>
-    <span class="c"># auth_response : Slack::AuthResponse</span>
-    auth_response <span class="o">=</span> <span class="t">Slack</span><span class="t">::</span><span class="t">AuthHandler</span>.run(request)
 
-    <span class="t">SaveSlackAccessToken</span>.create!(
-      slack_team_id: auth_response.team.id,
-      slack_team_name: auth_response.team.name,
-      token: auth_response.access_token,
-      json_body: <span class="t">JSON</span>.parse(auth_response.to_json)
-    )
+<div class="methods-inherited">
+  
+    
 
-    <span class="c"># Normally you&#39;d want to do something else here, like redirect...</span>
-    json({ ok: <span class="n">true</span> })
-  <span class="k">end</span>
-<span class="k">end</span></code></pre>
-<h3><a id="web-api-calls" class="anchor" href="#web-api-calls">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>Web API calls</h3>
-<pre><code class="language-crystal"><span class="c"># Continuing our example Lucky app... on webhook receipt, this calls the API</span>
-<span class="c"># to get data that isn&#39;t in the webhook body.</span>
-<span class="k">class</span> <span class="t">SlackWebhookEvent</span> <span class="o">&lt;</span> <span class="t">WebhookAction</span>
-  post <span class="s">&quot;/slack/webhook_events&quot;</span> <span class="k">do</span>
-    event_payload <span class="o">=</span> <span class="t">Slack</span>.process_request(request)
-    <span class="k">case</span> event_payload
-    <span class="k">when</span> .<span class="k">is_a?</span>(<span class="t">Slack</span><span class="t">::</span><span class="t">UrlVerification</span>)
-      json(event_payload.response)
-    <span class="k">else</span>
-      handle_event(event_payload.event)
-      json({ok: <span class="n">true</span>})
-    <span class="k">end</span>
-  <span class="k">end</span>
 
-  <span class="k">def</span> <span class="m">handle_event</span>(message : <span class="t">Slack</span><span class="t">::</span><span class="t">Events</span><span class="t">::</span><span class="t">Message</span>)
-    auth_token <span class="o">=</span> <span class="t">SlackAccessTokenQuery</span>
-      .<span class="k">new</span>
-      .slack_team_id(message.team)
-      .created_at
-      .desc_order
-      .first
+    
 
-    channel_id <span class="o">=</span> message.channel.not_nil!
-    token <span class="o">=</span> auth_token.token
 
-    <span class="c"># channel : Slack::Api::Channel</span>
-    channel <span class="o">=</span> <span class="t">Slack</span><span class="t">::</span><span class="t">Api</span><span class="t">::</span><span class="t">ConversationsInfo</span>.<span class="k">new</span>(token, channel_id).call
+    
 
-    <span class="c"># Typically you&#39;d do something more useful than this.</span>
-    <span class="t">Log</span>.info { <span class="s">&quot;Channel Name: </span><span class="i">#{</span>channel.name<span class="i">}</span><span class="s">&quot;</span> }
-  <span class="k">end</span>
-<span class="k">end</span></code></pre>
-<h3><a id="other-examples" class="anchor" href="#other-examples">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>Other Examples</h3>
-<p><a href="examples/lucky.md">Using Lucky Web Framework</a></p>
-<h2><a id="contributing" class="anchor" href="#contributing">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>Contributing</h2>
-<ol>
-<li>Fork it (<a href="https://github.com/the-business-factory/slack.cr/fork">https://github.com/the-business-factory/slack.cr/fork</a>)</li>
-<li>Create your feature branch (<code>git checkout -b my-new-feature</code>)</li>
-<li>Commit your changes (<code>git commit -am 'Add some feature'</code>)</li>
-<li>Push to the branch (<code>git push origin my-new-feature</code>)</li>
-<li>Create a new Pull Request</li>
-</ol>
-<h2><a id="contributors" class="anchor" href="#contributors">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>Contributors</h2>
-<ul>
-<li><a href="https://github.com/robcole">Rob Cole</a> - creator and maintainer</li>
-<li><a href="https://github.com/grepsedawk">Alex Piechowski</a> - maintainer</li>
-</ul>
+
+  
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+  
 </div>
+
+
+
+
+
+
+  <h2>
+    <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Detail
+  </h2>
+  
+    <div class="entry-detail" id="form_encoded?-instance-method">
+      <div class="signature">
+        
+        def <strong>form_encoded?</strong>
+
+        <a class="method-permalink" href="#form_encoded%3F-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/mixins/content_types.cr#L2" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="json?-instance-method">
+      <div class="signature">
+        
+        def <strong>json?</strong>
+
+        <a class="method-permalink" href="#json%3F-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/mixins/content_types.cr#L3" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="to_s-instance-method">
+      <div class="signature">
+        
+        def <strong>to_s</strong>
+
+        <a class="method-permalink" href="#to_s-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+            <div class="doc-inherited">
+              Description copied from struct Enum
+            </div>
+          
+          <p>Returns a <code>String</code> representation of this enum member.
+In the case of regular enums, this is just the name of the member.
+In the case of flag enums, it's the names joined by vertical bars, or &quot;None&quot;,
+if the value is zero.</p>
+<p>If an enum's value doesn't match a member's value, the raw value
+is returned as a string.</p>
+<pre><code class="language-crystal"><span class="t">Color</span><span class="t">::</span><span class="t">Red</span>.to_s                     <span class="c"># =&gt; &quot;Red&quot;</span>
+<span class="t">IOMode</span><span class="t">::</span><span class="t">None</span>.to_s                   <span class="c"># =&gt; &quot;None&quot;</span>
+(<span class="t">IOMode</span><span class="t">::</span><span class="t">Read</span> <span class="o">|</span> <span class="t">IOMode</span><span class="t">::</span><span class="t">Write</span>).to_s <span class="c"># =&gt; &quot;Read | Write&quot;</span>
+
+<span class="t">Color</span>.<span class="k">new</span>(<span class="n">10</span>).to_s <span class="c"># =&gt; &quot;10&quot;</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/1e1d4c00a68bdf1fda8cae4421a1a5ffb0cf2019/src/slack/mixins/content_types.cr#L5" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+
+
+</div>
+
 </body>
 </html>
