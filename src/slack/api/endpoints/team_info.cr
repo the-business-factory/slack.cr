@@ -7,8 +7,8 @@ class Slack::Api::TeamInfo < Slack::Api::Base
     "https://slack.com/api/team.info"
   end
 
-  def call
+  def call : Slack::Models::Team
     result = HTTP::Client.get(base_url, headers: headers)
-    Slack::Api::Team.from_json(result.body)
+    Slack::Models::Team.from_json(result.body)
   end
 end

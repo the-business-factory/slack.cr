@@ -9,23 +9,23 @@ strict-transport-security: max-age=31536000; includeSubDomains; preload
 access-control-allow-headers: slack-route, x-slack-version-ts, x-b3-traceid, x-b3-spanid, x-b3-parentspanid, x-b3-sampled, x-b3-flags
 access-control-expose-headers: x-slack-req-id, retry-after
 x-oauth-scopes: app_mentions:read,channels:history,channels:read,groups:history,groups:read,im:history,im:read,mpim:read,reactions:read,team:read,users:read
-x-accepted-oauth-scopes: team:read
+x-accepted-oauth-scopes: channels:read,groups:read,mpim:read,im:read,read
 expires: Mon, 26 Jul 1997 05:00:00 GMT
 cache-control: private, no-cache, no-store, must-revalidate
 pragma: no-cache
 x-xss-protection: 0
 x-content-type-options: nosniff
-x-slack-req-id: d37aebf081759cea2bbf25b2b2ab7bb4
+x-slack-req-id: 9d769ee9a8d1f3689a939dc6c1618923
 vary: Accept-Encoding
 content-type: application/json; charset=utf-8
-x-envoy-upstream-service-time: 75
+x-envoy-upstream-service-time: 89
 x-backend: main_normal main_bedrock_normal_with_overflow main_canary_with_overflow main_bedrock_canary_with_overflow main_control_with_overflow main_bedrock_control_with_overflow
-x-server: slack-www-hhvm-main-iad-wegi
+x-server: slack-www-hhvm-main-iad-8uvp
 x-slack-shared-secret-outcome: no-match
-via: envoy-www-iad-y1b2, envoy-edge-pdx-pt3w
+via: envoy-www-iad-6aw4, envoy-edge-pdx-4wqt
 x-edge-backend: envoy-www
 x-slack-edge-shared-secret-outcome: no-match
 connection: close
-Content-Length: 834
+Content-Length: 634
 
-{"ok":true,"team":{"id":"T017GL5AV5E","name":"goalsurfer","url":"https:\/\/goalsurfer.slack.com\/","domain":"goalsurfer","email_domain":"","icon":{"image_102":"https:\/\/a.slack-edge.com\/80588\/img\/avatars-teams\/ava_0013-102.png","image_132":"https:\/\/a.slack-edge.com\/80588\/img\/avatars-teams\/ava_0013-132.png","image_230":"https:\/\/a.slack-edge.com\/80588\/img\/avatars-teams\/ava_0013-230.png","image_34":"https:\/\/a.slack-edge.com\/80588\/img\/avatars-teams\/ava_0013-34.png","image_44":"https:\/\/a.slack-edge.com\/80588\/img\/avatars-teams\/ava_0013-44.png","image_68":"https:\/\/a.slack-edge.com\/80588\/img\/avatars-teams\/ava_0013-68.png","image_88":"https:\/\/a.slack-edge.com\/80588\/img\/avatars-teams\/ava_0013-88.png","image_default":true},"avatar_base_url":"https:\/\/ca.slack-edge.com\/","is_verified":false}}
+{"ok":true,"channel":{"id":"C032TLM43GA","name":"links","is_channel":true,"is_group":false,"is_im":false,"is_mpim":false,"is_private":false,"created":1644634963,"is_archived":false,"is_general":false,"unlinked":0,"name_normalized":"links","is_shared":false,"is_org_shared":false,"is_pending_ext_shared":false,"pending_shared":[],"parent_conversation":null,"creator":"U016SQZLFEE","is_ext_shared":false,"shared_team_ids":["T017GL5AV5E"],"pending_connected_team_ids":[],"is_member":true,"last_read":"1646886284.912189","topic":{"value":"","creator":"","last_set":0},"purpose":{"value":"","creator":"","last_set":0},"previous_names":[]}}

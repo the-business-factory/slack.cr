@@ -1,0 +1,31 @@
+HTTP/1.1 200 OK
+date: Thu, 10 Mar 2022 05:55:39 GMT
+server: Apache
+x-powered-by: HHVM/4.128.0
+access-control-allow-origin: *
+referrer-policy: no-referrer
+x-slack-backend: r
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+access-control-allow-headers: slack-route, x-slack-version-ts, x-b3-traceid, x-b3-spanid, x-b3-parentspanid, x-b3-sampled, x-b3-flags
+access-control-expose-headers: x-slack-req-id, retry-after
+x-oauth-scopes: app_mentions:read,channels:history,channels:read,groups:history,groups:read,im:history,im:read,mpim:read,reactions:read,team:read,users:read
+x-accepted-oauth-scopes: channels:read,groups:read,mpim:read,im:read,read
+expires: Mon, 26 Jul 1997 05:00:00 GMT
+cache-control: private, no-cache, no-store, must-revalidate
+pragma: no-cache
+x-xss-protection: 0
+x-content-type-options: nosniff
+x-slack-req-id: a3ce903d216384537f62242a9cba7ab6
+vary: Accept-Encoding
+content-type: application/json; charset=utf-8
+x-envoy-upstream-service-time: 122
+x-backend: main_normal main_bedrock_normal_with_overflow main_canary_with_overflow main_bedrock_canary_with_overflow main_control_with_overflow main_bedrock_control_with_overflow
+x-server: slack-www-hhvm-main-iad-eqdw
+x-slack-shared-secret-outcome: no-match
+via: envoy-www-iad-105p, envoy-edge-pdx-hhln
+x-edge-backend: envoy-www
+x-slack-edge-shared-secret-outcome: no-match
+connection: close
+Content-Length: 1205
+
+{"ok":true,"channel":{"id":"D031PUW2YG5","created":1644022234,"is_archived":false,"is_im":true,"is_org_shared":false,"user":"U016SQZLFEE","last_read":"1646795485.370579","latest":{"client_msg_id":"7b18dae5-0eb7-415f-a3ec-f184ac239588","type":"message","text":"<https:\/\/api.slack.com\/types\/conversation>","user":"U016SQZLFEE","ts":"1646795485.370579","team":"T017GL5AV5E","attachments":[{"from_url":"https:\/\/api.slack.com\/types\/conversation","thumb_url":"https:\/\/a.slack-edge.com\/80588\/img\/services\/api_200.png","thumb_width":200,"thumb_height":200,"service_icon":"https:\/\/a.slack-edge.com\/5f35cf0\/img\/icons\/favicon-32-ua.png","id":1,"original_url":"https:\/\/api.slack.com\/types\/conversation","fallback":"Slack API: API conversation type","text":"Discover the core objects you'll find throughout the Slack platform","title":"API conversation type","title_link":"https:\/\/api.slack.com\/types\/conversation","service_name":"Slack API"}],"blocks":[{"type":"rich_text","block_id":"vQLs","elements":[{"type":"rich_text_section","elements":[{"type":"link","url":"https:\/\/api.slack.com\/types\/conversation"}]}]}]},"unread_count":0,"unread_count_display":0,"is_open":true,"priority":0}}

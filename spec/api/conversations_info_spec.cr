@@ -1,17 +1,41 @@
 require "../spec_helper"
 
-describe Slack::Api::ConversationsInfo do
-  describe "#call" do
-    it "should request the conversation info resource from the API" do
-      load_cassette("conversations-info-success") do
-        token = ENV.fetch("SLACK_TEAM_AUTH_TOKEN", "faketoken")
-        response = Slack::Api::ConversationsInfo
-          .new(token: token, channel: "C032TLM43GA")
-          .call
+CHANNEL_CONVERSATION_ID = "C032TLM43GA"
+IM_CONVERSATION_ID      = "D031PUW2YG5"
 
-        response.is_a?(Slack::Api::Channel).should be_true
-        response.name.should eq "links"
+describe Slack::Api::ConversationsInfo do
+  context "IM conversations" do
+    describe "#call" do
+      it "should request the conversation info resource from the API" do
+        load_cassette("conversations-info-#{IM_CONVERSATION_ID}") do
+          token = ENV.fetch("SLACK_TEAM_AUTH_TOKEN", "faketoken")
+          response = Slack::Api::ConversationsInfo
+            .new(token: token, channel: IM_CONVERSATION_ID)
+            .call
+            .should be_a(Slack::Models::IMChat)
+
+          response.latest.user.should eq(response.user)
+        end
       end
     end
+  end
+
+  context "Channels" do
+    describe "#call" do
+      it "should request the conversation info resource from the API" do
+        load_cassette("conversations-info-#{CHANNEL_CONVERSATION_ID}") do
+          token = ENV.fetch("SLACK_TEAM_AUTH_TOKEN", "faketoken")
+          response = Slack::Api::ConversationsInfo
+            .new(token: token, channel: CHANNEL_CONVERSATION_ID)
+            .call
+            .should be_a(Slack::Models::PublicChannel)
+
+          response.name.should eq "links"
+        end
+      end
+    end
+  end
+
+  context "MPIM channels" do
   end
 end

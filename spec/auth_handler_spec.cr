@@ -19,6 +19,19 @@ class StubClient < HTTP::Client
 end
 
 describe Slack::AuthHandler do
+  describe "#redirect_url" do
+    it "should combine the proper URL to install the app" do
+      base_url = "https://slack.com/oauth/v2/authorize?"
+      expected = [
+        base_url,
+        "client_id=#{Slack.settings.client_id}&",
+        "scope=#{Slack.settings.bot_scopes.join(",")}&",
+        "redirect_uri=#{Slack::AuthHandler.settings.oauth_redirect_url}&",
+        "user_scope=#{Slack.settings.user_scopes.join(", ")}",
+      ].join
+      Slack::AuthHandler.new.redirect_url.should eq expected
+    end
+  end
   describe ".run" do
     context "without forgery protection via state param" do
       it "should take an oauth2 request from slack and return the auth info" do

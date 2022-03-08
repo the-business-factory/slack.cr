@@ -20,7 +20,7 @@ Crystal client for building Slack apps and tools using the Slack API.
 
 ```crystal
 Slack.configure do |config|
-  config.app_scopes = ["incoming-webhook"] # Array(String)
+  config.bot_scopes = ["incoming-webhook"] # Array(String)
   config.client_id = ENV["SLACK_CLIENT_ID"] # String
   config.client_secret = ENV["SLACK_CLIENT_SECRET"] # String
   config.signing_secret = ENV["SLACK_SIGNING_SECRET"] # String
@@ -93,7 +93,7 @@ class SlackWebhookEvent < WebhookAction
   post "/slack/webhook_events" do
     event_payload = Slack.process_request(request)
     case event_payload
-    when .is_a?(Slack::UrlVerification)
+    when Slack::UrlVerification
       json(event_payload.response)
     else
       handle_event(event_payload.event)
@@ -102,6 +102,8 @@ class SlackWebhookEvent < WebhookAction
   end
 
   def handle_event(message : Slack::Events::Message)
+    return unless message.public_channel?
+
     auth_token = SlackAccessTokenQuery
       .new
       .slack_team_id(message.team)
@@ -109,14 +111,14 @@ class SlackWebhookEvent < WebhookAction
       .desc_order
       .first
 
-    channel_id = message.channel.not_nil!
-    token = auth_token.token
+    # channel : Slack::Models::PublicChannel
+    channel = Slack::Api::ConversationsInfo.new(token, message.channel_id).call
 
-    # channel : Slack::Api::Channel
-    channel = Slack::Api::ConversationsInfo.new(token, channel_id).call
-
-    # Typically you'd do something more useful than this.
-    Log.info { "Channel Name: #{channel.name}" }
+    # Deal with Slack's polymorphic API in uniform ways.
+    case channel
+    when Slack::Models::PublicChannel
+      Log.info { "Public Team Channel Name: #{channel.name}" }
+    end
   end
 end
 ```
