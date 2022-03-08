@@ -2,14 +2,16 @@ require "habitat"
 require "http"
 require "json"
 require "./slack/mixins/**"
+require "./slack/models/**"
 require "./slack/api/**"
 require "./slack/events/**"
 
 module Slack
   Habitat.create do
-    setting app_scopes : Array(String) = ["incoming-webhook"]
+    setting bot_scopes : Array(String) = [] of String
     setting client_id : String = ENV["SLACK_CLIENT_ID"]
     setting client_secret : String = ENV["SLACK_CLIENT_SECRET"]
+    setting user_scopes : Array(String) = [] of String
     setting signing_secret : String = ENV["SLACK_SIGNING_SECRET"]
     setting signing_secret_version : String = "v0"
     setting webhook_delivery_time_limit : Time::Span = 5.minutes

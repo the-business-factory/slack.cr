@@ -2,7 +2,7 @@ class Slack::Events::Message::MessageChanged < Slack::Events::MessageSubtype
   property channel : String,
     channel_type : String,
     hidden : Bool,
-    previous_message : Message,
-    message : Message,
+    previous_message : Slack::EventData::MessageSubset,
+    message : Slack::EventData::MessageSubset,
     text : String?
 end

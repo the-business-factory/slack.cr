@@ -12,8 +12,8 @@ class Slack::Api::ConversationsInfo < Slack::Api::Base
     "https://slack.com/api/conversations.info?channel=#{channel}"
   end
 
-  def call
+  def call : Slack::Models::ConversationType
     result = HTTP::Client.get(base_url, headers: headers)
-    Slack::Api::Channel.from_json(result.body)
+    Slack::Models::Conversation.from_json(result.body)
   end
 end

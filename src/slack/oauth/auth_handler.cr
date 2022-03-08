@@ -1,6 +1,6 @@
 # https://api.slack.com/authentication/oauth-v2
 class Slack::AuthHandler
-  delegate client_id, client_secret, to: Slack.settings
+  delegate bot_scopes, client_id, client_secret, user_scopes, to: Slack.settings
 
   property http_client
 
@@ -16,7 +16,16 @@ class Slack::AuthHandler
   end
 
   def redirect_url
-    "https://slack.com/oauth/v2/authorize?scope=#{scope}&client_id=#{client_id}"
+    params = HTTP::Params.encode({
+      client_id:    client_id,
+      scope:        bot_scopes,
+      redirect_uri: settings.oauth_redirect_url,
+      user_scope:   user_scopes,
+    })
+
+    URI.decode_www_form(
+      URI.new("https", "slack.com/oauth/v2/authorize", query: params).to_s
+    )
   end
 
   def authenticate_user(request : HTTP::Request)
@@ -30,14 +39,20 @@ class Slack::AuthHandler
         code:          code,
         client_id:     client_id,
         client_secret: client_secret,
+        user_scopes:   user_scopes,
         redirect_uri:  settings.oauth_redirect_url,
+        scope:         bot_scopes,
       })
     )
 
     Slack::AuthResponse.from_json(response.body)
   end
 
-  private def scope
-    Slack.settings.app_scopes.join(",")
+  private def user_scopes
+    Slack.settings.user_scopes.join(",")
+  end
+
+  private def bot_scopes
+    Slack.settings.bot_scopes.join(",")
   end
 end

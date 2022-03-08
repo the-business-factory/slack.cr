@@ -1,4 +1,4 @@
-struct Slack::Api::Team < Slack::Api::BaseModel
+struct Slack::Models::Team < Slack::Models::Base
   property avatar_base_url : String,
     domain : String,
     email_domain : String,
