@@ -13,7 +13,7 @@
 <script type="text/javascript" src="../../js/doc.js"></script>
 
   <meta name="repository-name" content="slack">
-  <title>Slack::Events::TokensRevoked - slack main</title>
+  <title>Slack::Models::DirectMessage - slack main</title>
   <script type="text/javascript">
     CrystalDocs.base_path = "../../";
   </script>
@@ -171,7 +171,7 @@
       
     </li>
   
-  <li class="parent open current" data-id="slack/Slack/Events" data-name="slack::events">
+  <li class="parent " data-id="slack/Slack/Events" data-name="slack::events">
       <a href="../../Slack/Events.html">Events</a>
       
         <ul>
@@ -231,7 +231,7 @@
       
     </li>
   
-  <li class=" current" data-id="slack/Slack/Events/TokensRevoked" data-name="slack::events::tokensrevoked">
+  <li class=" " data-id="slack/Slack/Events/TokensRevoked" data-name="slack::events::tokensrevoked">
       <a href="../../Slack/Events/TokensRevoked.html">TokensRevoked</a>
       
     </li>
@@ -246,7 +246,7 @@
       
     </li>
   
-  <li class="parent " data-id="slack/Slack/Models" data-name="slack::models">
+  <li class="parent open current" data-id="slack/Slack/Models" data-name="slack::models">
       <a href="../../Slack/Models.html">Models</a>
       
         <ul>
@@ -271,7 +271,7 @@
       
     </li>
   
-  <li class=" " data-id="slack/Slack/Models/DirectMessage" data-name="slack::models::directmessage">
+  <li class=" current" data-id="slack/Slack/Models/DirectMessage" data-name="slack::models::directmessage">
       <a href="../../Slack/Models/DirectMessage.html">DirectMessage</a>
       
     </li>
@@ -370,12 +370,12 @@
 <div class="main-content">
 <h1 class="type-name">
 
-  <span class="kind">class</span> Slack::Events::TokensRevoked
+  <span class="kind">struct</span> Slack::Models::DirectMessage
 
 </h1>
 
 
-  <ul class="superclass-hierarchy"><li class="superclass"><a href="../../Slack/Events/TokensRevoked.html">Slack::Events::TokensRevoked</a></li><li class="superclass"><a href="../../Slack/Event.html">Slack::Event</a></li><li class="superclass">Reference</li><li class="superclass">Object</li></ul>
+  <ul class="superclass-hierarchy"><li class="superclass"><a href="../../Slack/Models/DirectMessage.html">Slack::Models::DirectMessage</a></li><li class="superclass"><a href="../../Slack/Models/Base.html">Slack::Models::Base</a></li><li class="superclass">Struct</li><li class="superclass">Value</li><li class="superclass">Object</li></ul>
 
 
 
@@ -403,8 +403,8 @@
   </h2>
   
     
-      <a href="https://github.com/the-business-factory/slack.cr/blob/08c70e4c1c0cae8df2b64b6f3ff52912b1c4bb34/src/slack/events/event_types/tokens_revoked.cr#L1" target="_blank">
-        slack/events/event_types/tokens_revoked.cr
+      <a href="https://github.com/the-business-factory/slack.cr/blob/08c70e4c1c0cae8df2b64b6f3ff52912b1c4bb34/src/slack/models/conversation_messages/direct_message.cr#L1" target="_blank">
+        slack/models/conversation_messages/direct_message.cr
       </a>
     
     <br/>
@@ -433,6 +433,23 @@
 
 
 
+  <h2>
+    <a id="class-method-summary" class="anchor" href="#class-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Class Method Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#from_json%28json%3AString%7CIO%29-class-method" class="signature"><strong>.from_json</strong>(json : String | IO)</a>
+        
+      </li>
+    
+  </ul>
+
 
 
   <h2>
@@ -446,22 +463,12 @@
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#event_ts%3ATime-instance-method" class="signature"><strong>#event_ts</strong> : Time</a>
+        <a href="#user%3AString-instance-method" class="signature"><strong>#user</strong> : String</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#event_ts%3D%28event_ts%3ATime%29-instance-method" class="signature"><strong>#event_ts=</strong>(event_ts : Time)</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#tokens%3AJSON%3A%3AAny-instance-method" class="signature"><strong>#tokens</strong> : JSON::Any</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#tokens%3D%28tokens%3AJSON%3A%3AAny%29-instance-method" class="signature"><strong>#tokens=</strong>(tokens : JSON::Any)</a>
+        <a href="#user%3D%28user%3AString%29-instance-method" class="signature"><strong>#user=</strong>(user : String)</a>
         
       </li>
     
@@ -475,27 +482,13 @@
   
     
 
-  <h3>Instance methods inherited from class <code><a href="../../Slack/Event.html">Slack::Event</a></code></h3>
-  
-  
-    <a href="../../Slack/Event.html#type%3AString-instance-method" class="tooltip">
-      <span>type : String</span>
-    type</a>, 
-    
-  
-    <a href="../../Slack/Event.html#type%3D%28type%3AString%29-instance-method" class="tooltip">
-      <span>type=(type : String)</span>
-    type=</a>
-    
-  
-
 
     
 
-  <h3>Constructor methods inherited from class <code><a href="../../Slack/Event.html">Slack::Event</a></code></h3>
+  <h3>Constructor methods inherited from struct <code><a href="../../Slack/Models/Base.html">Slack::Models::Base</a></code></h3>
   
   
-    <a href="../../Slack/Event.html#new%28pull%3AJSON%3A%3APullParser%29-class-method" class="tooltip">
+    <a href="../../Slack/Models/Base.html#new%28pull%3AJSON%3A%3APullParser%29-class-method" class="tooltip">
       <span>new(pull : JSON::PullParser)</span>
     new</a>
     
@@ -503,6 +496,15 @@
 
 
     
+
+  <h3>Class methods inherited from struct <code><a href="../../Slack/Models/Base.html">Slack::Models::Base</a></code></h3>
+  
+  
+    <a href="../../Slack/Models/Base.html#keyed_json_object%28json%3AString%7CIO%2Cfind_key%3AString%2C%26%29-class-method" class="tooltip">
+      <span>keyed_json_object(json : String | IO, find_key : String, &)<br/>keyed_json_object(json : String | IO, find_key : String)</span>
+    keyed_json_object</a>
+    
+  
 
 
   
@@ -569,13 +571,39 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/08c70e4c1c0cae8df2b64b6f3ff52912b1c4bb34/src/slack/events/event_types/tokens_revoked.cr#L1" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/08c70e4c1c0cae8df2b64b6f3ff52912b1c4bb34/src/slack/models/conversation_messages/direct_message.cr#L1" target="_blank">View source</a>]
         
       </div>
     </div>
   
 
 
+
+  <h2>
+    <a id="class-method-detail" class="anchor" href="#class-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Class Method Detail
+  </h2>
+  
+    <div class="entry-detail" id="from_json(json:String|IO)-class-method">
+      <div class="signature">
+        
+        def self.<strong>from_json</strong>(json : String | IO)
+
+        <a class="method-permalink" href="#from_json%28json%3AString%7CIO%29-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/08c70e4c1c0cae8df2b64b6f3ff52912b1c4bb34/src/slack/models/conversation_messages/direct_message.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
 
 
 
@@ -588,66 +616,34 @@
     Instance Method Detail
   </h2>
   
-    <div class="entry-detail" id="event_ts:Time-instance-method">
+    <div class="entry-detail" id="user:String-instance-method">
       <div class="signature">
         
-        def <strong>event_ts</strong> : Time
+        def <strong>user</strong> : String
 
-        <a class="method-permalink" href="#event_ts%3ATime-instance-method">#</a>
+        <a class="method-permalink" href="#user%3AString-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/08c70e4c1c0cae8df2b64b6f3ff52912b1c4bb34/src/slack/events/event_types/tokens_revoked.cr#L5" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/08c70e4c1c0cae8df2b64b6f3ff52912b1c4bb34/src/slack/models/conversation_messages/direct_message.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="event_ts=(event_ts:Time)-instance-method">
+    <div class="entry-detail" id="user=(user:String)-instance-method">
       <div class="signature">
         
-        def <strong>event_ts=</strong>(event_ts : Time)
+        def <strong>user=</strong>(user : String)
 
-        <a class="method-permalink" href="#event_ts%3D%28event_ts%3ATime%29-instance-method">#</a>
+        <a class="method-permalink" href="#user%3D%28user%3AString%29-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/08c70e4c1c0cae8df2b64b6f3ff52912b1c4bb34/src/slack/events/event_types/tokens_revoked.cr#L5" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="tokens:JSON::Any-instance-method">
-      <div class="signature">
-        
-        def <strong>tokens</strong> : JSON::Any
-
-        <a class="method-permalink" href="#tokens%3AJSON%3A%3AAny-instance-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/08c70e4c1c0cae8df2b64b6f3ff52912b1c4bb34/src/slack/events/event_types/tokens_revoked.cr#L2" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="tokens=(tokens:JSON::Any)-instance-method">
-      <div class="signature">
-        
-        def <strong>tokens=</strong>(tokens : JSON::Any)
-
-        <a class="method-permalink" href="#tokens%3D%28tokens%3AJSON%3A%3AAny%29-instance-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/08c70e4c1c0cae8df2b64b6f3ff52912b1c4bb34/src/slack/events/event_types/tokens_revoked.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/08c70e4c1c0cae8df2b64b6f3ff52912b1c4bb34/src/slack/models/conversation_messages/direct_message.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>

@@ -71,16 +71,6 @@
       
     </li>
   
-  <li class=" " data-id="slack/Slack/Api/BaseModel" data-name="slack::api::basemodel">
-      <a href="Slack/Api/BaseModel.html">BaseModel</a>
-      
-    </li>
-  
-  <li class=" " data-id="slack/Slack/Api/Channel" data-name="slack::api::channel">
-      <a href="Slack/Api/Channel.html">Channel</a>
-      
-    </li>
-  
   <li class=" " data-id="slack/Slack/Api/ConversationsInfo" data-name="slack::api::conversationsinfo">
       <a href="Slack/Api/ConversationsInfo.html">ConversationsInfo</a>
       
@@ -88,11 +78,6 @@
   
   <li class=" " data-id="slack/Slack/Api/Error" data-name="slack::api::error">
       <a href="Slack/Api/Error.html">Error</a>
-      
-    </li>
-  
-  <li class=" " data-id="slack/Slack/Api/Team" data-name="slack::api::team">
-      <a href="Slack/Api/Team.html">Team</a>
       
     </li>
   
@@ -166,6 +151,26 @@
       
     </li>
   
+  <li class="parent " data-id="slack/Slack/EventData" data-name="slack::eventdata">
+      <a href="Slack/EventData.html">EventData</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/EventData/Attachment" data-name="slack::eventdata::attachment">
+      <a href="Slack/EventData/Attachment.html">Attachment</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/EventData/MessageSubset" data-name="slack::eventdata::messagesubset">
+      <a href="Slack/EventData/MessageSubset.html">MessageSubset</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
   <li class="parent " data-id="slack/Slack/Events" data-name="slack::events">
       <a href="Slack/Events.html">Events</a>
       
@@ -178,11 +183,6 @@
   
   <li class=" " data-id="slack/Slack/Events/AppUninstalled" data-name="slack::events::appuninstalled">
       <a href="Slack/Events/AppUninstalled.html">AppUninstalled</a>
-      
-    </li>
-  
-  <li class=" " data-id="slack/Slack/Events/Attachment" data-name="slack::events::attachment">
-      <a href="Slack/Events/Attachment.html">Attachment</a>
       
     </li>
   
@@ -243,6 +243,66 @@
   
   <li class=" " data-id="slack/Slack/HabitatSettings" data-name="slack::habitatsettings">
       <a href="Slack/HabitatSettings.html">HabitatSettings</a>
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/Models" data-name="slack::models">
+      <a href="Slack/Models.html">Models</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/Models/Base" data-name="slack::models::base">
+      <a href="Slack/Models/Base.html">Base</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Models/ChannelMessage" data-name="slack::models::channelmessage">
+      <a href="Slack/Models/ChannelMessage.html">ChannelMessage</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Models/Conversation" data-name="slack::models::conversation">
+      <a href="Slack/Models/Conversation.html">Conversation</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Models/ConversationType" data-name="slack::models::conversationtype">
+      <a href="Slack/Models/ConversationType.html">ConversationType</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Models/DirectMessage" data-name="slack::models::directmessage">
+      <a href="Slack/Models/DirectMessage.html">DirectMessage</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Models/IMChat" data-name="slack::models::imchat">
+      <a href="Slack/Models/IMChat.html">IMChat</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Models/PrivateChannel" data-name="slack::models::privatechannel">
+      <a href="Slack/Models/PrivateChannel.html">PrivateChannel</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Models/PrivateChannelMessage" data-name="slack::models::privatechannelmessage">
+      <a href="Slack/Models/PrivateChannelMessage.html">PrivateChannelMessage</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Models/PublicChannel" data-name="slack::models::publicchannel">
+      <a href="Slack/Models/PublicChannel.html">PublicChannel</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Models/Team" data-name="slack::models::team">
+      <a href="Slack/Models/Team.html">Team</a>
+      
+    </li>
+  
+</ul>
+
       
     </li>
   
@@ -340,7 +400,7 @@
   </svg>
 </a>Configuration</h3>
 <pre><code class="language-crystal"><span class="t">Slack</span>.configure <span class="k">do</span> <span class="o">|</span>config<span class="o">|</span>
-  config.app_scopes <span class="o">=</span> [<span class="s">&quot;incoming-webhook&quot;</span>] <span class="c"># Array(String)</span>
+  config.bot_scopes <span class="o">=</span> [<span class="s">&quot;incoming-webhook&quot;</span>] <span class="c"># Array(String)</span>
   config.client_id <span class="o">=</span> <span class="t">ENV</span>[<span class="s">&quot;SLACK_CLIENT_ID&quot;</span>] <span class="c"># String</span>
   config.client_secret <span class="o">=</span> <span class="t">ENV</span>[<span class="s">&quot;SLACK_CLIENT_SECRET&quot;</span>] <span class="c"># String</span>
   config.signing_secret <span class="o">=</span> <span class="t">ENV</span>[<span class="s">&quot;SLACK_SIGNING_SECRET&quot;</span>] <span class="c"># String</span>
@@ -412,7 +472,7 @@
   post <span class="s">&quot;/slack/webhook_events&quot;</span> <span class="k">do</span>
     event_payload <span class="o">=</span> <span class="t">Slack</span>.process_request(request)
     <span class="k">case</span> event_payload
-    <span class="k">when</span> .<span class="k">is_a?</span>(<span class="t">Slack</span><span class="t">::</span><span class="t">UrlVerification</span>)
+    <span class="k">when</span> <span class="t">Slack</span><span class="t">::</span><span class="t">UrlVerification</span>
       json(event_payload.response)
     <span class="k">else</span>
       handle_event(event_payload.event)
@@ -421,6 +481,8 @@
   <span class="k">end</span>
 
   <span class="k">def</span> <span class="m">handle_event</span>(message : <span class="t">Slack</span><span class="t">::</span><span class="t">Events</span><span class="t">::</span><span class="t">Message</span>)
+    <span class="k">return</span> <span class="k">unless</span> message.public_channel?
+
     auth_token <span class="o">=</span> <span class="t">SlackAccessTokenQuery</span>
       .<span class="k">new</span>
       .slack_team_id(message.team)
@@ -428,14 +490,14 @@
       .desc_order
       .first
 
-    channel_id <span class="o">=</span> message.channel.not_nil!
-    token <span class="o">=</span> auth_token.token
+    <span class="c"># channel : Slack::Models::PublicChannel</span>
+    channel <span class="o">=</span> <span class="t">Slack</span><span class="t">::</span><span class="t">Api</span><span class="t">::</span><span class="t">ConversationsInfo</span>.<span class="k">new</span>(token, message.channel_id).call
 
-    <span class="c"># channel : Slack::Api::Channel</span>
-    channel <span class="o">=</span> <span class="t">Slack</span><span class="t">::</span><span class="t">Api</span><span class="t">::</span><span class="t">ConversationsInfo</span>.<span class="k">new</span>(token, channel_id).call
-
-    <span class="c"># Typically you&#39;d do something more useful than this.</span>
-    <span class="t">Log</span>.info { <span class="s">&quot;Channel Name: </span><span class="i">#{</span>channel.name<span class="i">}</span><span class="s">&quot;</span> }
+    <span class="c"># Deal with Slack&#39;s polymorphic API in uniform ways.</span>
+    <span class="k">case</span> channel
+    <span class="k">when</span> <span class="t">Slack</span><span class="t">::</span><span class="t">Models</span><span class="t">::</span><span class="t">PublicChannel</span>
+      <span class="t">Log</span>.info { <span class="s">&quot;Public Team Channel Name: </span><span class="i">#{</span>channel.name<span class="i">}</span><span class="s">&quot;</span> }
+    <span class="k">end</span>
   <span class="k">end</span>
 <span class="k">end</span></code></pre>
 <h3><a id="other-examples" class="anchor" href="#other-examples">

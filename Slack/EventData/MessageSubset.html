@@ -13,7 +13,7 @@
 <script type="text/javascript" src="../../js/doc.js"></script>
 
   <meta name="repository-name" content="slack">
-  <title>Slack::Events::TokensRevoked - slack main</title>
+  <title>Slack::EventData::MessageSubset - slack main</title>
   <script type="text/javascript">
     CrystalDocs.base_path = "../../";
   </script>
@@ -151,7 +151,7 @@
       
     </li>
   
-  <li class="parent " data-id="slack/Slack/EventData" data-name="slack::eventdata">
+  <li class="parent open current" data-id="slack/Slack/EventData" data-name="slack::eventdata">
       <a href="../../Slack/EventData.html">EventData</a>
       
         <ul>
@@ -161,7 +161,7 @@
       
     </li>
   
-  <li class=" " data-id="slack/Slack/EventData/MessageSubset" data-name="slack::eventdata::messagesubset">
+  <li class=" current" data-id="slack/Slack/EventData/MessageSubset" data-name="slack::eventdata::messagesubset">
       <a href="../../Slack/EventData/MessageSubset.html">MessageSubset</a>
       
     </li>
@@ -171,7 +171,7 @@
       
     </li>
   
-  <li class="parent open current" data-id="slack/Slack/Events" data-name="slack::events">
+  <li class="parent " data-id="slack/Slack/Events" data-name="slack::events">
       <a href="../../Slack/Events.html">Events</a>
       
         <ul>
@@ -231,7 +231,7 @@
       
     </li>
   
-  <li class=" current" data-id="slack/Slack/Events/TokensRevoked" data-name="slack::events::tokensrevoked">
+  <li class=" " data-id="slack/Slack/Events/TokensRevoked" data-name="slack::events::tokensrevoked">
       <a href="../../Slack/Events/TokensRevoked.html">TokensRevoked</a>
       
     </li>
@@ -370,12 +370,12 @@
 <div class="main-content">
 <h1 class="type-name">
 
-  <span class="kind">class</span> Slack::Events::TokensRevoked
+  <span class="kind">struct</span> Slack::EventData::MessageSubset
 
 </h1>
 
 
-  <ul class="superclass-hierarchy"><li class="superclass"><a href="../../Slack/Events/TokensRevoked.html">Slack::Events::TokensRevoked</a></li><li class="superclass"><a href="../../Slack/Event.html">Slack::Event</a></li><li class="superclass">Reference</li><li class="superclass">Object</li></ul>
+  <ul class="superclass-hierarchy"><li class="superclass"><a href="../../Slack/EventData/MessageSubset.html">Slack::EventData::MessageSubset</a></li><li class="superclass">Struct</li><li class="superclass">Value</li><li class="superclass">Object</li></ul>
 
 
 
@@ -383,6 +383,20 @@
 
 
 
+
+  <h2>
+    <a id="included-modules" class="anchor" href="#included-modules">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Included Modules
+  </h2>
+  <ul class="other-types-list">
+    
+      <li class="other-type">JSON::Serializable</li>
+    
+  </ul>
 
 
 
@@ -403,8 +417,8 @@
   </h2>
   
     
-      <a href="https://github.com/the-business-factory/slack.cr/blob/08c70e4c1c0cae8df2b64b6f3ff52912b1c4bb34/src/slack/events/event_types/tokens_revoked.cr#L1" target="_blank">
-        slack/events/event_types/tokens_revoked.cr
+      <a href="https://github.com/the-business-factory/slack.cr/blob/08c70e4c1c0cae8df2b64b6f3ff52912b1c4bb34/src/slack/events/event_data/message_subset.cr#L1" target="_blank">
+        slack/events/event_data/message_subset.cr
       </a>
     
     <br/>
@@ -446,22 +460,52 @@
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#event_ts%3ATime-instance-method" class="signature"><strong>#event_ts</strong> : Time</a>
+        <a href="#attachments%3AArray%28Slack%3A%3AEventData%3A%3AAttachment%29%3F-instance-method" class="signature"><strong>#attachments</strong> : Array(Slack::EventData::Attachment)?</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#event_ts%3D%28event_ts%3ATime%29-instance-method" class="signature"><strong>#event_ts=</strong>(event_ts : Time)</a>
+        <a href="#attachments%3D%28attachments%3AArray%28Slack%3A%3AEventData%3A%3AAttachment%29%3F%29-instance-method" class="signature"><strong>#attachments=</strong>(attachments : Array(Slack::EventData::Attachment)?)</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#tokens%3AJSON%3A%3AAny-instance-method" class="signature"><strong>#tokens</strong> : JSON::Any</a>
+        <a href="#client_msg_id%3AString-instance-method" class="signature"><strong>#client_msg_id</strong> : String</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#tokens%3D%28tokens%3AJSON%3A%3AAny%29-instance-method" class="signature"><strong>#tokens=</strong>(tokens : JSON::Any)</a>
+        <a href="#client_msg_id%3D%28client_msg_id%3AString%29-instance-method" class="signature"><strong>#client_msg_id=</strong>(client_msg_id : String)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#team%3AString-instance-method" class="signature"><strong>#team</strong> : String</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#team%3D%28team%3AString%29-instance-method" class="signature"><strong>#team=</strong>(team : String)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#text%3AString-instance-method" class="signature"><strong>#text</strong> : String</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#text%3D%28text%3AString%29-instance-method" class="signature"><strong>#text=</strong>(text : String)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#ts%3ATime-instance-method" class="signature"><strong>#ts</strong> : Time</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#ts%3D%28ts%3ATime%29-instance-method" class="signature"><strong>#ts=</strong>(ts : Time)</a>
         
       </li>
     
@@ -472,39 +516,6 @@
 
 
 <div class="methods-inherited">
-  
-    
-
-  <h3>Instance methods inherited from class <code><a href="../../Slack/Event.html">Slack::Event</a></code></h3>
-  
-  
-    <a href="../../Slack/Event.html#type%3AString-instance-method" class="tooltip">
-      <span>type : String</span>
-    type</a>, 
-    
-  
-    <a href="../../Slack/Event.html#type%3D%28type%3AString%29-instance-method" class="tooltip">
-      <span>type=(type : String)</span>
-    type=</a>
-    
-  
-
-
-    
-
-  <h3>Constructor methods inherited from class <code><a href="../../Slack/Event.html">Slack::Event</a></code></h3>
-  
-  
-    <a href="../../Slack/Event.html#new%28pull%3AJSON%3A%3APullParser%29-class-method" class="tooltip">
-      <span>new(pull : JSON::PullParser)</span>
-    new</a>
-    
-  
-
-
-    
-
-
   
     
 
@@ -569,7 +580,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/08c70e4c1c0cae8df2b64b6f3ff52912b1c4bb34/src/slack/events/event_types/tokens_revoked.cr#L1" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/08c70e4c1c0cae8df2b64b6f3ff52912b1c4bb34/src/slack/events/event_data/message_subset.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -588,66 +599,162 @@
     Instance Method Detail
   </h2>
   
-    <div class="entry-detail" id="event_ts:Time-instance-method">
+    <div class="entry-detail" id="attachments:Array(Slack::EventData::Attachment)?-instance-method">
       <div class="signature">
         
-        def <strong>event_ts</strong> : Time
+        def <strong>attachments</strong> : Array(<a href="../../Slack/EventData/Attachment.html">Slack::EventData::Attachment</a>)?
 
-        <a class="method-permalink" href="#event_ts%3ATime-instance-method">#</a>
+        <a class="method-permalink" href="#attachments%3AArray%28Slack%3A%3AEventData%3A%3AAttachment%29%3F-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/08c70e4c1c0cae8df2b64b6f3ff52912b1c4bb34/src/slack/events/event_types/tokens_revoked.cr#L5" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/08c70e4c1c0cae8df2b64b6f3ff52912b1c4bb34/src/slack/events/event_data/message_subset.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="event_ts=(event_ts:Time)-instance-method">
+    <div class="entry-detail" id="attachments=(attachments:Array(Slack::EventData::Attachment)?)-instance-method">
       <div class="signature">
         
-        def <strong>event_ts=</strong>(event_ts : Time)
+        def <strong>attachments=</strong>(attachments : Array(<a href="../../Slack/EventData/Attachment.html">Slack::EventData::Attachment</a>)?)
 
-        <a class="method-permalink" href="#event_ts%3D%28event_ts%3ATime%29-instance-method">#</a>
+        <a class="method-permalink" href="#attachments%3D%28attachments%3AArray%28Slack%3A%3AEventData%3A%3AAttachment%29%3F%29-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/08c70e4c1c0cae8df2b64b6f3ff52912b1c4bb34/src/slack/events/event_types/tokens_revoked.cr#L5" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/08c70e4c1c0cae8df2b64b6f3ff52912b1c4bb34/src/slack/events/event_data/message_subset.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="tokens:JSON::Any-instance-method">
+    <div class="entry-detail" id="client_msg_id:String-instance-method">
       <div class="signature">
         
-        def <strong>tokens</strong> : JSON::Any
+        def <strong>client_msg_id</strong> : String
 
-        <a class="method-permalink" href="#tokens%3AJSON%3A%3AAny-instance-method">#</a>
+        <a class="method-permalink" href="#client_msg_id%3AString-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/08c70e4c1c0cae8df2b64b6f3ff52912b1c4bb34/src/slack/events/event_types/tokens_revoked.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/08c70e4c1c0cae8df2b64b6f3ff52912b1c4bb34/src/slack/events/event_data/message_subset.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="tokens=(tokens:JSON::Any)-instance-method">
+    <div class="entry-detail" id="client_msg_id=(client_msg_id:String)-instance-method">
       <div class="signature">
         
-        def <strong>tokens=</strong>(tokens : JSON::Any)
+        def <strong>client_msg_id=</strong>(client_msg_id : String)
 
-        <a class="method-permalink" href="#tokens%3D%28tokens%3AJSON%3A%3AAny%29-instance-method">#</a>
+        <a class="method-permalink" href="#client_msg_id%3D%28client_msg_id%3AString%29-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/08c70e4c1c0cae8df2b64b6f3ff52912b1c4bb34/src/slack/events/event_types/tokens_revoked.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/08c70e4c1c0cae8df2b64b6f3ff52912b1c4bb34/src/slack/events/event_data/message_subset.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="team:String-instance-method">
+      <div class="signature">
+        
+        def <strong>team</strong> : String
+
+        <a class="method-permalink" href="#team%3AString-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/08c70e4c1c0cae8df2b64b6f3ff52912b1c4bb34/src/slack/events/event_data/message_subset.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="team=(team:String)-instance-method">
+      <div class="signature">
+        
+        def <strong>team=</strong>(team : String)
+
+        <a class="method-permalink" href="#team%3D%28team%3AString%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/08c70e4c1c0cae8df2b64b6f3ff52912b1c4bb34/src/slack/events/event_data/message_subset.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="text:String-instance-method">
+      <div class="signature">
+        
+        def <strong>text</strong> : String
+
+        <a class="method-permalink" href="#text%3AString-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/08c70e4c1c0cae8df2b64b6f3ff52912b1c4bb34/src/slack/events/event_data/message_subset.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="text=(text:String)-instance-method">
+      <div class="signature">
+        
+        def <strong>text=</strong>(text : String)
+
+        <a class="method-permalink" href="#text%3D%28text%3AString%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/08c70e4c1c0cae8df2b64b6f3ff52912b1c4bb34/src/slack/events/event_data/message_subset.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="ts:Time-instance-method">
+      <div class="signature">
+        
+        def <strong>ts</strong> : Time
+
+        <a class="method-permalink" href="#ts%3ATime-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/08c70e4c1c0cae8df2b64b6f3ff52912b1c4bb34/src/slack/events/event_data/message_subset.cr#L10" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="ts=(ts:Time)-instance-method">
+      <div class="signature">
+        
+        def <strong>ts=</strong>(ts : Time)
+
+        <a class="method-permalink" href="#ts%3D%28ts%3ATime%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/08c70e4c1c0cae8df2b64b6f3ff52912b1c4bb34/src/slack/events/event_data/message_subset.cr#L10" target="_blank">View source</a>]
         
       </div>
     </div>
