@@ -1,5 +1,5 @@
-module Slack::SerializableEvent
-  macro use_optional_discriminator(field, mapping)
+module Slack::OptionalDiscriminator
+  macro use_optional_discriminator_on(field, default_type, mapping)
     {% unless mapping.is_a?(HashLiteral) || mapping.is_a?(NamedTupleLiteral) %}
       {% mapping.raise "mapping argument must be a HashLiteral or a NamedTupleLiteral, not #{mapping.class_name.id}" %}
     {% end %}
@@ -36,7 +36,7 @@ module Slack::SerializableEvent
       end
 
       unless discriminator_value
-        return self.new_from_json_pull_parser JSON::PullParser.new json
+        return {{default_type}}.from_json(json)
       end
 
       case discriminator_value
