@@ -13,7 +13,7 @@
 <script type="text/javascript" src="../js/doc.js"></script>
 
   <meta name="repository-name" content="slack">
-  <title>Slack::SerializableEvent - slack main</title>
+  <title>Slack::OptionalDiscriminator - slack main</title>
   <script type="text/javascript">
     CrystalDocs.base_path = "../";
   </script>
@@ -216,6 +216,11 @@
       
     </li>
   
+  <li class=" " data-id="slack/Slack/Events/MessageFactory" data-name="slack::events::messagefactory">
+      <a href="../Slack/Events/MessageFactory.html">MessageFactory</a>
+      
+    </li>
+  
   <li class=" " data-id="slack/Slack/Events/MessageSubtype" data-name="slack::events::messagesubtype">
       <a href="../Slack/Events/MessageSubtype.html">MessageSubtype</a>
       
@@ -306,8 +311,8 @@
       
     </li>
   
-  <li class=" current" data-id="slack/Slack/SerializableEvent" data-name="slack::serializableevent">
-      <a href="../Slack/SerializableEvent.html">SerializableEvent</a>
+  <li class=" current" data-id="slack/Slack/OptionalDiscriminator" data-name="slack::optionaldiscriminator">
+      <a href="../Slack/OptionalDiscriminator.html">OptionalDiscriminator</a>
       
     </li>
   
@@ -370,7 +375,7 @@
 <div class="main-content">
 <h1 class="type-name">
 
-  <span class="kind">module</span> Slack::SerializableEvent
+  <span class="kind">module</span> Slack::OptionalDiscriminator
 
 </h1>
 
@@ -398,7 +403,7 @@
   </h2>
   <ul class="other-types-list">
     
-      <li class="other-type"><a href="../Slack/Event.html">Slack::Event</a></li>
+      <li class="other-type"><a href="../Slack/Events/MessageFactory.html">Slack::Events::MessageFactory</a></li>
     
   </ul>
 
@@ -415,8 +420,8 @@
   </h2>
   
     
-      <a href="https://github.com/the-business-factory/slack.cr/blob/08c70e4c1c0cae8df2b64b6f3ff52912b1c4bb34/src/slack/mixins/serializable_event.cr#L1" target="_blank">
-        slack/mixins/serializable_event.cr
+      <a href="https://github.com/the-business-factory/slack.cr/blob/8260df2ffcdaaef6c65e52228cc2daef70dc5ac5/src/slack/mixins/optional_discriminator.cr#L1" target="_blank">
+        slack/mixins/optional_discriminator.cr
       </a>
     
     <br/>
@@ -443,7 +448,7 @@
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#use_optional_discriminator%28field%2Cmapping%29-macro" class="signature"><strong>use_optional_discriminator</strong>(field, mapping)</a>
+        <a href="#use_optional_discriminator_on%28field%2Cdefault_type%2Cmapping%29-macro" class="signature"><strong>use_optional_discriminator_on</strong>(field, default_type, mapping)</a>
         
       </li>
     
@@ -471,18 +476,18 @@
     Macro Detail
   </h2>
   
-    <div class="entry-detail" id="use_optional_discriminator(field,mapping)-macro">
+    <div class="entry-detail" id="use_optional_discriminator_on(field,default_type,mapping)-macro">
       <div class="signature">
         
-        macro <strong>use_optional_discriminator</strong>(field, mapping)
+        macro <strong>use_optional_discriminator_on</strong>(field, default_type, mapping)
 
-        <a class="method-permalink" href="#use_optional_discriminator%28field%2Cmapping%29-macro">#</a>
+        <a class="method-permalink" href="#use_optional_discriminator_on%28field%2Cdefault_type%2Cmapping%29-macro">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/08c70e4c1c0cae8df2b64b6f3ff52912b1c4bb34/src/slack/mixins/serializable_event.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8260df2ffcdaaef6c65e52228cc2daef70dc5ac5/src/slack/mixins/optional_discriminator.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>

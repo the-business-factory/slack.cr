@@ -13,7 +13,7 @@
 <script type="text/javascript" src="../../js/doc.js"></script>
 
   <meta name="repository-name" content="slack">
-  <title>Slack::Api::ConversationsInfo - slack main</title>
+  <title>Slack::Events::MessageFactory - slack main</title>
   <script type="text/javascript">
     CrystalDocs.base_path = "../../";
   </script>
@@ -61,7 +61,7 @@
       
         <ul>
   
-  <li class="parent open current" data-id="slack/Slack/Api" data-name="slack::api">
+  <li class="parent " data-id="slack/Slack/Api" data-name="slack::api">
       <a href="../../Slack/Api.html">Api</a>
       
         <ul>
@@ -71,7 +71,7 @@
       
     </li>
   
-  <li class=" current" data-id="slack/Slack/Api/ConversationsInfo" data-name="slack::api::conversationsinfo">
+  <li class=" " data-id="slack/Slack/Api/ConversationsInfo" data-name="slack::api::conversationsinfo">
       <a href="../../Slack/Api/ConversationsInfo.html">ConversationsInfo</a>
       
     </li>
@@ -171,7 +171,7 @@
       
     </li>
   
-  <li class="parent " data-id="slack/Slack/Events" data-name="slack::events">
+  <li class="parent open current" data-id="slack/Slack/Events" data-name="slack::events">
       <a href="../../Slack/Events.html">Events</a>
       
         <ul>
@@ -216,7 +216,7 @@
       
     </li>
   
-  <li class=" " data-id="slack/Slack/Events/MessageFactory" data-name="slack::events::messagefactory">
+  <li class=" current" data-id="slack/Slack/Events/MessageFactory" data-name="slack::events::messagefactory">
       <a href="../../Slack/Events/MessageFactory.html">MessageFactory</a>
       
     </li>
@@ -375,12 +375,12 @@
 <div class="main-content">
 <h1 class="type-name">
 
-  <span class="kind">class</span> Slack::Api::ConversationsInfo
+  <span class="kind">class</span> Slack::Events::MessageFactory
 
 </h1>
 
 
-  <ul class="superclass-hierarchy"><li class="superclass"><a href="../../Slack/Api/ConversationsInfo.html">Slack::Api::ConversationsInfo</a></li><li class="superclass"><a href="../../Slack/Api/Base.html">Slack::Api::Base</a></li><li class="superclass">Reference</li><li class="superclass">Object</li></ul>
+  <ul class="superclass-hierarchy"><li class="superclass"><a href="../../Slack/Events/MessageFactory.html">Slack::Events::MessageFactory</a></li><li class="superclass">Reference</li><li class="superclass">Object</li></ul>
 
 
 
@@ -388,6 +388,20 @@
 
 
 
+
+  <h2>
+    <a id="included-modules" class="anchor" href="#included-modules">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Included Modules
+  </h2>
+  <ul class="other-types-list">
+    
+      <li class="other-type"><a href="../../Slack/OptionalDiscriminator.html">Slack::OptionalDiscriminator</a></li>
+    
+  </ul>
 
 
 
@@ -408,8 +422,8 @@
   </h2>
   
     
-      <a href="https://github.com/the-business-factory/slack.cr/blob/8260df2ffcdaaef6c65e52228cc2daef70dc5ac5/src/slack/api/endpoints/conversations_info.cr#L1" target="_blank">
-        slack/api/endpoints/conversations_info.cr
+      <a href="https://github.com/the-business-factory/slack.cr/blob/8260df2ffcdaaef6c65e52228cc2daef70dc5ac5/src/slack/events/event_types/message_factory.cr#L1" target="_blank">
+        slack/events/event_types/message_factory.cr
       </a>
     
     <br/>
@@ -430,7 +444,7 @@
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#new%28token%3AString%2Cchannel%3AString%29-class-method" class="signature"><strong>.new</strong>(token : String, channel : String)</a>
+        <a href="#new%28pull%3AJSON%3A%3APullParser%29-class-method" class="signature"><strong>.new</strong>(pull : JSON::PullParser)</a>
         
       </li>
     
@@ -439,38 +453,6 @@
 
 
 
-
-  <h2>
-    <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Instance Method Summary
-  </h2>
-  <ul class="list-summary">
-    
-      <li class="entry-summary">
-        <a href="#base_url-instance-method" class="signature"><strong>#base_url</strong></a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#call%3ASlack%3A%3AModels%3A%3AConversationType-instance-method" class="signature"><strong>#call</strong> : Slack::Models::ConversationType</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#channel%3AString-instance-method" class="signature"><strong>#channel</strong> : String</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#content_type%3AContentTypes-instance-method" class="signature"><strong>#content_type</strong> : ContentTypes</a>
-        
-      </li>
-    
-  </ul>
 
 
 
@@ -480,46 +462,8 @@
   
     
 
-  <h3>Instance methods inherited from class <code><a href="../../Slack/Api/Base.html">Slack::Api::Base</a></code></h3>
-  
-  
-    <a href="../../Slack/Api/Base.html#base_url-instance-method" class="tooltip">
-      <span>base_url</span>
-    base_url</a>, 
-    
-  
-    <a href="../../Slack/Api/Base.html#call%3ASlack%3A%3AModels%3A%3ABase-instance-method" class="tooltip">
-      <span>call : Slack::Models::Base</span>
-    call</a>, 
-    
-  
-    <a href="../../Slack/Api/Base.html#content_type%3AContentTypes-instance-method" class="tooltip">
-      <span>content_type : ContentTypes</span>
-    content_type</a>, 
-    
-  
-    <a href="../../Slack/Api/Base.html#headers-instance-method" class="tooltip">
-      <span>headers</span>
-    headers</a>, 
-    
-  
-    <a href="../../Slack/Api/Base.html#token%3AString-instance-method" class="tooltip">
-      <span>token : String</span>
-    token</a>
-    
-  
-
 
     
-
-  <h3>Constructor methods inherited from class <code><a href="../../Slack/Api/Base.html">Slack::Api::Base</a></code></h3>
-  
-  
-    <a href="../../Slack/Api/Base.html#new%28token%3AString%29-class-method" class="tooltip">
-      <span>new(token : String)</span>
-    new</a>
-    
-  
 
 
     
@@ -558,18 +502,18 @@
     Constructor Detail
   </h2>
   
-    <div class="entry-detail" id="new(token:String,channel:String)-class-method">
+    <div class="entry-detail" id="new(pull:JSON::PullParser)-class-method">
       <div class="signature">
         
-        def self.<strong>new</strong>(token : String, channel : String)
+        def self.<strong>new</strong>(pull : JSON::PullParser)
 
-        <a class="method-permalink" href="#new%28token%3AString%2Cchannel%3AString%29-class-method">#</a>
+        <a class="method-permalink" href="#new%28pull%3AJSON%3A%3APullParser%29-class-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/8260df2ffcdaaef6c65e52228cc2daef70dc5ac5/src/slack/api/endpoints/conversations_info.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8260df2ffcdaaef6c65e52228cc2daef70dc5ac5/src/slack/events/event_types/message_factory.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -578,80 +522,6 @@
 
 
 
-
-  <h2>
-    <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Instance Method Detail
-  </h2>
-  
-    <div class="entry-detail" id="base_url-instance-method">
-      <div class="signature">
-        
-        def <strong>base_url</strong>
-
-        <a class="method-permalink" href="#base_url-instance-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/8260df2ffcdaaef6c65e52228cc2daef70dc5ac5/src/slack/api/endpoints/conversations_info.cr#L11" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="call:Slack::Models::ConversationType-instance-method">
-      <div class="signature">
-        
-        def <strong>call</strong> : <a href="../../Slack/Models/ConversationType.html">Slack::Models::ConversationType</a>
-
-        <a class="method-permalink" href="#call%3ASlack%3A%3AModels%3A%3AConversationType-instance-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/8260df2ffcdaaef6c65e52228cc2daef70dc5ac5/src/slack/api/endpoints/conversations_info.cr#L15" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="channel:String-instance-method">
-      <div class="signature">
-        
-        def <strong>channel</strong> : String
-
-        <a class="method-permalink" href="#channel%3AString-instance-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/8260df2ffcdaaef6c65e52228cc2daef70dc5ac5/src/slack/api/endpoints/conversations_info.cr#L2" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="content_type:ContentTypes-instance-method">
-      <div class="signature">
-        
-        def <strong>content_type</strong> : <a href="../../ContentTypes.html">ContentTypes</a>
-
-        <a class="method-permalink" href="#content_type%3AContentTypes-instance-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/8260df2ffcdaaef6c65e52228cc2daef70dc5ac5/src/slack/api/endpoints/conversations_info.cr#L7" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
 
 
 
