@@ -27,14 +27,19 @@ Slack.configure do |config|
   config.signing_secret_version = "v0" # String
   config.webhook_delivery_time_limit = 5.minutes # Time::Span
 end
+
+# Most apps will want to have OAuth enabled for installation.
+Slack::AuthHandler.configure do |config|
+  config.oauth_redirect_url = ENV["OAUTH_REDIRECT_URL"]
+end
 ```
 
-### Processing Webhooks
+### Processing Webhook Events
 ```crystal
 require "slack"
 
-def process_request(request : HTTP::Request)
-  event_payload = Slack.process_request(event)
+def process_webhook(request : HTTP::Request)
+  event_payload = Slack.process_webhook(event)
   case event_payload
   when .is_a?(Slack::UrlVerification)
     json(event_payload.response.to_json)
@@ -53,45 +58,11 @@ def handle_event(unhandled_event)
 end
 ```
 
-### OAuth Configuration (Optional)
-slack.cr comes bundled with handling of Slack OAuth flow, allowing the use of tokens for web and other API calls.
-
-```crystal
-Slack::AuthHandler.configure do |config|
-  config.oauth_redirect_url = ENV["OAUTH_REDIRECT_URL"]
-end
-```
-
-```crystal
-# Simple Example from a small Lucky app
-require "slack/oauth"
-class SlackAuth < BrowserAction
-  include Auth::AllowGuests
-
-  get "/slack/auth" do
-    # auth_response : Slack::AuthResponse
-    auth_response = Slack::AuthHandler.run(request)
-
-    SaveSlackAccessToken.create!(
-      slack_team_id: auth_response.team.id,
-      slack_team_name: auth_response.team.name,
-      token: auth_response.access_token,
-      json_body: JSON.parse(auth_response.to_json)
-    )
-
-    # Normally you'd want to do something else here, like redirect...
-    json({ ok: true })
-  end
-end
-```
-
 ### Web API calls
 ```crystal
-# Continuing our example Lucky app... on webhook receipt, this calls the API
-# to get data that isn't in the webhook body.
 class SlackWebhookEvent < WebhookAction
   post "/slack/webhook_events" do
-    event_payload = Slack.process_request(request)
+    event_payload = Slack.process_webhook(request)
     case event_payload
     when Slack::UrlVerification
       json(event_payload.response)
@@ -123,8 +94,54 @@ class SlackWebhookEvent < WebhookAction
 end
 ```
 
-### Other Examples
-[Using Lucky Web Framework](examples/lucky.md)
+### Slack UI Tools
+```crystal
+# Users can easily define custom UI components to help build out "app specific"
+# "UI Kits" fairly easily, focusing on the UX and business logic rather than
+# the stupid internals of Slack's API.
+class ButtonSection < Slack::UI::CustomComponent
+  include Slack::UI::BaseComponents
+
+  def self.render(action_id : String)
+    buttons = %w(Submit Cancel).map do |text|
+      style = text == "Submit" ? ButtonStyles::Primary : ButtonStyles::Danger
+      Button.render(
+        action_id: "#{action_id}_#{text.downcase}",
+        button_text: text,
+        style: style
+      )
+    end
+
+    Slack::UI::Blocks::Actions.new elements: buttons
+  end
+end
+
+class SlackLinkPage < WebhookAction
+  include Slack::UI::BaseComponents
+
+  post "/slack/links" do
+    command = Slack.process_command(request)
+    text = command.text.presence || "nothing"
+
+    text_section = TextSection.render(
+      text: "processed #{command.command} with #{text} as text."
+    )
+
+    input_element = InputElement.render(
+      action_id: "compensation",
+      placeholder_text: "e.g. $120,000-$190,000",
+      label_text: "Compensation",
+      initial_value: ""
+    )
+
+    button_section = ButtonSection.render(
+      action_id: "button_group_#{Random::Secure.hex}"
+    )
+
+    json({blocks: [text_section, input_element, button_section]})
+  end
+end
+```
 
 ## Contributing
 

@@ -1,4 +1,4 @@
-class Slack::Event
+abstract class Slack::Event
   include JSON::Serializable
 
   property type : String

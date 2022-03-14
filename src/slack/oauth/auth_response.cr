@@ -24,13 +24,13 @@ struct Slack::AuthResponse
         when true
           return_value = new JSON::PullParser.new(json)
         else
-          raise Slack::Auth::Error.new(json)
+          raise Errors::Auth.new(json)
         end
       else
         pull.skip
       end
     end
 
-    return_value || raise Slack::Auth::Error.new(json)
+    return_value || raise Errors::Auth.new(json)
   end
 end

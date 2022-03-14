@@ -1,3 +1,5 @@
 require "habitat"
 require "json"
+require "openssl/hmac"
+require "./slack/mixins/**"
 require "./slack/oauth/**"

@@ -1,4 +1,4 @@
-struct Slack::Models::DirectMessage < Slack::Models::Base
+struct Slack::Models::DirectMessage < Slack::Model
   property user : String
 
   def self.from_json(json : String | IO)

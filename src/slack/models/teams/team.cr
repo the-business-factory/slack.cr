@@ -1,5 +1,5 @@
-struct Slack::Models::Team < Slack::Models::Base
-  property avatar_base_url : String,
+struct Slack::Models::Team < Slack::Model
+  properties_with_initializer avatar_base_url : String,
     domain : String,
     email_domain : String,
     icon : JSON::Any,

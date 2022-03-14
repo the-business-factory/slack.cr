@@ -1,10 +1,23 @@
 require "habitat"
 require "http"
 require "json"
+require "openssl/hmac"
 require "./slack/mixins/**"
-require "./slack/models/**"
+require "./slack/types/**"
+require "./slack/errors/**"
+require "./slack/api/endpoints/base"
 require "./slack/api/**"
+require "./slack/commands/**"
+require "./slack/event"
 require "./slack/events/**"
+require "./slack/interaction"
+require "./slack/interactions/**"
+require "./slack/model"
+require "./slack/models/**"
+require "./slack/webhooks/**"
+require "./slack/ui/dynamic_text_composition"
+require "./slack/ui/composition_objects/**"
+require "./slack/ui/**"
 
 module Slack
   Habitat.create do
@@ -17,8 +30,18 @@ module Slack
     setting webhook_delivery_time_limit : Time::Span = 5.minutes
   end
 
-  def self.process_request(request : HTTP::Request)
+  def self.process_webhook(request : HTTP::Request)
     from_json Webhooks::VerifiedRequest.new(request: request).verify!.body
+  end
+
+  def self.process_command(request : HTTP::Request) : Slack::Command
+    verified_body = Webhooks::VerifiedRequest.new(request: request).verify!.body
+    Command.from_json URI::Params.parse(verified_body).to_h.to_json
+  end
+
+  def self.process_interaction(request : HTTP::Request)
+    verified_body = Webhooks::VerifiedRequest.new(request: request).verify!.body
+    Interaction.from_json URI::Params.parse(verified_body).to_h["payload"]
   end
 
   def self.from_json(json : String | IO)

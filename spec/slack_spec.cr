@@ -60,8 +60,8 @@ describe Slack do
         body: event
       )
 
-      expect_raises(Slack::Webhooks::VerifiedRequest::ReplayAttackError) do
-        Slack.process_request(request)
+      expect_raises(Slack::Errors::ReplayAttack) do
+        Slack.process_webhook(request)
       end
     end
   end
@@ -82,8 +82,8 @@ describe Slack do
         body: event
       )
 
-      expect_raises(Slack::Webhooks::VerifiedRequest::SignatureMismatchError) do
-        Slack.process_request(request)
+      expect_raises(Slack::Errors::SignatureMismatch) do
+        Slack.process_webhook(request)
       end
     end
   end
@@ -91,37 +91,33 @@ describe Slack do
   context "message events" do
     it "handles message_deleted events" do
       request = build_request("message", "message_deleted")
-      event = Slack.process_request(request).as(Slack::VerifiedEvent).event
-      event.is_a?(Slack::Events::Message::MessageDeleted).should be_true
+      event = Slack.process_webhook(request).should be_a Slack::VerifiedEvent
+      event.event.should be_a Slack::Events::Message::MessageDeleted
     end
 
     it "handles message_changed events" do
       request = build_request("message", "message_changed")
-      event = Slack.process_request(request).as(Slack::VerifiedEvent).event
-      event.is_a?(Slack::Events::Message::MessageChanged).should be_true
+      event = Slack.process_webhook(request).should be_a Slack::VerifiedEvent
+      event.event.should be_a Slack::Events::Message::MessageChanged
     end
 
     it "handles new message events (no subtype)" do
       request = build_request("message")
-      event = Slack
-        .process_request(request)
-        .as(Slack::VerifiedEvent)
-        .event
-        .as(Slack::Events::Message)
-
-      event.text.should match /testing multiple repeated links/
+      event = Slack.process_webhook(request).should be_a Slack::VerifiedEvent
+      nested_event = event.event.should be_a Slack::Events::Message
+      nested_event.text.should match /testing multiple repeated links/
     end
 
     it "handles bot add events" do
       request = build_request("message", "bot_add")
-      event = Slack.process_request(request).as(Slack::VerifiedEvent).event
-      event.is_a?(Slack::Events::Message::BotAdd).should be_true
+      event = Slack.process_webhook(request).should be_a Slack::VerifiedEvent
+      event.event.should be_a Slack::Events::Message::BotAdd
     end
 
     it "handles channel join events" do
       request = build_request("message", "channel_join")
-      event = Slack.process_request(request).as(Slack::VerifiedEvent).event
-      event.is_a?(Slack::Events::Message::ChannelJoin).should be_true
+      event = Slack.process_webhook(request).should be_a Slack::VerifiedEvent
+      event.event.should be_a Slack::Events::Message::ChannelJoin
     end
   end
 
@@ -162,54 +158,76 @@ describe Slack do
         "event_time": 1644729352
       }
       JSON
-      json = Slack.process_request(request).to_pretty_json
+      json = Slack.process_webhook(request).to_pretty_json
       json.should eq expected_json
     end
   end
 
   it "should handle removed reactions" do
     request = build_request("reaction_removed")
-    event = Slack.process_request(request).as(Slack::VerifiedEvent).event
-    event.is_a?(Slack::Events::ReactionRemoved).should be_true
+    event = Slack.process_webhook(request).should be_a Slack::VerifiedEvent
+    event.event.should be_a Slack::Events::ReactionRemoved
   end
 
   it "should handle added reactions" do
     request = build_request("reaction_added")
-    event = Slack.process_request(request).as(Slack::VerifiedEvent).event
-    event.is_a?(Slack::Events::ReactionAdded).should be_true
+    event = Slack.process_webhook(request).should be_a Slack::VerifiedEvent
+    event.event.should be_a Slack::Events::ReactionAdded
   end
 
   it "should handle app uninstalled events" do
     request = build_request("app_uninstalled")
-    event = Slack.process_request(request).as(Slack::VerifiedEvent).event
-    event.is_a?(Slack::Events::AppUninstalled).should be_true
+    event = Slack.process_webhook(request).should be_a Slack::VerifiedEvent
+    event.event.should be_a Slack::Events::AppUninstalled
   end
 
   it "should handle app_home_opened events" do
     request = build_request("app_home_opened")
-
-    event = Slack
-      .process_request(request)
-      .as(Slack::VerifiedEvent)
-      .event
-      .as(Slack::Events::AppHomeOpened)
-
-    event.tab.should eq "home"
-    event.type.should eq "app_home_opened"
+    event = Slack.process_webhook(request).should be_a Slack::VerifiedEvent
+    nested_event = event.event.should be_a Slack::Events::AppHomeOpened
+    nested_event.tab.should eq "home"
+    nested_event.type.should eq "app_home_opened"
   end
 
   it "should handle token revoked events" do
     request = build_request("tokens_revoked")
-    event = Slack.process_request(request).as(Slack::VerifiedEvent).event
-    event.is_a?(Slack::Events::TokensRevoked).should be_true
+    event = Slack.process_webhook(request).should be_a Slack::VerifiedEvent
+    event.event.should be_a Slack::Events::TokensRevoked
   end
 
   it "should handle url verification events" do
     request = build_request("url_verification")
-    event = Slack.process_request(request).as(Slack::UrlVerification)
+    event = Slack.process_webhook(request).should be_a Slack::UrlVerification
     expected_json = {
       "challenge" => "3eZbrw1aBm2rZgRNFdxV2595E9CY3gmdALWMmHkvFXO7tYXAYM8P",
     }.to_json
     event.response.to_json.should eq expected_json
+  end
+
+  it "should handle slack commands with encoded names" do
+    body = File.read("spec/fixtures/commands/encoded_names.txt")
+    headers, body = build_headers_and_body(body)
+    request = build_http_request(headers, body)
+    command = Slack.process_command(request).should be_a Slack::Command
+    command.decoded_usernames.first.id.should eq "U016RDVB4Q5"
+    command.decoded_usernames.first.name.should eq "username.with.spaces"
+    command.decoded_channels[0].id.should eq "C016C36NRKR"
+    command.decoded_channels[0].name.should eq "tools"
+    command.decoded_channels[1].id.should eq "C01702XL4TE"
+    command.decoded_channels[1].name.should eq "customer-development"
+    command.plaintext_channels.should be_empty
+    command.plaintext_usernames.should be_empty
+  end
+
+  it "should handle slack commands with unencoded names" do
+    body = File.read("spec/fixtures/commands/unencoded_names.txt")
+    headers, body = build_headers_and_body(body)
+    request = build_http_request(headers, body)
+    command = Slack.process_command(request).should be_a Slack::Command
+    command.plaintext_usernames[0].name.should eq "username.with.spaces"
+    command.plaintext_usernames[1].name.should eq "robcole"
+    command.plaintext_channels[0].name.should eq "tools"
+    command.decoded_usernames.should be_empty
+    command.decoded_channels.should be_empty
   end
 end

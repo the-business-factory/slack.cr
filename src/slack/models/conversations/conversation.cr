@@ -1,4 +1,4 @@
-struct Slack::Models::Conversation < Slack::Models::Base
+struct Slack::Models::Conversation < Slack::Model
   def self.from_json(json : String | IO)
     keyed_json_object(json, "channel") do |pull|
       pull.read_object do |key|
@@ -18,6 +18,6 @@ struct Slack::Models::Conversation < Slack::Models::Base
       end
     end
 
-    raise Slack::Api::Error.new(json)
+    raise Slack::Errors::Api.new(json)
   end
 end

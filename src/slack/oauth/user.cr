@@ -1,7 +1,8 @@
 struct Slack::Auth::User
   include JSON::Serializable
+  include Slack::InitializerMacros
 
-  property access_token : String?,
+  properties_with_initializer access_token : String?,
     id : String,
     expires_in : Int32?,
     refresh_token : String?,
