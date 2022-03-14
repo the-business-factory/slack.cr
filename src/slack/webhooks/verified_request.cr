@@ -1,19 +1,5 @@
-require "openssl/hmac"
-
 # https://api.slack.com/authentication/verifying-requests-from-slack
 class Slack::Webhooks::VerifiedRequest
-  class ReplayAttackError < Exception
-    def initialize
-      super("Replay attack detected")
-    end
-  end
-
-  class SignatureMismatchError < Exception
-    def initialize
-      super("Slack webhook signature mismatch")
-    end
-  end
-
   getter request : HTTP::Request
   getter slack_signature : String
   getter slack_timestamp : String
@@ -30,8 +16,8 @@ class Slack::Webhooks::VerifiedRequest
   end
 
   def verify!
-    raise ReplayAttackError.new if replay_attack?
-    raise SignatureMismatchError.new unless signature_matches?
+    raise Errors::ReplayAttack.new if replay_attack?
+    raise Errors::SignatureMismatch.new unless signature_matches?
     self
   end
 

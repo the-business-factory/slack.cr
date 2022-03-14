@@ -1,4 +1,4 @@
-struct Slack::Models::ChannelMessage < Slack::Models::Base
+struct Slack::Models::ChannelMessage < Slack::Model
   property attachments : Array(Slack::EventData::Attachment),
     blocks : Array(JSON::Any),
     channel : String,

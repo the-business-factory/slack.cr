@@ -1,2 +1,2 @@
-struct Slack::Models::PrivateChannelMessage < Slack::Models::Base
+struct Slack::Models::PrivateChannelMessage < Slack::Model
 end

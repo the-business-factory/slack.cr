@@ -1,0 +1,13 @@
+token=E6FV7uzAaZoqjhbU56ZKNnIk
+&team_id=T017GL5AV5E
+&team_domain=goalsurfer
+&channel_id=C018WG4NLJW
+&channel_name=random
+&user_id=U016SQZLFEE
+&user_name=robcole
+&command=%2Flinks
+&text=%40username.with.spaces+%40robcole+%23tools+%23customer-development
+&api_app_id=A031L6N0Q3G
+&is_enterprise_install=false
+&response_url=https%3A%2F%2Fhooks.slack.com%2Fcommands%2FT017GL5AV5E%2F3245668569729%2FnbFDyQPECzZeJP3Tex7Ci2Md
+&trigger_id=3226412373862.1254685369184.b0530ec32ba318d226f7bbaabeeaec79

@@ -15,7 +15,7 @@ abstract class Slack::Api::Base
   end
 
   abstract def base_url
-  abstract def call : Slack::Models::Base
+  abstract def call : Slack::Model
   abstract def content_type : ContentTypes
 
   def headers

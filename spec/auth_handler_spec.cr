@@ -7,14 +7,12 @@ require "../src/slack/oauth/**"
 # the authentication tokens.
 class StubClient < HTTP::Client
   struct StubResponse
-    property body : String
-
-    def initialize(@body)
-    end
+    include Slack::InitializerMacros
+    properties_with_initializer body : String
   end
 
-  def self.post(**kwargs)
-    StubResponse.new File.read("spec/fixtures/auth_success.json")
+  def self.post(**_kwargs)
+    StubResponse.new body: File.read("spec/fixtures/auth_success.json")
   end
 end
 
@@ -32,6 +30,7 @@ describe Slack::AuthHandler do
       Slack::AuthHandler.new.redirect_url.should eq expected
     end
   end
+
   describe ".run" do
     context "without forgery protection via state param" do
       it "should take an oauth2 request from slack and return the auth info" do

@@ -1,5 +1,6 @@
-abstract struct Slack::Models::Base
+abstract struct Slack::Model
   include JSON::Serializable
+  include Slack::InitializerMacros
 
   def self.keyed_json_object(json : String | IO, find_key : String, &block)
     pull = JSON::PullParser.new(json)
@@ -11,7 +12,7 @@ abstract struct Slack::Models::Base
         pull.skip
       end
     end
-    return_value || raise Slack::Api::Error.new(json)
+    return_value || raise Slack::Errors::Api.new(json)
   end
 
   def self.keyed_json_object(json : String | IO, find_key : String)
