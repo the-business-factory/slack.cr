@@ -18,7 +18,7 @@ struct Slack::Models::PublicChannel < Slack::Models::ConversationType
     unread_count : Int16?
 
   @[JSON::Field(converter: Slack::DecimalTimeStampConverter)]
-  property last_read : Time
+  property last_read : Time?
 
   def self.from_json(json : String | IO)
     keyed_json_object(json, find_key: "channel")
