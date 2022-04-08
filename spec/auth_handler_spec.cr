@@ -11,7 +11,7 @@ class StubClient < HTTP::Client
     properties_with_initializer body : String
   end
 
-  def self.post(**_kwargs)
+  def post(_url, **_args)
     StubResponse.new body: File.read("spec/fixtures/auth_success.json")
   end
 end
@@ -40,7 +40,7 @@ describe Slack::AuthHandler do
           headers: HTTP::Headers.new
         )
 
-        result = Slack::AuthHandler.run(request, StubClient)
+        result = Slack::AuthHandler.run(request, StubClient.new("example.com"))
         result.team.name.should eq "Slack Softball Team"
       end
     end
