@@ -825,7 +825,7 @@
   </h2>
   
     
-      <a href="https://github.com/the-business-factory/slack.cr/blob/4daf49549f8e4e98c5bfc4c23e2c1b3485387184/src/slack/oauth/auth_handler.cr#L2" target="_blank">
+      <a href="https://github.com/the-business-factory/slack.cr/blob/2ffde7f4e4c210618b5f0ede782ff4d713967403/src/slack/oauth/auth_handler.cr#L2" target="_blank">
         slack/oauth/auth_handler.cr
       </a>
     
@@ -866,7 +866,17 @@
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#new%28http_client%3AHTTP%3A%3AClient.class%3DHTTP%3A%3AClient%29-class-method" class="signature"><strong>.new</strong>(http_client : <span class="t">HTTP</span><span class="t">::</span><span class="t">Client</span>.<span class="k">class</span> = <span class="t">HTTP</span><span class="t">::</span><span class="t">Client</span>)</a>
+        <a href="#new%28client%3ANil%29-class-method" class="signature"><strong>.new</strong>(client : Nil)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#new%28client%3AHTTP%3A%3AClient%29-class-method" class="signature"><strong>.new</strong>(client : HTTP::Client)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#new-class-method" class="signature"><strong>.new</strong></a>
         
       </li>
     
@@ -890,7 +900,7 @@
       </li>
     
       <li class="entry-summary">
-        <a href="#run%28request%3AHTTP%3A%3ARequest%2Chttp_client%3DHTTP%3A%3AClient%29-class-method" class="signature"><strong>.run</strong>(request : HTTP::Request, http_client = <span class="t">HTTP</span><span class="t">::</span><span class="t">Client</span>)</a>
+        <a href="#run%28request%3AHTTP%3A%3ARequest%2Chttp_client%3Dnil%29-class-method" class="signature"><strong>.run</strong>(request : HTTP::Request, http_client = <span class="n">nil</span>)</a>
         
       </li>
     
@@ -949,7 +959,7 @@
       </li>
     
       <li class="entry-summary">
-        <a href="#http_client%3AHTTP%3A%3AClient.class-instance-method" class="signature"><strong>#http_client</strong> : HTTP::Client.class</a>
+        <a href="#http_client%3AHTTP%3A%3AClient-instance-method" class="signature"><strong>#http_client</strong> : HTTP::Client</a>
         
       </li>
     
@@ -1038,18 +1048,50 @@
     Constructor Detail
   </h2>
   
-    <div class="entry-detail" id="new(http_client:HTTP::Client.class=HTTP::Client)-class-method">
+    <div class="entry-detail" id="new(client:Nil)-class-method">
       <div class="signature">
         
-        def self.<strong>new</strong>(http_client : <span class="t">HTTP</span><span class="t">::</span><span class="t">Client</span>.<span class="k">class</span> = <span class="t">HTTP</span><span class="t">::</span><span class="t">Client</span>)
+        def self.<strong>new</strong>(client : Nil)
 
-        <a class="method-permalink" href="#new%28http_client%3AHTTP%3A%3AClient.class%3DHTTP%3A%3AClient%29-class-method">#</a>
+        <a class="method-permalink" href="#new%28client%3ANil%29-class-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/4daf49549f8e4e98c5bfc4c23e2c1b3485387184/src/slack/oauth/auth_handler.cr#L7" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/2ffde7f4e4c210618b5f0ede782ff4d713967403/src/slack/oauth/auth_handler.cr#L15" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="new(client:HTTP::Client)-class-method">
+      <div class="signature">
+        
+        def self.<strong>new</strong>(client : HTTP::Client)
+
+        <a class="method-permalink" href="#new%28client%3AHTTP%3A%3AClient%29-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/2ffde7f4e4c210618b5f0ede782ff4d713967403/src/slack/oauth/auth_handler.cr#L11" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="new-class-method">
+      <div class="signature">
+        
+        def self.<strong>new</strong>
+
+        <a class="method-permalink" href="#new-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/2ffde7f4e4c210618b5f0ede782ff4d713967403/src/slack/oauth/auth_handler.cr#L19" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1077,23 +1119,23 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/4daf49549f8e4e98c5bfc4c23e2c1b3485387184/src/slack/oauth/auth_handler.cr#L10" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/2ffde7f4e4c210618b5f0ede782ff4d713967403/src/slack/oauth/auth_handler.cr#L3" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="run(request:HTTP::Request,http_client=HTTP::Client)-class-method">
+    <div class="entry-detail" id="run(request:HTTP::Request,http_client=nil)-class-method">
       <div class="signature">
         
-        def self.<strong>run</strong>(request : HTTP::Request, http_client = <span class="t">HTTP</span><span class="t">::</span><span class="t">Client</span>)
+        def self.<strong>run</strong>(request : HTTP::Request, http_client = <span class="n">nil</span>)
 
-        <a class="method-permalink" href="#run%28request%3AHTTP%3A%3ARequest%2Chttp_client%3DHTTP%3A%3AClient%29-class-method">#</a>
+        <a class="method-permalink" href="#run%28request%3AHTTP%3A%3ARequest%2Chttp_client%3Dnil%29-class-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/4daf49549f8e4e98c5bfc4c23e2c1b3485387184/src/slack/oauth/auth_handler.cr#L14" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/2ffde7f4e4c210618b5f0ede782ff4d713967403/src/slack/oauth/auth_handler.cr#L27" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1109,7 +1151,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/4daf49549f8e4e98c5bfc4c23e2c1b3485387184/src/slack/oauth/auth_handler.cr#L10" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/2ffde7f4e4c210618b5f0ede782ff4d713967403/src/slack/oauth/auth_handler.cr#L3" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1137,7 +1179,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/4daf49549f8e4e98c5bfc4c23e2c1b3485387184/src/slack/oauth/auth_handler.cr#L31" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/2ffde7f4e4c210618b5f0ede782ff4d713967403/src/slack/oauth/auth_handler.cr#L44" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1153,7 +1195,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/4daf49549f8e4e98c5bfc4c23e2c1b3485387184/src/slack/oauth/auth_handler.cr#L3" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/2ffde7f4e4c210618b5f0ede782ff4d713967403/src/slack/oauth/auth_handler.cr#L7" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1169,7 +1211,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/4daf49549f8e4e98c5bfc4c23e2c1b3485387184/src/slack/oauth/auth_handler.cr#L3" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/2ffde7f4e4c210618b5f0ede782ff4d713967403/src/slack/oauth/auth_handler.cr#L7" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1185,7 +1227,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/4daf49549f8e4e98c5bfc4c23e2c1b3485387184/src/slack/oauth/auth_handler.cr#L3" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/2ffde7f4e4c210618b5f0ede782ff4d713967403/src/slack/oauth/auth_handler.cr#L7" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1201,7 +1243,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/4daf49549f8e4e98c5bfc4c23e2c1b3485387184/src/slack/oauth/auth_handler.cr#L3" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/2ffde7f4e4c210618b5f0ede782ff4d713967403/src/slack/oauth/auth_handler.cr#L7" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1217,7 +1259,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/4daf49549f8e4e98c5bfc4c23e2c1b3485387184/src/slack/oauth/auth_handler.cr#L3" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/2ffde7f4e4c210618b5f0ede782ff4d713967403/src/slack/oauth/auth_handler.cr#L7" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1233,23 +1275,23 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/4daf49549f8e4e98c5bfc4c23e2c1b3485387184/src/slack/oauth/auth_handler.cr#L3" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/2ffde7f4e4c210618b5f0ede782ff4d713967403/src/slack/oauth/auth_handler.cr#L7" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="http_client:HTTP::Client.class-instance-method">
+    <div class="entry-detail" id="http_client:HTTP::Client-instance-method">
       <div class="signature">
         
-        def <strong>http_client</strong> : HTTP::Client.class
+        def <strong>http_client</strong> : HTTP::Client
 
-        <a class="method-permalink" href="#http_client%3AHTTP%3A%3AClient.class-instance-method">#</a>
+        <a class="method-permalink" href="#http_client%3AHTTP%3A%3AClient-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/4daf49549f8e4e98c5bfc4c23e2c1b3485387184/src/slack/oauth/auth_handler.cr#L5" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/2ffde7f4e4c210618b5f0ede782ff4d713967403/src/slack/oauth/auth_handler.cr#L9" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1265,7 +1307,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/4daf49549f8e4e98c5bfc4c23e2c1b3485387184/src/slack/oauth/auth_handler.cr#L5" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/2ffde7f4e4c210618b5f0ede782ff4d713967403/src/slack/oauth/auth_handler.cr#L9" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1281,7 +1323,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/4daf49549f8e4e98c5bfc4c23e2c1b3485387184/src/slack/oauth/auth_handler.cr#L18" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/2ffde7f4e4c210618b5f0ede782ff4d713967403/src/slack/oauth/auth_handler.cr#L31" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1297,7 +1339,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/4daf49549f8e4e98c5bfc4c23e2c1b3485387184/src/slack/oauth/auth_handler.cr#L10" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/2ffde7f4e4c210618b5f0ede782ff4d713967403/src/slack/oauth/auth_handler.cr#L3" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1313,7 +1355,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/4daf49549f8e4e98c5bfc4c23e2c1b3485387184/src/slack/oauth/auth_handler.cr#L3" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/2ffde7f4e4c210618b5f0ede782ff4d713967403/src/slack/oauth/auth_handler.cr#L7" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1329,7 +1371,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/4daf49549f8e4e98c5bfc4c23e2c1b3485387184/src/slack/oauth/auth_handler.cr#L3" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/2ffde7f4e4c210618b5f0ede782ff4d713967403/src/slack/oauth/auth_handler.cr#L7" target="_blank">View source</a>]
         
       </div>
     </div>
