@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Crystal Docs 1.3.2">
+<meta name="crystal_docs.project_version" content="main">
+<meta name="crystal_docs.project_name" content="slack">
+
+
+
+<link href="../../css/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="../../js/doc.js"></script>
+
+  <meta name="repository-name" content="slack">
+  <title>Slack::Command::PlainTextReference - slack main</title>
+  <script type="text/javascript">
+    CrystalDocs.base_path = "../../";
+  </script>
+</head>
+<body>
+
+<svg class="hidden">
+  <symbol id="octicon-link" viewBox="0 0 16 16">
+    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+  </symbol>
+</svg>
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="search-box">
+      <input type="search" class="search-input" placeholder="Search..." spellcheck="false" aria-label="Search">
+    </div>
+
+    <div class="project-summary">
+      <h1 class="project-name">
+        <a href="../../index.html">
+          slack
+        </a>
+      </h1>
+
+      <span class="project-version">
+        main
+      </span>
+    </div>
+  </div>
+
+  <div class="search-results hidden">
+    <ul class="search-list"></ul>
+  </div>
+
+  <div class="types-list">
+    <ul>
+  
+  <li class="parent open current" data-id="slack/Slack" data-name="slack">
+      <a href="../../Slack.html">Slack</a>
+      
+        <ul>
+  
+  <li class="parent " data-id="slack/Slack/Api" data-name="slack::api">
+      <a href="../../Slack/Api.html">Api</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/Api/Base" data-name="slack::api::base">
+      <a href="../../Slack/Api/Base.html">Base</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Api/ConversationsInfo" data-name="slack::api::conversationsinfo">
+      <a href="../../Slack/Api/ConversationsInfo.html">ConversationsInfo</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Api/TeamInfo" data-name="slack::api::teaminfo">
+      <a href="../../Slack/Api/TeamInfo.html">TeamInfo</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/Auth" data-name="slack::auth">
+      <a href="../../Slack/Auth.html">Auth</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/Auth/Enterprise" data-name="slack::auth::enterprise">
+      <a href="../../Slack/Auth/Enterprise.html">Enterprise</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Auth/Team" data-name="slack::auth::team">
+      <a href="../../Slack/Auth/Team.html">Team</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Auth/User" data-name="slack::auth::user">
+      <a href="../../Slack/Auth/User.html">User</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/AuthHandler" data-name="slack::authhandler">
+      <a href="../../Slack/AuthHandler.html">AuthHandler</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/AuthHandler/HabitatSettings" data-name="slack::authhandler::habitatsettings">
+      <a href="../../Slack/AuthHandler/HabitatSettings.html">HabitatSettings</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/AuthResponse" data-name="slack::authresponse">
+      <a href="../../Slack/AuthResponse.html">AuthResponse</a>
+      
+    </li>
+  
+  <li class="parent open current" data-id="slack/Slack/Command" data-name="slack::command">
+      <a href="../../Slack/Command.html">Command</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/Command/EncodedTextReference" data-name="slack::command::encodedtextreference">
+      <a href="../../Slack/Command/EncodedTextReference.html">EncodedTextReference</a>
+      
+    </li>
+  
+  <li class=" current" data-id="slack/Slack/Command/PlainTextReference" data-name="slack::command::plaintextreference">
+      <a href="../../Slack/Command/PlainTextReference.html">PlainTextReference</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/ContentTypes" data-name="slack::contenttypes">
+      <a href="../../Slack/ContentTypes.html">ContentTypes</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/DecimalTimeStampConverter" data-name="slack::decimaltimestampconverter">
+      <a href="../../Slack/DecimalTimeStampConverter.html">DecimalTimeStampConverter</a>
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/Errors" data-name="slack::errors">
+      <a href="../../Slack/Errors.html">Errors</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/Errors/Api" data-name="slack::errors::api">
+      <a href="../../Slack/Errors/Api.html">Api</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Errors/Auth" data-name="slack::errors::auth">
+      <a href="../../Slack/Errors/Auth.html">Auth</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Errors/InvalidUIBlock" data-name="slack::errors::invaliduiblock">
+      <a href="../../Slack/Errors/InvalidUIBlock.html">InvalidUIBlock</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Errors/ReplayAttack" data-name="slack::errors::replayattack">
+      <a href="../../Slack/Errors/ReplayAttack.html">ReplayAttack</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Errors/SignatureMismatch" data-name="slack::errors::signaturemismatch">
+      <a href="../../Slack/Errors/SignatureMismatch.html">SignatureMismatch</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Event" data-name="slack::event">
+      <a href="../../Slack/Event.html">Event</a>
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/EventData" data-name="slack::eventdata">
+      <a href="../../Slack/EventData.html">EventData</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/EventData/Attachment" data-name="slack::eventdata::attachment">
+      <a href="../../Slack/EventData/Attachment.html">Attachment</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/EventData/MessageSubset" data-name="slack::eventdata::messagesubset">
+      <a href="../../Slack/EventData/MessageSubset.html">MessageSubset</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/Events" data-name="slack::events">
+      <a href="../../Slack/Events.html">Events</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/Events/AppHomeOpened" data-name="slack::events::apphomeopened">
+      <a href="../../Slack/Events/AppHomeOpened.html">AppHomeOpened</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Events/AppUninstalled" data-name="slack::events::appuninstalled">
+      <a href="../../Slack/Events/AppUninstalled.html">AppUninstalled</a>
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/Events/Message" data-name="slack::events::message">
+      <a href="../../Slack/Events/Message.html">Message</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/Events/Message/BotAdd" data-name="slack::events::message::botadd">
+      <a href="../../Slack/Events/Message/BotAdd.html">BotAdd</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Events/Message/ChannelJoin" data-name="slack::events::message::channeljoin">
+      <a href="../../Slack/Events/Message/ChannelJoin.html">ChannelJoin</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Events/Message/MessageChanged" data-name="slack::events::message::messagechanged">
+      <a href="../../Slack/Events/Message/MessageChanged.html">MessageChanged</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Events/Message/MessageDeleted" data-name="slack::events::message::messagedeleted">
+      <a href="../../Slack/Events/Message/MessageDeleted.html">MessageDeleted</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Events/MessageFactory" data-name="slack::events::messagefactory">
+      <a href="../../Slack/Events/MessageFactory.html">MessageFactory</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Events/MessageSubtype" data-name="slack::events::messagesubtype">
+      <a href="../../Slack/Events/MessageSubtype.html">MessageSubtype</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Events/ReactionAdded" data-name="slack::events::reactionadded">
+      <a href="../../Slack/Events/ReactionAdded.html">ReactionAdded</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Events/ReactionRemoved" data-name="slack::events::reactionremoved">
+      <a href="../../Slack/Events/ReactionRemoved.html">ReactionRemoved</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Events/TokensRevoked" data-name="slack::events::tokensrevoked">
+      <a href="../../Slack/Events/TokensRevoked.html">TokensRevoked</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/HabitatSettings" data-name="slack::habitatsettings">
+      <a href="../../Slack/HabitatSettings.html">HabitatSettings</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/InitializerMacros" data-name="slack::initializermacros">
+      <a href="../../Slack/InitializerMacros.html">InitializerMacros</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Interaction" data-name="slack::interaction">
+      <a href="../../Slack/Interaction.html">Interaction</a>
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/Interactions" data-name="slack::interactions">
+      <a href="../../Slack/Interactions.html">Interactions</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/Interactions/BlockAction" data-name="slack::interactions::blockaction">
+      <a href="../../Slack/Interactions/BlockAction.html">BlockAction</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Interactions/Shortcut" data-name="slack::interactions::shortcut">
+      <a href="../../Slack/Interactions/Shortcut.html">Shortcut</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Interactions/ViewSubmission" data-name="slack::interactions::viewsubmission">
+      <a href="../../Slack/Interactions/ViewSubmission.html">ViewSubmission</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Model" data-name="slack::model">
+      <a href="../../Slack/Model.html">Model</a>
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/Models" data-name="slack::models">
+      <a href="../../Slack/Models.html">Models</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/Models/ChannelMessage" data-name="slack::models::channelmessage">
+      <a href="../../Slack/Models/ChannelMessage.html">ChannelMessage</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Models/Conversation" data-name="slack::models::conversation">
+      <a href="../../Slack/Models/Conversation.html">Conversation</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Models/ConversationType" data-name="slack::models::conversationtype">
+      <a href="../../Slack/Models/ConversationType.html">ConversationType</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Models/DirectMessage" data-name="slack::models::directmessage">
+      <a href="../../Slack/Models/DirectMessage.html">DirectMessage</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Models/IMChat" data-name="slack::models::imchat">
+      <a href="../../Slack/Models/IMChat.html">IMChat</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Models/PrivateChannel" data-name="slack::models::privatechannel">
+      <a href="../../Slack/Models/PrivateChannel.html">PrivateChannel</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Models/PrivateChannelMessage" data-name="slack::models::privatechannelmessage">
+      <a href="../../Slack/Models/PrivateChannelMessage.html">PrivateChannelMessage</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Models/PublicChannel" data-name="slack::models::publicchannel">
+      <a href="../../Slack/Models/PublicChannel.html">PublicChannel</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Models/Team" data-name="slack::models::team">
+      <a href="../../Slack/Models/Team.html">Team</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/OptionalDiscriminator" data-name="slack::optionaldiscriminator">
+      <a href="../../Slack/OptionalDiscriminator.html">OptionalDiscriminator</a>
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/UI" data-name="slack::ui">
+      <a href="../../Slack/UI.html">UI</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/UI/BaseComponent" data-name="slack::ui::basecomponent">
+      <a href="../../Slack/UI/BaseComponent.html">BaseComponent</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/UI/BaseComponents" data-name="slack::ui::basecomponents">
+      <a href="../../Slack/UI/BaseComponents.html">BaseComponents</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/UI/Block" data-name="slack::ui::block">
+      <a href="../../Slack/UI/Block.html">Block</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/UI/BlockElement" data-name="slack::ui::blockelement">
+      <a href="../../Slack/UI/BlockElement.html">BlockElement</a>
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/UI/BlockElements" data-name="slack::ui::blockelements">
+      <a href="../../Slack/UI/BlockElements.html">BlockElements</a>
+      
+        <ul>
+  
+  <li class="parent " data-id="slack/Slack/UI/BlockElements/Button" data-name="slack::ui::blockelements::button">
+      <a href="../../Slack/UI/BlockElements/Button.html">Button</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/UI/BlockElements/Button/Styles" data-name="slack::ui::blockelements::button::styles">
+      <a href="../../Slack/UI/BlockElements/Button/Styles.html">Styles</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/UI/BlockElements/Button/Text" data-name="slack::ui::blockelements::button::text">
+      <a href="../../Slack/UI/BlockElements/Button/Text.html">Text</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/UI/BlockElements/Checkbox" data-name="slack::ui::blockelements::checkbox">
+      <a href="../../Slack/UI/BlockElements/Checkbox.html">Checkbox</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/UI/BlockElements/DatePicker" data-name="slack::ui::blockelements::datepicker">
+      <a href="../../Slack/UI/BlockElements/DatePicker.html">DatePicker</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/UI/BlockElements/Image" data-name="slack::ui::blockelements::image">
+      <a href="../../Slack/UI/BlockElements/Image.html">Image</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/UI/BlockElements/MultiSelectMenu" data-name="slack::ui::blockelements::multiselectmenu">
+      <a href="../../Slack/UI/BlockElements/MultiSelectMenu.html">MultiSelectMenu</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/UI/BlockElements/OverflowMenu" data-name="slack::ui::blockelements::overflowmenu">
+      <a href="../../Slack/UI/BlockElements/OverflowMenu.html">OverflowMenu</a>
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/UI/BlockElements/PlainTextInput" data-name="slack::ui::blockelements::plaintextinput">
+      <a href="../../Slack/UI/BlockElements/PlainTextInput.html">PlainTextInput</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/UI/BlockElements/PlainTextInput/ActionConfig" data-name="slack::ui::blockelements::plaintextinput::actionconfig">
+      <a href="../../Slack/UI/BlockElements/PlainTextInput/ActionConfig.html">ActionConfig</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/UI/BlockElements/PlainTextInput/Placeholder" data-name="slack::ui::blockelements::plaintextinput::placeholder">
+      <a href="../../Slack/UI/BlockElements/PlainTextInput/Placeholder.html">Placeholder</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/UI/BlockElements/RadioButtonGroup" data-name="slack::ui::blockelements::radiobuttongroup">
+      <a href="../../Slack/UI/BlockElements/RadioButtonGroup.html">RadioButtonGroup</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/UI/BlockElements/SelectMenu" data-name="slack::ui::blockelements::selectmenu">
+      <a href="../../Slack/UI/BlockElements/SelectMenu.html">SelectMenu</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/UI/BlockElements/TimePicker" data-name="slack::ui::blockelements::timepicker">
+      <a href="../../Slack/UI/BlockElements/TimePicker.html">TimePicker</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/UI/Blocks" data-name="slack::ui::blocks">
+      <a href="../../Slack/UI/Blocks.html">Blocks</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/UI/Blocks/Actions" data-name="slack::ui::blocks::actions">
+      <a href="../../Slack/UI/Blocks/Actions.html">Actions</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/UI/Blocks/Context" data-name="slack::ui::blocks::context">
+      <a href="../../Slack/UI/Blocks/Context.html">Context</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/UI/Blocks/Divider" data-name="slack::ui::blocks::divider">
+      <a href="../../Slack/UI/Blocks/Divider.html">Divider</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/UI/Blocks/File" data-name="slack::ui::blocks::file">
+      <a href="../../Slack/UI/Blocks/File.html">File</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/UI/Blocks/Header" data-name="slack::ui::blocks::header">
+      <a href="../../Slack/UI/Blocks/Header.html">Header</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/UI/Blocks/Image" data-name="slack::ui::blocks::image">
+      <a href="../../Slack/UI/Blocks/Image.html">Image</a>
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/UI/Blocks/Input" data-name="slack::ui::blocks::input">
+      <a href="../../Slack/UI/Blocks/Input.html">Input</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/UI/Blocks/Input/Label" data-name="slack::ui::blocks::input::label">
+      <a href="../../Slack/UI/Blocks/Input/Label.html">Label</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/UI/Blocks/Section" data-name="slack::ui::blocks::section">
+      <a href="../../Slack/UI/Blocks/Section.html">Section</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/UI/Blocks/Section/FieldText" data-name="slack::ui::blocks::section::fieldtext">
+      <a href="../../Slack/UI/Blocks/Section/FieldText.html">FieldText</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/UI/Blocks/Section/Text" data-name="slack::ui::blocks::section::text">
+      <a href="../../Slack/UI/Blocks/Section/Text.html">Text</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/UI/Component" data-name="slack::ui::component">
+      <a href="../../Slack/UI/Component.html">Component</a>
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/UI/Components" data-name="slack::ui::components">
+      <a href="../../Slack/UI/Components.html">Components</a>
+      
+        <ul>
+  
+  <li class="parent " data-id="slack/Slack/UI/Components/Button" data-name="slack::ui::components::button">
+      <a href="../../Slack/UI/Components/Button.html">Button</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/UI/Components/Button/ButtonElement" data-name="slack::ui::components::button::buttonelement">
+      <a href="../../Slack/UI/Components/Button/ButtonElement.html">ButtonElement</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/UI/Components/Button/ConfirmationObject" data-name="slack::ui::components::button::confirmationobject">
+      <a href="../../Slack/UI/Components/Button/ConfirmationObject.html">ConfirmationObject</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/UI/Components/ConfirmationDialog" data-name="slack::ui::components::confirmationdialog">
+      <a href="../../Slack/UI/Components/ConfirmationDialog.html">ConfirmationDialog</a>
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/UI/Components/InputElement" data-name="slack::ui::components::inputelement">
+      <a href="../../Slack/UI/Components/InputElement.html">InputElement</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/UI/Components/InputElement/Input" data-name="slack::ui::components::inputelement::input">
+      <a href="../../Slack/UI/Components/InputElement/Input.html">Input</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/UI/Components/InputElement/PlainTextInput" data-name="slack::ui::components::inputelement::plaintextinput">
+      <a href="../../Slack/UI/Components/InputElement/PlainTextInput.html">PlainTextInput</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/UI/Components/TextSection" data-name="slack::ui::components::textsection">
+      <a href="../../Slack/UI/Components/TextSection.html">TextSection</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/UI/CompositionObjects" data-name="slack::ui::compositionobjects">
+      <a href="../../Slack/UI/CompositionObjects.html">CompositionObjects</a>
+      
+        <ul>
+  
+  <li class="parent " data-id="slack/Slack/UI/CompositionObjects/Confirmation" data-name="slack::ui::compositionobjects::confirmation">
+      <a href="../../Slack/UI/CompositionObjects/Confirmation.html">Confirmation</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/UI/CompositionObjects/Confirmation/Confirm" data-name="slack::ui::compositionobjects::confirmation::confirm">
+      <a href="../../Slack/UI/CompositionObjects/Confirmation/Confirm.html">Confirm</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/UI/CompositionObjects/Confirmation/Deny" data-name="slack::ui::compositionobjects::confirmation::deny">
+      <a href="../../Slack/UI/CompositionObjects/Confirmation/Deny.html">Deny</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/UI/CompositionObjects/Confirmation/Text" data-name="slack::ui::compositionobjects::confirmation::text">
+      <a href="../../Slack/UI/CompositionObjects/Confirmation/Text.html">Text</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/UI/CompositionObjects/Confirmation/Title" data-name="slack::ui::compositionobjects::confirmation::title">
+      <a href="../../Slack/UI/CompositionObjects/Confirmation/Title.html">Title</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/UI/CompositionObjects/DispatchActionConfig" data-name="slack::ui::compositionobjects::dispatchactionconfig">
+      <a href="../../Slack/UI/CompositionObjects/DispatchActionConfig.html">DispatchActionConfig</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/UI/CompositionObjects/DispatchActionConfig/Triggerable" data-name="slack::ui::compositionobjects::dispatchactionconfig::triggerable">
+      <a href="../../Slack/UI/CompositionObjects/DispatchActionConfig/Triggerable.html">Triggerable</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/UI/CustomComponent" data-name="slack::ui::customcomponent">
+      <a href="../../Slack/UI/CustomComponent.html">CustomComponent</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/UI/DynamicTextComposition" data-name="slack::ui::dynamictextcomposition">
+      <a href="../../Slack/UI/DynamicTextComposition.html">DynamicTextComposition</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/UrlVerification" data-name="slack::urlverification">
+      <a href="../../Slack/UrlVerification.html">UrlVerification</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/VerifiedEvent" data-name="slack::verifiedevent">
+      <a href="../../Slack/VerifiedEvent.html">VerifiedEvent</a>
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/Webhooks" data-name="slack::webhooks">
+      <a href="../../Slack/Webhooks.html">Webhooks</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/Webhooks/Signature" data-name="slack::webhooks::signature">
+      <a href="../../Slack/Webhooks/Signature.html">Signature</a>
+      
+    </li>
+  
+  <li class=" " data-id="slack/Slack/Webhooks/VerifiedRequest" data-name="slack::webhooks::verifiedrequest">
+      <a href="../../Slack/Webhooks/VerifiedRequest.html">VerifiedRequest</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+</ul>
+
+  </div>
+</div>
+
+
+<div class="main-content">
+<h1 class="type-name">
+
+  <span class="kind">struct</span> Slack::Command::PlainTextReference
+
+</h1>
+
+
+  <ul class="superclass-hierarchy"><li class="superclass"><a href="../../Slack/Command/PlainTextReference.html">Slack::Command::PlainTextReference</a></li><li class="superclass">Struct</li><li class="superclass">Value</li><li class="superclass">Object</li></ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <h2>
+    <a id="defined-in" class="anchor" href="#defined-in">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Defined in:
+  </h2>
+  
+    
+      <a href="https://github.com/the-business-factory/slack.cr/blob/40bb8314a91be73cb7484e69038a1ca31d5cb15c/src/slack/commands/command.cr#L7" target="_blank">
+        slack/commands/command.cr
+      </a>
+    
+    <br/>
+  
+
+
+
+
+
+  <h2>
+    <a id="constructors" class="anchor" href="#constructors">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Constructors
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#new%28name%3AString%29-class-method" class="signature"><strong>.new</strong>(name : String)</a>
+        
+      </li>
+    
+  </ul>
+
+
+
+
+
+  <h2>
+    <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#clone-instance-method" class="signature"><strong>#clone</strong></a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#copy_with%28name_name%3D%40name%29-instance-method" class="signature"><strong>#copy_with</strong>(name _name = @name)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#name%3AString-instance-method" class="signature"><strong>#name</strong> : String</a>
+        
+      </li>
+    
+  </ul>
+
+
+
+
+
+<div class="methods-inherited">
+  
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+  
+</div>
+
+
+  <h2>
+    <a id="constructor-detail" class="anchor" href="#constructor-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Constructor Detail
+  </h2>
+  
+    <div class="entry-detail" id="new(name:String)-class-method">
+      <div class="signature">
+        
+        def self.<strong>new</strong>(name : String)
+
+        <a class="method-permalink" href="#new%28name%3AString%29-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/40bb8314a91be73cb7484e69038a1ca31d5cb15c/src/slack/commands/command.cr#L7" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+
+
+
+  <h2>
+    <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Detail
+  </h2>
+  
+    <div class="entry-detail" id="clone-instance-method">
+      <div class="signature">
+        
+        def <strong>clone</strong>
+
+        <a class="method-permalink" href="#clone-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/40bb8314a91be73cb7484e69038a1ca31d5cb15c/src/slack/commands/command.cr#L7" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="copy_with(name_name=@name)-instance-method">
+      <div class="signature">
+        
+        def <strong>copy_with</strong>(name _name = @name)
+
+        <a class="method-permalink" href="#copy_with%28name_name%3D%40name%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/40bb8314a91be73cb7484e69038a1ca31d5cb15c/src/slack/commands/command.cr#L7" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="name:String-instance-method">
+      <div class="signature">
+        
+        def <strong>name</strong> : String
+
+        <a class="method-permalink" href="#name%3AString-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
+
+
+
+
+</div>
+
+</body>
+</html>
