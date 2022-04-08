@@ -9,7 +9,7 @@ struct Slack::UI::BlockElements::PlainTextInput < Slack::UI::BlockElement
     action_id : String,
     dispatch_action_config : ActionConfig?,
     focus_on_load : Bool = false,
-    initial_value : String = "Initial value for placeholder",
+    initial_value : String?,
     max_length : Int16?,
     min_length : Int8?,
     multiline : Bool = false,
@@ -30,7 +30,7 @@ struct Slack::UI::BlockElements::PlainTextInput < Slack::UI::BlockElement
       json.field "type", type
       json.field "action_id", action_id
       json.field "placeholder", placeholder
-      json.field "initial_value", initial_value
+      json.field "initial_value", initial_value if initial_value
       json.field "multiline", multiline
       json.field "focus_on_load", focus_on_load
       json.field "min_length", min_length unless min_length.nil?

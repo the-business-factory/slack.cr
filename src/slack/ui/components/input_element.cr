@@ -3,9 +3,9 @@ class Slack::UI::Components::InputElement < Slack::UI::BaseComponent
   alias PlainTextInput = BlockElements::PlainTextInput
 
   def self.render(action_id : String,
-                  initial_value : String,
                   label_text : String,
                   placeholder_text : String,
+                  initial_value : String? = nil,
                   dispatch_action : Bool = false,
                   multiline : Bool = false)
     Input.new(
