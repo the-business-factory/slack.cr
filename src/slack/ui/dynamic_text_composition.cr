@@ -13,7 +13,7 @@ module Slack::UI::DynamicTextComposition
 
       def initialize(@text,
                      @type = {{ options[:type] }} || "plain_text",
-                     @emoji = false,
+                     @emoji = {{ options[:emoji] }} || false,
                      @verbatim = false)
         after_initialize
       end

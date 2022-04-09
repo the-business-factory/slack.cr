@@ -8,7 +8,7 @@ module Slack
       when .form_encoded?
         "application/x-www-form-urlencoded"
       when .json?
-        "application/json"
+        "application/json; charset=utf-8"
       else
         raise "Content type not supported."
       end

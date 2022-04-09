@@ -1,4 +1,7 @@
 class Slack::Api::TeamInfo < Slack::Api::Base
+  def initialize(@token : String)
+  end
+
   def content_type : ContentTypes
     ContentTypes::FormEncoded
   end

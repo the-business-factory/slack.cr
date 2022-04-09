@@ -1,4 +1,5 @@
 abstract class Slack::UI::Component
+  include Slack::UI::BaseComponents
 end
 
 abstract class Slack::UI::BaseComponent < Slack::UI::Component
