@@ -11,9 +11,6 @@
 abstract class Slack::Api::Base
   getter token
 
-  def initialize(@token : String)
-  end
-
   abstract def base_url
   abstract def call : Slack::Model
   abstract def content_type : ContentTypes

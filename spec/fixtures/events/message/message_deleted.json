@@ -1,55 +1,36 @@
 {
     "type": "event_callback",
     "event": {
-        "ts": "1644729608.000600",
         "type": "message",
-        "hidden": true,
-        "channel": "C016U8H75V1",
-        "subtype": "message_deleted",
-        "event_ts": "1644729608.000600",
-        "deleted_ts": "1644721243.569179",
+        "channel": "C016L3ETXN2",
         "channel_type": "channel",
+        "subtype": "message_deleted",
+        "event_ts": "1649632881.000000",
+        "ts": "1649632881.000000",
+        "hidden": true,
         "previous_message": {
-            "ts": "1644721243.569179",
-            "team": "T017GL5AV5E",
-            "text": "<https://www.infoq.com/articles/crystal-ruby-c-compiled-typed/>",
-            "type": "message",
-            "user": "U016SQZLFEE",
-            "blocks": [
-                {
-                    "type": "rich_text",
-                    "block_id": "=uKEU",
-                    "elements": [
-                        {
-                            "type": "rich_text_section",
-                            "elements": [
-                                {
-                                    "url": "https://www.infoq.com/articles/crystal-ruby-c-compiled-typed/",
-                                    "type": "link"
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ],
             "attachments": [
                 {
+                    "fallback": "Loom Video: iTerm2 - hirobot.app | overmind - 10 April 2022",
+                    "from_url": "https://www.loom.com/share/3b8d223473ff41b19663ef97abd5c1da",
                     "id": 1,
-                    "text": "The Crystal language is ready for production, 12 years after inception. Crystal is compiled for performance, typed for safety, and Ruby-like for productivity. Due to the strong type inference, developers need only sparse type annotations. We interviewed the head of the Crystal team on the language tradeoffs, the present features and the language roadmap.",
-                    "title": "Compiled, Typed, Ruby-Inspired Crystal Language is Ready for Production - Q&amp;A with Beta Ziliani",
-                    "fallback": "InfoQ: Compiled, Typed, Ruby-Inspired Crystal Language is Ready for Production - Q&amp;A with Beta Ziliani",
-                    "from_url": "https://www.infoq.com/articles/crystal-ruby-c-compiled-typed/",
-                    "image_url": "https://res.infoq.com/articles/crystal-ruby-c-compiled-typed/en/headerimage/crystal-ready-for-production-header-1619680232611.jpg",
-                    "title_link": "https://www.infoq.com/articles/crystal-ruby-c-compiled-typed/",
-                    "image_bytes": 997359,
-                    "image_width": 476,
-                    "image_height": 250,
-                    "original_url": "https://www.infoq.com/articles/crystal-ruby-c-compiled-typed/",
-                    "service_icon": "https://cdn.infoq.com/statics_s2_20220201-0240/apple-touch-icon.png",
-                    "service_name": "InfoQ"
+                    "original_url": "https://www.loom.com/share/3b8d223473ff41b19663ef97abd5c1da",
+                    "service_name": "Loom",
+                    "service_url": "https://www.loom.com/",
+                    "thumb_height": 960,
+                    "thumb_url": "https://cdn.loom.com/sessions/thumbnails/3b8d223473ff41b19663ef97abd5c1da-4x3.jpg",
+                    "thumb_width": 1280,
+                    "title": "iTerm2 - hirobot.app | overmind - 10 April 2022",
+                    "title_link": "https://www.loom.com/share/3b8d223473ff41b19663ef97abd5c1da",
+                    "video_html": "<iframe src=\"https://www.loom.com/embed/3b8d223473ff41b19663ef97abd5c1da?autoplay=1\" frameborder=\"0\" width=\"1280\" height=\"960\" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>",
+                    "video_html_height": 960,
+                    "video_html_width": 1280
                 }
             ],
-            "client_msg_id": "14dde592-f0cc-411b-b077-dacbd0c98c27"
+            "client_msg_id": "62380d4b-19f6-4e7b-8836-608e2dea2ba3",
+            "team": "T017GL5AV5E",
+            "text": "<https://www.loom.com/share/3b8d223473ff41b19663ef97abd5c1da>",
+            "ts": "1649632867.000000"
         }
     },
     "token": "E6FV7uzAaZoqjhbU56ZKNnIk",
