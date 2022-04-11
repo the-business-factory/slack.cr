@@ -9,5 +9,5 @@ struct Slack::UI::Modal < Slack::UI::Surface
     title : Title,
     submit : Submit,
     close : Close,
-    blocks : Array(BaseComponents::TypeAliases::ModalBlock)
+    blocks : Array(Slack::TypeAliases::ModalBlock)
 end

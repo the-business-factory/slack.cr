@@ -6,7 +6,7 @@ struct Slack::UI::Blocks::Actions < Slack::UI::Block
     block_id : String? = nil
 
   def after_initialize
-    if @elements.try &.blank?
+    if @elements.try &.empty?
       raise Errors::InvalidUIBlock.new(
         "Actions block must have at least one element"
       )

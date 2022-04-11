@@ -1,5 +1,5 @@
-abstract struct Slack::Models::ViewsOpenResponse < Slack::Model
-  alias ViewsOpen = Slack::Models::ViewsOpen
+abstract struct Slack::Models::ChatPostMessageResponse < Slack::Model
+  alias ChatPostMessage = Slack::Models::ChatPostMessage
 
   def self.from_json(json : String | IO)
     pull = JSON::PullParser.new(json)
@@ -9,9 +9,9 @@ abstract struct Slack::Models::ViewsOpenResponse < Slack::Model
       when "ok"
         ok = pull.read_bool
         if ok
-          return ViewsOpen::Success.new JSON::PullParser.new(json)
+          return ChatPostMessage::Success.new JSON::PullParser.new(json)
         else
-          return ViewsOpen::Error.new JSON::PullParser.new(json)
+          return ChatPostMessage::Error.new JSON::PullParser.new(json)
         end
       else
         pull.skip

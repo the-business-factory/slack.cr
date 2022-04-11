@@ -1,0 +1,31 @@
+HTTP/1.1 200 OK
+date: Fri, 15 Apr 2022 03:09:31 GMT
+server: Apache
+x-powered-by: HHVM/4.153.0
+access-control-allow-origin: *
+referrer-policy: no-referrer
+x-slack-backend: r
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+access-control-allow-headers: slack-route, x-slack-version-ts, x-b3-traceid, x-b3-spanid, x-b3-parentspanid, x-b3-sampled, x-b3-flags
+access-control-expose-headers: x-slack-req-id, retry-after
+x-oauth-scopes: identify,app_configurations:read,app_configurations:write
+x-accepted-oauth-scopes: app_configurations:write
+expires: Mon, 26 Jul 1997 05:00:00 GMT
+cache-control: private, no-cache, no-store, must-revalidate
+pragma: no-cache
+x-xss-protection: 0
+x-content-type-options: nosniff
+x-slack-req-id: 846e8ce96725e1f4e81b53d891f54892
+vary: Accept-Encoding
+content-type: application/json; charset=utf-8
+x-envoy-upstream-service-time: 305
+x-backend: main_normal main_bedrock_normal_with_overflow main_canary_with_overflow main_bedrock_canary_with_overflow main_control_with_overflow main_bedrock_control_with_overflow
+x-server: slack-www-hhvm-main-iad-i9lx
+x-slack-shared-secret-outcome: no-match
+via: envoy-www-iad-g6vo, envoy-edge-pdx-fqjz
+x-edge-backend: envoy-www
+x-slack-edge-shared-secret-outcome: no-match
+connection: close
+Content-Length: 62
+
+{"ok":true,"app_id":"A03B17S326M","permissions_updated":false}

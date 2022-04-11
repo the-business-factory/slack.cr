@@ -3,7 +3,7 @@ struct Slack::Models::ChannelMessage < Slack::Model
     blocks : Array(JSON::Any),
     channel : String,
     channel_type : String,
-    client_msg_id : String,
+    client_msg_id : String?,
     team : String,
     text : String,
     user : String

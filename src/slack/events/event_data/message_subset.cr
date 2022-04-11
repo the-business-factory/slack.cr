@@ -4,10 +4,8 @@ struct Slack::EventData::MessageSubset
 
   properties_with_initializer \
     attachments : Array(Slack::EventData::Attachment)? = [] of Slack::EventData::Attachment,
-    client_msg_id : String,
-    team : String,
-    text : String
-
-  @[JSON::Field(converter: Slack::DecimalTimeStampConverter)]
-  properties_with_initializer ts : Time
+    client_msg_id : String?,
+    team : String?,
+    text : String,
+    ts : String
 end

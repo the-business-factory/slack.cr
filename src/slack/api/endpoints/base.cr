@@ -9,6 +9,9 @@
 # Most write methods allow arguments application/json attributes.
 # https://api.slack.com/web#methods_supporting_json
 abstract class Slack::Api::Base
+  include JSON::Serializable
+  include Slack::InitializerMacros
+
   getter token
 
   abstract def base_url

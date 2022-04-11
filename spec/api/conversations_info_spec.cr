@@ -1,14 +1,14 @@
 require "../spec_helper"
 
 CHANNEL_CONVERSATION_ID = "C032TLM43GA"
-IM_CONVERSATION_ID      = "D031PUW2YG5"
+IM_CONVERSATION_ID      = "D03ATRRQDMH"
 
 describe Slack::Api::ConversationsInfo do
   context "IM conversations" do
     describe "#call" do
       it "should request the conversation info resource from the API" do
         load_cassette("conversations-info-#{IM_CONVERSATION_ID}") do
-          token = ENV.fetch("SLACK_TEAM_AUTH_TOKEN", "faketoken")
+          token = ENV.fetch("SLACK_TEAM_AUTH_TOKEN")
           response = Slack::Api::ConversationsInfo
             .new(token: token, channel: IM_CONVERSATION_ID)
             .call
@@ -24,7 +24,7 @@ describe Slack::Api::ConversationsInfo do
     describe "#call" do
       it "should request the conversation info resource from the API" do
         load_cassette("conversations-info-#{CHANNEL_CONVERSATION_ID}") do
-          token = ENV.fetch("SLACK_TEAM_AUTH_TOKEN", "faketoken")
+          token = ENV.fetch("SLACK_TEAM_AUTH_TOKEN")
           response = Slack::Api::ConversationsInfo
             .new(token: token, channel: CHANNEL_CONVERSATION_ID)
             .call

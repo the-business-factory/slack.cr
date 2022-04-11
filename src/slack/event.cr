@@ -5,6 +5,7 @@ abstract class Slack::Event
 
   use_json_discriminator "type", {
     app_home_opened:  Slack::Events::AppHomeOpened,
+    app_mention:      Slack::Events::AppMentioned,
     app_uninstalled:  Slack::Events::AppUninstalled,
     message:          Slack::Events::MessageFactory,
     reaction_added:   Slack::Events::ReactionAdded,

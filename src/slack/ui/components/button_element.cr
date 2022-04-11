@@ -1,16 +1,16 @@
-class Slack::UI::Components::Button < Slack::UI::BaseComponent
+class Slack::UI::Components::ButtonElement < Slack::UI::BaseComponent
   alias ConfirmationObject = Slack::UI::CompositionObjects::Confirmation
-  alias ButtonElement = BlockElements::Button
+  alias Button = BlockElements::Button
 
   def self.render(action_id : String,
                   button_text : String,
                   confirm : ConfirmationObject? = nil,
-                  style : ButtonElement::Styles? = nil) : ButtonElement
-    ButtonElement.new(
+                  style : Button::Styles? = nil) : Button
+    Button.new(
       action_id: action_id,
       confirm: confirm,
       style: style,
-      text: ButtonElement::Text.new(button_text)
+      text: Button::Text.new(button_text)
     )
   end
 

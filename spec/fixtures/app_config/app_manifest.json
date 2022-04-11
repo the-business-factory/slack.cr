@@ -1,0 +1,76 @@
+{
+    "display_information": {
+        "name": "hiro.bot",
+        "description": "slack bots for technical communities",
+        "background_color": "#050005",
+        "long_description": "Hiro is an open-source Slack App written in Crystal, to help build, manage, and grow technical Slack communities. \r\n\r\nFeaturing job boards, moderation tools, social learning/teaching tools, and other useful features to grow your community."
+    },
+    "features": {
+        "app_home": {
+            "home_tab_enabled": true,
+            "messages_tab_enabled": true,
+            "messages_tab_read_only_enabled": false
+        },
+        "bot_user": {
+            "display_name": "hiro",
+            "always_online": true
+        },
+        "slash_commands": [
+            {
+                "command": "/hiring",
+                "url": "https://hirobot.app/slack/hiring",
+                "description": "Add a Job Listing",
+                "should_escape": true
+            }
+        ]
+    },
+    "oauth_config": {
+        "redirect_urls": [
+            "https://hirobot.app/slack/auth"
+        ],
+        "scopes": {
+            "bot": [
+                "app_mentions:read",
+                "channels:history",
+                "channels:read",
+                "chat:write",
+                "chat:write.public",
+                "commands",
+                "groups:history",
+                "groups:read",
+                "im:history",
+                "im:read",
+                "mpim:read",
+                "reactions:read",
+                "team:read",
+                "users:read"
+            ]
+        }
+    },
+    "settings": {
+        "event_subscriptions": {
+            "request_url": "https://hirobot.app/slack/webhook_events",
+            "user_events": [
+                "message.app_home"
+            ],
+            "bot_events": [
+                "app_home_opened",
+                "app_mention",
+                "app_uninstalled",
+                "message.channels",
+                "message.groups",
+                "message.im",
+                "reaction_added",
+                "reaction_removed",
+                "tokens_revoked"
+            ]
+        },
+        "interactivity": {
+            "is_enabled": true,
+            "request_url": "https://hirobot.app/slack/interactions"
+        },
+        "org_deploy_enabled": false,
+        "socket_mode_enabled": false,
+        "token_rotation_enabled": false
+    }
+}
