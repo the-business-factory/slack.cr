@@ -1,6 +1,3 @@
 class Slack::Events::TokensRevoked < Slack::Event
-  property tokens : JSON::Any
-
-  @[JSON::Field(converter: Slack::DecimalTimeStampConverter)]
-  property event_ts : Time
+  property tokens : JSON::Any, event_ts : String
 end

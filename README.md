@@ -16,6 +16,10 @@ Crystal client for building Slack apps and tools using the Slack API.
 
 ## Usage
 
+## Demo App
+
+A demo app is published at https://github.com/the-business-factory/hirobot.app.
+
 ### Configuration
 
 ```crystal
@@ -105,7 +109,7 @@ class ButtonSection < Slack::UI::CustomComponent
   def self.render(action_id : String)
     buttons = %w(Submit Cancel).map do |text|
       style = text == "Submit" ? ButtonStyles::Primary : ButtonStyles::Danger
-      Button.render(
+      ButtonElement.render(
         action_id: "#{action_id}_#{text.downcase}",
         button_text: text,
         style: style

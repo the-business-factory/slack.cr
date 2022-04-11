@@ -3,13 +3,17 @@ class Slack::Events::Message < Slack::Event
     blocks : Array(JSON::Any),
     channel : String,
     channel_type : String,
-    client_msg_id : String,
+    client_msg_id : String?,
+    parent_user_id : String?,
     team : String,
     text : String,
+    thread_ts : String?,
+    ts : String?,
     user : String
 
-  @[JSON::Field(converter: Slack::DecimalTimeStampConverter)]
-  property ts : Time
+  def thread?
+    thread_ts.present?
+  end
 
   def public_channel?
     channel_type == "channel"

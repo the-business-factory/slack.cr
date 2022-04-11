@@ -1,6 +1,4 @@
-require "./views_open_response"
-
-struct Slack::Models::ViewsOpenError < Slack::Models::ViewsOpenResponse
+struct Slack::Models::ViewsOpen::Error < Slack::Models::ViewsOpenResponse
   properties_with_initializer \
     error : String,
     ok : Bool,

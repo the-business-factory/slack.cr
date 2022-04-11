@@ -148,7 +148,7 @@ describe Slack do
           "item_user": "U016SQZLFEE",
           "reaction": "100",
           "user": "U016SQZLFEE",
-          "event_ts": "1644729352.000000"
+          "event_ts": "1644729352.000400"
         },
         "event_context": "4-eyJldCI6InJlYWN0aW9uX3JlbW92ZWQiLCJ0aWQiOiJUMDE3R0w1QVY1RSIsImFpZCI6IkEwMzFMNk4wUTNHIiwiY2lkIjoiQzAxNlU4SDc1VjEifQ",
         "event_id": "Ev032V4P2GQ3",

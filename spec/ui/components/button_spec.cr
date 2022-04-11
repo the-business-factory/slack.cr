@@ -1,12 +1,12 @@
 require "../../spec_helper"
 
-describe Slack::UI::Components::Button do
+describe Slack::UI::Components::ButtonElement do
   it "render a button with a default confirmation dialog" do
-    Slack::UI::Components::Button
+    Slack::UI::Components::ButtonElement
       .render(
         action_id: "test",
         button_text: "test",
-        confirm: Slack::UI::Components::Button.default_dialog
+        confirm: Slack::UI::Components::ButtonElement.default_dialog
       )
       .to_pretty_json
       .should eq <<-JSON

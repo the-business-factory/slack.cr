@@ -15,17 +15,17 @@ cache-control: private, no-cache, no-store, must-revalidate
 pragma: no-cache
 x-xss-protection: 0
 x-content-type-options: nosniff
-x-slack-req-id: 139c38870ae494a7b20bc42cbc749c4f
+x-slack-req-id: 3efd1ca30caf148123ffdfb35eeea323
 vary: Accept-Encoding
 content-type: application/json; charset=utf-8
-x-envoy-upstream-service-time: 117
+x-envoy-upstream-service-time: 109
 x-backend: main_normal main_bedrock_normal_with_overflow main_canary_with_overflow main_bedrock_canary_with_overflow main_control_with_overflow main_bedrock_control_with_overflow
-x-server: slack-www-hhvm-main-iad-lkg5
+x-server: slack-www-hhvm-control-main-iad-ei3e
 x-slack-shared-secret-outcome: no-match
-via: envoy-www-iad-1rkj, envoy-edge-pdx-38cn
+via: envoy-www-iad-zpkn, envoy-edge-pdx-so5w
 x-edge-backend: envoy-www
 x-slack-edge-shared-secret-outcome: no-match
 connection: close
-Content-Length: 603
+Content-Length: 548
 
-{"ok":true,"channel":{"id":"C032TLM43GA","name":"links","is_channel":true,"is_group":false,"is_im":false,"is_mpim":false,"is_private":false,"created":1644634963,"is_archived":false,"is_general":false,"unlinked":0,"name_normalized":"links","is_shared":false,"is_org_shared":false,"is_pending_ext_shared":false,"pending_shared":[],"parent_conversation":null,"creator":"U016SQZLFEE","is_ext_shared":false,"shared_team_ids":["T017GL5AV5E"],"pending_connected_team_ids":[],"is_member":false,"topic":{"value":"","creator":"","last_set":0},"purpose":{"value":"","creator":"","last_set":0},"previous_names":[]}}
+{"ok":true,"channel":{"id":"D03ATRRQDMH","created":1649455468,"is_archived":false,"is_im":true,"is_org_shared":false,"user":"U016SQZLFEE","last_read":"0000000000.000000","latest":{"client_msg_id":"d64f26f5-ed59-4d0d-a8e2-b715421fb36a","type":"message","text":"Testing!","user":"U016SQZLFEE","ts":"1649734088.038009","team":"T017GL5AV5E","blocks":[{"type":"rich_text","block_id":"wB9R","elements":[{"type":"rich_text_section","elements":[{"type":"text","text":"Testing!"}]}]}]},"unread_count":3,"unread_count_display":3,"is_open":true,"priority":0}}
