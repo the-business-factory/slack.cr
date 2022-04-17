@@ -12,7 +12,7 @@ describe Slack::Api::ChatPostMessage do
 
         response = Slack::Api::ChatPostMessage
           .post_blocks(token: token, channel: channel_id, blocks: [section])
-          .should be_a(Slack::Models::ChatPostMessage::Success)
+          .should be_a(Slack::Models::Chat::PostMessage)
 
         response.ok.should be_true
         response.channel.should eq channel_id
@@ -33,7 +33,7 @@ describe Slack::Api::ChatPostMessage do
 
         response = Slack::Api::ChatPostMessage
           .post_blocks(token: token, channel: channel_id, blocks: [section, actions])
-          .should be_a(Slack::Models::ChatPostMessage::Success)
+          .should be_a(Slack::Models::Chat::PostMessage)
 
         response.ok.should be_true
         response.channel.should eq channel_id

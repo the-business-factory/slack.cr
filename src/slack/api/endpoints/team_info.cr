@@ -12,6 +12,9 @@ class Slack::Api::TeamInfo < Slack::Api::Base
 
   def call : Slack::Models::Team
     result = HTTP::Client.get(base_url, headers: headers)
-    Slack::Models::Team.from_json(result.body)
+
+    ResponseHandler(Models::Team).from_json(result.body) do |json|
+      Models::Team.from_json(json)
+    end
   end
 end

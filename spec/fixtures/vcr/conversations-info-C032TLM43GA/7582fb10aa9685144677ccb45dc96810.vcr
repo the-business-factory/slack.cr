@@ -1,5 +1,5 @@
 HTTP/1.1 200 OK
-date: Tue, 12 Apr 2022 04:30:00 GMT
+date: Mon, 18 Apr 2022 19:35:41 GMT
 server: Apache
 x-powered-by: HHVM/4.153.0
 access-control-allow-origin: *
@@ -8,21 +8,21 @@ x-slack-backend: r
 strict-transport-security: max-age=31536000; includeSubDomains; preload
 access-control-allow-headers: slack-route, x-slack-version-ts, x-b3-traceid, x-b3-spanid, x-b3-parentspanid, x-b3-sampled, x-b3-flags
 access-control-expose-headers: x-slack-req-id, retry-after
-x-oauth-scopes: app_mentions:read,channels:history,channels:read,chat:write,commands,groups:history,groups:read,im:history,reactions:read,team:read,users:read,im:read,mpim:read,chat:write.public
+x-oauth-scopes: app_mentions:read,channels:history,channels:read,chat:write,chat:write.public,commands,groups:history,groups:read,im:history,im:read,mpim:read,reactions:read,team:read,users:read
 x-accepted-oauth-scopes: channels:read,groups:read,mpim:read,im:read,read
 expires: Mon, 26 Jul 1997 05:00:00 GMT
 cache-control: private, no-cache, no-store, must-revalidate
 pragma: no-cache
 x-xss-protection: 0
 x-content-type-options: nosniff
-x-slack-req-id: 139c38870ae494a7b20bc42cbc749c4f
+x-slack-req-id: cdd8b03c3428f1304b6635523d9bfcd9
 vary: Accept-Encoding
 content-type: application/json; charset=utf-8
-x-envoy-upstream-service-time: 117
+x-envoy-upstream-service-time: 99
 x-backend: main_normal main_bedrock_normal_with_overflow main_canary_with_overflow main_bedrock_canary_with_overflow main_control_with_overflow main_bedrock_control_with_overflow
-x-server: slack-www-hhvm-main-iad-lkg5
+x-server: slack-www-hhvm-main-iad-7mxg
 x-slack-shared-secret-outcome: no-match
-via: envoy-www-iad-1rkj, envoy-edge-pdx-38cn
+via: envoy-www-iad-g969, envoy-edge-pdx-c3df
 x-edge-backend: envoy-www
 x-slack-edge-shared-secret-outcome: no-match
 connection: close

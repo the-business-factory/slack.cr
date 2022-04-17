@@ -63,37 +63,31 @@ end
 ```
 
 ### Web API calls
+
+When returning responses from the Slack API, error responses are raised, rather
+than returned as separate error objects. This provides strongly typed responses
+for the majority of API traffic; Slack::Api::Error errors can be rescued to
+allow customized error handling if needed.
+
 ```crystal
-class SlackWebhookEvent < WebhookAction
-  post "/slack/webhook_events" do
-    event_payload = Slack.process_webhook(request)
-    case event_payload
-    when Slack::UrlVerification
-      json(event_payload.response)
-    else
-      handle_event(event_payload.event)
-      json({ok: true})
-    end
+class ExampleSlackApiCall
+  def initialize(@token : String, @channel_id : String)
   end
 
-  def handle_event(message : Slack::Events::Message)
-    return unless message.public_channel?
+  def run
+    # Guaranteed to be some sort of Slack::Model::Conversation object.
+    channel = Slack::Api::ConversationsInfo.new(token, channel_id).call
 
-    auth_token = SlackAccessTokenQuery
-      .new
-      .slack_team_id(message.team)
-      .created_at
-      .desc_order
-      .first
-
-    # channel : Slack::Models::PublicChannel
-    channel = Slack::Api::ConversationsInfo.new(token, message.channel_id).call
-
-    # Deal with Slack's polymorphic API in uniform ways.
+    # Now you can with Slack's polymorphic API in uniform ways.
     case channel
+    when Slack::Models::IMChat
+      Log.info { "IM Chat Latest Message Read: #{channel.latest}" }
     when Slack::Models::PublicChannel
       Log.info { "Public Team Channel Name: #{channel.name}" }
     end
+  rescue exc : Slack::Api::Error
+    # exc.message will typically have the JSON Error Results from Slack's API.
+    Log.info { "Error Raised: #{exc.message}" }
   end
 end
 ```

@@ -11,7 +11,7 @@ describe Slack::Api::AppsManifestUpdate do
         response = Slack::Api::AppsManifestUpdate
           .new(token: token, app_id: app_id, manifest: app)
           .call
-          .should be_a(Slack::Models::AppsManifestUpdate::Success)
+          .should be_a(Slack::Models::Apps::ManifestUpdate)
 
         response.app_id.should eq app_id
         response.ok.should be_true

@@ -57,8 +57,8 @@ class Slack::Api::ChatPostMessage < Slack::Api::Base
     "https://slack.com/api/chat.postMessage"
   end
 
-  def call : Slack::Models::ChatPostMessageResponse
+  def call : Slack::Models::Chat::PostMessage
     result = HTTP::Client.post(url: base_url, headers: headers, body: to_json)
-    Slack::Models::ChatPostMessageResponse.from_json(result.body)
+    ResponseHandler(Models::Chat::PostMessage).from_json(result.body)
   end
 end

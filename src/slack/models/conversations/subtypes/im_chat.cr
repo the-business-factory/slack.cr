@@ -1,4 +1,4 @@
-struct Slack::Models::IMChat < Slack::Models::ConversationType
+struct Slack::Models::IMChat < Slack::Models::Conversation
   property id : String,
     is_im : Bool,
     latest : Slack::Models::DirectMessage,
