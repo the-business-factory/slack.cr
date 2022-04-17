@@ -1,4 +1,4 @@
-struct Slack::Models::PublicChannel < Slack::Models::ConversationType
+struct Slack::Models::PublicChannel < Slack::Models::Conversation
   property creator : String,
     id : String,
     is_archived : Bool,

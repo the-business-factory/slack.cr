@@ -16,8 +16,8 @@ class Slack::Api::AppsManifestUpdate < Slack::Api::Base
     "https://slack.com/api/apps.manifest.update"
   end
 
-  def call : Slack::Models::AppsManifestUpdateResponse
+  def call : Slack::Models::Apps::ManifestUpdate
     result = HTTP::Client.post(url: base_url, headers: headers, body: to_json)
-    Slack::Models::AppsManifestUpdateResponse.from_json(result.body)
+    ResponseHandler(Models::Apps::ManifestUpdate).from_json(result.body)
   end
 end
