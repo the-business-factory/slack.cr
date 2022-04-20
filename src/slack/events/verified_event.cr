@@ -13,4 +13,8 @@ class Slack::VerifiedEvent
 
   @[JSON::Field(converter: Time::EpochConverter)]
   properties_with_initializer event_time : Time
+
+  def after_initialize
+    @event.team_id = team_id
+  end
 end

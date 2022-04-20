@@ -1,7 +1,7 @@
 abstract class Slack::Event
   include JSON::Serializable
 
-  property type : String
+  property type : String, team_id : String?
 
   use_json_discriminator "type", {
     app_home_opened:  Slack::Events::AppHomeOpened,

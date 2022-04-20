@@ -46,7 +46,6 @@ module Slack
 
   def self.from_json(json : String | IO)
     pull = JSON::PullParser.new(json)
-    original = JSON::PullParser.new(json)
     default = nil
 
     pull.read_object do |key|
@@ -59,6 +58,6 @@ module Slack
       end
     end
 
-    default || Slack::VerifiedEvent.new(original)
+    default || Slack::VerifiedEvent.from_json(json)
   end
 end
