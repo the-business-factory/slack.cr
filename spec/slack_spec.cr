@@ -140,6 +140,7 @@ describe Slack do
         ],
         "event": {
           "type": "reaction_removed",
+          "team_id": "T017GL5AV5E",
           "item": {
             "ts": "1644728351.305109",
             "type": "message",
