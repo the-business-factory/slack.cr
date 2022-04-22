@@ -2,7 +2,8 @@ class Slack::VerifiedEvent
   include JSON::Serializable
   include Slack::InitializerMacros
 
-  properties_with_initializer api_app_id : String,
+  properties_with_initializer \
+    api_app_id : String,
     authorizations : Array(JSON::Any) = [] of JSON::Any,
     event : Slack::Event,
     event_context : String?,

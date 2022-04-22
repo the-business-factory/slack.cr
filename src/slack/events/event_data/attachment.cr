@@ -14,7 +14,7 @@ struct Slack::EventData::Attachment
     thumb_height : Int64?,
     thumb_url : String?,
     thumb_width : Int64?,
-    title : String,
+    title : String?,
     title_link : String?,
     video_html : String?,
     video_html_height : Int64?,
