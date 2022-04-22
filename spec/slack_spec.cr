@@ -119,6 +119,12 @@ describe Slack do
       event = Slack.process_webhook(request).should be_a Slack::VerifiedEvent
       event.event.should be_a Slack::Events::Message::ChannelJoin
     end
+
+    it "handles file share events" do
+      request = build_request("message", "file_share")
+      event = Slack.process_webhook(request).should be_a Slack::VerifiedEvent
+      event.event.should be_a Slack::Events::Message::FileShare
+    end
   end
 
   describe "#to_json" do
