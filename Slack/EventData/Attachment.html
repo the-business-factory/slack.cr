@@ -276,6 +276,11 @@
       
     </li>
   
+  <li class=" " data-id="slack/Slack/Events/Message/FileShare" data-name="slack::events::message::fileshare">
+      <a href="../../Slack/Events/Message/FileShare.html">FileShare</a>
+      
+    </li>
+  
   <li class=" " data-id="slack/Slack/Events/Message/MessageChanged" data-name="slack::events::message::messagechanged">
       <a href="../../Slack/Events/Message/MessageChanged.html">MessageChanged</a>
       
@@ -1034,7 +1039,7 @@
   </h2>
   
     
-      <a href="https://github.com/the-business-factory/slack.cr/blob/c4ca46542dc236eb9520a7af2e5160c97377ae45/src/slack/events/event_data/attachment.cr#L1" target="_blank">
+      <a href="https://github.com/the-business-factory/slack.cr/blob/e1d43bc1fce083659c0d894a1cc04cc46e93a73d/src/slack/events/event_data/attachment.cr#L1" target="_blank">
         slack/events/event_data/attachment.cr
       </a>
     
@@ -1056,7 +1061,7 @@
   <dl>
     
       <dt class="entry-const" id="ASSIGNED_TYPES">
-        <strong>ASSIGNED_TYPES</strong> = <code>[fallback : <span class="t">String</span>, from_url : <span class="t">String</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, id : <span class="t">Int16</span>, original_url : <span class="t">String</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, service_icon : <span class="t">String</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, service_name : <span class="t">String</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, service_url : <span class="t">String</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, text : <span class="t">String</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, thumb_height : <span class="t">Int64</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, thumb_url : <span class="t">String</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, thumb_width : <span class="t">Int64</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, title : <span class="t">String</span>, title_link : <span class="t">String</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, video_html : <span class="t">String</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, video_html_height : <span class="t">Int64</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, video_html_width : <span class="t">Int64</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>] <span class="k">of</span> <span class="t">TypeDeclaration</span></code>
+        <strong>ASSIGNED_TYPES</strong> = <code>[fallback : <span class="t">String</span>, from_url : <span class="t">String</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, id : <span class="t">Int16</span>, original_url : <span class="t">String</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, service_icon : <span class="t">String</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, service_name : <span class="t">String</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, service_url : <span class="t">String</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, text : <span class="t">String</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, thumb_height : <span class="t">Int64</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, thumb_url : <span class="t">String</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, thumb_width : <span class="t">Int64</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, title : <span class="t">String</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, title_link : <span class="t">String</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, video_html : <span class="t">String</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, video_html_height : <span class="t">Int64</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, video_html_width : <span class="t">Int64</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>] <span class="k">of</span> <span class="t">TypeDeclaration</span></code>
       </dt>
       
     
@@ -1075,7 +1080,7 @@
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#new%28fallback%3AString%2Cid%3AInt16%2Ctitle%3AString%2Cfrom_url%3AString%3F%3Dnil%2Coriginal_url%3AString%3F%3Dnil%2Cservice_icon%3AString%3F%3Dnil%2Cservice_name%3AString%3F%3Dnil%2Cservice_url%3AString%3F%3Dnil%2Ctext%3AString%3F%3Dnil%2Cthumb_height%3AInt64%3F%3Dnil%2Cthumb_url%3AString%3F%3Dnil%2Cthumb_width%3AInt64%3F%3Dnil%2Ctitle_link%3AString%3F%3Dnil%2Cvideo_html%3AString%3F%3Dnil%2Cvideo_html_height%3AInt64%3F%3Dnil%2Cvideo_html_width%3AInt64%3F%3Dnil%29-class-method" class="signature"><strong>.new</strong>(fallback : String, id : Int16, title : String, from_url : String? = <span class="n">nil</span>, original_url : String? = <span class="n">nil</span>, service_icon : String? = <span class="n">nil</span>, service_name : String? = <span class="n">nil</span>, service_url : String? = <span class="n">nil</span>, text : String? = <span class="n">nil</span>, thumb_height : Int64? = <span class="n">nil</span>, thumb_url : String? = <span class="n">nil</span>, thumb_width : Int64? = <span class="n">nil</span>, title_link : String? = <span class="n">nil</span>, video_html : String? = <span class="n">nil</span>, video_html_height : Int64? = <span class="n">nil</span>, video_html_width : Int64? = <span class="n">nil</span>)</a>
+        <a href="#new%28fallback%3AString%2Cid%3AInt16%2Cfrom_url%3AString%3F%3Dnil%2Coriginal_url%3AString%3F%3Dnil%2Cservice_icon%3AString%3F%3Dnil%2Cservice_name%3AString%3F%3Dnil%2Cservice_url%3AString%3F%3Dnil%2Ctext%3AString%3F%3Dnil%2Cthumb_height%3AInt64%3F%3Dnil%2Cthumb_url%3AString%3F%3Dnil%2Cthumb_width%3AInt64%3F%3Dnil%2Ctitle%3AString%3F%3Dnil%2Ctitle_link%3AString%3F%3Dnil%2Cvideo_html%3AString%3F%3Dnil%2Cvideo_html_height%3AInt64%3F%3Dnil%2Cvideo_html_width%3AInt64%3F%3Dnil%29-class-method" class="signature"><strong>.new</strong>(fallback : String, id : Int16, from_url : String? = <span class="n">nil</span>, original_url : String? = <span class="n">nil</span>, service_icon : String? = <span class="n">nil</span>, service_name : String? = <span class="n">nil</span>, service_url : String? = <span class="n">nil</span>, text : String? = <span class="n">nil</span>, thumb_height : Int64? = <span class="n">nil</span>, thumb_url : String? = <span class="n">nil</span>, thumb_width : Int64? = <span class="n">nil</span>, title : String? = <span class="n">nil</span>, title_link : String? = <span class="n">nil</span>, video_html : String? = <span class="n">nil</span>, video_html_height : Int64? = <span class="n">nil</span>, video_html_width : Int64? = <span class="n">nil</span>)</a>
         
       </li>
     
@@ -1211,12 +1216,12 @@
       </li>
     
       <li class="entry-summary">
-        <a href="#title%3AString-instance-method" class="signature"><strong>#title</strong> : String</a>
+        <a href="#title%3AString%3F-instance-method" class="signature"><strong>#title</strong> : String?</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#title%3D%28title%3AString%29-instance-method" class="signature"><strong>#title=</strong>(title : String)</a>
+        <a href="#title%3D%28title%3AString%3F%29-instance-method" class="signature"><strong>#title=</strong>(title : String?)</a>
         
       </li>
     
@@ -1330,12 +1335,12 @@
     Constructor Detail
   </h2>
   
-    <div class="entry-detail" id="new(fallback:String,id:Int16,title:String,from_url:String?=nil,original_url:String?=nil,service_icon:String?=nil,service_name:String?=nil,service_url:String?=nil,text:String?=nil,thumb_height:Int64?=nil,thumb_url:String?=nil,thumb_width:Int64?=nil,title_link:String?=nil,video_html:String?=nil,video_html_height:Int64?=nil,video_html_width:Int64?=nil)-class-method">
+    <div class="entry-detail" id="new(fallback:String,id:Int16,from_url:String?=nil,original_url:String?=nil,service_icon:String?=nil,service_name:String?=nil,service_url:String?=nil,text:String?=nil,thumb_height:Int64?=nil,thumb_url:String?=nil,thumb_width:Int64?=nil,title:String?=nil,title_link:String?=nil,video_html:String?=nil,video_html_height:Int64?=nil,video_html_width:Int64?=nil)-class-method">
       <div class="signature">
         
-        def self.<strong>new</strong>(fallback : String, id : Int16, title : String, from_url : String? = <span class="n">nil</span>, original_url : String? = <span class="n">nil</span>, service_icon : String? = <span class="n">nil</span>, service_name : String? = <span class="n">nil</span>, service_url : String? = <span class="n">nil</span>, text : String? = <span class="n">nil</span>, thumb_height : Int64? = <span class="n">nil</span>, thumb_url : String? = <span class="n">nil</span>, thumb_width : Int64? = <span class="n">nil</span>, title_link : String? = <span class="n">nil</span>, video_html : String? = <span class="n">nil</span>, video_html_height : Int64? = <span class="n">nil</span>, video_html_width : Int64? = <span class="n">nil</span>)
+        def self.<strong>new</strong>(fallback : String, id : Int16, from_url : String? = <span class="n">nil</span>, original_url : String? = <span class="n">nil</span>, service_icon : String? = <span class="n">nil</span>, service_name : String? = <span class="n">nil</span>, service_url : String? = <span class="n">nil</span>, text : String? = <span class="n">nil</span>, thumb_height : Int64? = <span class="n">nil</span>, thumb_url : String? = <span class="n">nil</span>, thumb_width : Int64? = <span class="n">nil</span>, title : String? = <span class="n">nil</span>, title_link : String? = <span class="n">nil</span>, video_html : String? = <span class="n">nil</span>, video_html_height : Int64? = <span class="n">nil</span>, video_html_width : Int64? = <span class="n">nil</span>)
 
-        <a class="method-permalink" href="#new%28fallback%3AString%2Cid%3AInt16%2Ctitle%3AString%2Cfrom_url%3AString%3F%3Dnil%2Coriginal_url%3AString%3F%3Dnil%2Cservice_icon%3AString%3F%3Dnil%2Cservice_name%3AString%3F%3Dnil%2Cservice_url%3AString%3F%3Dnil%2Ctext%3AString%3F%3Dnil%2Cthumb_height%3AInt64%3F%3Dnil%2Cthumb_url%3AString%3F%3Dnil%2Cthumb_width%3AInt64%3F%3Dnil%2Ctitle_link%3AString%3F%3Dnil%2Cvideo_html%3AString%3F%3Dnil%2Cvideo_html_height%3AInt64%3F%3Dnil%2Cvideo_html_width%3AInt64%3F%3Dnil%29-class-method">#</a>
+        <a class="method-permalink" href="#new%28fallback%3AString%2Cid%3AInt16%2Cfrom_url%3AString%3F%3Dnil%2Coriginal_url%3AString%3F%3Dnil%2Cservice_icon%3AString%3F%3Dnil%2Cservice_name%3AString%3F%3Dnil%2Cservice_url%3AString%3F%3Dnil%2Ctext%3AString%3F%3Dnil%2Cthumb_height%3AInt64%3F%3Dnil%2Cthumb_url%3AString%3F%3Dnil%2Cthumb_width%3AInt64%3F%3Dnil%2Ctitle%3AString%3F%3Dnil%2Ctitle_link%3AString%3F%3Dnil%2Cvideo_html%3AString%3F%3Dnil%2Cvideo_html_height%3AInt64%3F%3Dnil%2Cvideo_html_width%3AInt64%3F%3Dnil%29-class-method">#</a>
       </div>
       
       <br/>
@@ -1355,7 +1360,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/c4ca46542dc236eb9520a7af2e5160c97377ae45/src/slack/events/event_data/attachment.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/e1d43bc1fce083659c0d894a1cc04cc46e93a73d/src/slack/events/event_data/attachment.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1682,12 +1687,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="title:String-instance-method">
+    <div class="entry-detail" id="title:String?-instance-method">
       <div class="signature">
         
-        def <strong>title</strong> : String
+        def <strong>title</strong> : String?
 
-        <a class="method-permalink" href="#title%3AString-instance-method">#</a>
+        <a class="method-permalink" href="#title%3AString%3F-instance-method">#</a>
       </div>
       
       <br/>
@@ -1696,12 +1701,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="title=(title:String)-instance-method">
+    <div class="entry-detail" id="title=(title:String?)-instance-method">
       <div class="signature">
         
-        def <strong>title=</strong>(title : String)
+        def <strong>title=</strong>(title : String?)
 
-        <a class="method-permalink" href="#title%3D%28title%3AString%29-instance-method">#</a>
+        <a class="method-permalink" href="#title%3D%28title%3AString%3F%29-instance-method">#</a>
       </div>
       
       <br/>

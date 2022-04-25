@@ -276,6 +276,11 @@
       
     </li>
   
+  <li class=" " data-id="slack/Slack/Events/Message/FileShare" data-name="slack::events::message::fileshare">
+      <a href="../../Slack/Events/Message/FileShare.html">FileShare</a>
+      
+    </li>
+  
   <li class=" " data-id="slack/Slack/Events/Message/MessageChanged" data-name="slack::events::message::messagechanged">
       <a href="../../Slack/Events/Message/MessageChanged.html">MessageChanged</a>
       
@@ -1017,6 +1022,8 @@
     
       <li class="other-type"><a href="../../Slack/Events/Message/ChannelJoin.html">Slack::Events::Message::ChannelJoin</a></li>
     
+      <li class="other-type"><a href="../../Slack/Events/Message/FileShare.html">Slack::Events::Message::FileShare</a></li>
+    
       <li class="other-type"><a href="../../Slack/Events/Message/MessageChanged.html">Slack::Events::Message::MessageChanged</a></li>
     
       <li class="other-type"><a href="../../Slack/Events/Message/MessageDeleted.html">Slack::Events::Message::MessageDeleted</a></li>
@@ -1038,7 +1045,7 @@
   </h2>
   
     
-      <a href="https://github.com/the-business-factory/slack.cr/blob/c4ca46542dc236eb9520a7af2e5160c97377ae45/src/slack/events/event_types/message_subtype.cr#L1" target="_blank">
+      <a href="https://github.com/the-business-factory/slack.cr/blob/e1d43bc1fce083659c0d894a1cc04cc46e93a73d/src/slack/events/event_types/message_subtype.cr#L1" target="_blank">
         slack/events/event_types/message_subtype.cr
       </a>
     
@@ -1132,6 +1139,21 @@
     
       <li class="entry-summary">
         <a href="#subtype%3D%28subtype%3AString%29-instance-method" class="signature"><strong>#subtype=</strong>(subtype : String)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#thread%3F-instance-method" class="signature"><strong>#thread?</strong></a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#thread_ts%3AString%3F-instance-method" class="signature"><strong>#thread_ts</strong> : String?</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#thread_ts%3D%28thread_ts%3AString%3F%29-instance-method" class="signature"><strong>#thread_ts=</strong>(thread_ts : String?)</a>
         
       </li>
     
@@ -1249,7 +1271,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/c4ca46542dc236eb9520a7af2e5160c97377ae45/src/slack/events/event_types/message_subtype.cr#L1" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/e1d43bc1fce083659c0d894a1cc04cc46e93a73d/src/slack/events/event_types/message_subtype.cr#L1" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1279,7 +1301,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/c4ca46542dc236eb9520a7af2e5160c97377ae45/src/slack/events/event_types/message_subtype.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/e1d43bc1fce083659c0d894a1cc04cc46e93a73d/src/slack/events/event_types/message_subtype.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1295,7 +1317,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/c4ca46542dc236eb9520a7af2e5160c97377ae45/src/slack/events/event_types/message_subtype.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/e1d43bc1fce083659c0d894a1cc04cc46e93a73d/src/slack/events/event_types/message_subtype.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1311,7 +1333,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/c4ca46542dc236eb9520a7af2e5160c97377ae45/src/slack/events/event_types/message_subtype.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/e1d43bc1fce083659c0d894a1cc04cc46e93a73d/src/slack/events/event_types/message_subtype.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1327,7 +1349,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/c4ca46542dc236eb9520a7af2e5160c97377ae45/src/slack/events/event_types/message_subtype.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/e1d43bc1fce083659c0d894a1cc04cc46e93a73d/src/slack/events/event_types/message_subtype.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1343,7 +1365,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/c4ca46542dc236eb9520a7af2e5160c97377ae45/src/slack/events/event_types/message_subtype.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/e1d43bc1fce083659c0d894a1cc04cc46e93a73d/src/slack/events/event_types/message_subtype.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1359,7 +1381,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/c4ca46542dc236eb9520a7af2e5160c97377ae45/src/slack/events/event_types/message_subtype.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/e1d43bc1fce083659c0d894a1cc04cc46e93a73d/src/slack/events/event_types/message_subtype.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1375,7 +1397,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/c4ca46542dc236eb9520a7af2e5160c97377ae45/src/slack/events/event_types/message_subtype.cr#L12" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/e1d43bc1fce083659c0d894a1cc04cc46e93a73d/src/slack/events/event_types/message_subtype.cr#L17" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1391,7 +1413,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/c4ca46542dc236eb9520a7af2e5160c97377ae45/src/slack/events/event_types/message_subtype.cr#L16" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/e1d43bc1fce083659c0d894a1cc04cc46e93a73d/src/slack/events/event_types/message_subtype.cr#L21" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1407,7 +1429,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/c4ca46542dc236eb9520a7af2e5160c97377ae45/src/slack/events/event_types/message_subtype.cr#L8" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/e1d43bc1fce083659c0d894a1cc04cc46e93a73d/src/slack/events/event_types/message_subtype.cr#L13" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1423,7 +1445,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/c4ca46542dc236eb9520a7af2e5160c97377ae45/src/slack/events/event_types/message_subtype.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/e1d43bc1fce083659c0d894a1cc04cc46e93a73d/src/slack/events/event_types/message_subtype.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1439,7 +1461,55 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/c4ca46542dc236eb9520a7af2e5160c97377ae45/src/slack/events/event_types/message_subtype.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/e1d43bc1fce083659c0d894a1cc04cc46e93a73d/src/slack/events/event_types/message_subtype.cr#L2" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="thread?-instance-method">
+      <div class="signature">
+        
+        def <strong>thread?</strong>
+
+        <a class="method-permalink" href="#thread%3F-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/e1d43bc1fce083659c0d894a1cc04cc46e93a73d/src/slack/events/event_types/message_subtype.cr#L9" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="thread_ts:String?-instance-method">
+      <div class="signature">
+        
+        def <strong>thread_ts</strong> : String?
+
+        <a class="method-permalink" href="#thread_ts%3AString%3F-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/e1d43bc1fce083659c0d894a1cc04cc46e93a73d/src/slack/events/event_types/message_subtype.cr#L2" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="thread_ts=(thread_ts:String?)-instance-method">
+      <div class="signature">
+        
+        def <strong>thread_ts=</strong>(thread_ts : String?)
+
+        <a class="method-permalink" href="#thread_ts%3D%28thread_ts%3AString%3F%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/e1d43bc1fce083659c0d894a1cc04cc46e93a73d/src/slack/events/event_types/message_subtype.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1455,7 +1525,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/c4ca46542dc236eb9520a7af2e5160c97377ae45/src/slack/events/event_types/message_subtype.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/e1d43bc1fce083659c0d894a1cc04cc46e93a73d/src/slack/events/event_types/message_subtype.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1471,7 +1541,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/c4ca46542dc236eb9520a7af2e5160c97377ae45/src/slack/events/event_types/message_subtype.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/e1d43bc1fce083659c0d894a1cc04cc46e93a73d/src/slack/events/event_types/message_subtype.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>

@@ -276,6 +276,11 @@
       
     </li>
   
+  <li class=" " data-id="slack/Slack/Events/Message/FileShare" data-name="slack::events::message::fileshare">
+      <a href="../../../Slack/Events/Message/FileShare.html">FileShare</a>
+      
+    </li>
+  
   <li class=" current" data-id="slack/Slack/Events/Message/MessageChanged" data-name="slack::events::message::messagechanged">
       <a href="../../../Slack/Events/Message/MessageChanged.html">MessageChanged</a>
       
@@ -1018,7 +1023,7 @@
   </h2>
   
     
-      <a href="https://github.com/the-business-factory/slack.cr/blob/c4ca46542dc236eb9520a7af2e5160c97377ae45/src/slack/events/event_types/message/message_changed.cr#L1" target="_blank">
+      <a href="https://github.com/the-business-factory/slack.cr/blob/e1d43bc1fce083659c0d894a1cc04cc46e93a73d/src/slack/events/event_types/message/message_changed.cr#L1" target="_blank">
         slack/events/event_types/message/message_changed.cr
       </a>
     
@@ -1061,26 +1066,6 @@
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#channel%3AString-instance-method" class="signature"><strong>#channel</strong> : String</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#channel%3D%28channel%3AString%29-instance-method" class="signature"><strong>#channel=</strong>(channel : String)</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#channel_type%3AString-instance-method" class="signature"><strong>#channel_type</strong> : String</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#channel_type%3D%28channel_type%3AString%29-instance-method" class="signature"><strong>#channel_type=</strong>(channel_type : String)</a>
-        
-      </li>
-    
-      <li class="entry-summary">
         <a href="#hidden%3ABool-instance-method" class="signature"><strong>#hidden</strong> : Bool</a>
         
       </li>
@@ -1101,12 +1086,12 @@
       </li>
     
       <li class="entry-summary">
-        <a href="#previous_message%3ASlack%3A%3AEventData%3A%3AMessageSubset-instance-method" class="signature"><strong>#previous_message</strong> : Slack::EventData::MessageSubset</a>
+        <a href="#previous_message%3ASlack%3A%3AEventData%3A%3AMessageSubset%3F-instance-method" class="signature"><strong>#previous_message</strong> : Slack::EventData::MessageSubset?</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#previous_message%3D%28previous_message%3ASlack%3A%3AEventData%3A%3AMessageSubset%29-instance-method" class="signature"><strong>#previous_message=</strong>(previous_message : Slack::EventData::MessageSubset)</a>
+        <a href="#previous_message%3D%28previous_message%3ASlack%3A%3AEventData%3A%3AMessageSubset%3F%29-instance-method" class="signature"><strong>#previous_message=</strong>(previous_message : Slack::EventData::MessageSubset?)</a>
         
       </li>
     
@@ -1186,6 +1171,21 @@
     <a href="../../../Slack/Events/MessageSubtype.html#subtype%3D%28subtype%3AString%29-instance-method" class="tooltip">
       <span>subtype=(subtype : String)</span>
     subtype=</a>, 
+    
+  
+    <a href="../../../Slack/Events/MessageSubtype.html#thread%3F-instance-method" class="tooltip">
+      <span>thread?</span>
+    thread?</a>, 
+    
+  
+    <a href="../../../Slack/Events/MessageSubtype.html#thread_ts%3AString%3F-instance-method" class="tooltip">
+      <span>thread_ts : String?</span>
+    thread_ts</a>, 
+    
+  
+    <a href="../../../Slack/Events/MessageSubtype.html#thread_ts%3D%28thread_ts%3AString%3F%29-instance-method" class="tooltip">
+      <span>thread_ts=(thread_ts : String?)</span>
+    thread_ts=</a>, 
     
   
     <a href="../../../Slack/Events/MessageSubtype.html#ts%3AString-instance-method" class="tooltip">
@@ -1312,7 +1312,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/c4ca46542dc236eb9520a7af2e5160c97377ae45/src/slack/events/event_types/message/message_changed.cr#L1" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/e1d43bc1fce083659c0d894a1cc04cc46e93a73d/src/slack/events/event_types/message/message_changed.cr#L1" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1331,70 +1331,6 @@
     Instance Method Detail
   </h2>
   
-    <div class="entry-detail" id="channel:String-instance-method">
-      <div class="signature">
-        
-        def <strong>channel</strong> : String
-
-        <a class="method-permalink" href="#channel%3AString-instance-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/c4ca46542dc236eb9520a7af2e5160c97377ae45/src/slack/events/event_types/message/message_changed.cr#L2" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="channel=(channel:String)-instance-method">
-      <div class="signature">
-        
-        def <strong>channel=</strong>(channel : String)
-
-        <a class="method-permalink" href="#channel%3D%28channel%3AString%29-instance-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/c4ca46542dc236eb9520a7af2e5160c97377ae45/src/slack/events/event_types/message/message_changed.cr#L2" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="channel_type:String-instance-method">
-      <div class="signature">
-        
-        def <strong>channel_type</strong> : String
-
-        <a class="method-permalink" href="#channel_type%3AString-instance-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/c4ca46542dc236eb9520a7af2e5160c97377ae45/src/slack/events/event_types/message/message_changed.cr#L2" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="channel_type=(channel_type:String)-instance-method">
-      <div class="signature">
-        
-        def <strong>channel_type=</strong>(channel_type : String)
-
-        <a class="method-permalink" href="#channel_type%3D%28channel_type%3AString%29-instance-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/c4ca46542dc236eb9520a7af2e5160c97377ae45/src/slack/events/event_types/message/message_changed.cr#L2" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
     <div class="entry-detail" id="hidden:Bool-instance-method">
       <div class="signature">
         
@@ -1406,7 +1342,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/c4ca46542dc236eb9520a7af2e5160c97377ae45/src/slack/events/event_types/message/message_changed.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/e1d43bc1fce083659c0d894a1cc04cc46e93a73d/src/slack/events/event_types/message/message_changed.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1422,7 +1358,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/c4ca46542dc236eb9520a7af2e5160c97377ae45/src/slack/events/event_types/message/message_changed.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/e1d43bc1fce083659c0d894a1cc04cc46e93a73d/src/slack/events/event_types/message/message_changed.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1438,7 +1374,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/c4ca46542dc236eb9520a7af2e5160c97377ae45/src/slack/events/event_types/message/message_changed.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/e1d43bc1fce083659c0d894a1cc04cc46e93a73d/src/slack/events/event_types/message/message_changed.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1454,39 +1390,39 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/c4ca46542dc236eb9520a7af2e5160c97377ae45/src/slack/events/event_types/message/message_changed.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/e1d43bc1fce083659c0d894a1cc04cc46e93a73d/src/slack/events/event_types/message/message_changed.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="previous_message:Slack::EventData::MessageSubset-instance-method">
+    <div class="entry-detail" id="previous_message:Slack::EventData::MessageSubset?-instance-method">
       <div class="signature">
         
-        def <strong>previous_message</strong> : <a href="../../../Slack/EventData/MessageSubset.html">Slack::EventData::MessageSubset</a>
+        def <strong>previous_message</strong> : <a href="../../../Slack/EventData/MessageSubset.html">Slack::EventData::MessageSubset</a>?
 
-        <a class="method-permalink" href="#previous_message%3ASlack%3A%3AEventData%3A%3AMessageSubset-instance-method">#</a>
+        <a class="method-permalink" href="#previous_message%3ASlack%3A%3AEventData%3A%3AMessageSubset%3F-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/c4ca46542dc236eb9520a7af2e5160c97377ae45/src/slack/events/event_types/message/message_changed.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/e1d43bc1fce083659c0d894a1cc04cc46e93a73d/src/slack/events/event_types/message/message_changed.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="previous_message=(previous_message:Slack::EventData::MessageSubset)-instance-method">
+    <div class="entry-detail" id="previous_message=(previous_message:Slack::EventData::MessageSubset?)-instance-method">
       <div class="signature">
         
-        def <strong>previous_message=</strong>(previous_message : <a href="../../../Slack/EventData/MessageSubset.html">Slack::EventData::MessageSubset</a>)
+        def <strong>previous_message=</strong>(previous_message : <a href="../../../Slack/EventData/MessageSubset.html">Slack::EventData::MessageSubset</a>?)
 
-        <a class="method-permalink" href="#previous_message%3D%28previous_message%3ASlack%3A%3AEventData%3A%3AMessageSubset%29-instance-method">#</a>
+        <a class="method-permalink" href="#previous_message%3D%28previous_message%3ASlack%3A%3AEventData%3A%3AMessageSubset%3F%29-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/c4ca46542dc236eb9520a7af2e5160c97377ae45/src/slack/events/event_types/message/message_changed.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/e1d43bc1fce083659c0d894a1cc04cc46e93a73d/src/slack/events/event_types/message/message_changed.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1502,7 +1438,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/c4ca46542dc236eb9520a7af2e5160c97377ae45/src/slack/events/event_types/message/message_changed.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/e1d43bc1fce083659c0d894a1cc04cc46e93a73d/src/slack/events/event_types/message/message_changed.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1518,7 +1454,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/c4ca46542dc236eb9520a7af2e5160c97377ae45/src/slack/events/event_types/message/message_changed.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/e1d43bc1fce083659c0d894a1cc04cc46e93a73d/src/slack/events/event_types/message/message_changed.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
