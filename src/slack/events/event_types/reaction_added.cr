@@ -1,8 +1,5 @@
 class Slack::Events::ReactionAdded < Slack::Event
-  struct ReactionItem
-    include JSON::Serializable
-    property ts : String, type : String, channel : String
-  end
+  json_record ReactionItem, ts : String, type : String, channel : String
 
   property item : ReactionItem,
     item_user : String,

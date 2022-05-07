@@ -42,6 +42,7 @@
                 "im:read",
                 "mpim:read",
                 "reactions:read",
+                "reactions:write",
                 "team:read",
                 "users:read"
             ]
