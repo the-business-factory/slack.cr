@@ -1,11 +1,7 @@
 class Slack::UI::Components::ButtonActions < Slack::UI::BaseComponent
   alias Styles = BlockElements::Button::Styles
 
-  struct ButtonData
-    include Slack::InitializerMacros
-
-    properties_with_initializer text : String, style : Styles?
-  end
+  json_record ButtonData, text : String, style : Styles?
 
   def self.render(
     action_id : String,
