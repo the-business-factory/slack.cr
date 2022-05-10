@@ -1,5 +1,6 @@
 abstract class Slack::Event
   include JSON::Serializable
+  include Slack::JSONRecords
 
   property type : String, team_id : String?
 
