@@ -29,9 +29,8 @@ class Slack::Api::ChatPostMessage < Slack::Api::Base
 
   # Extract this into a configuration object.
   #
-  # Options -- https://api.slack.com/methods/chat.postMessage#arg_as_user
+  # Options -- https://api.slack.com/methods/chat.postMessage
   properties_with_initializer \
-    as_user : Bool? = false,
     icon_emoji : String?,
     icon_url : String?,
     link_names : Bool?,
