@@ -8,6 +8,7 @@ struct Slack::Models::ConversationsHistory < Slack::Model
     reply_count : Int32?,
     reply_users : Array(String)?,
     reply_users_count : Int32?,
+    subtype : String?,
     text : String?,
     thread_ts : String,
     ts : String,
