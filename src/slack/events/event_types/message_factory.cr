@@ -5,6 +5,7 @@ class Slack::Events::MessageFactory
     Slack::Events::Message,
     {
       bot_add:         Slack::Events::Message::BotAdd,
+      bot_message:     Slack::Events::Message::BotMessage,
       channel_join:    Slack::Events::Message::ChannelJoin,
       file_share:      Slack::Events::Message::FileShare,
       message_changed: Slack::Events::Message::MessageChanged,

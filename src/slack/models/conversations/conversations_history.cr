@@ -1,5 +1,5 @@
 struct Slack::Models::ConversationsHistory < Slack::Model
-  json_record ResponseMetadata, cursor : String
+  json_record ResponseMetadata, cursor : String?
 
   json_record MessageHistory,
     blocks : Array(Hash(String, JSON::Any))?,
