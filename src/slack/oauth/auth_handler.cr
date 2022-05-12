@@ -44,7 +44,7 @@ class Slack::AuthHandler
   def authenticate_user(request : HTTP::Request)
     code = request.query_params["code"]
     headers = HTTP::Headers.new
-    headers["Content-Type"] = "application/x-www-form-urlencoded"
+    headers["Content-Type"] = ContentTypes::FormEncoded.to_s
     response = http_client.post(
       "/api/oauth.v2.access",
       headers: headers,
