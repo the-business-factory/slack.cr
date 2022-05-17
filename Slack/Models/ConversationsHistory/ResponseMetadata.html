@@ -281,6 +281,11 @@
       
     </li>
   
+  <li class=" " data-id="slack/Slack/Events/Message/BotMessage" data-name="slack::events::message::botmessage">
+      <a href="../../../Slack/Events/Message/BotMessage.html">BotMessage</a>
+      
+    </li>
+  
   <li class=" " data-id="slack/Slack/Events/Message/ChannelJoin" data-name="slack::events::message::channeljoin">
       <a href="../../../Slack/Events/Message/ChannelJoin.html">ChannelJoin</a>
       
@@ -1079,7 +1084,7 @@
   </h2>
   
     
-      <a href="https://github.com/the-business-factory/slack.cr/blob/9064d86df33411232de93c52d3d5df3c94f8ac5a/src/slack/models/conversations/conversations_history.cr#L2" target="_blank">
+      <a href="https://github.com/the-business-factory/slack.cr/blob/f9fcb23f80b6bee5aaba08d2b6358f17600ee67e/src/slack/models/conversations/conversations_history.cr#L2" target="_blank">
         slack/models/conversations/conversations_history.cr
       </a>
     
@@ -1101,7 +1106,7 @@
   <dl>
     
       <dt class="entry-const" id="ASSIGNED_TYPES">
-        <strong>ASSIGNED_TYPES</strong> = <code>[cursor : <span class="t">String</span>] <span class="k">of</span> <span class="t">TypeDeclaration</span></code>
+        <strong>ASSIGNED_TYPES</strong> = <code>[cursor : <span class="t">String</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>] <span class="k">of</span> <span class="t">TypeDeclaration</span></code>
       </dt>
       
     
@@ -1125,7 +1130,7 @@
       </li>
     
       <li class="entry-summary">
-        <a href="#new%28cursor%3AString%29-class-method" class="signature"><strong>.new</strong>(cursor : String)</a>
+        <a href="#new%28cursor%3AString%3F%3Dnil%29-class-method" class="signature"><strong>.new</strong>(cursor : String? = <span class="n">nil</span>)</a>
         
       </li>
     
@@ -1146,12 +1151,12 @@
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#cursor%3AString-instance-method" class="signature"><strong>#cursor</strong> : String</a>
+        <a href="#cursor%3AString%3F-instance-method" class="signature"><strong>#cursor</strong> : String?</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#cursor%3D%28cursor%3AString%29-instance-method" class="signature"><strong>#cursor=</strong>(cursor : String)</a>
+        <a href="#cursor%3D%28cursor%3AString%3F%29-instance-method" class="signature"><strong>#cursor=</strong>(cursor : String?)</a>
         
       </li>
     
@@ -1239,12 +1244,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="new(cursor:String)-class-method">
+    <div class="entry-detail" id="new(cursor:String?=nil)-class-method">
       <div class="signature">
         
-        def self.<strong>new</strong>(cursor : String)
+        def self.<strong>new</strong>(cursor : String? = <span class="n">nil</span>)
 
-        <a class="method-permalink" href="#new%28cursor%3AString%29-class-method">#</a>
+        <a class="method-permalink" href="#new%28cursor%3AString%3F%3Dnil%29-class-method">#</a>
       </div>
       
       <br/>
@@ -1267,12 +1272,12 @@
     Instance Method Detail
   </h2>
   
-    <div class="entry-detail" id="cursor:String-instance-method">
+    <div class="entry-detail" id="cursor:String?-instance-method">
       <div class="signature">
         
-        def <strong>cursor</strong> : String
+        def <strong>cursor</strong> : String?
 
-        <a class="method-permalink" href="#cursor%3AString-instance-method">#</a>
+        <a class="method-permalink" href="#cursor%3AString%3F-instance-method">#</a>
       </div>
       
       <br/>
@@ -1281,12 +1286,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="cursor=(cursor:String)-instance-method">
+    <div class="entry-detail" id="cursor=(cursor:String?)-instance-method">
       <div class="signature">
         
-        def <strong>cursor=</strong>(cursor : String)
+        def <strong>cursor=</strong>(cursor : String?)
 
-        <a class="method-permalink" href="#cursor%3D%28cursor%3AString%29-instance-method">#</a>
+        <a class="method-permalink" href="#cursor%3D%28cursor%3AString%3F%29-instance-method">#</a>
       </div>
       
       <br/>

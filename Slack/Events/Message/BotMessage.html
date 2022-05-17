@@ -13,7 +13,7 @@
 <script type="text/javascript" src="../../../js/doc.js"></script>
 
   <meta name="repository-name" content="slack">
-  <title>Slack::UI::BlockElements::OverflowMenu - slack main</title>
+  <title>Slack::Events::Message::BotMessage - slack main</title>
   <script type="text/javascript">
     CrystalDocs.base_path = "../../../";
   </script>
@@ -251,7 +251,7 @@
       
     </li>
   
-  <li class="parent " data-id="slack/Slack/Events" data-name="slack::events">
+  <li class="parent open current" data-id="slack/Slack/Events" data-name="slack::events">
       <a href="../../../Slack/Events.html">Events</a>
       
         <ul>
@@ -271,7 +271,7 @@
       
     </li>
   
-  <li class="parent " data-id="slack/Slack/Events/Message" data-name="slack::events::message">
+  <li class="parent open current" data-id="slack/Slack/Events/Message" data-name="slack::events::message">
       <a href="../../../Slack/Events/Message.html">Message</a>
       
         <ul>
@@ -281,7 +281,7 @@
       
     </li>
   
-  <li class=" " data-id="slack/Slack/Events/Message/BotMessage" data-name="slack::events::message::botmessage">
+  <li class=" current" data-id="slack/Slack/Events/Message/BotMessage" data-name="slack::events::message::botmessage">
       <a href="../../../Slack/Events/Message/BotMessage.html">BotMessage</a>
       
     </li>
@@ -616,7 +616,7 @@
       
     </li>
   
-  <li class="parent open current" data-id="slack/Slack/UI" data-name="slack::ui">
+  <li class="parent " data-id="slack/Slack/UI" data-name="slack::ui">
       <a href="../../../Slack/UI.html">UI</a>
       
         <ul>
@@ -641,7 +641,7 @@
       
     </li>
   
-  <li class="parent open current" data-id="slack/Slack/UI/BlockElements" data-name="slack::ui::blockelements">
+  <li class="parent " data-id="slack/Slack/UI/BlockElements" data-name="slack::ui::blockelements">
       <a href="../../../Slack/UI/BlockElements.html">BlockElements</a>
       
         <ul>
@@ -686,7 +686,7 @@
       
     </li>
   
-  <li class=" current" data-id="slack/Slack/UI/BlockElements/OverflowMenu" data-name="slack::ui::blockelements::overflowmenu">
+  <li class=" " data-id="slack/Slack/UI/BlockElements/OverflowMenu" data-name="slack::ui::blockelements::overflowmenu">
       <a href="../../../Slack/UI/BlockElements/OverflowMenu.html">OverflowMenu</a>
       
     </li>
@@ -1035,12 +1035,12 @@
 <div class="main-content">
 <h1 class="type-name">
 
-  <span class="kind">struct</span> Slack::UI::BlockElements::OverflowMenu
+  <span class="kind">class</span> Slack::Events::Message::BotMessage
 
 </h1>
 
 
-  <ul class="superclass-hierarchy"><li class="superclass"><a href="../../../Slack/UI/BlockElements/OverflowMenu.html">Slack::UI::BlockElements::OverflowMenu</a></li><li class="superclass"><a href="../../../Slack/UI/BlockElement.html">Slack::UI::BlockElement</a></li><li class="superclass">Struct</li><li class="superclass">Value</li><li class="superclass">Object</li></ul>
+  <ul class="superclass-hierarchy"><li class="superclass"><a href="../../../Slack/Events/Message/BotMessage.html">Slack::Events::Message::BotMessage</a></li><li class="superclass"><a href="../../../Slack/Events/MessageSubtype.html">Slack::Events::MessageSubtype</a></li><li class="superclass"><a href="../../../Slack/Event.html">Slack::Event</a></li><li class="superclass">Reference</li><li class="superclass">Object</li></ul>
 
 
 
@@ -1068,33 +1068,14 @@
   </h2>
   
     
-      <a href="https://github.com/the-business-factory/slack.cr/blob/f9fcb23f80b6bee5aaba08d2b6358f17600ee67e/src/slack/ui/block_elements/overflow_menu.cr#L1" target="_blank">
-        slack/ui/block_elements/overflow_menu.cr
+      <a href="https://github.com/the-business-factory/slack.cr/blob/f9fcb23f80b6bee5aaba08d2b6358f17600ee67e/src/slack/events/event_types/message/bot_message.cr#L1" target="_blank">
+        slack/events/event_types/message/bot_message.cr
       </a>
     
     <br/>
   
 
 
-
-  
-    <h2>
-      <a id="constant-summary" class="anchor" href="#constant-summary">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-      Constant Summary
-    </h2>
-  
-  <dl>
-    
-      <dt class="entry-const" id="ASSIGNED_TYPES">
-        <strong>ASSIGNED_TYPES</strong> = <code><span class="o">[]</span> <span class="k">of</span> <span class="t">TypeDeclaration</span></code>
-      </dt>
-      
-    
-  </dl>
 
 
 
@@ -1130,7 +1111,42 @@
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#type%3AString-instance-method" class="signature"><strong>#type</strong> : String</a>
+        <a href="#app_id%3AString%3F-instance-method" class="signature"><strong>#app_id</strong> : String?</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#app_id%3D%28app_id%3AString%3F%29-instance-method" class="signature"><strong>#app_id=</strong>(app_id : String?)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#bot_id%3AString-instance-method" class="signature"><strong>#bot_id</strong> : String</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#bot_id%3D%28bot_id%3AString%29-instance-method" class="signature"><strong>#bot_id=</strong>(bot_id : String)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#text%3AString-instance-method" class="signature"><strong>#text</strong> : String</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#text%3D%28text%3AString%29-instance-method" class="signature"><strong>#text=</strong>(text : String)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#username%3AString%3F-instance-method" class="signature"><strong>#username</strong> : String?</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#username%3D%28username%3AString%3F%29-instance-method" class="signature"><strong>#username=</strong>(username : String?)</a>
         
       </li>
     
@@ -1144,22 +1160,97 @@
   
     
 
-  <h3>Instance methods inherited from struct <code><a href="../../../Slack/UI/BlockElement.html">Slack::UI::BlockElement</a></code></h3>
+  <h3>Instance methods inherited from class <code><a href="../../../Slack/Events/MessageSubtype.html">Slack::Events::MessageSubtype</a></code></h3>
   
   
-    <a href="../../../Slack/UI/BlockElement.html#type-instance-method" class="tooltip">
-      <span>type</span>
-    type</a>
+    <a href="../../../Slack/Events/MessageSubtype.html#channel%3AString-instance-method" class="tooltip">
+      <span>channel : String</span>
+    channel</a>, 
+    
+  
+    <a href="../../../Slack/Events/MessageSubtype.html#channel%3D%28channel%3AString%29-instance-method" class="tooltip">
+      <span>channel=(channel : String)</span>
+    channel=</a>, 
+    
+  
+    <a href="../../../Slack/Events/MessageSubtype.html#channel_type%3AString-instance-method" class="tooltip">
+      <span>channel_type : String</span>
+    channel_type</a>, 
+    
+  
+    <a href="../../../Slack/Events/MessageSubtype.html#channel_type%3D%28channel_type%3AString%29-instance-method" class="tooltip">
+      <span>channel_type=(channel_type : String)</span>
+    channel_type=</a>, 
+    
+  
+    <a href="../../../Slack/Events/MessageSubtype.html#event_ts%3AString-instance-method" class="tooltip">
+      <span>event_ts : String</span>
+    event_ts</a>, 
+    
+  
+    <a href="../../../Slack/Events/MessageSubtype.html#event_ts%3D%28event_ts%3AString%29-instance-method" class="tooltip">
+      <span>event_ts=(event_ts : String)</span>
+    event_ts=</a>, 
+    
+  
+    <a href="../../../Slack/Events/MessageSubtype.html#im%3F-instance-method" class="tooltip">
+      <span>im?</span>
+    im?</a>, 
+    
+  
+    <a href="../../../Slack/Events/MessageSubtype.html#private_channel%3F-instance-method" class="tooltip">
+      <span>private_channel?</span>
+    private_channel?</a>, 
+    
+  
+    <a href="../../../Slack/Events/MessageSubtype.html#public_channel%3F-instance-method" class="tooltip">
+      <span>public_channel?</span>
+    public_channel?</a>, 
+    
+  
+    <a href="../../../Slack/Events/MessageSubtype.html#subtype%3AString-instance-method" class="tooltip">
+      <span>subtype : String</span>
+    subtype</a>, 
+    
+  
+    <a href="../../../Slack/Events/MessageSubtype.html#subtype%3D%28subtype%3AString%29-instance-method" class="tooltip">
+      <span>subtype=(subtype : String)</span>
+    subtype=</a>, 
+    
+  
+    <a href="../../../Slack/Events/MessageSubtype.html#thread%3F-instance-method" class="tooltip">
+      <span>thread?</span>
+    thread?</a>, 
+    
+  
+    <a href="../../../Slack/Events/MessageSubtype.html#thread_ts%3AString%3F-instance-method" class="tooltip">
+      <span>thread_ts : String?</span>
+    thread_ts</a>, 
+    
+  
+    <a href="../../../Slack/Events/MessageSubtype.html#thread_ts%3D%28thread_ts%3AString%3F%29-instance-method" class="tooltip">
+      <span>thread_ts=(thread_ts : String?)</span>
+    thread_ts=</a>, 
+    
+  
+    <a href="../../../Slack/Events/MessageSubtype.html#ts%3AString-instance-method" class="tooltip">
+      <span>ts : String</span>
+    ts</a>, 
+    
+  
+    <a href="../../../Slack/Events/MessageSubtype.html#ts%3D%28ts%3AString%29-instance-method" class="tooltip">
+      <span>ts=(ts : String)</span>
+    ts=</a>
     
   
 
 
     
 
-  <h3>Constructor methods inherited from struct <code><a href="../../../Slack/UI/BlockElement.html">Slack::UI::BlockElement</a></code></h3>
+  <h3>Constructor methods inherited from class <code><a href="../../../Slack/Events/MessageSubtype.html">Slack::Events::MessageSubtype</a></code></h3>
   
   
-    <a href="../../../Slack/UI/BlockElement.html#new%28pull%3AJSON%3A%3APullParser%29-class-method" class="tooltip">
+    <a href="../../../Slack/Events/MessageSubtype.html#new%28pull%3AJSON%3A%3APullParser%29-class-method" class="tooltip">
       <span>new(pull : JSON::PullParser)</span>
     new</a>
     
@@ -1172,18 +1263,41 @@
   
     
 
-
-    
-
-
-    
-
-
+  <h3>Instance methods inherited from class <code><a href="../../../Slack/Event.html">Slack::Event</a></code></h3>
   
+  
+    <a href="../../../Slack/Event.html#team_id%3AString%3F-instance-method" class="tooltip">
+      <span>team_id : String?</span>
+    team_id</a>, 
     
+  
+    <a href="../../../Slack/Event.html#team_id%3D%28team_id%3AString%3F%29-instance-method" class="tooltip">
+      <span>team_id=(team_id : String?)</span>
+    team_id=</a>, 
+    
+  
+    <a href="../../../Slack/Event.html#type%3AString-instance-method" class="tooltip">
+      <span>type : String</span>
+    type</a>, 
+    
+  
+    <a href="../../../Slack/Event.html#type%3D%28type%3AString%29-instance-method" class="tooltip">
+      <span>type=(type : String)</span>
+    type=</a>
+    
+  
 
 
     
+
+  <h3>Constructor methods inherited from class <code><a href="../../../Slack/Event.html">Slack::Event</a></code></h3>
+  
+  
+    <a href="../../../Slack/Event.html#new%28pull%3AJSON%3A%3APullParser%29-class-method" class="tooltip">
+      <span>new(pull : JSON::PullParser)</span>
+    new</a>
+    
+  
 
 
     
@@ -1253,7 +1367,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/f9fcb23f80b6bee5aaba08d2b6358f17600ee67e/src/slack/ui/block_elements/overflow_menu.cr#L1" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/f9fcb23f80b6bee5aaba08d2b6358f17600ee67e/src/slack/events/event_types/message/bot_message.cr#L1" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1272,18 +1386,130 @@
     Instance Method Detail
   </h2>
   
-    <div class="entry-detail" id="type:String-instance-method">
+    <div class="entry-detail" id="app_id:String?-instance-method">
       <div class="signature">
         
-        def <strong>type</strong> : String
+        def <strong>app_id</strong> : String?
 
-        <a class="method-permalink" href="#type%3AString-instance-method">#</a>
+        <a class="method-permalink" href="#app_id%3AString%3F-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/f9fcb23f80b6bee5aaba08d2b6358f17600ee67e/src/slack/ui/block_elements/overflow_menu.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/f9fcb23f80b6bee5aaba08d2b6358f17600ee67e/src/slack/events/event_types/message/bot_message.cr#L2" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="app_id=(app_id:String?)-instance-method">
+      <div class="signature">
+        
+        def <strong>app_id=</strong>(app_id : String?)
+
+        <a class="method-permalink" href="#app_id%3D%28app_id%3AString%3F%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/f9fcb23f80b6bee5aaba08d2b6358f17600ee67e/src/slack/events/event_types/message/bot_message.cr#L2" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="bot_id:String-instance-method">
+      <div class="signature">
+        
+        def <strong>bot_id</strong> : String
+
+        <a class="method-permalink" href="#bot_id%3AString-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/f9fcb23f80b6bee5aaba08d2b6358f17600ee67e/src/slack/events/event_types/message/bot_message.cr#L2" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="bot_id=(bot_id:String)-instance-method">
+      <div class="signature">
+        
+        def <strong>bot_id=</strong>(bot_id : String)
+
+        <a class="method-permalink" href="#bot_id%3D%28bot_id%3AString%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/f9fcb23f80b6bee5aaba08d2b6358f17600ee67e/src/slack/events/event_types/message/bot_message.cr#L2" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="text:String-instance-method">
+      <div class="signature">
+        
+        def <strong>text</strong> : String
+
+        <a class="method-permalink" href="#text%3AString-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/f9fcb23f80b6bee5aaba08d2b6358f17600ee67e/src/slack/events/event_types/message/bot_message.cr#L2" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="text=(text:String)-instance-method">
+      <div class="signature">
+        
+        def <strong>text=</strong>(text : String)
+
+        <a class="method-permalink" href="#text%3D%28text%3AString%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/f9fcb23f80b6bee5aaba08d2b6358f17600ee67e/src/slack/events/event_types/message/bot_message.cr#L2" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="username:String?-instance-method">
+      <div class="signature">
+        
+        def <strong>username</strong> : String?
+
+        <a class="method-permalink" href="#username%3AString%3F-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/f9fcb23f80b6bee5aaba08d2b6358f17600ee67e/src/slack/events/event_types/message/bot_message.cr#L2" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="username=(username:String?)-instance-method">
+      <div class="signature">
+        
+        def <strong>username=</strong>(username : String?)
+
+        <a class="method-permalink" href="#username%3D%28username%3AString%3F%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/f9fcb23f80b6bee5aaba08d2b6358f17600ee67e/src/slack/events/event_types/message/bot_message.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
