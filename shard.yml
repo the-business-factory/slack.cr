@@ -14,8 +14,10 @@ targets:
 
 dependencies:
   habitat:
-    git: https://github.com/luckyframework/habitat.git
+    github: luckyframework/habitat
     version: ~> 0.4.7
+  rate_limiter:
+    github: lbarasti/rate_limiter
 development_dependencies:
   ameba:
     github: crystal-ameba/ameba

@@ -5,7 +5,7 @@ describe Slack::Api::ReactionsAdd do
     it "should request the reactions add resource from the API" do
       load_cassette("reactions-add-success") do
         channel = "C03B5PUPDSQ"
-        ts = "1652146092.815149"
+        ts = "1652892820.098929"
         reaction = "t-rex"
         token = ENV.fetch("SLACK_TEAM_AUTH_TOKEN")
         response = Slack::Api::ReactionsAdd

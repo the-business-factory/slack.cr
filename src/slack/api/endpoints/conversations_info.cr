@@ -1,21 +1,20 @@
 class Slack::Api::ConversationsInfo < Slack::Api::Base
-  getter channel
-
-  def initialize(@token : String, @channel : String)
-  end
+  properties_with_initializer channel : String
 
   def content_type : ContentTypes
     ContentTypes::FormEncoded
   end
 
-  def base_url
+  def request_url : String
     "https://slack.com/api/conversations.info?channel=#{channel}"
   end
 
-  def call : Models::Conversation
-    result = HTTP::Client.get(base_url, headers: headers).body
+  def result : HTTP::Client::Response
+    @result ||= ApiClient.new(api: self).get
+  end
 
-    ResponseHandler(Models::Conversation).from_json(result) do |json|
+  def call : Models::Conversation
+    ResponseHandler(Models::Conversation).from_json(result.body) do |json|
       Models::ConversationFactory.from_json json
     end
   end

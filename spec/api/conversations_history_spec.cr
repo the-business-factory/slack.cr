@@ -12,11 +12,11 @@ describe Slack::Api::ConversationsHistory do
           .should be_a(Slack::Models::ConversationsHistory)
 
         files = response
-          .messages[1]
+          .messages[2]
           .files
           .should be_a(Array(Hash(String, JSON::Any)))
 
-        files.first["id"].should eq "F03EAJ1UXFZ"
+        files.first["id"].should eq "F03GL2VDTCG"
       end
     end
   end

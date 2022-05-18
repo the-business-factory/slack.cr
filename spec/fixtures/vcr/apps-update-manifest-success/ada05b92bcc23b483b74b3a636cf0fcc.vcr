@@ -1,5 +1,5 @@
 HTTP/1.1 200 OK
-date: Sat, 07 May 2022 02:38:36 GMT
+date: Wed, 18 May 2022 17:00:07 GMT
 server: Apache
 x-powered-by: HHVM/4.153.1
 access-control-allow-origin: *
@@ -15,17 +15,16 @@ cache-control: private, no-cache, no-store, must-revalidate
 pragma: no-cache
 x-xss-protection: 0
 x-content-type-options: nosniff
-x-slack-req-id: 241b0040494709374e36b63b8bf91832
+x-slack-req-id: 80fc81fd9f3e3521e9ffea0ab2976e11
 vary: Accept-Encoding
 content-type: application/json; charset=utf-8
-x-envoy-upstream-service-time: 293
+x-envoy-upstream-service-time: 281
 x-backend: main_normal main_bedrock_normal_with_overflow main_canary_with_overflow main_bedrock_canary_with_overflow main_control_with_overflow main_bedrock_control_with_overflow
-x-server: slack-www-hhvm-main-iad-rh2r
+x-server: slack-www-hhvm-main-iad-uwac
 x-slack-shared-secret-outcome: no-match
-via: envoy-www-iad-67xx, envoy-edge-pdx-11xz
+via: envoy-www-iad-m5mr, envoy-edge-pdx-wrk5
 x-edge-backend: envoy-www
 x-slack-edge-shared-secret-outcome: no-match
-connection: close
 Content-Length: 62
 
-{"ok":true,"app_id":"FAKEAPPID","permissions_updated":true}
+{"ok":true,"app_id":"FAKEAPPID","permissions_updated":false}

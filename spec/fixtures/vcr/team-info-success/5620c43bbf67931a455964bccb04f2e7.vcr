@@ -1,31 +1,30 @@
 HTTP/1.1 200 OK
-date: Mon, 18 Apr 2022 19:33:09 GMT
+date: Wed, 18 May 2022 17:08:24 GMT
 server: Apache
-x-powered-by: HHVM/4.153.0
+x-powered-by: HHVM/4.153.1
 access-control-allow-origin: *
 referrer-policy: no-referrer
 x-slack-backend: r
 strict-transport-security: max-age=31536000; includeSubDomains; preload
 access-control-allow-headers: slack-route, x-slack-version-ts, x-b3-traceid, x-b3-spanid, x-b3-parentspanid, x-b3-sampled, x-b3-flags
 access-control-expose-headers: x-slack-req-id, retry-after
-x-oauth-scopes: app_mentions:read,channels:history,channels:read,chat:write,chat:write.public,commands,groups:history,groups:read,im:history,im:read,mpim:read,reactions:read,team:read,users:read
+x-oauth-scopes: app_mentions:read,channels:history,channels:read,chat:write,chat:write.public,commands,groups:history,groups:read,im:history,im:read,mpim:read,reactions:read,team:read,users:read,reactions:write
 x-accepted-oauth-scopes: team:read
 expires: Mon, 26 Jul 1997 05:00:00 GMT
 cache-control: private, no-cache, no-store, must-revalidate
 pragma: no-cache
 x-xss-protection: 0
 x-content-type-options: nosniff
-x-slack-req-id: 7fa199687c4cf51ec312ce79099deb7c
+x-slack-req-id: 9ace686ddaa5758b98b410c2c95ff3aa
 vary: Accept-Encoding
 content-type: application/json; charset=utf-8
-x-envoy-upstream-service-time: 86
+x-envoy-upstream-service-time: 82
 x-backend: main_normal main_bedrock_normal_with_overflow main_canary_with_overflow main_bedrock_canary_with_overflow main_control_with_overflow main_bedrock_control_with_overflow
-x-server: slack-www-hhvm-main-iad-lj3b
+x-server: slack-www-hhvm-main-iad-ogwa
 x-slack-shared-secret-outcome: no-match
-via: envoy-www-canary-iad-qv7k, envoy-edge-pdx-xgg6
+via: envoy-www-iad-st4g, envoy-edge-pdx-tsa5
 x-edge-backend: envoy-www
 x-slack-edge-shared-secret-outcome: no-match
-connection: close
 Content-Length: 834
 
 {"ok":true,"team":{"id":"T017GL5AV5E","name":"goalsurfer","url":"https:\/\/goalsurfer.slack.com\/","domain":"goalsurfer","email_domain":"","icon":{"image_102":"https:\/\/a.slack-edge.com\/80588\/img\/avatars-teams\/ava_0013-102.png","image_132":"https:\/\/a.slack-edge.com\/80588\/img\/avatars-teams\/ava_0013-132.png","image_230":"https:\/\/a.slack-edge.com\/80588\/img\/avatars-teams\/ava_0013-230.png","image_34":"https:\/\/a.slack-edge.com\/80588\/img\/avatars-teams\/ava_0013-34.png","image_44":"https:\/\/a.slack-edge.com\/80588\/img\/avatars-teams\/ava_0013-44.png","image_68":"https:\/\/a.slack-edge.com\/80588\/img\/avatars-teams\/ava_0013-68.png","image_88":"https:\/\/a.slack-edge.com\/80588\/img\/avatars-teams\/ava_0013-88.png","image_default":true},"avatar_base_url":"https:\/\/ca.slack-edge.com\/","is_verified":false}}

@@ -1,5 +1,5 @@
 class Slack::Api::AppsManifestUpdate < Slack::Api::Base
-  properties_with_initializer token : String, app_id : String
+  properties_with_initializer app_id : String
 
   # Eventually, manifests should be converted into a strongly typed object
   # specifying allowable values, validations, etc.
@@ -12,12 +12,15 @@ class Slack::Api::AppsManifestUpdate < Slack::Api::Base
     ContentTypes::JSON
   end
 
-  def base_url
+  def request_url : String
     "https://slack.com/api/apps.manifest.update"
   end
 
+  def result : HTTP::Client::Response
+    @result ||= ApiClient.new(api: self).post(body: to_json)
+  end
+
   def call : Slack::Models::Apps::ManifestUpdate
-    result = HTTP::Client.post(url: base_url, headers: headers, body: to_json)
     ResponseHandler(Models::Apps::ManifestUpdate).from_json(result.body)
   end
 end
