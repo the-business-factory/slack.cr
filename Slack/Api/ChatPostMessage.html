@@ -116,6 +116,11 @@
       
     </li>
   
+  <li class=" " data-id="slack/Slack/ApiClient" data-name="slack::apiclient">
+      <a href="../../Slack/ApiClient.html">ApiClient</a>
+      
+    </li>
+  
   <li class="parent " data-id="slack/Slack/Auth" data-name="slack::auth">
       <a href="../../Slack/Auth.html">Auth</a>
       
@@ -1068,7 +1073,7 @@
   </h2>
   
     
-      <a href="https://github.com/the-business-factory/slack.cr/blob/f9fcb23f80b6bee5aaba08d2b6358f17600ee67e/src/slack/api/endpoints/chat_post_message.cr#L1" target="_blank">
+      <a href="https://github.com/the-business-factory/slack.cr/blob/631a04dadf13d5fa9b41a1ea428cb31b48cf1c27/src/slack/api/endpoints/chat_post_message.cr#L1" target="_blank">
         slack/api/endpoints/chat_post_message.cr
       </a>
     
@@ -1090,7 +1095,7 @@
   <dl>
     
       <dt class="entry-const" id="ASSIGNED_TYPES">
-        <strong>ASSIGNED_TYPES</strong> = <code>[attachments : <span class="t">Array</span>(<span class="t">EventData</span><span class="t">::</span><span class="t">Attachment</span>) <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, blocks : <span class="t">Array</span>(<span class="t">Slack</span><span class="t">::</span><span class="t">UI</span><span class="t">::</span><span class="t">Block</span>) <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, channel : <span class="t">String</span>, text : <span class="t">String</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, token : <span class="t">String</span>, icon_emoji : <span class="t">String</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, icon_url : <span class="t">String</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, link_names : <span class="t">Bool</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, mrkdwn : <span class="t">Bool</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, parse : <span class="t">String</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span> <span class="o">=</span> <span class="s">&quot;none&quot;</span>, reply_broadcast : <span class="t">Bool</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, thread_ts : <span class="t">String</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, unfurl_links : <span class="t">Bool</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, unfurl_media : <span class="t">Bool</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, username : <span class="t">String</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>] <span class="k">of</span> <span class="t">TypeDeclaration</span></code>
+        <strong>ASSIGNED_TYPES</strong> = <code>[token : <span class="t">String</span>, attachments : <span class="t">Array</span>(<span class="t">EventData</span><span class="t">::</span><span class="t">Attachment</span>) <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, blocks : <span class="t">Array</span>(<span class="t">Slack</span><span class="t">::</span><span class="t">UI</span><span class="t">::</span><span class="t">Block</span>) <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, channel : <span class="t">String</span>, text : <span class="t">String</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, icon_emoji : <span class="t">String</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, icon_url : <span class="t">String</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, link_names : <span class="t">Bool</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, mrkdwn : <span class="t">Bool</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, parse : <span class="t">String</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span> <span class="o">=</span> <span class="s">&quot;none&quot;</span>, reply_broadcast : <span class="t">Bool</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, thread_ts : <span class="t">String</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, unfurl_links : <span class="t">Bool</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, unfurl_media : <span class="t">Bool</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>, username : <span class="t">String</span> <span class="o">|</span> <span class="t">::</span><span class="t">Nil</span>] <span class="k">of</span> <span class="t">TypeDeclaration</span></code>
       </dt>
       
     
@@ -1109,7 +1114,7 @@
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#new%28channel%3AString%2Ctoken%3AString%2Cattachments%3AArray%28EventData%3A%3AAttachment%29%3F%3Dnil%2Cblocks%3AArray%28Slack%3A%3AUI%3A%3ABlock%29%3F%3Dnil%2Ctext%3AString%3F%3Dnil%2Cicon_emoji%3AString%3F%3Dnil%2Cicon_url%3AString%3F%3Dnil%2Clink_names%3ABool%3F%3Dnil%2Cmrkdwn%3ABool%3F%3Dnil%2Cparse%3AString%3F%3D%22none%22%2Creply_broadcast%3ABool%3F%3Dnil%2Cthread_ts%3AString%3F%3Dnil%2Cunfurl_links%3ABool%3F%3Dnil%2Cunfurl_media%3ABool%3F%3Dnil%2Cusername%3AString%3F%3Dnil%29-class-method" class="signature"><strong>.new</strong>(channel : String, token : String, attachments : Array(EventData::Attachment)? = <span class="n">nil</span>, blocks : Array(Slack::UI::Block)? = <span class="n">nil</span>, text : String? = <span class="n">nil</span>, icon_emoji : String? = <span class="n">nil</span>, icon_url : String? = <span class="n">nil</span>, link_names : Bool? = <span class="n">nil</span>, mrkdwn : Bool? = <span class="n">nil</span>, parse : String? = <span class="s">&quot;none&quot;</span>, reply_broadcast : Bool? = <span class="n">nil</span>, thread_ts : String? = <span class="n">nil</span>, unfurl_links : Bool? = <span class="n">nil</span>, unfurl_media : Bool? = <span class="n">nil</span>, username : String? = <span class="n">nil</span>)</a>
+        <a href="#new%28token%3AString%2Cchannel%3AString%2Cattachments%3AArray%28EventData%3A%3AAttachment%29%3F%3Dnil%2Cblocks%3AArray%28Slack%3A%3AUI%3A%3ABlock%29%3F%3Dnil%2Ctext%3AString%3F%3Dnil%2Cicon_emoji%3AString%3F%3Dnil%2Cicon_url%3AString%3F%3Dnil%2Clink_names%3ABool%3F%3Dnil%2Cmrkdwn%3ABool%3F%3Dnil%2Cparse%3AString%3F%3D%22none%22%2Creply_broadcast%3ABool%3F%3Dnil%2Cthread_ts%3AString%3F%3Dnil%2Cunfurl_links%3ABool%3F%3Dnil%2Cunfurl_media%3ABool%3F%3Dnil%2Cusername%3AString%3F%3Dnil%29-class-method" class="signature"><strong>.new</strong>(token : String, channel : String, attachments : Array(EventData::Attachment)? = <span class="n">nil</span>, blocks : Array(Slack::UI::Block)? = <span class="n">nil</span>, text : String? = <span class="n">nil</span>, icon_emoji : String? = <span class="n">nil</span>, icon_url : String? = <span class="n">nil</span>, link_names : Bool? = <span class="n">nil</span>, mrkdwn : Bool? = <span class="n">nil</span>, parse : String? = <span class="s">&quot;none&quot;</span>, reply_broadcast : Bool? = <span class="n">nil</span>, thread_ts : String? = <span class="n">nil</span>, unfurl_links : Bool? = <span class="n">nil</span>, unfurl_media : Bool? = <span class="n">nil</span>, username : String? = <span class="n">nil</span>)</a>
         
       </li>
     
@@ -1134,8 +1139,6 @@
     
       <li class="entry-summary">
         <a href="#post_blocks%28blocks%3AEnumerable%2Cchannel%3AString%2Ctoken%3AString%2Cthread_ts%3AString%3F%3Dnil%29-class-method" class="signature"><strong>.post_blocks</strong>(blocks : Enumerable, channel : String, token : String, thread_ts : String? = <span class="n">nil</span>)</a>
-        
-          <div class="summary"><p>Add a helper so Array(Slack::UI::Block) can be easily passed for calls that allow mixed blocks.</p></div>
         
       </li>
     
@@ -1165,11 +1168,6 @@
     
       <li class="entry-summary">
         <a href="#attachments%3D%28attachments%3AArray%28EventData%3A%3AAttachment%29%3F%29-instance-method" class="signature"><strong>#attachments=</strong>(attachments : Array(EventData::Attachment)?)</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#base_url-instance-method" class="signature"><strong>#base_url</strong></a>
         
       </li>
     
@@ -1206,84 +1204,70 @@
       <li class="entry-summary">
         <a href="#icon_emoji%3AString%3F-instance-method" class="signature"><strong>#icon_emoji</strong> : String?</a>
         
-          <div class="summary"><p>Extract this into a configuration object.</p></div>
-        
       </li>
     
       <li class="entry-summary">
         <a href="#icon_emoji%3D%28icon_emoji%3AString%3F%29-instance-method" class="signature"><strong>#icon_emoji=</strong>(icon_emoji : String?)</a>
-        
-          <div class="summary"><p>Extract this into a configuration object.</p></div>
         
       </li>
     
       <li class="entry-summary">
         <a href="#icon_url%3AString%3F-instance-method" class="signature"><strong>#icon_url</strong> : String?</a>
         
-          <div class="summary"><p>Extract this into a configuration object.</p></div>
-        
       </li>
     
       <li class="entry-summary">
         <a href="#icon_url%3D%28icon_url%3AString%3F%29-instance-method" class="signature"><strong>#icon_url=</strong>(icon_url : String?)</a>
-        
-          <div class="summary"><p>Extract this into a configuration object.</p></div>
         
       </li>
     
       <li class="entry-summary">
         <a href="#link_names%3ABool%3F-instance-method" class="signature"><strong>#link_names</strong> : Bool?</a>
         
-          <div class="summary"><p>Extract this into a configuration object.</p></div>
-        
       </li>
     
       <li class="entry-summary">
         <a href="#link_names%3D%28link_names%3ABool%3F%29-instance-method" class="signature"><strong>#link_names=</strong>(link_names : Bool?)</a>
-        
-          <div class="summary"><p>Extract this into a configuration object.</p></div>
         
       </li>
     
       <li class="entry-summary">
         <a href="#mrkdwn%3ABool%3F-instance-method" class="signature"><strong>#mrkdwn</strong> : Bool?</a>
         
-          <div class="summary"><p>Extract this into a configuration object.</p></div>
-        
       </li>
     
       <li class="entry-summary">
         <a href="#mrkdwn%3D%28mrkdwn%3ABool%3F%29-instance-method" class="signature"><strong>#mrkdwn=</strong>(mrkdwn : Bool?)</a>
-        
-          <div class="summary"><p>Extract this into a configuration object.</p></div>
         
       </li>
     
       <li class="entry-summary">
         <a href="#parse%3AString%3F-instance-method" class="signature"><strong>#parse</strong> : String?</a>
         
-          <div class="summary"><p>Extract this into a configuration object.</p></div>
-        
       </li>
     
       <li class="entry-summary">
         <a href="#parse%3D%28parse%3AString%3F%29-instance-method" class="signature"><strong>#parse=</strong>(parse : String?)</a>
-        
-          <div class="summary"><p>Extract this into a configuration object.</p></div>
         
       </li>
     
       <li class="entry-summary">
         <a href="#reply_broadcast%3ABool%3F-instance-method" class="signature"><strong>#reply_broadcast</strong> : Bool?</a>
         
-          <div class="summary"><p>Extract this into a configuration object.</p></div>
-        
       </li>
     
       <li class="entry-summary">
         <a href="#reply_broadcast%3D%28reply_broadcast%3ABool%3F%29-instance-method" class="signature"><strong>#reply_broadcast=</strong>(reply_broadcast : Bool?)</a>
         
-          <div class="summary"><p>Extract this into a configuration object.</p></div>
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#request_url%3AString-instance-method" class="signature"><strong>#request_url</strong> : String</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#result%3AHTTP%3A%3AClient%3A%3AResponse-instance-method" class="signature"><strong>#result</strong> : HTTP::Client::Response</a>
         
       </li>
     
@@ -1300,66 +1284,40 @@
       <li class="entry-summary">
         <a href="#thread_ts%3AString%3F-instance-method" class="signature"><strong>#thread_ts</strong> : String?</a>
         
-          <div class="summary"><p>Extract this into a configuration object.</p></div>
-        
       </li>
     
       <li class="entry-summary">
         <a href="#thread_ts%3D%28thread_ts%3AString%3F%29-instance-method" class="signature"><strong>#thread_ts=</strong>(thread_ts : String?)</a>
-        
-          <div class="summary"><p>Extract this into a configuration object.</p></div>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#token%3AString-instance-method" class="signature"><strong>#token</strong> : String</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#token%3D%28token%3AString%29-instance-method" class="signature"><strong>#token=</strong>(token : String)</a>
         
       </li>
     
       <li class="entry-summary">
         <a href="#unfurl_links%3ABool%3F-instance-method" class="signature"><strong>#unfurl_links</strong> : Bool?</a>
         
-          <div class="summary"><p>Extract this into a configuration object.</p></div>
-        
       </li>
     
       <li class="entry-summary">
         <a href="#unfurl_links%3D%28unfurl_links%3ABool%3F%29-instance-method" class="signature"><strong>#unfurl_links=</strong>(unfurl_links : Bool?)</a>
-        
-          <div class="summary"><p>Extract this into a configuration object.</p></div>
         
       </li>
     
       <li class="entry-summary">
         <a href="#unfurl_media%3ABool%3F-instance-method" class="signature"><strong>#unfurl_media</strong> : Bool?</a>
         
-          <div class="summary"><p>Extract this into a configuration object.</p></div>
-        
       </li>
     
       <li class="entry-summary">
         <a href="#unfurl_media%3D%28unfurl_media%3ABool%3F%29-instance-method" class="signature"><strong>#unfurl_media=</strong>(unfurl_media : Bool?)</a>
-        
-          <div class="summary"><p>Extract this into a configuration object.</p></div>
         
       </li>
     
       <li class="entry-summary">
         <a href="#username%3AString%3F-instance-method" class="signature"><strong>#username</strong> : String?</a>
         
-          <div class="summary"><p>Extract this into a configuration object.</p></div>
-        
       </li>
     
       <li class="entry-summary">
         <a href="#username%3D%28username%3AString%3F%29-instance-method" class="signature"><strong>#username=</strong>(username : String?)</a>
-        
-          <div class="summary"><p>Extract this into a configuration object.</p></div>
         
       </li>
     
@@ -1376,11 +1334,6 @@
   <h3>Instance methods inherited from class <code><a href="../../Slack/Api/Base.html">Slack::Api::Base</a></code></h3>
   
   
-    <a href="../../Slack/Api/Base.html#base_url-instance-method" class="tooltip">
-      <span>base_url</span>
-    base_url</a>, 
-    
-  
     <a href="../../Slack/Api/Base.html#call%3ASlack%3A%3AModel-instance-method" class="tooltip">
       <span>call : Slack::Model</span>
     call</a>, 
@@ -1396,9 +1349,24 @@
     headers</a>, 
     
   
-    <a href="../../Slack/Api/Base.html#token-instance-method" class="tooltip">
-      <span>token</span>
-    token</a>
+    <a href="../../Slack/Api/Base.html#request_url%3AString-instance-method" class="tooltip">
+      <span>request_url : String</span>
+    request_url</a>, 
+    
+  
+    <a href="../../Slack/Api/Base.html#result%3AHTTP%3A%3AClient%3A%3AResponse-instance-method" class="tooltip">
+      <span>result : HTTP::Client::Response</span>
+    result</a>, 
+    
+  
+    <a href="../../Slack/Api/Base.html#token%3AString-instance-method" class="tooltip">
+      <span>token : String</span>
+    token</a>, 
+    
+  
+    <a href="../../Slack/Api/Base.html#token%3D%28token%3AString%29-instance-method" class="tooltip">
+      <span>token=(token : String)</span>
+    token=</a>
     
   
 
@@ -1471,12 +1439,12 @@
     Constructor Detail
   </h2>
   
-    <div class="entry-detail" id="new(channel:String,token:String,attachments:Array(EventData::Attachment)?=nil,blocks:Array(Slack::UI::Block)?=nil,text:String?=nil,icon_emoji:String?=nil,icon_url:String?=nil,link_names:Bool?=nil,mrkdwn:Bool?=nil,parse:String?=&quot;none&quot;,reply_broadcast:Bool?=nil,thread_ts:String?=nil,unfurl_links:Bool?=nil,unfurl_media:Bool?=nil,username:String?=nil)-class-method">
+    <div class="entry-detail" id="new(token:String,channel:String,attachments:Array(EventData::Attachment)?=nil,blocks:Array(Slack::UI::Block)?=nil,text:String?=nil,icon_emoji:String?=nil,icon_url:String?=nil,link_names:Bool?=nil,mrkdwn:Bool?=nil,parse:String?=&quot;none&quot;,reply_broadcast:Bool?=nil,thread_ts:String?=nil,unfurl_links:Bool?=nil,unfurl_media:Bool?=nil,username:String?=nil)-class-method">
       <div class="signature">
         
-        def self.<strong>new</strong>(channel : String, token : String, attachments : Array(<a href="../../Slack/EventData/Attachment.html">EventData::Attachment</a>)? = <span class="n">nil</span>, blocks : Array(<a href="../../Slack/UI/Block.html">Slack::UI::Block</a>)? = <span class="n">nil</span>, text : String? = <span class="n">nil</span>, icon_emoji : String? = <span class="n">nil</span>, icon_url : String? = <span class="n">nil</span>, link_names : Bool? = <span class="n">nil</span>, mrkdwn : Bool? = <span class="n">nil</span>, parse : String? = <span class="s">&quot;none&quot;</span>, reply_broadcast : Bool? = <span class="n">nil</span>, thread_ts : String? = <span class="n">nil</span>, unfurl_links : Bool? = <span class="n">nil</span>, unfurl_media : Bool? = <span class="n">nil</span>, username : String? = <span class="n">nil</span>)
+        def self.<strong>new</strong>(token : String, channel : String, attachments : Array(<a href="../../Slack/EventData/Attachment.html">EventData::Attachment</a>)? = <span class="n">nil</span>, blocks : Array(<a href="../../Slack/UI/Block.html">Slack::UI::Block</a>)? = <span class="n">nil</span>, text : String? = <span class="n">nil</span>, icon_emoji : String? = <span class="n">nil</span>, icon_url : String? = <span class="n">nil</span>, link_names : Bool? = <span class="n">nil</span>, mrkdwn : Bool? = <span class="n">nil</span>, parse : String? = <span class="s">&quot;none&quot;</span>, reply_broadcast : Bool? = <span class="n">nil</span>, thread_ts : String? = <span class="n">nil</span>, unfurl_links : Bool? = <span class="n">nil</span>, unfurl_media : Bool? = <span class="n">nil</span>, username : String? = <span class="n">nil</span>)
 
-        <a class="method-permalink" href="#new%28channel%3AString%2Ctoken%3AString%2Cattachments%3AArray%28EventData%3A%3AAttachment%29%3F%3Dnil%2Cblocks%3AArray%28Slack%3A%3AUI%3A%3ABlock%29%3F%3Dnil%2Ctext%3AString%3F%3Dnil%2Cicon_emoji%3AString%3F%3Dnil%2Cicon_url%3AString%3F%3Dnil%2Clink_names%3ABool%3F%3Dnil%2Cmrkdwn%3ABool%3F%3Dnil%2Cparse%3AString%3F%3D%22none%22%2Creply_broadcast%3ABool%3F%3Dnil%2Cthread_ts%3AString%3F%3Dnil%2Cunfurl_links%3ABool%3F%3Dnil%2Cunfurl_media%3ABool%3F%3Dnil%2Cusername%3AString%3F%3Dnil%29-class-method">#</a>
+        <a class="method-permalink" href="#new%28token%3AString%2Cchannel%3AString%2Cattachments%3AArray%28EventData%3A%3AAttachment%29%3F%3Dnil%2Cblocks%3AArray%28Slack%3A%3AUI%3A%3ABlock%29%3F%3Dnil%2Ctext%3AString%3F%3Dnil%2Cicon_emoji%3AString%3F%3Dnil%2Cicon_url%3AString%3F%3Dnil%2Clink_names%3ABool%3F%3Dnil%2Cmrkdwn%3ABool%3F%3Dnil%2Cparse%3AString%3F%3D%22none%22%2Creply_broadcast%3ABool%3F%3Dnil%2Cthread_ts%3AString%3F%3Dnil%2Cunfurl_links%3ABool%3F%3Dnil%2Cunfurl_media%3ABool%3F%3Dnil%2Cusername%3AString%3F%3Dnil%29-class-method">#</a>
       </div>
       
       <br/>
@@ -1496,7 +1464,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/f9fcb23f80b6bee5aaba08d2b6358f17600ee67e/src/slack/api/endpoints/chat_post_message.cr#L1" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/631a04dadf13d5fa9b41a1ea428cb31b48cf1c27/src/slack/api/endpoints/chat_post_message.cr#L1" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1521,21 +1489,10 @@
         <a class="method-permalink" href="#post_blocks%28blocks%3AEnumerable%2Cchannel%3AString%2Ctoken%3AString%2Cthread_ts%3AString%3F%3Dnil%29-class-method">#</a>
       </div>
       
-        <div class="doc">
-          
-          <p>Add a helper so Array(Slack::UI::Block) can be easily passed for calls that
-allow mixed blocks. (chat.postMessage, etc). This is a bit of a hack to get
-around the fact that the Array could be many different types depending on
-the user, as the user is creating the Array type -- e.g:</p>
-<p>Array(Slack::UI::Blocks::Section | Slack::UI::Blocks::Input)?</p>
-<p>This should be improved with something that handles type guards a bit more
-elegantly or something that propertly handles the combinatorics on arrays.</p>
-        </div>
-      
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/f9fcb23f80b6bee5aaba08d2b6358f17600ee67e/src/slack/api/endpoints/chat_post_message.cr#L18" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/631a04dadf13d5fa9b41a1ea428cb31b48cf1c27/src/slack/api/endpoints/chat_post_message.cr#L8" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1563,7 +1520,7 @@ elegantly or something that propertly handles the combinatorics on arrays.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/f9fcb23f80b6bee5aaba08d2b6358f17600ee67e/src/slack/api/endpoints/chat_post_message.cr#L45" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/631a04dadf13d5fa9b41a1ea428cb31b48cf1c27/src/slack/api/endpoints/chat_post_message.cr#L32" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1592,22 +1549,6 @@ elegantly or something that propertly handles the combinatorics on arrays.</p>
       
       <br/>
       <div>
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="base_url-instance-method">
-      <div class="signature">
-        
-        def <strong>base_url</strong>
-
-        <a class="method-permalink" href="#base_url-instance-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/f9fcb23f80b6bee5aaba08d2b6358f17600ee67e/src/slack/api/endpoints/chat_post_message.cr#L55" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1651,7 +1592,7 @@ elegantly or something that propertly handles the combinatorics on arrays.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/f9fcb23f80b6bee5aaba08d2b6358f17600ee67e/src/slack/api/endpoints/chat_post_message.cr#L59" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/631a04dadf13d5fa9b41a1ea428cb31b48cf1c27/src/slack/api/endpoints/chat_post_message.cr#L50" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1695,7 +1636,7 @@ elegantly or something that propertly handles the combinatorics on arrays.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/f9fcb23f80b6bee5aaba08d2b6358f17600ee67e/src/slack/api/endpoints/chat_post_message.cr#L51" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/631a04dadf13d5fa9b41a1ea428cb31b48cf1c27/src/slack/api/endpoints/chat_post_message.cr#L38" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1707,12 +1648,6 @@ elegantly or something that propertly handles the combinatorics on arrays.</p>
 
         <a class="method-permalink" href="#icon_emoji%3AString%3F-instance-method">#</a>
       </div>
-      
-        <div class="doc">
-          
-          <p>Extract this into a configuration object.</p>
-<p>Options -- https://api.slack.com/methods/chat.postMessage</p>
-        </div>
       
       <br/>
       <div>
@@ -1728,12 +1663,6 @@ elegantly or something that propertly handles the combinatorics on arrays.</p>
         <a class="method-permalink" href="#icon_emoji%3D%28icon_emoji%3AString%3F%29-instance-method">#</a>
       </div>
       
-        <div class="doc">
-          
-          <p>Extract this into a configuration object.</p>
-<p>Options -- https://api.slack.com/methods/chat.postMessage</p>
-        </div>
-      
       <br/>
       <div>
         
@@ -1747,12 +1676,6 @@ elegantly or something that propertly handles the combinatorics on arrays.</p>
 
         <a class="method-permalink" href="#icon_url%3AString%3F-instance-method">#</a>
       </div>
-      
-        <div class="doc">
-          
-          <p>Extract this into a configuration object.</p>
-<p>Options -- https://api.slack.com/methods/chat.postMessage</p>
-        </div>
       
       <br/>
       <div>
@@ -1768,12 +1691,6 @@ elegantly or something that propertly handles the combinatorics on arrays.</p>
         <a class="method-permalink" href="#icon_url%3D%28icon_url%3AString%3F%29-instance-method">#</a>
       </div>
       
-        <div class="doc">
-          
-          <p>Extract this into a configuration object.</p>
-<p>Options -- https://api.slack.com/methods/chat.postMessage</p>
-        </div>
-      
       <br/>
       <div>
         
@@ -1787,12 +1704,6 @@ elegantly or something that propertly handles the combinatorics on arrays.</p>
 
         <a class="method-permalink" href="#link_names%3ABool%3F-instance-method">#</a>
       </div>
-      
-        <div class="doc">
-          
-          <p>Extract this into a configuration object.</p>
-<p>Options -- https://api.slack.com/methods/chat.postMessage</p>
-        </div>
       
       <br/>
       <div>
@@ -1808,12 +1719,6 @@ elegantly or something that propertly handles the combinatorics on arrays.</p>
         <a class="method-permalink" href="#link_names%3D%28link_names%3ABool%3F%29-instance-method">#</a>
       </div>
       
-        <div class="doc">
-          
-          <p>Extract this into a configuration object.</p>
-<p>Options -- https://api.slack.com/methods/chat.postMessage</p>
-        </div>
-      
       <br/>
       <div>
         
@@ -1827,12 +1732,6 @@ elegantly or something that propertly handles the combinatorics on arrays.</p>
 
         <a class="method-permalink" href="#mrkdwn%3ABool%3F-instance-method">#</a>
       </div>
-      
-        <div class="doc">
-          
-          <p>Extract this into a configuration object.</p>
-<p>Options -- https://api.slack.com/methods/chat.postMessage</p>
-        </div>
       
       <br/>
       <div>
@@ -1848,12 +1747,6 @@ elegantly or something that propertly handles the combinatorics on arrays.</p>
         <a class="method-permalink" href="#mrkdwn%3D%28mrkdwn%3ABool%3F%29-instance-method">#</a>
       </div>
       
-        <div class="doc">
-          
-          <p>Extract this into a configuration object.</p>
-<p>Options -- https://api.slack.com/methods/chat.postMessage</p>
-        </div>
-      
       <br/>
       <div>
         
@@ -1867,12 +1760,6 @@ elegantly or something that propertly handles the combinatorics on arrays.</p>
 
         <a class="method-permalink" href="#parse%3AString%3F-instance-method">#</a>
       </div>
-      
-        <div class="doc">
-          
-          <p>Extract this into a configuration object.</p>
-<p>Options -- https://api.slack.com/methods/chat.postMessage</p>
-        </div>
       
       <br/>
       <div>
@@ -1888,12 +1775,6 @@ elegantly or something that propertly handles the combinatorics on arrays.</p>
         <a class="method-permalink" href="#parse%3D%28parse%3AString%3F%29-instance-method">#</a>
       </div>
       
-        <div class="doc">
-          
-          <p>Extract this into a configuration object.</p>
-<p>Options -- https://api.slack.com/methods/chat.postMessage</p>
-        </div>
-      
       <br/>
       <div>
         
@@ -1907,12 +1788,6 @@ elegantly or something that propertly handles the combinatorics on arrays.</p>
 
         <a class="method-permalink" href="#reply_broadcast%3ABool%3F-instance-method">#</a>
       </div>
-      
-        <div class="doc">
-          
-          <p>Extract this into a configuration object.</p>
-<p>Options -- https://api.slack.com/methods/chat.postMessage</p>
-        </div>
       
       <br/>
       <div>
@@ -1928,14 +1803,40 @@ elegantly or something that propertly handles the combinatorics on arrays.</p>
         <a class="method-permalink" href="#reply_broadcast%3D%28reply_broadcast%3ABool%3F%29-instance-method">#</a>
       </div>
       
-        <div class="doc">
-          
-          <p>Extract this into a configuration object.</p>
-<p>Options -- https://api.slack.com/methods/chat.postMessage</p>
-        </div>
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="request_url:String-instance-method">
+      <div class="signature">
+        
+        def <strong>request_url</strong> : String
+
+        <a class="method-permalink" href="#request_url%3AString-instance-method">#</a>
+      </div>
       
       <br/>
       <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/631a04dadf13d5fa9b41a1ea428cb31b48cf1c27/src/slack/api/endpoints/chat_post_message.cr#L42" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="result:HTTP::Client::Response-instance-method">
+      <div class="signature">
+        
+        def <strong>result</strong> : HTTP::Client::Response
+
+        <a class="method-permalink" href="#result%3AHTTP%3A%3AClient%3A%3AResponse-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/631a04dadf13d5fa9b41a1ea428cb31b48cf1c27/src/slack/api/endpoints/chat_post_message.cr#L46" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1976,12 +1877,6 @@ elegantly or something that propertly handles the combinatorics on arrays.</p>
         <a class="method-permalink" href="#thread_ts%3AString%3F-instance-method">#</a>
       </div>
       
-        <div class="doc">
-          
-          <p>Extract this into a configuration object.</p>
-<p>Options -- https://api.slack.com/methods/chat.postMessage</p>
-        </div>
-      
       <br/>
       <div>
         
@@ -1994,40 +1889,6 @@ elegantly or something that propertly handles the combinatorics on arrays.</p>
         def <strong>thread_ts=</strong>(thread_ts : String?)
 
         <a class="method-permalink" href="#thread_ts%3D%28thread_ts%3AString%3F%29-instance-method">#</a>
-      </div>
-      
-        <div class="doc">
-          
-          <p>Extract this into a configuration object.</p>
-<p>Options -- https://api.slack.com/methods/chat.postMessage</p>
-        </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="token:String-instance-method">
-      <div class="signature">
-        
-        def <strong>token</strong> : String
-
-        <a class="method-permalink" href="#token%3AString-instance-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="token=(token:String)-instance-method">
-      <div class="signature">
-        
-        def <strong>token=</strong>(token : String)
-
-        <a class="method-permalink" href="#token%3D%28token%3AString%29-instance-method">#</a>
       </div>
       
       <br/>
@@ -2044,12 +1905,6 @@ elegantly or something that propertly handles the combinatorics on arrays.</p>
         <a class="method-permalink" href="#unfurl_links%3ABool%3F-instance-method">#</a>
       </div>
       
-        <div class="doc">
-          
-          <p>Extract this into a configuration object.</p>
-<p>Options -- https://api.slack.com/methods/chat.postMessage</p>
-        </div>
-      
       <br/>
       <div>
         
@@ -2063,12 +1918,6 @@ elegantly or something that propertly handles the combinatorics on arrays.</p>
 
         <a class="method-permalink" href="#unfurl_links%3D%28unfurl_links%3ABool%3F%29-instance-method">#</a>
       </div>
-      
-        <div class="doc">
-          
-          <p>Extract this into a configuration object.</p>
-<p>Options -- https://api.slack.com/methods/chat.postMessage</p>
-        </div>
       
       <br/>
       <div>
@@ -2084,12 +1933,6 @@ elegantly or something that propertly handles the combinatorics on arrays.</p>
         <a class="method-permalink" href="#unfurl_media%3ABool%3F-instance-method">#</a>
       </div>
       
-        <div class="doc">
-          
-          <p>Extract this into a configuration object.</p>
-<p>Options -- https://api.slack.com/methods/chat.postMessage</p>
-        </div>
-      
       <br/>
       <div>
         
@@ -2103,12 +1946,6 @@ elegantly or something that propertly handles the combinatorics on arrays.</p>
 
         <a class="method-permalink" href="#unfurl_media%3D%28unfurl_media%3ABool%3F%29-instance-method">#</a>
       </div>
-      
-        <div class="doc">
-          
-          <p>Extract this into a configuration object.</p>
-<p>Options -- https://api.slack.com/methods/chat.postMessage</p>
-        </div>
       
       <br/>
       <div>
@@ -2124,12 +1961,6 @@ elegantly or something that propertly handles the combinatorics on arrays.</p>
         <a class="method-permalink" href="#username%3AString%3F-instance-method">#</a>
       </div>
       
-        <div class="doc">
-          
-          <p>Extract this into a configuration object.</p>
-<p>Options -- https://api.slack.com/methods/chat.postMessage</p>
-        </div>
-      
       <br/>
       <div>
         
@@ -2143,12 +1974,6 @@ elegantly or something that propertly handles the combinatorics on arrays.</p>
 
         <a class="method-permalink" href="#username%3D%28username%3AString%3F%29-instance-method">#</a>
       </div>
-      
-        <div class="doc">
-          
-          <p>Extract this into a configuration object.</p>
-<p>Options -- https://api.slack.com/methods/chat.postMessage</p>
-        </div>
       
       <br/>
       <div>

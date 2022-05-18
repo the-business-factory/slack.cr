@@ -116,6 +116,11 @@
       
     </li>
   
+  <li class=" " data-id="slack/Slack/ApiClient" data-name="slack::apiclient">
+      <a href="../../Slack/ApiClient.html">ApiClient</a>
+      
+    </li>
+  
   <li class="parent " data-id="slack/Slack/Auth" data-name="slack::auth">
       <a href="../../Slack/Auth.html">Auth</a>
       
@@ -1068,7 +1073,7 @@
   </h2>
   
     
-      <a href="https://github.com/the-business-factory/slack.cr/blob/f9fcb23f80b6bee5aaba08d2b6358f17600ee67e/src/slack/api/endpoints/conversations_info.cr#L1" target="_blank">
+      <a href="https://github.com/the-business-factory/slack.cr/blob/631a04dadf13d5fa9b41a1ea428cb31b48cf1c27/src/slack/api/endpoints/conversations_info.cr#L1" target="_blank">
         slack/api/endpoints/conversations_info.cr
       </a>
     
@@ -1090,7 +1095,7 @@
   <dl>
     
       <dt class="entry-const" id="ASSIGNED_TYPES">
-        <strong>ASSIGNED_TYPES</strong> = <code><span class="o">[]</span> <span class="k">of</span> <span class="t">TypeDeclaration</span></code>
+        <strong>ASSIGNED_TYPES</strong> = <code>[token : <span class="t">String</span>, channel : <span class="t">String</span>] <span class="k">of</span> <span class="t">TypeDeclaration</span></code>
       </dt>
       
     
@@ -1135,11 +1140,6 @@
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#base_url-instance-method" class="signature"><strong>#base_url</strong></a>
-        
-      </li>
-    
-      <li class="entry-summary">
         <a href="#call%3AModels%3A%3AConversation-instance-method" class="signature"><strong>#call</strong> : Models::Conversation</a>
         
       </li>
@@ -1150,7 +1150,22 @@
       </li>
     
       <li class="entry-summary">
+        <a href="#channel%3D%28channel%3AString%29-instance-method" class="signature"><strong>#channel=</strong>(channel : String)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
         <a href="#content_type%3AContentTypes-instance-method" class="signature"><strong>#content_type</strong> : ContentTypes</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#request_url%3AString-instance-method" class="signature"><strong>#request_url</strong> : String</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#result%3AHTTP%3A%3AClient%3A%3AResponse-instance-method" class="signature"><strong>#result</strong> : HTTP::Client::Response</a>
         
       </li>
     
@@ -1167,11 +1182,6 @@
   <h3>Instance methods inherited from class <code><a href="../../Slack/Api/Base.html">Slack::Api::Base</a></code></h3>
   
   
-    <a href="../../Slack/Api/Base.html#base_url-instance-method" class="tooltip">
-      <span>base_url</span>
-    base_url</a>, 
-    
-  
     <a href="../../Slack/Api/Base.html#call%3ASlack%3A%3AModel-instance-method" class="tooltip">
       <span>call : Slack::Model</span>
     call</a>, 
@@ -1187,9 +1197,24 @@
     headers</a>, 
     
   
-    <a href="../../Slack/Api/Base.html#token-instance-method" class="tooltip">
-      <span>token</span>
-    token</a>
+    <a href="../../Slack/Api/Base.html#request_url%3AString-instance-method" class="tooltip">
+      <span>request_url : String</span>
+    request_url</a>, 
+    
+  
+    <a href="../../Slack/Api/Base.html#result%3AHTTP%3A%3AClient%3A%3AResponse-instance-method" class="tooltip">
+      <span>result : HTTP::Client::Response</span>
+    result</a>, 
+    
+  
+    <a href="../../Slack/Api/Base.html#token%3AString-instance-method" class="tooltip">
+      <span>token : String</span>
+    token</a>, 
+    
+  
+    <a href="../../Slack/Api/Base.html#token%3D%28token%3AString%29-instance-method" class="tooltip">
+      <span>token=(token : String)</span>
+    token=</a>
     
   
 
@@ -1273,8 +1298,6 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/f9fcb23f80b6bee5aaba08d2b6358f17600ee67e/src/slack/api/endpoints/conversations_info.cr#L4" target="_blank">View source</a>]
-        
       </div>
     </div>
   
@@ -1289,7 +1312,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/f9fcb23f80b6bee5aaba08d2b6358f17600ee67e/src/slack/api/endpoints/conversations_info.cr#L1" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/631a04dadf13d5fa9b41a1ea428cb31b48cf1c27/src/slack/api/endpoints/conversations_info.cr#L1" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1308,22 +1331,6 @@
     Instance Method Detail
   </h2>
   
-    <div class="entry-detail" id="base_url-instance-method">
-      <div class="signature">
-        
-        def <strong>base_url</strong>
-
-        <a class="method-permalink" href="#base_url-instance-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/f9fcb23f80b6bee5aaba08d2b6358f17600ee67e/src/slack/api/endpoints/conversations_info.cr#L11" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
     <div class="entry-detail" id="call:Models::Conversation-instance-method">
       <div class="signature">
         
@@ -1335,7 +1342,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/f9fcb23f80b6bee5aaba08d2b6358f17600ee67e/src/slack/api/endpoints/conversations_info.cr#L15" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/631a04dadf13d5fa9b41a1ea428cb31b48cf1c27/src/slack/api/endpoints/conversations_info.cr#L16" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1351,7 +1358,19 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/f9fcb23f80b6bee5aaba08d2b6358f17600ee67e/src/slack/api/endpoints/conversations_info.cr#L2" target="_blank">View source</a>]
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="channel=(channel:String)-instance-method">
+      <div class="signature">
+        
+        def <strong>channel=</strong>(channel : String)
+
+        <a class="method-permalink" href="#channel%3D%28channel%3AString%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
         
       </div>
     </div>
@@ -1367,7 +1386,39 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/f9fcb23f80b6bee5aaba08d2b6358f17600ee67e/src/slack/api/endpoints/conversations_info.cr#L7" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/631a04dadf13d5fa9b41a1ea428cb31b48cf1c27/src/slack/api/endpoints/conversations_info.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="request_url:String-instance-method">
+      <div class="signature">
+        
+        def <strong>request_url</strong> : String
+
+        <a class="method-permalink" href="#request_url%3AString-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/631a04dadf13d5fa9b41a1ea428cb31b48cf1c27/src/slack/api/endpoints/conversations_info.cr#L8" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="result:HTTP::Client::Response-instance-method">
+      <div class="signature">
+        
+        def <strong>result</strong> : HTTP::Client::Response
+
+        <a class="method-permalink" href="#result%3AHTTP%3A%3AClient%3A%3AResponse-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/631a04dadf13d5fa9b41a1ea428cb31b48cf1c27/src/slack/api/endpoints/conversations_info.cr#L12" target="_blank">View source</a>]
         
       </div>
     </div>
