@@ -1,20 +1,10 @@
 class Slack::Api::ChatPostMessage < Slack::Api::Base
   properties_with_initializer \
-    token : String,
     channel : String,
     text : String?,
     blocks : Array(Slack::UI::Block)?,
     attachments : Array(EventData::Attachment)?
 
-  # Add a helper so Array(Slack::UI::Block) can be easily passed for calls that
-  # allow mixed blocks. (chat.postMessage, etc). This is a bit of a hack to get
-  # around the fact that the Array could be many different types depending on
-  # the user, as the user is creating the Array type -- e.g:
-  #
-  # Array(Slack::UI::Blocks::Section | Slack::UI::Blocks::Input)?
-  #
-  # This should be improved with something that handles type guards a bit more
-  # elegantly or something that propertly handles the combinatorics on arrays.
   def self.post_blocks(blocks : Enumerable,
                        channel : String,
                        token : String,
@@ -27,9 +17,6 @@ class Slack::Api::ChatPostMessage < Slack::Api::Base
     ).call
   end
 
-  # Extract this into a configuration object.
-  #
-  # Options -- https://api.slack.com/methods/chat.postMessage
   properties_with_initializer \
     icon_emoji : String?,
     icon_url : String?,
@@ -52,12 +39,15 @@ class Slack::Api::ChatPostMessage < Slack::Api::Base
     ContentTypes::JSON
   end
 
-  def base_url
+  def request_url : String
     "https://slack.com/api/chat.postMessage"
   end
 
+  def result : HTTP::Client::Response
+    @result ||= ApiClient.new(api: self).post(body: to_json)
+  end
+
   def call : Slack::Models::Chat::PostMessage
-    result = HTTP::Client.post(url: base_url, headers: headers, body: to_json)
     ResponseHandler(Models::Chat::PostMessage).from_json(result.body)
   end
 end

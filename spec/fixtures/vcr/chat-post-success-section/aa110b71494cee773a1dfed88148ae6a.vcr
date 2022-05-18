@@ -1,5 +1,5 @@
 HTTP/1.1 200 OK
-date: Tue, 10 May 2022 23:13:58 GMT
+date: Wed, 18 May 2022 16:53:39 GMT
 server: Apache
 x-powered-by: HHVM/4.153.1
 access-control-allow-origin: *
@@ -9,23 +9,22 @@ strict-transport-security: max-age=31536000; includeSubDomains; preload
 access-control-allow-headers: slack-route, x-slack-version-ts, x-b3-traceid, x-b3-spanid, x-b3-parentspanid, x-b3-sampled, x-b3-flags
 access-control-expose-headers: x-slack-req-id, retry-after
 x-oauth-scopes: app_mentions:read,channels:history,channels:read,chat:write,chat:write.public,commands,groups:history,groups:read,im:history,im:read,mpim:read,reactions:read,team:read,users:read,reactions:write
-x-accepted-oauth-scopes: reactions:write
+x-accepted-oauth-scopes: chat:write
 expires: Mon, 26 Jul 1997 05:00:00 GMT
 cache-control: private, no-cache, no-store, must-revalidate
 pragma: no-cache
 x-xss-protection: 0
 x-content-type-options: nosniff
-x-slack-req-id: 1a675267d14b8aeba01cdacc2771935a
+x-slack-req-id: 04107535f8f846444640e2a3196ad204
 vary: Accept-Encoding
 content-type: application/json; charset=utf-8
-x-envoy-upstream-service-time: 118
+x-envoy-upstream-service-time: 132
 x-backend: main_normal main_bedrock_normal_with_overflow main_canary_with_overflow main_bedrock_canary_with_overflow main_control_with_overflow main_bedrock_control_with_overflow
-x-server: slack-www-hhvm-main-iad-kabg
+x-server: slack-www-hhvm-main-iad-o6o1
 x-slack-shared-secret-outcome: no-match
-via: envoy-www-iad-g08p, envoy-edge-pdx-lgoc
+via: envoy-www-iad-ffam, envoy-edge-pdx-t17x
 x-edge-backend: envoy-www
 x-slack-edge-shared-secret-outcome: no-match
-connection: close
-Content-Length: 11
+Content-Length: 805
 
-{"ok":true}
+{"ok":true,"channel":"C03B5PUPDSQ","ts":"1652892819.911709","message":{"bot_id":"B03ATRRPV4K","type":"message","text":"This content can't be displayed.","user":"U03B6E5AHJM","ts":"1652892819.911709","app_id":"A03B17S326M","team":"T017GL5AV5E","bot_profile":{"id":"B03ATRRPV4K","app_id":"A03B17S326M","name":"hiro.bot","icons":{"image_36":"https:\/\/avatars.slack-edge.com\/2022-04-08\/3364982419669_71e2cef19ec03414ed41_36.png","image_48":"https:\/\/avatars.slack-edge.com\/2022-04-08\/3364982419669_71e2cef19ec03414ed41_48.png","image_72":"https:\/\/avatars.slack-edge.com\/2022-04-08\/3364982419669_71e2cef19ec03414ed41_72.png"},"deleted":false,"updated":1649993003,"team_id":"T017GL5AV5E"},"blocks":[{"type":"section","block_id":"mKzFL","text":{"type":"mrkdwn","text":"*Testing!*","verbatim":false}}]}}

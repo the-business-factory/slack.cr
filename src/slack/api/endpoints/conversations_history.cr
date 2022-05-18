@@ -6,14 +6,13 @@ class Slack::Api::ConversationsHistory < Slack::Api::Base
     include_all_metadata : Bool = false,
     inclusive : Bool = false,
     latest : String?,
-    oldest : String?,
-    token : String
+    oldest : String?
 
   def content_type : ContentTypes
     ContentTypes::JSON
   end
 
-  def base_url
+  def request_url : String
     "https://slack.com/api/conversations.history?#{url_params}"
   end
 
@@ -28,8 +27,11 @@ class Slack::Api::ConversationsHistory < Slack::Api::Base
     end
   end
 
+  def result : HTTP::Client::Response
+    @result ||= ApiClient.new(api: self).get(body: to_json)
+  end
+
   def call : Slack::Models::ConversationsHistory
-    result = HTTP::Client.get(url: base_url, headers: headers, body: to_json)
     ResponseHandler(Models::ConversationsHistory).from_json(result.body)
   end
 end

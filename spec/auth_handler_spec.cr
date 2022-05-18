@@ -6,13 +6,11 @@ require "../src/slack/oauth/**"
 # that request to send *another* request to slack, which finally responds with
 # the authentication tokens.
 class StubClient < HTTP::Client
-  struct StubResponse
-    include Slack::InitializerMacros
-    properties_with_initializer body : String
-  end
-
   def post(_url, **_args)
-    StubResponse.new body: File.read("spec/fixtures/auth_success.json")
+    HTTP::Client::Response.new(
+      status: HTTP::Status::OK,
+      body: File.read("spec/fixtures/auth_success.json")
+    )
   end
 end
 

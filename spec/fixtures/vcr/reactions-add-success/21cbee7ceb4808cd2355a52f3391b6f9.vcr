@@ -1,31 +1,31 @@
 HTTP/1.1 200 OK
-date: Mon, 18 Apr 2022 19:38:21 GMT
+date: Wed, 18 May 2022 16:57:48 GMT
 server: Apache
-x-powered-by: HHVM/4.153.0
+x-powered-by: HHVM/4.153.1
 access-control-allow-origin: *
 referrer-policy: no-referrer
 x-slack-backend: r
 strict-transport-security: max-age=31536000; includeSubDomains; preload
 access-control-allow-headers: slack-route, x-slack-version-ts, x-b3-traceid, x-b3-spanid, x-b3-parentspanid, x-b3-sampled, x-b3-flags
 access-control-expose-headers: x-slack-req-id, retry-after
-x-oauth-scopes: app_mentions:read,channels:history,channels:read,chat:write,chat:write.public,commands,groups:history,groups:read,im:history,im:read,mpim:read,reactions:read,team:read,users:read
-x-accepted-oauth-scopes: chat:write
+x-oauth-scopes: app_mentions:read,channels:history,channels:read,chat:write,chat:write.public,commands,groups:history,groups:read,im:history,im:read,mpim:read,reactions:read,team:read,users:read,reactions:write
+x-accepted-oauth-scopes: reactions:write
 expires: Mon, 26 Jul 1997 05:00:00 GMT
 cache-control: private, no-cache, no-store, must-revalidate
 pragma: no-cache
 x-xss-protection: 0
 x-content-type-options: nosniff
-x-slack-req-id: a35c6dd1a6868f6f16b65895773cdc4f
+x-slack-req-id: d79db34d0928e0d35c4d8fce436a4d04
 vary: Accept-Encoding
 content-type: application/json; charset=utf-8
-x-envoy-upstream-service-time: 170
+x-envoy-upstream-service-time: 131
 x-backend: main_normal main_bedrock_normal_with_overflow main_canary_with_overflow main_bedrock_canary_with_overflow main_control_with_overflow main_bedrock_control_with_overflow
-x-server: slack-www-hhvm-main-iad-e03c
+x-server: slack-www-hhvm-main-iad-ppqh
 x-slack-shared-secret-outcome: no-match
-via: envoy-www-iad-4i76, envoy-edge-pdx-v40y
+via: envoy-www-iad-htu7, envoy-edge-pdx-p7hp
 x-edge-backend: envoy-www
 x-slack-edge-shared-secret-outcome: no-match
 connection: close
-Content-Length: 60
+Content-Length: 11
 
-{"ok":true,"channel":"C03B5PUPDSQ","ts":"1650310389.011519"}
+{"ok":true}

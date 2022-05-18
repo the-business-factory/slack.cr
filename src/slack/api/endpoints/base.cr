@@ -12,11 +12,16 @@ abstract class Slack::Api::Base
   include JSON::Serializable
   include Slack::InitializerMacros
 
-  getter token
+  @[JSON::Field(ignore: true)]
+  @result : HTTP::Client::Response?
 
-  abstract def base_url
+  @[JSON::Field(ignore: true)]
+  properties_with_initializer token : String
+
   abstract def call : Slack::Model
   abstract def content_type : ContentTypes
+  abstract def request_url : String
+  abstract def result : HTTP::Client::Response
 
   def headers
     HTTP::Headers{

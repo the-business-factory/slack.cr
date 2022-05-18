@@ -1,5 +1,5 @@
 HTTP/1.1 200 OK
-date: Tue, 10 May 2022 23:13:58 GMT
+date: Wed, 18 May 2022 17:02:09 GMT
 server: Apache
 x-powered-by: HHVM/4.153.1
 access-control-allow-origin: *
@@ -9,23 +9,22 @@ strict-transport-security: max-age=31536000; includeSubDomains; preload
 access-control-allow-headers: slack-route, x-slack-version-ts, x-b3-traceid, x-b3-spanid, x-b3-parentspanid, x-b3-sampled, x-b3-flags
 access-control-expose-headers: x-slack-req-id, retry-after
 x-oauth-scopes: app_mentions:read,channels:history,channels:read,chat:write,chat:write.public,commands,groups:history,groups:read,im:history,im:read,mpim:read,reactions:read,team:read,users:read,reactions:write
-x-accepted-oauth-scopes: reactions:write
+x-accepted-oauth-scopes: chat:write
 expires: Mon, 26 Jul 1997 05:00:00 GMT
 cache-control: private, no-cache, no-store, must-revalidate
 pragma: no-cache
 x-xss-protection: 0
 x-content-type-options: nosniff
-x-slack-req-id: 1a675267d14b8aeba01cdacc2771935a
+x-slack-req-id: b1ac940db48a422515edefac5b3b8ac7
 vary: Accept-Encoding
 content-type: application/json; charset=utf-8
-x-envoy-upstream-service-time: 118
+x-envoy-upstream-service-time: 300
 x-backend: main_normal main_bedrock_normal_with_overflow main_canary_with_overflow main_bedrock_canary_with_overflow main_control_with_overflow main_bedrock_control_with_overflow
-x-server: slack-www-hhvm-main-iad-kabg
+x-server: slack-www-hhvm-main-iad-ol8d
 x-slack-shared-secret-outcome: no-match
-via: envoy-www-iad-g08p, envoy-edge-pdx-lgoc
+via: envoy-www-iad-9uyp, envoy-edge-pdx-8j9z
 x-edge-backend: envoy-www
 x-slack-edge-shared-secret-outcome: no-match
-connection: close
-Content-Length: 11
+Content-Length: 60
 
-{"ok":true}
+{"ok":true,"channel":"C03B5PUPDSQ","ts":"1652805073.079609"}

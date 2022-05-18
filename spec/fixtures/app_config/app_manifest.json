@@ -29,6 +29,9 @@
             "https://hirobot.app/slack/auth"
         ],
         "scopes": {
+            "user": [
+                "chat:write"
+            ],
             "bot": [
                 "app_mentions:read",
                 "channels:history",
