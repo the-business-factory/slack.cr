@@ -1,4 +1,4 @@
-class Slack::Events::Message < Slack::Event
+struct Slack::Events::Message < Slack::Event
   property attachments : Array(Slack::EventData::Attachment)?,
     blocks : Array(JSON::Any),
     channel : String,

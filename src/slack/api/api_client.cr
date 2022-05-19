@@ -1,6 +1,6 @@
 require "rate_limiter"
 
-class Slack::ApiClient
+struct Slack::ApiClient
   class_getter limiters = {} of String => RateLimiter::LimiterLike
 
   @limiter : RateLimiter::LimiterLike

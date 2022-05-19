@@ -1,5 +1,5 @@
 # https://api.slack.com/methods/reactions.add
-class Slack::Api::ReactionsAdd < Slack::Api::Base
+struct Slack::Api::ReactionsAdd < Slack::Api::Base
   properties_with_initializer \
     channel : String,
     name : String,

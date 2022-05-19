@@ -1,4 +1,4 @@
-class Slack::UI::Components::ButtonElement < Slack::UI::BaseComponent
+struct Slack::UI::Components::ButtonElement < Slack::UI::BaseComponent
   alias ConfirmationObject = Slack::UI::CompositionObjects::Confirmation
   alias Button = BlockElements::Button
 

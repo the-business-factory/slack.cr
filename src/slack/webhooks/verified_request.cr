@@ -1,5 +1,5 @@
 # https://api.slack.com/authentication/verifying-requests-from-slack
-class Slack::Webhooks::VerifiedRequest
+struct Slack::Webhooks::VerifiedRequest
   getter request : HTTP::Request
   getter slack_signature : String
   getter slack_timestamp : String

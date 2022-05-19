@@ -1,3 +1,3 @@
-class Slack::Events::AppMentioned < Slack::Event
+struct Slack::Events::AppMentioned < Slack::Event
   property channel : String, user : String
 end

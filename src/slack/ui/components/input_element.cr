@@ -1,4 +1,4 @@
-class Slack::UI::Components::InputElement < Slack::UI::BaseComponent
+struct Slack::UI::Components::InputElement < Slack::UI::BaseComponent
   alias Input = Blocks::Input
   alias PlainTextInput = BlockElements::PlainTextInput
 

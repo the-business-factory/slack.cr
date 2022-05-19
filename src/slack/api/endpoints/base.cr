@@ -8,7 +8,7 @@
 #
 # Most write methods allow arguments application/json attributes.
 # https://api.slack.com/web#methods_supporting_json
-abstract class Slack::Api::Base
+abstract struct Slack::Api::Base
   include JSON::Serializable
   include Slack::InitializerMacros
 

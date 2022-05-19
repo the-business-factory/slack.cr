@@ -1,4 +1,4 @@
-class Slack::UrlVerification
+struct Slack::UrlVerification
   include JSON::Serializable
   include Slack::InitializerMacros
 

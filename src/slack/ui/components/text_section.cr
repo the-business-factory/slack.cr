@@ -1,4 +1,4 @@
-class Slack::UI::Components::TextSection < Slack::UI::BaseComponent
+struct Slack::UI::Components::TextSection < Slack::UI::BaseComponent
   def self.render(text : String,
                   button : BlockElements::Button) : Blocks::Section
     Blocks::Section.new(
