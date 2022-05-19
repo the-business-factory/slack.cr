@@ -1,4 +1,4 @@
-class Slack::UI::Components::ButtonActions < Slack::UI::BaseComponent
+struct Slack::UI::Components::ButtonActions < Slack::UI::BaseComponent
   alias Styles = BlockElements::Button::Styles
 
   json_record ButtonData, text : String, style : Styles?

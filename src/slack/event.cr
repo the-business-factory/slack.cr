@@ -1,4 +1,4 @@
-abstract class Slack::Event
+abstract struct Slack::Event
   include JSON::Serializable
   include Slack::JSONRecords
 

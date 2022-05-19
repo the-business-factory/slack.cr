@@ -1,4 +1,4 @@
-class Slack::Api::AppsManifestUpdate < Slack::Api::Base
+struct Slack::Api::AppsManifestUpdate < Slack::Api::Base
   properties_with_initializer app_id : String
 
   # Eventually, manifests should be converted into a strongly typed object

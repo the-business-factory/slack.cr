@@ -1,4 +1,4 @@
-class Slack::Api::ChatPostMessage < Slack::Api::Base
+struct Slack::Api::ChatPostMessage < Slack::Api::Base
   properties_with_initializer \
     channel : String,
     text : String?,

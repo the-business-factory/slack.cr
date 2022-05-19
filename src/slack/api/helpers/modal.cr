@@ -1,6 +1,6 @@
 require "../../ui/base_components"
 
-class Slack::Helpers::Modal
+struct Slack::Helpers::Modal
   include Slack::UI::BaseComponents
 
   alias UIModal = Slack::UI::Modal

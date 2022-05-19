@@ -1,4 +1,4 @@
-class Slack::Api::ConversationsInfo < Slack::Api::Base
+struct Slack::Api::ConversationsInfo < Slack::Api::Base
   properties_with_initializer channel : String
 
   def content_type : ContentTypes

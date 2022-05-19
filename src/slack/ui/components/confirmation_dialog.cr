@@ -1,4 +1,4 @@
-class Slack::UI::Components::ConfirmationDialog < Slack::UI::BaseComponent
+struct Slack::UI::Components::ConfirmationDialog < Slack::UI::BaseComponent
   def self.render(title : String,
                   text : String,
                   confirm : String,

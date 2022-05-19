@@ -1,5 +1,5 @@
 # https://api.slack.com/methods/conversations.history
-class Slack::Api::ConversationsHistory < Slack::Api::Base
+struct Slack::Api::ConversationsHistory < Slack::Api::Base
   properties_with_initializer \
     channel : String,
     cursor : String?,

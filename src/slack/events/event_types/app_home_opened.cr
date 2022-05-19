@@ -1,4 +1,4 @@
-class Slack::Events::AppHomeOpened < Slack::Event
+struct Slack::Events::AppHomeOpened < Slack::Event
   property channel : String,
     tab : String,
     user : String

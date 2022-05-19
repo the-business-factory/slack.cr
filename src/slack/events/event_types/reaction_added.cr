@@ -1,4 +1,4 @@
-class Slack::Events::ReactionAdded < Slack::Event
+struct Slack::Events::ReactionAdded < Slack::Event
   json_record ReactionItem, ts : String, type : String, channel : String
 
   property item : ReactionItem,

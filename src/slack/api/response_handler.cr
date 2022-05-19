@@ -1,4 +1,4 @@
-class Slack::Api::ResponseHandler(ResponseModel)
+struct Slack::Api::ResponseHandler(ResponseModel)
   def self.from_json(json : String | IO, &block) : ResponseModel
     pull = JSON::PullParser.new(json)
 

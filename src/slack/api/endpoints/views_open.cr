@@ -1,4 +1,4 @@
-class Slack::Api::ViewsOpen < Slack::Api::Base
+struct Slack::Api::ViewsOpen < Slack::Api::Base
   properties_with_initializer trigger_id : String, view : Slack::UI::Modal
 
   def content_type : ContentTypes

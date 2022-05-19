@@ -1,4 +1,4 @@
-class Slack::Events::MessageFactory
+struct Slack::Events::MessageFactory
   include Slack::OptionalDiscriminator
 
   use_optional_discriminator_on "subtype",

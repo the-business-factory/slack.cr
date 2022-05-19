@@ -1,4 +1,4 @@
-class Slack::Events::MessageSubtype < Slack::Event
+module Slack::Events::MessageSubtype
   property channel : String,
     channel_type : String,
     subtype : String,

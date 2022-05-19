@@ -1,4 +1,4 @@
-class Slack::Webhooks::Signature
+struct Slack::Webhooks::Signature
   delegate signing_secret, to: Slack.settings
   delegate signing_secret_version, to: Slack.settings
 

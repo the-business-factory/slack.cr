@@ -97,7 +97,7 @@ end
 # Users can easily define custom UI components to help build out "app specific"
 # "UI Kits" fairly easily, focusing on the UX and business logic rather than
 # the stupid internals of Slack's API.
-class ButtonSection < Slack::UI::CustomComponent
+struct ButtonSection < Slack::UI::CustomComponent
   include Slack::UI::BaseComponents
 
   def self.render(action_id : String)

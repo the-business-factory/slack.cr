@@ -1,4 +1,4 @@
-class Slack::VerifiedEvent
+struct Slack::VerifiedEvent
   include JSON::Serializable
   include Slack::InitializerMacros
 

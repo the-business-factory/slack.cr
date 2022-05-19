@@ -3,7 +3,7 @@
 #
 # To learn more, see the Slack API documentation:
 # [Slack Commands API](https://api.slack.com/interactivity/slash-commands)
-class Slack::Command
+struct Slack::Command
   record PlainTextReference, name : String
   record EncodedTextReference, id : String, name : String
 

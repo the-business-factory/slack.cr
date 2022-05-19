@@ -1,4 +1,4 @@
-class Slack::Api::TeamInfo < Slack::Api::Base
+struct Slack::Api::TeamInfo < Slack::Api::Base
   def content_type : ContentTypes
     ContentTypes::FormEncoded
   end
