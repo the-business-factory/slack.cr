@@ -1,0 +1,68 @@
+{
+    "api_app_id": "A03B17S326M",
+    "authorizations": null,
+    "event": {
+        "blocks": [
+            {
+                "block_id": "aL65",
+                "elements": [
+                    "{\"elements\":[{\"type\":\"link\",\"url\":\"https://www.oreilly.com/library/view/designing-data-intensive-applications/9781491903063/\"}],\"type\":\"rich_text_section\"}"
+                ],
+                "type": "rich_text"
+            }
+        ],
+        "channel": "C05052K88",
+        "channel_type": "channel",
+        "client_msg_id": "c447cd56-ce84-4197-a900-bc685aa984e7",
+        "event_ts": "1653582935.531579",
+        "root": {
+            "blocks": [
+                {
+                    "block_id": "nvAr",
+                    "elements": "[{\"elements\":[{\"text\":\"Are there any MUST READ books on programming?\\nI'm thinking of books that are more generic than \\\"How to learn X (language) the hard way\\\", or \\\"you don't know Javascript\\\" or anything to that effect.\\nBut books that address paradigmes, approaches, and software development at large?\\n\\n\",\"type\":\"text\"},{\"type\":\"user\",\"user_id\":\"U6MLHLP29\"},{\"text\":\" hate to make you responsible for this one, but you know we're onto you \",\"type\":\"text\"},{\"name\":\"eyes\",\"type\":\"emoji\"},{\"text\":\" \",\"type\":\"text\"},{\"name\":\"books\",\"type\":\"emoji\"},{\"text\":\" \",\"type\":\"text\"},{\"name\":\"smile\",\"type\":\"emoji\"},{\"text\":\"\\n\\nI should note I just found a few on my to-read list, but I don't know where I have them from or how good they are:\\n\",\"type\":\"text\"}],\"type\":\"rich_text_section\"},{\"border\":0,\"elements\":[{\"elements\":[{\"text\":\"Clean Code: A Handbook of Agile Software Craftsmanship\",\"type\":\"text\"}],\"type\":\"rich_text_section\"},{\"elements\":[{\"text\":\"Clean Architecture: A Craftsman’s Guide to Software Structure and Design\",\"type\":\"text\"}],\"type\":\"rich_text_section\"},{\"elements\":[{\"text\":\"The Clean Coder: A Code of Conduct for Professional Programmers\",\"type\":\"text\"}],\"type\":\"rich_text_section\"},{\"elements\":[{\"text\":\"Practical Object Oriented Design\",\"type\":\"text\"}],\"type\":\"rich_text_section\"},{\"elements\":[{\"text\":\"99 Bottles of OOP - 2nd Edition\",\"type\":\"text\"}],\"type\":\"rich_text_section\"},{\"elements\":[{\"text\":\"Design Patterns: Elements of Reusable Object-Oriented Software\",\"type\":\"text\"}],\"type\":\"rich_text_section\"}],\"indent\":0,\"style\":\"bullet\",\"type\":\"rich_text_list\"}]",
+                    "type": "rich_text"
+                }
+            ],
+            "client_msg_id": "cc3b648b-f84e-4877-8fca-9ea38f7333bc",
+            "edited": {
+                "ts": "1653558570.000000",
+                "user": "U0T8FH0DR"
+            },
+            "is_locked": false,
+            "latest_reply": "1653582935.531579",
+            "reply_count": 23,
+            "reply_users": [
+                "U09QLQY2V",
+                "U6MLHLP29",
+                "U97A9ERDZ",
+                "U0T8FH0DR",
+                "U018R1TM78B",
+                "U02R0ALFBT7",
+                "U02SS0HVAUV",
+                "U08HS54GM",
+                "UNY02R2G1",
+                "U01GK69EXRU"
+            ],
+            "reply_users_count": 10,
+            "team": "T05052K3Q",
+            "text": "Are there any MUST READ books on programming?\nI'm thinking of books that are more generic than \"How to learn X (language) the hard way\", or \"you don't know Javascript\" or anything to that effect.\nBut books that address paradigmes, approaches, and software development at large?\n\n<@U6MLHLP29> hate to make you responsible for this one, but you know we're onto you :eyes: :books: :smile:\n\nI should note I just found a few on my to-read list, but I don't know where I have them from or how good they are:\n• Clean Code: A Handbook of Agile Software Craftsmanship\n• Clean Architecture: A Craftsman’s Guide to Software Structure and Design\n• The Clean Coder: A Code of Conduct for Professional Programmers\n• Practical Object Oriented Design\n• 99 Bottles of OOP - 2nd Edition\n• Design Patterns: Elements of Reusable Object-Oriented Software",
+            "thread_ts": "1653558351.932509",
+            "ts": "1653558351.932509",
+            "type": "message",
+            "user": "U0T8FH0DR"
+        },
+        "subtype": "thread_broadcast",
+        "text": "<https://www.oreilly.com/library/view/designing-data-intensive-applications/9781491903063/>",
+        "thread_ts": "1653558351.932509",
+        "ts": "1653582935.531579",
+        "type": "message",
+        "user": "U01GK69EXRU"
+    },
+    "event_context": "4-eyJldCI6Im1lc3NhZ2UiLCJ0aWQiOiJUMDUwNTJLM1EiLCJhaWQiOiJBMDNCMTdTMzI2TSIsImNpZCI6IkMwNTA1Mks4OCJ9",
+    "event_id": "Ev03GYHYCG8N",
+    "event_time": 1653582935,
+    "is_ext_shared_channel": false,
+    "team_id": "T05052K3Q",
+    "token": "EjLcuDQ64Bd5wMVV4eINeZq2",
+    "type": "event_callback"
+}
