@@ -101,6 +101,14 @@ describe Slack do
       event.event.should be_a Slack::Events::Message::MessageChanged
     end
 
+    it "should handle thread_broadcast events" do
+      request = build_request("thread_broadcast")
+      event = Slack.process_webhook(request).should be_a Slack::VerifiedEvent
+      nested = event.event.should be_a Slack::Events::Message::ThreadBroadcast
+      nested.subtype.should eq "thread_broadcast"
+      nested.root["thread_ts"].should eq nested.thread_ts
+    end
+
     it "handles new message events (no subtype)" do
       request = build_request("message")
       event = Slack.process_webhook(request).should be_a Slack::VerifiedEvent
