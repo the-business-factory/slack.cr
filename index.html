@@ -1150,7 +1150,7 @@ allow customized error handling if needed.</p>
 <pre><code class="language-crystal"><span class="c"># Users can easily define custom UI components to help build out &quot;app specific&quot;</span>
 <span class="c"># &quot;UI Kits&quot; fairly easily, focusing on the UX and business logic rather than</span>
 <span class="c"># the stupid internals of Slack&#39;s API.</span>
-<span class="k">class</span> <span class="t">ButtonSection</span> <span class="o">&lt;</span> <span class="t">Slack</span><span class="t">::</span><span class="t">UI</span><span class="t">::</span><span class="t">CustomComponent</span>
+<span class="k">struct</span> <span class="t">ButtonSection</span> <span class="o">&lt;</span> <span class="t">Slack</span><span class="t">::</span><span class="t">UI</span><span class="t">::</span><span class="t">CustomComponent</span>
   <span class="k">include</span> <span class="t">Slack</span><span class="t">::</span><span class="t">UI</span><span class="t">::</span><span class="t">BaseComponents</span>
 
   <span class="k">def</span> <span class="m">self</span>.render(action_id : <span class="t">String</span>)
