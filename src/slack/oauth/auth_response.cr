@@ -7,11 +7,12 @@ struct Slack::AuthResponse
     bot_user_id : String?,
     enterprise : Slack::Auth::Enterprise?,
     expires_in : Int32?,
-    ok : Bool,
     refresh_token : String?,
     scope : String,
     team : Slack::Auth::Team,
     token_type : String?
+
+  property? ok = true
 
   def self.from_json(json : String | IO)
     pull = JSON::PullParser.new(json)

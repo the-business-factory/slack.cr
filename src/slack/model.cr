@@ -3,7 +3,7 @@ abstract struct Slack::Model
   include Slack::InitializerMacros
   include Slack::JSONRecords
 
-  def self.keyed_json_object(json : String | IO, find_key : String, &block)
+  def self.keyed_json_object(json : String | IO, find_key : String, &)
     pull = JSON::PullParser.new(json)
     return_value = nil
     pull.read_object do |key|

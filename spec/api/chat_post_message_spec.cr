@@ -14,7 +14,7 @@ describe Slack::Api::ChatPostMessage do
           .post_blocks(token: token, channel: channel_id, blocks: [section])
           .should be_a(Slack::Models::Chat::PostMessage)
 
-        response.ok.should be_true
+        response.ok?.should be_true
         response.channel.should eq channel_id
         response.message["bot_id"].should eq "B03ATRRPV4K"
       end
@@ -35,7 +35,7 @@ describe Slack::Api::ChatPostMessage do
           .post_blocks(token: token, channel: channel_id, blocks: [section, actions])
           .should be_a(Slack::Models::Chat::PostMessage)
 
-        response.ok.should be_true
+        response.ok?.should be_true
         response.channel.should eq channel_id
         response.message["bot_id"].should eq "B03ATRRPV4K"
       end

@@ -36,6 +36,12 @@ end
 Slack::AuthHandler.configure do |config|
   config.oauth_redirect_url = ENV["OAUTH_REDIRECT_URL"]
 end
+
+# To enable "Sign in with Slack," you'll need to configure
+# Slack's OpenID Connecion handling.
+Slack::SignIn.configure do |config|
+  config.sign_in_redirect_url = ENV["SIGN_IN_REDIRECT_URL"]
+end
 ```
 
 ### Processing Webhook Events
