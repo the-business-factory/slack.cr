@@ -12,7 +12,10 @@ struct Slack::Webhooks::VerifiedRequest
   def initialize(@request : HTTP::Request)
     @slack_timestamp = @request.headers["X-Slack-Request-Timestamp"]
     @slack_signature = @request.headers["X-Slack-Signature"]
+
+    # ameba:disable Lint/NotNil
     @body = @request.body.not_nil!.gets_to_end
+    # ameba:enable Lint/NotNil
   end
 
   def verify!

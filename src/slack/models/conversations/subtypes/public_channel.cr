@@ -1,13 +1,6 @@
 struct Slack::Models::PublicChannel < Slack::Models::Conversation
   property creator : String,
     id : String,
-    is_archived : Bool,
-    is_general : Bool,
-    is_member : Bool,
-    is_mpim : Bool,
-    is_org_shared : Bool,
-    is_private : Bool,
-    is_shared : Bool,
     members : Array(String)?,
     name : String,
     name_normalized : String,
@@ -16,6 +9,14 @@ struct Slack::Models::PublicChannel < Slack::Models::Conversation
     topic : JSON::Any,
     unread_count_display : Int16?,
     unread_count : Int16?
+
+  property? is_archived = false,
+    is_general = false,
+    is_member = false,
+    is_mpim = false,
+    is_org_shared = false,
+    is_private = false,
+    is_shared = false
 
   @[JSON::Field(converter: Slack::DecimalTimeStampConverter)]
   property last_read : Time?

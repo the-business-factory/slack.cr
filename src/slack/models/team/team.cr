@@ -4,8 +4,8 @@ struct Slack::Models::Team < Slack::Model
     email_domain : String,
     icon : JSON::Any,
     id : String,
-    is_verified : Bool,
     name : String,
+    is_verified : Bool,
     url : String
 
   def self.from_json(json : String | IO)

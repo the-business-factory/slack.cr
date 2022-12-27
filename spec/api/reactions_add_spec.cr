@@ -12,7 +12,7 @@ describe Slack::Api::ReactionsAdd do
           .new(token: token, name: reaction, channel: channel, timestamp: ts)
           .call
           .should be_a(Slack::Models::DefaultResponse)
-        response.ok.should be_true
+        response.ok?.should be_true
       end
     end
   end

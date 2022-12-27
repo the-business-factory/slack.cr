@@ -14,7 +14,7 @@ describe Slack::Api::AppsManifestUpdate do
           .should be_a(Slack::Models::Apps::ManifestUpdate)
 
         response.app_id.should eq app_id
-        response.ok.should be_true
+        response.ok?.should be_true
       end
     end
   end

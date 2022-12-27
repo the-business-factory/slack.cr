@@ -1,5 +1,5 @@
 struct Slack::Api::ResponseHandler(ResponseModel)
-  def self.from_json(json : String | IO, &block) : ResponseModel
+  def self.from_json(json : String | IO, &) : ResponseModel
     pull = JSON::PullParser.new(json)
 
     pull.read_object do |key|

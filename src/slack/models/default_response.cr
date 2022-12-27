@@ -1,4 +1,4 @@
 # Used for Slack response objects that only include { ok: true }.
 struct Slack::Models::DefaultResponse < Slack::Model
-  property ok : Bool
+  property? ok = true
 end
