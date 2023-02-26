@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Crystal Docs 1.3.2">
+<meta name="generator" content="Crystal Docs 1.6.2">
 <meta name="crystal_docs.project_version" content="main">
 <meta name="crystal_docs.project_name" content="slack">
 
@@ -571,6 +571,36 @@
       
     </li>
   
+  <li class="parent " data-id="slack/Slack/SignInResponse" data-name="slack::signinresponse">
+      <a href="../../Slack/SignInResponse.html">SignInResponse</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/SignInResponse/DecodedResponse" data-name="slack::signinresponse::decodedresponse">
+      <a href="../../Slack/SignInResponse/DecodedResponse.html">DecodedResponse</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/SignInWithSlack" data-name="slack::signinwithslack">
+      <a href="../../Slack/SignInWithSlack.html">SignInWithSlack</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/SignInWithSlack/HabitatSettings" data-name="slack::signinwithslack::habitatsettings">
+      <a href="../../Slack/SignInWithSlack/HabitatSettings.html">HabitatSettings</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
   <li class="parent " data-id="slack/Slack/TypeAliases" data-name="slack::typealiases">
       <a href="../../Slack/TypeAliases.html">TypeAliases</a>
       
@@ -1078,7 +1108,7 @@
   </h2>
   
     
-      <a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L1" target="_blank">
+      <a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L1" target="_blank">
         slack/models/conversations/subtypes/public_channel.cr
       </a>
     
@@ -1177,17 +1207,12 @@
       </li>
     
       <li class="entry-summary">
-        <a href="#is_archived%3ABool-instance-method" class="signature"><strong>#is_archived</strong> : Bool</a>
-        
-      </li>
-    
-      <li class="entry-summary">
         <a href="#is_archived%3D%28is_archived%3ABool%29-instance-method" class="signature"><strong>#is_archived=</strong>(is_archived : Bool)</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#is_general%3ABool-instance-method" class="signature"><strong>#is_general</strong> : Bool</a>
+        <a href="#is_archived%3F%3ABool-instance-method" class="signature"><strong>#is_archived?</strong> : Bool</a>
         
       </li>
     
@@ -1197,7 +1222,7 @@
       </li>
     
       <li class="entry-summary">
-        <a href="#is_member%3ABool-instance-method" class="signature"><strong>#is_member</strong> : Bool</a>
+        <a href="#is_general%3F%3ABool-instance-method" class="signature"><strong>#is_general?</strong> : Bool</a>
         
       </li>
     
@@ -1207,7 +1232,7 @@
       </li>
     
       <li class="entry-summary">
-        <a href="#is_mpim%3ABool-instance-method" class="signature"><strong>#is_mpim</strong> : Bool</a>
+        <a href="#is_member%3F%3ABool-instance-method" class="signature"><strong>#is_member?</strong> : Bool</a>
         
       </li>
     
@@ -1217,7 +1242,7 @@
       </li>
     
       <li class="entry-summary">
-        <a href="#is_org_shared%3ABool-instance-method" class="signature"><strong>#is_org_shared</strong> : Bool</a>
+        <a href="#is_mpim%3F%3ABool-instance-method" class="signature"><strong>#is_mpim?</strong> : Bool</a>
         
       </li>
     
@@ -1227,7 +1252,7 @@
       </li>
     
       <li class="entry-summary">
-        <a href="#is_private%3ABool-instance-method" class="signature"><strong>#is_private</strong> : Bool</a>
+        <a href="#is_org_shared%3F%3ABool-instance-method" class="signature"><strong>#is_org_shared?</strong> : Bool</a>
         
       </li>
     
@@ -1237,7 +1262,7 @@
       </li>
     
       <li class="entry-summary">
-        <a href="#is_shared%3ABool-instance-method" class="signature"><strong>#is_shared</strong> : Bool</a>
+        <a href="#is_private%3F%3ABool-instance-method" class="signature"><strong>#is_private?</strong> : Bool</a>
         
       </li>
     
@@ -1247,22 +1272,27 @@
       </li>
     
       <li class="entry-summary">
-        <a href="#last_read%3ATime%3F-instance-method" class="signature"><strong>#last_read</strong> : Time?</a>
+        <a href="#is_shared%3F%3ABool-instance-method" class="signature"><strong>#is_shared?</strong> : Bool</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#last_read%3D%28last_read%3ATime%3F%29-instance-method" class="signature"><strong>#last_read=</strong>(last_read : Time?)</a>
+        <a href="#last_read%3ATime%7CNil-instance-method" class="signature"><strong>#last_read</strong> : Time | Nil</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#members%3AArray%28String%29%3F-instance-method" class="signature"><strong>#members</strong> : Array(String)?</a>
+        <a href="#last_read%3D%28last_read%3ATime%7CNil%29-instance-method" class="signature"><strong>#last_read=</strong>(last_read : Time | Nil)</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#members%3D%28members%3AArray%28String%29%3F%29-instance-method" class="signature"><strong>#members=</strong>(members : Array(String)?)</a>
+        <a href="#members%3AArray%28String%29%7CNil-instance-method" class="signature"><strong>#members</strong> : Array(String) | Nil</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#members%3D%28members%3AArray%28String%29%7CNil%29-instance-method" class="signature"><strong>#members=</strong>(members : Array(String) | Nil)</a>
         
       </li>
     
@@ -1317,22 +1347,22 @@
       </li>
     
       <li class="entry-summary">
-        <a href="#unread_count%3AInt16%3F-instance-method" class="signature"><strong>#unread_count</strong> : Int16?</a>
+        <a href="#unread_count%3AInt16%7CNil-instance-method" class="signature"><strong>#unread_count</strong> : Int16 | Nil</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#unread_count%3D%28unread_count%3AInt16%3F%29-instance-method" class="signature"><strong>#unread_count=</strong>(unread_count : Int16?)</a>
+        <a href="#unread_count%3D%28unread_count%3AInt16%7CNil%29-instance-method" class="signature"><strong>#unread_count=</strong>(unread_count : Int16 | Nil)</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#unread_count_display%3AInt16%3F-instance-method" class="signature"><strong>#unread_count_display</strong> : Int16?</a>
+        <a href="#unread_count_display%3AInt16%7CNil-instance-method" class="signature"><strong>#unread_count_display</strong> : Int16 | Nil</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#unread_count_display%3D%28unread_count_display%3AInt16%3F%29-instance-method" class="signature"><strong>#unread_count_display=</strong>(unread_count_display : Int16?)</a>
+        <a href="#unread_count_display%3D%28unread_count_display%3AInt16%7CNil%29-instance-method" class="signature"><strong>#unread_count_display=</strong>(unread_count_display : Int16 | Nil)</a>
         
       </li>
     
@@ -1488,7 +1518,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L1" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L1" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1516,7 +1546,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L23" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L24" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1544,7 +1574,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1560,7 +1590,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1576,7 +1606,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1592,23 +1622,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="is_archived:Bool-instance-method">
-      <div class="signature">
-        
-        def <strong>is_archived</strong> : Bool
-
-        <a class="method-permalink" href="#is_archived%3ABool-instance-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1624,23 +1638,23 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L13" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="is_general:Bool-instance-method">
+    <div class="entry-detail" id="is_archived?:Bool-instance-method">
       <div class="signature">
         
-        def <strong>is_general</strong> : Bool
+        def <strong>is_archived?</strong> : Bool
 
-        <a class="method-permalink" href="#is_general%3ABool-instance-method">#</a>
+        <a class="method-permalink" href="#is_archived%3F%3ABool-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L13" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1656,23 +1670,23 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L13" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="is_member:Bool-instance-method">
+    <div class="entry-detail" id="is_general?:Bool-instance-method">
       <div class="signature">
         
-        def <strong>is_member</strong> : Bool
+        def <strong>is_general?</strong> : Bool
 
-        <a class="method-permalink" href="#is_member%3ABool-instance-method">#</a>
+        <a class="method-permalink" href="#is_general%3F%3ABool-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L13" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1688,23 +1702,23 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L13" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="is_mpim:Bool-instance-method">
+    <div class="entry-detail" id="is_member?:Bool-instance-method">
       <div class="signature">
         
-        def <strong>is_mpim</strong> : Bool
+        def <strong>is_member?</strong> : Bool
 
-        <a class="method-permalink" href="#is_mpim%3ABool-instance-method">#</a>
+        <a class="method-permalink" href="#is_member%3F%3ABool-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L13" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1720,23 +1734,23 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L13" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="is_org_shared:Bool-instance-method">
+    <div class="entry-detail" id="is_mpim?:Bool-instance-method">
       <div class="signature">
         
-        def <strong>is_org_shared</strong> : Bool
+        def <strong>is_mpim?</strong> : Bool
 
-        <a class="method-permalink" href="#is_org_shared%3ABool-instance-method">#</a>
+        <a class="method-permalink" href="#is_mpim%3F%3ABool-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L13" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1752,23 +1766,23 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L13" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="is_private:Bool-instance-method">
+    <div class="entry-detail" id="is_org_shared?:Bool-instance-method">
       <div class="signature">
         
-        def <strong>is_private</strong> : Bool
+        def <strong>is_org_shared?</strong> : Bool
 
-        <a class="method-permalink" href="#is_private%3ABool-instance-method">#</a>
+        <a class="method-permalink" href="#is_org_shared%3F%3ABool-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L13" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1784,23 +1798,23 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L13" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="is_shared:Bool-instance-method">
+    <div class="entry-detail" id="is_private?:Bool-instance-method">
       <div class="signature">
         
-        def <strong>is_shared</strong> : Bool
+        def <strong>is_private?</strong> : Bool
 
-        <a class="method-permalink" href="#is_shared%3ABool-instance-method">#</a>
+        <a class="method-permalink" href="#is_private%3F%3ABool-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L13" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1816,71 +1830,87 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L13" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="last_read:Time?-instance-method">
+    <div class="entry-detail" id="is_shared?:Bool-instance-method">
       <div class="signature">
         
-        def <strong>last_read</strong> : Time?
+        def <strong>is_shared?</strong> : Bool
 
-        <a class="method-permalink" href="#last_read%3ATime%3F-instance-method">#</a>
+        <a class="method-permalink" href="#is_shared%3F%3ABool-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L21" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L13" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="last_read=(last_read:Time?)-instance-method">
+    <div class="entry-detail" id="last_read:Time|Nil-instance-method">
       <div class="signature">
         
-        def <strong>last_read=</strong>(last_read : Time?)
+        def <strong>last_read</strong> : Time | Nil
 
-        <a class="method-permalink" href="#last_read%3D%28last_read%3ATime%3F%29-instance-method">#</a>
+        <a class="method-permalink" href="#last_read%3ATime%7CNil-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L21" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L22" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="members:Array(String)?-instance-method">
+    <div class="entry-detail" id="last_read=(last_read:Time|Nil)-instance-method">
       <div class="signature">
         
-        def <strong>members</strong> : Array(String)?
+        def <strong>last_read=</strong>(last_read : Time | Nil)
 
-        <a class="method-permalink" href="#members%3AArray%28String%29%3F-instance-method">#</a>
+        <a class="method-permalink" href="#last_read%3D%28last_read%3ATime%7CNil%29-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L22" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="members=(members:Array(String)?)-instance-method">
+    <div class="entry-detail" id="members:Array(String)|Nil-instance-method">
       <div class="signature">
         
-        def <strong>members=</strong>(members : Array(String)?)
+        def <strong>members</strong> : Array(String) | Nil
 
-        <a class="method-permalink" href="#members%3D%28members%3AArray%28String%29%3F%29-instance-method">#</a>
+        <a class="method-permalink" href="#members%3AArray%28String%29%7CNil-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="members=(members:Array(String)|Nil)-instance-method">
+      <div class="signature">
+        
+        def <strong>members=</strong>(members : Array(String) | Nil)
+
+        <a class="method-permalink" href="#members%3D%28members%3AArray%28String%29%7CNil%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1896,7 +1926,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1912,7 +1942,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1928,7 +1958,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1944,7 +1974,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1960,7 +1990,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1976,7 +2006,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1992,7 +2022,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -2008,7 +2038,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -2024,7 +2054,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -2040,71 +2070,71 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="unread_count:Int16?-instance-method">
+    <div class="entry-detail" id="unread_count:Int16|Nil-instance-method">
       <div class="signature">
         
-        def <strong>unread_count</strong> : Int16?
+        def <strong>unread_count</strong> : Int16 | Nil
 
-        <a class="method-permalink" href="#unread_count%3AInt16%3F-instance-method">#</a>
+        <a class="method-permalink" href="#unread_count%3AInt16%7CNil-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="unread_count=(unread_count:Int16?)-instance-method">
+    <div class="entry-detail" id="unread_count=(unread_count:Int16|Nil)-instance-method">
       <div class="signature">
         
-        def <strong>unread_count=</strong>(unread_count : Int16?)
+        def <strong>unread_count=</strong>(unread_count : Int16 | Nil)
 
-        <a class="method-permalink" href="#unread_count%3D%28unread_count%3AInt16%3F%29-instance-method">#</a>
+        <a class="method-permalink" href="#unread_count%3D%28unread_count%3AInt16%7CNil%29-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="unread_count_display:Int16?-instance-method">
+    <div class="entry-detail" id="unread_count_display:Int16|Nil-instance-method">
       <div class="signature">
         
-        def <strong>unread_count_display</strong> : Int16?
+        def <strong>unread_count_display</strong> : Int16 | Nil
 
-        <a class="method-permalink" href="#unread_count_display%3AInt16%3F-instance-method">#</a>
+        <a class="method-permalink" href="#unread_count_display%3AInt16%7CNil-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="unread_count_display=(unread_count_display:Int16?)-instance-method">
+    <div class="entry-detail" id="unread_count_display=(unread_count_display:Int16|Nil)-instance-method">
       <div class="signature">
         
-        def <strong>unread_count_display=</strong>(unread_count_display : Int16?)
+        def <strong>unread_count_display=</strong>(unread_count_display : Int16 | Nil)
 
-        <a class="method-permalink" href="#unread_count_display%3D%28unread_count_display%3AInt16%3F%29-instance-method">#</a>
+        <a class="method-permalink" href="#unread_count_display%3D%28unread_count_display%3AInt16%7CNil%29-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/conversations/subtypes/public_channel.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>

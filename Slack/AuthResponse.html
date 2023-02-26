@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Crystal Docs 1.3.2">
+<meta name="generator" content="Crystal Docs 1.6.2">
 <meta name="crystal_docs.project_version" content="main">
 <meta name="crystal_docs.project_name" content="slack">
 
@@ -571,6 +571,36 @@
       
     </li>
   
+  <li class="parent " data-id="slack/Slack/SignInResponse" data-name="slack::signinresponse">
+      <a href="../Slack/SignInResponse.html">SignInResponse</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/SignInResponse/DecodedResponse" data-name="slack::signinresponse::decodedresponse">
+      <a href="../Slack/SignInResponse/DecodedResponse.html">DecodedResponse</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/SignInWithSlack" data-name="slack::signinwithslack">
+      <a href="../Slack/SignInWithSlack.html">SignInWithSlack</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/SignInWithSlack/HabitatSettings" data-name="slack::signinwithslack::habitatsettings">
+      <a href="../Slack/SignInWithSlack/HabitatSettings.html">HabitatSettings</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
   <li class="parent " data-id="slack/Slack/TypeAliases" data-name="slack::typealiases">
       <a href="../Slack/TypeAliases.html">TypeAliases</a>
       
@@ -1092,7 +1122,7 @@
   </h2>
   
     
-      <a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/oauth/auth_response.cr#L1" target="_blank">
+      <a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/oauth/auth_response.cr#L1" target="_blank">
         slack/oauth/auth_response.cr
       </a>
     
@@ -1182,37 +1212,32 @@
       </li>
     
       <li class="entry-summary">
-        <a href="#bot_user_id%3AString%3F-instance-method" class="signature"><strong>#bot_user_id</strong> : String?</a>
+        <a href="#bot_user_id%3AString%7CNil-instance-method" class="signature"><strong>#bot_user_id</strong> : String | Nil</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#bot_user_id%3D%28bot_user_id%3AString%3F%29-instance-method" class="signature"><strong>#bot_user_id=</strong>(bot_user_id : String?)</a>
+        <a href="#bot_user_id%3D%28bot_user_id%3AString%7CNil%29-instance-method" class="signature"><strong>#bot_user_id=</strong>(bot_user_id : String | Nil)</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#enterprise%3ASlack%3A%3AAuth%3A%3AEnterprise%3F-instance-method" class="signature"><strong>#enterprise</strong> : Slack::Auth::Enterprise?</a>
+        <a href="#enterprise%3ASlack%3A%3AAuth%3A%3AEnterprise%7CNil-instance-method" class="signature"><strong>#enterprise</strong> : Slack::Auth::Enterprise | Nil</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#enterprise%3D%28enterprise%3ASlack%3A%3AAuth%3A%3AEnterprise%3F%29-instance-method" class="signature"><strong>#enterprise=</strong>(enterprise : Slack::Auth::Enterprise?)</a>
+        <a href="#enterprise%3D%28enterprise%3ASlack%3A%3AAuth%3A%3AEnterprise%7CNil%29-instance-method" class="signature"><strong>#enterprise=</strong>(enterprise : Slack::Auth::Enterprise | Nil)</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#expires_in%3AInt32%3F-instance-method" class="signature"><strong>#expires_in</strong> : Int32?</a>
+        <a href="#expires_in%3AInt32%7CNil-instance-method" class="signature"><strong>#expires_in</strong> : Int32 | Nil</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#expires_in%3D%28expires_in%3AInt32%3F%29-instance-method" class="signature"><strong>#expires_in=</strong>(expires_in : Int32?)</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#ok%3ABool-instance-method" class="signature"><strong>#ok</strong> : Bool</a>
+        <a href="#expires_in%3D%28expires_in%3AInt32%7CNil%29-instance-method" class="signature"><strong>#expires_in=</strong>(expires_in : Int32 | Nil)</a>
         
       </li>
     
@@ -1222,12 +1247,17 @@
       </li>
     
       <li class="entry-summary">
-        <a href="#refresh_token%3AString%3F-instance-method" class="signature"><strong>#refresh_token</strong> : String?</a>
+        <a href="#ok%3F%3ABool-instance-method" class="signature"><strong>#ok?</strong> : Bool</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#refresh_token%3D%28refresh_token%3AString%3F%29-instance-method" class="signature"><strong>#refresh_token=</strong>(refresh_token : String?)</a>
+        <a href="#refresh_token%3AString%7CNil-instance-method" class="signature"><strong>#refresh_token</strong> : String | Nil</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#refresh_token%3D%28refresh_token%3AString%7CNil%29-instance-method" class="signature"><strong>#refresh_token=</strong>(refresh_token : String | Nil)</a>
         
       </li>
     
@@ -1252,12 +1282,12 @@
       </li>
     
       <li class="entry-summary">
-        <a href="#token_type%3AString%3F-instance-method" class="signature"><strong>#token_type</strong> : String?</a>
+        <a href="#token_type%3AString%7CNil-instance-method" class="signature"><strong>#token_type</strong> : String | Nil</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#token_type%3D%28token_type%3AString%3F%29-instance-method" class="signature"><strong>#token_type=</strong>(token_type : String?)</a>
+        <a href="#token_type%3D%28token_type%3AString%7CNil%29-instance-method" class="signature"><strong>#token_type=</strong>(token_type : String | Nil)</a>
         
       </li>
     
@@ -1332,7 +1362,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/oauth/auth_response.cr#L2" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/oauth/auth_response.cr#L2" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1360,7 +1390,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/oauth/auth_response.cr#L16" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/oauth/auth_response.cr#L17" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1388,7 +1418,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1404,7 +1434,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1420,7 +1450,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1436,7 +1466,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1452,7 +1482,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1468,119 +1498,103 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="bot_user_id:String?-instance-method">
+    <div class="entry-detail" id="bot_user_id:String|Nil-instance-method">
       <div class="signature">
         
-        def <strong>bot_user_id</strong> : String?
+        def <strong>bot_user_id</strong> : String | Nil
 
-        <a class="method-permalink" href="#bot_user_id%3AString%3F-instance-method">#</a>
+        <a class="method-permalink" href="#bot_user_id%3AString%7CNil-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="bot_user_id=(bot_user_id:String?)-instance-method">
+    <div class="entry-detail" id="bot_user_id=(bot_user_id:String|Nil)-instance-method">
       <div class="signature">
         
-        def <strong>bot_user_id=</strong>(bot_user_id : String?)
+        def <strong>bot_user_id=</strong>(bot_user_id : String | Nil)
 
-        <a class="method-permalink" href="#bot_user_id%3D%28bot_user_id%3AString%3F%29-instance-method">#</a>
+        <a class="method-permalink" href="#bot_user_id%3D%28bot_user_id%3AString%7CNil%29-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="enterprise:Slack::Auth::Enterprise?-instance-method">
+    <div class="entry-detail" id="enterprise:Slack::Auth::Enterprise|Nil-instance-method">
       <div class="signature">
         
-        def <strong>enterprise</strong> : <a href="../Slack/Auth/Enterprise.html">Slack::Auth::Enterprise</a>?
+        def <strong>enterprise</strong> : <a href="../Slack/Auth/Enterprise.html">Slack::Auth::Enterprise</a> | Nil
 
-        <a class="method-permalink" href="#enterprise%3ASlack%3A%3AAuth%3A%3AEnterprise%3F-instance-method">#</a>
+        <a class="method-permalink" href="#enterprise%3ASlack%3A%3AAuth%3A%3AEnterprise%7CNil-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="enterprise=(enterprise:Slack::Auth::Enterprise?)-instance-method">
+    <div class="entry-detail" id="enterprise=(enterprise:Slack::Auth::Enterprise|Nil)-instance-method">
       <div class="signature">
         
-        def <strong>enterprise=</strong>(enterprise : <a href="../Slack/Auth/Enterprise.html">Slack::Auth::Enterprise</a>?)
+        def <strong>enterprise=</strong>(enterprise : <a href="../Slack/Auth/Enterprise.html">Slack::Auth::Enterprise</a> | Nil)
 
-        <a class="method-permalink" href="#enterprise%3D%28enterprise%3ASlack%3A%3AAuth%3A%3AEnterprise%3F%29-instance-method">#</a>
+        <a class="method-permalink" href="#enterprise%3D%28enterprise%3ASlack%3A%3AAuth%3A%3AEnterprise%7CNil%29-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="expires_in:Int32?-instance-method">
+    <div class="entry-detail" id="expires_in:Int32|Nil-instance-method">
       <div class="signature">
         
-        def <strong>expires_in</strong> : Int32?
+        def <strong>expires_in</strong> : Int32 | Nil
 
-        <a class="method-permalink" href="#expires_in%3AInt32%3F-instance-method">#</a>
+        <a class="method-permalink" href="#expires_in%3AInt32%7CNil-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="expires_in=(expires_in:Int32?)-instance-method">
+    <div class="entry-detail" id="expires_in=(expires_in:Int32|Nil)-instance-method">
       <div class="signature">
         
-        def <strong>expires_in=</strong>(expires_in : Int32?)
+        def <strong>expires_in=</strong>(expires_in : Int32 | Nil)
 
-        <a class="method-permalink" href="#expires_in%3D%28expires_in%3AInt32%3F%29-instance-method">#</a>
+        <a class="method-permalink" href="#expires_in%3D%28expires_in%3AInt32%7CNil%29-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="ok:Bool-instance-method">
-      <div class="signature">
-        
-        def <strong>ok</strong> : Bool
-
-        <a class="method-permalink" href="#ok%3ABool-instance-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1596,39 +1610,55 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/oauth/auth_response.cr#L15" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="refresh_token:String?-instance-method">
+    <div class="entry-detail" id="ok?:Bool-instance-method">
       <div class="signature">
         
-        def <strong>refresh_token</strong> : String?
+        def <strong>ok?</strong> : Bool
 
-        <a class="method-permalink" href="#refresh_token%3AString%3F-instance-method">#</a>
+        <a class="method-permalink" href="#ok%3F%3ABool-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/oauth/auth_response.cr#L15" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="refresh_token=(refresh_token:String?)-instance-method">
+    <div class="entry-detail" id="refresh_token:String|Nil-instance-method">
       <div class="signature">
         
-        def <strong>refresh_token=</strong>(refresh_token : String?)
+        def <strong>refresh_token</strong> : String | Nil
 
-        <a class="method-permalink" href="#refresh_token%3D%28refresh_token%3AString%3F%29-instance-method">#</a>
+        <a class="method-permalink" href="#refresh_token%3AString%7CNil-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="refresh_token=(refresh_token:String|Nil)-instance-method">
+      <div class="signature">
+        
+        def <strong>refresh_token=</strong>(refresh_token : String | Nil)
+
+        <a class="method-permalink" href="#refresh_token%3D%28refresh_token%3AString%7CNil%29-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1644,7 +1674,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1660,7 +1690,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1676,7 +1706,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1692,39 +1722,39 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="token_type:String?-instance-method">
+    <div class="entry-detail" id="token_type:String|Nil-instance-method">
       <div class="signature">
         
-        def <strong>token_type</strong> : String?
+        def <strong>token_type</strong> : String | Nil
 
-        <a class="method-permalink" href="#token_type%3AString%3F-instance-method">#</a>
+        <a class="method-permalink" href="#token_type%3AString%7CNil-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="token_type=(token_type:String?)-instance-method">
+    <div class="entry-detail" id="token_type=(token_type:String|Nil)-instance-method">
       <div class="signature">
         
-        def <strong>token_type=</strong>(token_type : String?)
+        def <strong>token_type=</strong>(token_type : String | Nil)
 
-        <a class="method-permalink" href="#token_type%3D%28token_type%3AString%3F%29-instance-method">#</a>
+        <a class="method-permalink" href="#token_type%3D%28token_type%3AString%7CNil%29-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/oauth/auth_response.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>

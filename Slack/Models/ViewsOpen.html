@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Crystal Docs 1.3.2">
+<meta name="generator" content="Crystal Docs 1.6.2">
 <meta name="crystal_docs.project_version" content="main">
 <meta name="crystal_docs.project_name" content="slack">
 
@@ -571,6 +571,36 @@
       
     </li>
   
+  <li class="parent " data-id="slack/Slack/SignInResponse" data-name="slack::signinresponse">
+      <a href="../../Slack/SignInResponse.html">SignInResponse</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/SignInResponse/DecodedResponse" data-name="slack::signinresponse::decodedresponse">
+      <a href="../../Slack/SignInResponse/DecodedResponse.html">DecodedResponse</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/SignInWithSlack" data-name="slack::signinwithslack">
+      <a href="../../Slack/SignInWithSlack.html">SignInWithSlack</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/SignInWithSlack/HabitatSettings" data-name="slack::signinwithslack::habitatsettings">
+      <a href="../../Slack/SignInWithSlack/HabitatSettings.html">HabitatSettings</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
   <li class="parent " data-id="slack/Slack/TypeAliases" data-name="slack::typealiases">
       <a href="../../Slack/TypeAliases.html">TypeAliases</a>
       
@@ -1078,7 +1108,7 @@
   </h2>
   
     
-      <a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/views/views_open.cr#L1" target="_blank">
+      <a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/views/views_open.cr#L1" target="_blank">
         slack/models/views/views_open.cr
       </a>
     
@@ -1100,7 +1130,7 @@
   <dl>
     
       <dt class="entry-const" id="ASSIGNED_TYPES">
-        <strong>ASSIGNED_TYPES</strong> = <code>[ok : <span class="t">Bool</span>, view : <span class="t">JSON</span><span class="t">::</span><span class="t">Any</span>] <span class="k">of</span> <span class="t">TypeDeclaration</span></code>
+        <strong>ASSIGNED_TYPES</strong> = <code>[view : <span class="t">JSON</span><span class="t">::</span><span class="t">Any</span>] <span class="k">of</span> <span class="t">TypeDeclaration</span></code>
       </dt>
       
     
@@ -1119,12 +1149,12 @@
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#new%28ok%3ABool%2Cview%3AJSON%3A%3AAny%29-class-method" class="signature"><strong>.new</strong>(ok : Bool, view : JSON::Any)</a>
+        <a href="#new%28pull%3AJSON%3A%3APullParser%29-class-method" class="signature"><strong>.new</strong>(pull : JSON::PullParser)</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#new%28pull%3AJSON%3A%3APullParser%29-class-method" class="signature"><strong>.new</strong>(pull : JSON::PullParser)</a>
+        <a href="#new%28view%3AJSON%3A%3AAny%29-class-method" class="signature"><strong>.new</strong>(view : JSON::Any)</a>
         
       </li>
     
@@ -1145,12 +1175,12 @@
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#ok%3ABool-instance-method" class="signature"><strong>#ok</strong> : Bool</a>
+        <a href="#ok%3D%28ok%3ABool%29-instance-method" class="signature"><strong>#ok=</strong>(ok : Bool)</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#ok%3D%28ok%3ABool%29-instance-method" class="signature"><strong>#ok=</strong>(ok : Bool)</a>
+        <a href="#ok%3F%3ABool-instance-method" class="signature"><strong>#ok?</strong> : Bool</a>
         
       </li>
     
@@ -1272,20 +1302,6 @@
     Constructor Detail
   </h2>
   
-    <div class="entry-detail" id="new(ok:Bool,view:JSON::Any)-class-method">
-      <div class="signature">
-        
-        def self.<strong>new</strong>(ok : Bool, view : JSON::Any)
-
-        <a class="method-permalink" href="#new%28ok%3ABool%2Cview%3AJSON%3A%3AAny%29-class-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
     <div class="entry-detail" id="new(pull:JSON::PullParser)-class-method">
       <div class="signature">
         
@@ -1297,7 +1313,21 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/views/views_open.cr#L1" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/views/views_open.cr#L1" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="new(view:JSON::Any)-class-method">
+      <div class="signature">
+        
+        def self.<strong>new</strong>(view : JSON::Any)
+
+        <a class="method-permalink" href="#new%28view%3AJSON%3A%3AAny%29-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
         
       </div>
     </div>
@@ -1316,20 +1346,6 @@
     Instance Method Detail
   </h2>
   
-    <div class="entry-detail" id="ok:Bool-instance-method">
-      <div class="signature">
-        
-        def <strong>ok</strong> : Bool
-
-        <a class="method-permalink" href="#ok%3ABool-instance-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-      </div>
-    </div>
-  
     <div class="entry-detail" id="ok=(ok:Bool)-instance-method">
       <div class="signature">
         
@@ -1340,6 +1356,24 @@
       
       <br/>
       <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/views/views_open.cr#L4" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="ok?:Bool-instance-method">
+      <div class="signature">
+        
+        def <strong>ok?</strong> : Bool
+
+        <a class="method-permalink" href="#ok%3F%3ABool-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/views/views_open.cr#L4" target="_blank">View source</a>]
         
       </div>
     </div>

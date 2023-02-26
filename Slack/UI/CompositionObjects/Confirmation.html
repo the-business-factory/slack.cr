@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Crystal Docs 1.3.2">
+<meta name="generator" content="Crystal Docs 1.6.2">
 <meta name="crystal_docs.project_version" content="main">
 <meta name="crystal_docs.project_name" content="slack">
 
@@ -571,6 +571,36 @@
       
     </li>
   
+  <li class="parent " data-id="slack/Slack/SignInResponse" data-name="slack::signinresponse">
+      <a href="../../../Slack/SignInResponse.html">SignInResponse</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/SignInResponse/DecodedResponse" data-name="slack::signinresponse::decodedresponse">
+      <a href="../../../Slack/SignInResponse/DecodedResponse.html">DecodedResponse</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/SignInWithSlack" data-name="slack::signinwithslack">
+      <a href="../../../Slack/SignInWithSlack.html">SignInWithSlack</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/SignInWithSlack/HabitatSettings" data-name="slack::signinwithslack::habitatsettings">
+      <a href="../../../Slack/SignInWithSlack/HabitatSettings.html">HabitatSettings</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
   <li class="parent " data-id="slack/Slack/TypeAliases" data-name="slack::typealiases">
       <a href="../../../Slack/TypeAliases.html">TypeAliases</a>
       
@@ -1096,7 +1126,7 @@
   </h2>
   
     
-      <a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/ui/composition_objects/confirmation.cr#L1" target="_blank">
+      <a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/ui/composition_objects/confirmation.cr#L1" target="_blank">
         slack/ui/composition_objects/confirmation.cr
       </a>
     
@@ -1137,7 +1167,7 @@
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#new%28confirm%3AConfirm%2Cdeny%3ADeny%2Ctext%3AText%2Ctitle%3ATitle%2Cstyle%3AString%3F%3Dnil%29-class-method" class="signature"><strong>.new</strong>(confirm : Confirm, deny : Deny, text : Text, title : Title, style : String? = <span class="n">nil</span>)</a>
+        <a href="#new%28confirm%3AConfirm%2Cdeny%3ADeny%2Ctext%3AText%2Ctitle%3ATitle%2Cstyle%3AString%7CNil%3Dnil%29-class-method" class="signature"><strong>.new</strong>(confirm : Confirm, deny : Deny, text : Text, title : Title, style : String | Nil = <span class="n">nil</span>)</a>
         
       </li>
     
@@ -1183,12 +1213,12 @@
       </li>
     
       <li class="entry-summary">
-        <a href="#style%3AString%3F-instance-method" class="signature"><strong>#style</strong> : String?</a>
+        <a href="#style%3AString%7CNil-instance-method" class="signature"><strong>#style</strong> : String | Nil</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#style%3D%28style%3AString%3F%29-instance-method" class="signature"><strong>#style=</strong>(style : String?)</a>
+        <a href="#style%3D%28style%3AString%7CNil%29-instance-method" class="signature"><strong>#style=</strong>(style : String | Nil)</a>
         
       </li>
     
@@ -1292,12 +1322,12 @@
     Constructor Detail
   </h2>
   
-    <div class="entry-detail" id="new(confirm:Confirm,deny:Deny,text:Text,title:Title,style:String?=nil)-class-method">
+    <div class="entry-detail" id="new(confirm:Confirm,deny:Deny,text:Text,title:Title,style:String|Nil=nil)-class-method">
       <div class="signature">
         
-        def self.<strong>new</strong>(confirm : <a href="../../../Slack/UI/CompositionObjects/Confirmation/Confirm.html">Confirm</a>, deny : <a href="../../../Slack/UI/CompositionObjects/Confirmation/Deny.html">Deny</a>, text : <a href="../../../Slack/UI/CompositionObjects/Confirmation/Text.html">Text</a>, title : <a href="../../../Slack/UI/CompositionObjects/Confirmation/Title.html">Title</a>, style : String? = <span class="n">nil</span>)
+        def self.<strong>new</strong>(confirm : <a href="../../../Slack/UI/CompositionObjects/Confirmation/Confirm.html">Confirm</a>, deny : <a href="../../../Slack/UI/CompositionObjects/Confirmation/Deny.html">Deny</a>, text : <a href="../../../Slack/UI/CompositionObjects/Confirmation/Text.html">Text</a>, title : <a href="../../../Slack/UI/CompositionObjects/Confirmation/Title.html">Title</a>, style : String | Nil = <span class="n">nil</span>)
 
-        <a class="method-permalink" href="#new%28confirm%3AConfirm%2Cdeny%3ADeny%2Ctext%3AText%2Ctitle%3ATitle%2Cstyle%3AString%3F%3Dnil%29-class-method">#</a>
+        <a class="method-permalink" href="#new%28confirm%3AConfirm%2Cdeny%3ADeny%2Ctext%3AText%2Ctitle%3ATitle%2Cstyle%3AString%7CNil%3Dnil%29-class-method">#</a>
       </div>
       
       <br/>
@@ -1390,12 +1420,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="style:String?-instance-method">
+    <div class="entry-detail" id="style:String|Nil-instance-method">
       <div class="signature">
         
-        def <strong>style</strong> : String?
+        def <strong>style</strong> : String | Nil
 
-        <a class="method-permalink" href="#style%3AString%3F-instance-method">#</a>
+        <a class="method-permalink" href="#style%3AString%7CNil-instance-method">#</a>
       </div>
       
       <br/>
@@ -1404,12 +1434,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="style=(style:String?)-instance-method">
+    <div class="entry-detail" id="style=(style:String|Nil)-instance-method">
       <div class="signature">
         
-        def <strong>style=</strong>(style : String?)
+        def <strong>style=</strong>(style : String | Nil)
 
-        <a class="method-permalink" href="#style%3D%28style%3AString%3F%29-instance-method">#</a>
+        <a class="method-permalink" href="#style%3D%28style%3AString%7CNil%29-instance-method">#</a>
       </div>
       
       <br/>

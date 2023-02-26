@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Crystal Docs 1.3.2">
+<meta name="generator" content="Crystal Docs 1.6.2">
 <meta name="crystal_docs.project_version" content="main">
 <meta name="crystal_docs.project_name" content="slack">
 
@@ -571,6 +571,36 @@
       
     </li>
   
+  <li class="parent " data-id="slack/Slack/SignInResponse" data-name="slack::signinresponse">
+      <a href="Slack/SignInResponse.html">SignInResponse</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/SignInResponse/DecodedResponse" data-name="slack::signinresponse::decodedresponse">
+      <a href="Slack/SignInResponse/DecodedResponse.html">DecodedResponse</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/SignInWithSlack" data-name="slack::signinwithslack">
+      <a href="Slack/SignInWithSlack.html">SignInWithSlack</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/SignInWithSlack/HabitatSettings" data-name="slack::signinwithslack::habitatsettings">
+      <a href="Slack/SignInWithSlack/HabitatSettings.html">HabitatSettings</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
   <li class="parent " data-id="slack/Slack/TypeAliases" data-name="slack::typealiases">
       <a href="Slack/TypeAliases.html">TypeAliases</a>
       
@@ -1092,6 +1122,12 @@
 <span class="c"># Most apps will want to have OAuth enabled for installation.</span>
 <span class="t">Slack</span><span class="t">::</span><span class="t">AuthHandler</span>.configure <span class="k">do</span> <span class="o">|</span>config<span class="o">|</span>
   config.oauth_redirect_url <span class="o">=</span> <span class="t">ENV</span>[<span class="s">&quot;OAUTH_REDIRECT_URL&quot;</span>]
+<span class="k">end</span>
+
+<span class="c"># To enable &quot;Sign in with Slack,&quot; you&#39;ll need to configure</span>
+<span class="c"># Slack&#39;s OpenID Connecion handling.</span>
+<span class="t">Slack</span><span class="t">::</span><span class="t">SignIn</span>.configure <span class="k">do</span> <span class="o">|</span>config<span class="o">|</span>
+  config.sign_in_redirect_url <span class="o">=</span> <span class="t">ENV</span>[<span class="s">&quot;SIGN_IN_REDIRECT_URL&quot;</span>]
 <span class="k">end</span></code></pre>
 <h3><a id="processing-webhook-events" class="anchor" href="#processing-webhook-events">
   <svg class="octicon-link" aria-hidden="true">
@@ -1133,7 +1169,7 @@ allow customized error handling if needed.</p>
 
   <span class="k">def</span> <span class="m">run</span>
     <span class="c"># Guaranteed to be some sort of Slack::Model::Conversation object.</span>
-    channel <span class="o">=</span> <span class="t">Slack</span><span class="t">::</span><span class="t">Api</span><span class="t">::</span><span class="t">ConversationsInfo</span>.<span class="k">new</span>(token, channel_id).call
+    channel <span class="o">=</span> <span class="t">Slack</span><span class="t">::</span><span class="t">Api</span><span class="t">::</span><span class="t">ConversationsInfo</span>.new(token, channel_id).call
 
     <span class="c"># Now you can with Slack&#39;s polymorphic API in uniform ways.</span>
     <span class="k">case</span> channel
@@ -1168,7 +1204,7 @@ allow customized error handling if needed.</p>
       )
     <span class="k">end</span>
 
-    <span class="t">Slack</span><span class="t">::</span><span class="t">UI</span><span class="t">::</span><span class="t">Blocks</span><span class="t">::</span><span class="t">Actions</span>.<span class="k">new</span> elements: buttons
+    <span class="t">Slack</span><span class="t">::</span><span class="t">UI</span><span class="t">::</span><span class="t">Blocks</span><span class="t">::</span><span class="t">Actions</span>.new elements: buttons
   <span class="k">end</span>
 <span class="k">end</span>
 
@@ -1177,7 +1213,7 @@ allow customized error handling if needed.</p>
 
   post <span class="s">&quot;/slack/links&quot;</span> <span class="k">do</span>
     command <span class="o">=</span> <span class="t">Slack</span>.process_command(request)
-    text <span class="o">=</span> command.text.presence || <span class="s">&quot;nothing&quot;</span>
+    text <span class="o">=</span> command.text.presence <span class="o">||</span> <span class="s">&quot;nothing&quot;</span>
 
     text_section <span class="o">=</span> <span class="t">TextSection</span>.render(
       text: <span class="s">&quot;processed </span><span class="i">#{</span>command.command<span class="i">}</span><span class="s"> with </span><span class="i">#{</span>text<span class="i">}</span><span class="s"> as text.&quot;</span>

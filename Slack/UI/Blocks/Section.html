@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Crystal Docs 1.3.2">
+<meta name="generator" content="Crystal Docs 1.6.2">
 <meta name="crystal_docs.project_version" content="main">
 <meta name="crystal_docs.project_name" content="slack">
 
@@ -571,6 +571,36 @@
       
     </li>
   
+  <li class="parent " data-id="slack/Slack/SignInResponse" data-name="slack::signinresponse">
+      <a href="../../../Slack/SignInResponse.html">SignInResponse</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/SignInResponse/DecodedResponse" data-name="slack::signinresponse::decodedresponse">
+      <a href="../../../Slack/SignInResponse/DecodedResponse.html">DecodedResponse</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/SignInWithSlack" data-name="slack::signinwithslack">
+      <a href="../../../Slack/SignInWithSlack.html">SignInWithSlack</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/SignInWithSlack/HabitatSettings" data-name="slack::signinwithslack::habitatsettings">
+      <a href="../../../Slack/SignInWithSlack/HabitatSettings.html">HabitatSettings</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
   <li class="parent " data-id="slack/Slack/TypeAliases" data-name="slack::typealiases">
       <a href="../../../Slack/TypeAliases.html">TypeAliases</a>
       
@@ -1091,7 +1121,7 @@ content of the section is a single text block or multiple blocks.</p>
   </h2>
   
     
-      <a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/ui/blocks/section.cr#L5" target="_blank">
+      <a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/ui/blocks/section.cr#L5" target="_blank">
         slack/ui/blocks/section.cr
       </a>
     
@@ -1145,7 +1175,7 @@ content of the section is a single text block or multiple blocks.</p>
       </li>
     
       <li class="entry-summary">
-        <a href="#new%28accessory%3ABlockElement%3F%3Dnil%2Cblock_id%3AString%3F%3Dnil%2Cfields%3AArray%28FieldText%29%3F%3Dnil%2Ctext%3AText%3F%3Dnil%2Ctype%3AString%3D%22section%22%29-class-method" class="signature"><strong>.new</strong>(accessory : BlockElement? = <span class="n">nil</span>, block_id : String? = <span class="n">nil</span>, fields : Array(FieldText)? = <span class="n">nil</span>, text : Text? = <span class="n">nil</span>, type : String = <span class="s">&quot;section&quot;</span>)</a>
+        <a href="#new%28accessory%3ABlockElement%7CNil%3Dnil%2Cblock_id%3AString%7CNil%3Dnil%2Cfields%3AArray%28FieldText%29%7CNil%3Dnil%2Ctext%3AText%7CNil%3Dnil%2Ctype%3AString%3D%22section%22%29-class-method" class="signature"><strong>.new</strong>(accessory : BlockElement | Nil = <span class="n">nil</span>, block_id : String | Nil = <span class="n">nil</span>, fields : Array(FieldText) | Nil = <span class="n">nil</span>, text : Text | Nil = <span class="n">nil</span>, type : String = <span class="s">&quot;section&quot;</span>)</a>
         
           <div class="summary"><p>https://api.slack.com/reference/block-kit/blocks#section</p></div>
         
@@ -1168,12 +1198,12 @@ content of the section is a single text block or multiple blocks.</p>
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#accessory%3ABlockElement%3F-instance-method" class="signature"><strong>#accessory</strong> : BlockElement?</a>
+        <a href="#accessory%3ABlockElement%7CNil-instance-method" class="signature"><strong>#accessory</strong> : BlockElement | Nil</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#accessory%3D%28accessory%3ABlockElement%3F%29-instance-method" class="signature"><strong>#accessory=</strong>(accessory : BlockElement?)</a>
+        <a href="#accessory%3D%28accessory%3ABlockElement%7CNil%29-instance-method" class="signature"><strong>#accessory=</strong>(accessory : BlockElement | Nil)</a>
         
       </li>
     
@@ -1185,32 +1215,32 @@ content of the section is a single text block or multiple blocks.</p>
       </li>
     
       <li class="entry-summary">
-        <a href="#block_id%3AString%3F-instance-method" class="signature"><strong>#block_id</strong> : String?</a>
+        <a href="#block_id%3AString%7CNil-instance-method" class="signature"><strong>#block_id</strong> : String | Nil</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#block_id%3D%28block_id%3AString%3F%29-instance-method" class="signature"><strong>#block_id=</strong>(block_id : String?)</a>
+        <a href="#block_id%3D%28block_id%3AString%7CNil%29-instance-method" class="signature"><strong>#block_id=</strong>(block_id : String | Nil)</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#fields%3AArray%28FieldText%29%3F-instance-method" class="signature"><strong>#fields</strong> : Array(FieldText)?</a>
+        <a href="#fields%3AArray%28FieldText%29%7CNil-instance-method" class="signature"><strong>#fields</strong> : Array(FieldText) | Nil</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#fields%3D%28fields%3AArray%28FieldText%29%3F%29-instance-method" class="signature"><strong>#fields=</strong>(fields : Array(FieldText)?)</a>
+        <a href="#fields%3D%28fields%3AArray%28FieldText%29%7CNil%29-instance-method" class="signature"><strong>#fields=</strong>(fields : Array(FieldText) | Nil)</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#text%3AText%3F-instance-method" class="signature"><strong>#text</strong> : Text?</a>
+        <a href="#text%3AText%7CNil-instance-method" class="signature"><strong>#text</strong> : Text | Nil</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#text%3D%28text%3AText%3F%29-instance-method" class="signature"><strong>#text=</strong>(text : Text?)</a>
+        <a href="#text%3D%28text%3AText%7CNil%29-instance-method" class="signature"><strong>#text=</strong>(text : Text | Nil)</a>
         
       </li>
     
@@ -1346,17 +1376,17 @@ content of the section is a single text block or multiple blocks.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/ui/blocks/section.cr#L5" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/ui/blocks/section.cr#L5" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="new(accessory:BlockElement?=nil,block_id:String?=nil,fields:Array(FieldText)?=nil,text:Text?=nil,type:String=&quot;section&quot;)-class-method">
+    <div class="entry-detail" id="new(accessory:BlockElement|Nil=nil,block_id:String|Nil=nil,fields:Array(FieldText)|Nil=nil,text:Text|Nil=nil,type:String=&quot;section&quot;)-class-method">
       <div class="signature">
         
-        def self.<strong>new</strong>(accessory : <a href="../../../Slack/UI/BlockElement.html">BlockElement</a>? = <span class="n">nil</span>, block_id : String? = <span class="n">nil</span>, fields : Array(<a href="../../../Slack/UI/Blocks/Section/FieldText.html">FieldText</a>)? = <span class="n">nil</span>, text : <a href="../../../Slack/UI/Blocks/Section/Text.html">Text</a>? = <span class="n">nil</span>, type : String = <span class="s">&quot;section&quot;</span>)
+        def self.<strong>new</strong>(accessory : <a href="../../../Slack/UI/BlockElement.html">BlockElement</a> | Nil = <span class="n">nil</span>, block_id : String | Nil = <span class="n">nil</span>, fields : Array(<a href="../../../Slack/UI/Blocks/Section/FieldText.html">FieldText</a>) | Nil = <span class="n">nil</span>, text : <a href="../../../Slack/UI/Blocks/Section/Text.html">Text</a> | Nil = <span class="n">nil</span>, type : String = <span class="s">&quot;section&quot;</span>)
 
-        <a class="method-permalink" href="#new%28accessory%3ABlockElement%3F%3Dnil%2Cblock_id%3AString%3F%3Dnil%2Cfields%3AArray%28FieldText%29%3F%3Dnil%2Ctext%3AText%3F%3Dnil%2Ctype%3AString%3D%22section%22%29-class-method">#</a>
+        <a class="method-permalink" href="#new%28accessory%3ABlockElement%7CNil%3Dnil%2Cblock_id%3AString%7CNil%3Dnil%2Cfields%3AArray%28FieldText%29%7CNil%3Dnil%2Ctext%3AText%7CNil%3Dnil%2Ctype%3AString%3D%22section%22%29-class-method">#</a>
       </div>
       
         <div class="doc">
@@ -1386,12 +1416,12 @@ content of the section is a single text block or multiple blocks.</p>
     Instance Method Detail
   </h2>
   
-    <div class="entry-detail" id="accessory:BlockElement?-instance-method">
+    <div class="entry-detail" id="accessory:BlockElement|Nil-instance-method">
       <div class="signature">
         
-        def <strong>accessory</strong> : <a href="../../../Slack/UI/BlockElement.html">BlockElement</a>?
+        def <strong>accessory</strong> : <a href="../../../Slack/UI/BlockElement.html">BlockElement</a> | Nil
 
-        <a class="method-permalink" href="#accessory%3ABlockElement%3F-instance-method">#</a>
+        <a class="method-permalink" href="#accessory%3ABlockElement%7CNil-instance-method">#</a>
       </div>
       
       <br/>
@@ -1400,12 +1430,12 @@ content of the section is a single text block or multiple blocks.</p>
       </div>
     </div>
   
-    <div class="entry-detail" id="accessory=(accessory:BlockElement?)-instance-method">
+    <div class="entry-detail" id="accessory=(accessory:BlockElement|Nil)-instance-method">
       <div class="signature">
         
-        def <strong>accessory=</strong>(accessory : <a href="../../../Slack/UI/BlockElement.html">BlockElement</a>?)
+        def <strong>accessory=</strong>(accessory : <a href="../../../Slack/UI/BlockElement.html">BlockElement</a> | Nil)
 
-        <a class="method-permalink" href="#accessory%3D%28accessory%3ABlockElement%3F%29-instance-method">#</a>
+        <a class="method-permalink" href="#accessory%3D%28accessory%3ABlockElement%7CNil%29-instance-method">#</a>
       </div>
       
       <br/>
@@ -1434,17 +1464,17 @@ content of the section is a single text block or multiple blocks.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/ui/blocks/section.cr#L12" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/ui/blocks/section.cr#L12" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="block_id:String?-instance-method">
+    <div class="entry-detail" id="block_id:String|Nil-instance-method">
       <div class="signature">
         
-        def <strong>block_id</strong> : String?
+        def <strong>block_id</strong> : String | Nil
 
-        <a class="method-permalink" href="#block_id%3AString%3F-instance-method">#</a>
+        <a class="method-permalink" href="#block_id%3AString%7CNil-instance-method">#</a>
       </div>
       
       <br/>
@@ -1453,12 +1483,12 @@ content of the section is a single text block or multiple blocks.</p>
       </div>
     </div>
   
-    <div class="entry-detail" id="block_id=(block_id:String?)-instance-method">
+    <div class="entry-detail" id="block_id=(block_id:String|Nil)-instance-method">
       <div class="signature">
         
-        def <strong>block_id=</strong>(block_id : String?)
+        def <strong>block_id=</strong>(block_id : String | Nil)
 
-        <a class="method-permalink" href="#block_id%3D%28block_id%3AString%3F%29-instance-method">#</a>
+        <a class="method-permalink" href="#block_id%3D%28block_id%3AString%7CNil%29-instance-method">#</a>
       </div>
       
       <br/>
@@ -1467,12 +1497,12 @@ content of the section is a single text block or multiple blocks.</p>
       </div>
     </div>
   
-    <div class="entry-detail" id="fields:Array(FieldText)?-instance-method">
+    <div class="entry-detail" id="fields:Array(FieldText)|Nil-instance-method">
       <div class="signature">
         
-        def <strong>fields</strong> : Array(<a href="../../../Slack/UI/Blocks/Section/FieldText.html">FieldText</a>)?
+        def <strong>fields</strong> : Array(<a href="../../../Slack/UI/Blocks/Section/FieldText.html">FieldText</a>) | Nil
 
-        <a class="method-permalink" href="#fields%3AArray%28FieldText%29%3F-instance-method">#</a>
+        <a class="method-permalink" href="#fields%3AArray%28FieldText%29%7CNil-instance-method">#</a>
       </div>
       
       <br/>
@@ -1481,12 +1511,12 @@ content of the section is a single text block or multiple blocks.</p>
       </div>
     </div>
   
-    <div class="entry-detail" id="fields=(fields:Array(FieldText)?)-instance-method">
+    <div class="entry-detail" id="fields=(fields:Array(FieldText)|Nil)-instance-method">
       <div class="signature">
         
-        def <strong>fields=</strong>(fields : Array(<a href="../../../Slack/UI/Blocks/Section/FieldText.html">FieldText</a>)?)
+        def <strong>fields=</strong>(fields : Array(<a href="../../../Slack/UI/Blocks/Section/FieldText.html">FieldText</a>) | Nil)
 
-        <a class="method-permalink" href="#fields%3D%28fields%3AArray%28FieldText%29%3F%29-instance-method">#</a>
+        <a class="method-permalink" href="#fields%3D%28fields%3AArray%28FieldText%29%7CNil%29-instance-method">#</a>
       </div>
       
       <br/>
@@ -1495,12 +1525,12 @@ content of the section is a single text block or multiple blocks.</p>
       </div>
     </div>
   
-    <div class="entry-detail" id="text:Text?-instance-method">
+    <div class="entry-detail" id="text:Text|Nil-instance-method">
       <div class="signature">
         
-        def <strong>text</strong> : <a href="../../../Slack/UI/Blocks/Section/Text.html">Text</a>?
+        def <strong>text</strong> : <a href="../../../Slack/UI/Blocks/Section/Text.html">Text</a> | Nil
 
-        <a class="method-permalink" href="#text%3AText%3F-instance-method">#</a>
+        <a class="method-permalink" href="#text%3AText%7CNil-instance-method">#</a>
       </div>
       
       <br/>
@@ -1509,12 +1539,12 @@ content of the section is a single text block or multiple blocks.</p>
       </div>
     </div>
   
-    <div class="entry-detail" id="text=(text:Text?)-instance-method">
+    <div class="entry-detail" id="text=(text:Text|Nil)-instance-method">
       <div class="signature">
         
-        def <strong>text=</strong>(text : <a href="../../../Slack/UI/Blocks/Section/Text.html">Text</a>?)
+        def <strong>text=</strong>(text : <a href="../../../Slack/UI/Blocks/Section/Text.html">Text</a> | Nil)
 
-        <a class="method-permalink" href="#text%3D%28text%3AText%3F%29-instance-method">#</a>
+        <a class="method-permalink" href="#text%3D%28text%3AText%7CNil%29-instance-method">#</a>
       </div>
       
       <br/>
@@ -1534,7 +1564,7 @@ content of the section is a single text block or multiple blocks.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/ui/blocks/section.cr#L31" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/ui/blocks/section.cr#L31" target="_blank">View source</a>]
         
       </div>
     </div>

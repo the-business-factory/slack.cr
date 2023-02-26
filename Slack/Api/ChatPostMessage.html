@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Crystal Docs 1.3.2">
+<meta name="generator" content="Crystal Docs 1.6.2">
 <meta name="crystal_docs.project_version" content="main">
 <meta name="crystal_docs.project_name" content="slack">
 
@@ -571,6 +571,36 @@
       
     </li>
   
+  <li class="parent " data-id="slack/Slack/SignInResponse" data-name="slack::signinresponse">
+      <a href="../../Slack/SignInResponse.html">SignInResponse</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/SignInResponse/DecodedResponse" data-name="slack::signinresponse::decodedresponse">
+      <a href="../../Slack/SignInResponse/DecodedResponse.html">DecodedResponse</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/SignInWithSlack" data-name="slack::signinwithslack">
+      <a href="../../Slack/SignInWithSlack.html">SignInWithSlack</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/SignInWithSlack/HabitatSettings" data-name="slack::signinwithslack::habitatsettings">
+      <a href="../../Slack/SignInWithSlack/HabitatSettings.html">HabitatSettings</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
   <li class="parent " data-id="slack/Slack/TypeAliases" data-name="slack::typealiases">
       <a href="../../Slack/TypeAliases.html">TypeAliases</a>
       
@@ -1078,7 +1108,7 @@
   </h2>
   
     
-      <a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/api/endpoints/chat_post_message.cr#L1" target="_blank">
+      <a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/api/endpoints/chat_post_message.cr#L1" target="_blank">
         slack/api/endpoints/chat_post_message.cr
       </a>
     
@@ -1119,7 +1149,7 @@
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#new%28token%3AString%2Cchannel%3AString%2Cattachments%3AArray%28EventData%3A%3AAttachment%29%3F%3Dnil%2Cblocks%3AArray%28Slack%3A%3AUI%3A%3ABlock%29%3F%3Dnil%2Ctext%3AString%3F%3Dnil%2Cicon_emoji%3AString%3F%3Dnil%2Cicon_url%3AString%3F%3Dnil%2Clink_names%3ABool%3F%3Dnil%2Cmrkdwn%3ABool%3F%3Dnil%2Cparse%3AString%3F%3D%22none%22%2Creply_broadcast%3ABool%3F%3Dnil%2Cthread_ts%3AString%3F%3Dnil%2Cunfurl_links%3ABool%3F%3Dnil%2Cunfurl_media%3ABool%3F%3Dnil%2Cusername%3AString%3F%3Dnil%29-class-method" class="signature"><strong>.new</strong>(token : String, channel : String, attachments : Array(EventData::Attachment)? = <span class="n">nil</span>, blocks : Array(Slack::UI::Block)? = <span class="n">nil</span>, text : String? = <span class="n">nil</span>, icon_emoji : String? = <span class="n">nil</span>, icon_url : String? = <span class="n">nil</span>, link_names : Bool? = <span class="n">nil</span>, mrkdwn : Bool? = <span class="n">nil</span>, parse : String? = <span class="s">&quot;none&quot;</span>, reply_broadcast : Bool? = <span class="n">nil</span>, thread_ts : String? = <span class="n">nil</span>, unfurl_links : Bool? = <span class="n">nil</span>, unfurl_media : Bool? = <span class="n">nil</span>, username : String? = <span class="n">nil</span>)</a>
+        <a href="#new%28token%3AString%2Cchannel%3AString%2Cattachments%3AArray%28EventData%3A%3AAttachment%29%7CNil%3Dnil%2Cblocks%3AArray%28Slack%3A%3AUI%3A%3ABlock%29%7CNil%3Dnil%2Ctext%3AString%7CNil%3Dnil%2Cicon_emoji%3AString%7CNil%3Dnil%2Cicon_url%3AString%7CNil%3Dnil%2Clink_names%3ABool%7CNil%3Dnil%2Cmrkdwn%3ABool%7CNil%3Dnil%2Cparse%3AString%7CNil%3D%22none%22%2Creply_broadcast%3ABool%7CNil%3Dnil%2Cthread_ts%3AString%7CNil%3Dnil%2Cunfurl_links%3ABool%7CNil%3Dnil%2Cunfurl_media%3ABool%7CNil%3Dnil%2Cusername%3AString%7CNil%3Dnil%29-class-method" class="signature"><strong>.new</strong>(token : String, channel : String, attachments : Array(EventData::Attachment) | Nil = <span class="n">nil</span>, blocks : Array(Slack::UI::Block) | Nil = <span class="n">nil</span>, text : String | Nil = <span class="n">nil</span>, icon_emoji : String | Nil = <span class="n">nil</span>, icon_url : String | Nil = <span class="n">nil</span>, link_names : Bool | Nil = <span class="n">nil</span>, mrkdwn : Bool | Nil = <span class="n">nil</span>, parse : String | Nil = <span class="s">&quot;none&quot;</span>, reply_broadcast : Bool | Nil = <span class="n">nil</span>, thread_ts : String | Nil = <span class="n">nil</span>, unfurl_links : Bool | Nil = <span class="n">nil</span>, unfurl_media : Bool | Nil = <span class="n">nil</span>, username : String | Nil = <span class="n">nil</span>)</a>
         
       </li>
     
@@ -1143,7 +1173,7 @@
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#post_blocks%28blocks%3AEnumerable%2Cchannel%3AString%2Ctoken%3AString%2Cthread_ts%3AString%3F%3Dnil%29-class-method" class="signature"><strong>.post_blocks</strong>(blocks : Enumerable, channel : String, token : String, thread_ts : String? = <span class="n">nil</span>)</a>
+        <a href="#post_blocks%28blocks%3AEnumerable%2Cchannel%3AString%2Ctoken%3AString%2Cthread_ts%3AString%7CNil%3Dnil%29-class-method" class="signature"><strong>.post_blocks</strong>(blocks : Enumerable, channel : String, token : String, thread_ts : String | Nil = <span class="n">nil</span>)</a>
         
       </li>
     
@@ -1167,22 +1197,22 @@
       </li>
     
       <li class="entry-summary">
-        <a href="#attachments%3AArray%28EventData%3A%3AAttachment%29%3F-instance-method" class="signature"><strong>#attachments</strong> : Array(EventData::Attachment)?</a>
+        <a href="#attachments%3AArray%28EventData%3A%3AAttachment%29%7CNil-instance-method" class="signature"><strong>#attachments</strong> : Array(EventData::Attachment) | Nil</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#attachments%3D%28attachments%3AArray%28EventData%3A%3AAttachment%29%3F%29-instance-method" class="signature"><strong>#attachments=</strong>(attachments : Array(EventData::Attachment)?)</a>
+        <a href="#attachments%3D%28attachments%3AArray%28EventData%3A%3AAttachment%29%7CNil%29-instance-method" class="signature"><strong>#attachments=</strong>(attachments : Array(EventData::Attachment) | Nil)</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#blocks%3AArray%28Slack%3A%3AUI%3A%3ABlock%29%3F-instance-method" class="signature"><strong>#blocks</strong> : Array(Slack::UI::Block)?</a>
+        <a href="#blocks%3AArray%28Slack%3A%3AUI%3A%3ABlock%29%7CNil-instance-method" class="signature"><strong>#blocks</strong> : Array(Slack::UI::Block) | Nil</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#blocks%3D%28blocks%3AArray%28Slack%3A%3AUI%3A%3ABlock%29%3F%29-instance-method" class="signature"><strong>#blocks=</strong>(blocks : Array(Slack::UI::Block)?)</a>
+        <a href="#blocks%3D%28blocks%3AArray%28Slack%3A%3AUI%3A%3ABlock%29%7CNil%29-instance-method" class="signature"><strong>#blocks=</strong>(blocks : Array(Slack::UI::Block) | Nil)</a>
         
       </li>
     
@@ -1207,62 +1237,62 @@
       </li>
     
       <li class="entry-summary">
-        <a href="#icon_emoji%3AString%3F-instance-method" class="signature"><strong>#icon_emoji</strong> : String?</a>
+        <a href="#icon_emoji%3AString%7CNil-instance-method" class="signature"><strong>#icon_emoji</strong> : String | Nil</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#icon_emoji%3D%28icon_emoji%3AString%3F%29-instance-method" class="signature"><strong>#icon_emoji=</strong>(icon_emoji : String?)</a>
+        <a href="#icon_emoji%3D%28icon_emoji%3AString%7CNil%29-instance-method" class="signature"><strong>#icon_emoji=</strong>(icon_emoji : String | Nil)</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#icon_url%3AString%3F-instance-method" class="signature"><strong>#icon_url</strong> : String?</a>
+        <a href="#icon_url%3AString%7CNil-instance-method" class="signature"><strong>#icon_url</strong> : String | Nil</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#icon_url%3D%28icon_url%3AString%3F%29-instance-method" class="signature"><strong>#icon_url=</strong>(icon_url : String?)</a>
+        <a href="#icon_url%3D%28icon_url%3AString%7CNil%29-instance-method" class="signature"><strong>#icon_url=</strong>(icon_url : String | Nil)</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#link_names%3ABool%3F-instance-method" class="signature"><strong>#link_names</strong> : Bool?</a>
+        <a href="#link_names%3ABool%7CNil-instance-method" class="signature"><strong>#link_names</strong> : Bool | Nil</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#link_names%3D%28link_names%3ABool%3F%29-instance-method" class="signature"><strong>#link_names=</strong>(link_names : Bool?)</a>
+        <a href="#link_names%3D%28link_names%3ABool%7CNil%29-instance-method" class="signature"><strong>#link_names=</strong>(link_names : Bool | Nil)</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#mrkdwn%3ABool%3F-instance-method" class="signature"><strong>#mrkdwn</strong> : Bool?</a>
+        <a href="#mrkdwn%3ABool%7CNil-instance-method" class="signature"><strong>#mrkdwn</strong> : Bool | Nil</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#mrkdwn%3D%28mrkdwn%3ABool%3F%29-instance-method" class="signature"><strong>#mrkdwn=</strong>(mrkdwn : Bool?)</a>
+        <a href="#mrkdwn%3D%28mrkdwn%3ABool%7CNil%29-instance-method" class="signature"><strong>#mrkdwn=</strong>(mrkdwn : Bool | Nil)</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#parse%3AString%3F-instance-method" class="signature"><strong>#parse</strong> : String?</a>
+        <a href="#parse%3AString%7CNil-instance-method" class="signature"><strong>#parse</strong> : String | Nil</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#parse%3D%28parse%3AString%3F%29-instance-method" class="signature"><strong>#parse=</strong>(parse : String?)</a>
+        <a href="#parse%3D%28parse%3AString%7CNil%29-instance-method" class="signature"><strong>#parse=</strong>(parse : String | Nil)</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#reply_broadcast%3ABool%3F-instance-method" class="signature"><strong>#reply_broadcast</strong> : Bool?</a>
+        <a href="#reply_broadcast%3ABool%7CNil-instance-method" class="signature"><strong>#reply_broadcast</strong> : Bool | Nil</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#reply_broadcast%3D%28reply_broadcast%3ABool%3F%29-instance-method" class="signature"><strong>#reply_broadcast=</strong>(reply_broadcast : Bool?)</a>
+        <a href="#reply_broadcast%3D%28reply_broadcast%3ABool%7CNil%29-instance-method" class="signature"><strong>#reply_broadcast=</strong>(reply_broadcast : Bool | Nil)</a>
         
       </li>
     
@@ -1277,52 +1307,52 @@
       </li>
     
       <li class="entry-summary">
-        <a href="#text%3AString%3F-instance-method" class="signature"><strong>#text</strong> : String?</a>
+        <a href="#text%3AString%7CNil-instance-method" class="signature"><strong>#text</strong> : String | Nil</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#text%3D%28text%3AString%3F%29-instance-method" class="signature"><strong>#text=</strong>(text : String?)</a>
+        <a href="#text%3D%28text%3AString%7CNil%29-instance-method" class="signature"><strong>#text=</strong>(text : String | Nil)</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#thread_ts%3AString%3F-instance-method" class="signature"><strong>#thread_ts</strong> : String?</a>
+        <a href="#thread_ts%3AString%7CNil-instance-method" class="signature"><strong>#thread_ts</strong> : String | Nil</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#thread_ts%3D%28thread_ts%3AString%3F%29-instance-method" class="signature"><strong>#thread_ts=</strong>(thread_ts : String?)</a>
+        <a href="#thread_ts%3D%28thread_ts%3AString%7CNil%29-instance-method" class="signature"><strong>#thread_ts=</strong>(thread_ts : String | Nil)</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#unfurl_links%3ABool%3F-instance-method" class="signature"><strong>#unfurl_links</strong> : Bool?</a>
+        <a href="#unfurl_links%3ABool%7CNil-instance-method" class="signature"><strong>#unfurl_links</strong> : Bool | Nil</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#unfurl_links%3D%28unfurl_links%3ABool%3F%29-instance-method" class="signature"><strong>#unfurl_links=</strong>(unfurl_links : Bool?)</a>
+        <a href="#unfurl_links%3D%28unfurl_links%3ABool%7CNil%29-instance-method" class="signature"><strong>#unfurl_links=</strong>(unfurl_links : Bool | Nil)</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#unfurl_media%3ABool%3F-instance-method" class="signature"><strong>#unfurl_media</strong> : Bool?</a>
+        <a href="#unfurl_media%3ABool%7CNil-instance-method" class="signature"><strong>#unfurl_media</strong> : Bool | Nil</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#unfurl_media%3D%28unfurl_media%3ABool%3F%29-instance-method" class="signature"><strong>#unfurl_media=</strong>(unfurl_media : Bool?)</a>
+        <a href="#unfurl_media%3D%28unfurl_media%3ABool%7CNil%29-instance-method" class="signature"><strong>#unfurl_media=</strong>(unfurl_media : Bool | Nil)</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#username%3AString%3F-instance-method" class="signature"><strong>#username</strong> : String?</a>
+        <a href="#username%3AString%7CNil-instance-method" class="signature"><strong>#username</strong> : String | Nil</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#username%3D%28username%3AString%3F%29-instance-method" class="signature"><strong>#username=</strong>(username : String?)</a>
+        <a href="#username%3D%28username%3AString%7CNil%29-instance-method" class="signature"><strong>#username=</strong>(username : String | Nil)</a>
         
       </li>
     
@@ -1454,12 +1484,12 @@
     Constructor Detail
   </h2>
   
-    <div class="entry-detail" id="new(token:String,channel:String,attachments:Array(EventData::Attachment)?=nil,blocks:Array(Slack::UI::Block)?=nil,text:String?=nil,icon_emoji:String?=nil,icon_url:String?=nil,link_names:Bool?=nil,mrkdwn:Bool?=nil,parse:String?=&quot;none&quot;,reply_broadcast:Bool?=nil,thread_ts:String?=nil,unfurl_links:Bool?=nil,unfurl_media:Bool?=nil,username:String?=nil)-class-method">
+    <div class="entry-detail" id="new(token:String,channel:String,attachments:Array(EventData::Attachment)|Nil=nil,blocks:Array(Slack::UI::Block)|Nil=nil,text:String|Nil=nil,icon_emoji:String|Nil=nil,icon_url:String|Nil=nil,link_names:Bool|Nil=nil,mrkdwn:Bool|Nil=nil,parse:String|Nil=&quot;none&quot;,reply_broadcast:Bool|Nil=nil,thread_ts:String|Nil=nil,unfurl_links:Bool|Nil=nil,unfurl_media:Bool|Nil=nil,username:String|Nil=nil)-class-method">
       <div class="signature">
         
-        def self.<strong>new</strong>(token : String, channel : String, attachments : Array(<a href="../../Slack/EventData/Attachment.html">EventData::Attachment</a>)? = <span class="n">nil</span>, blocks : Array(<a href="../../Slack/UI/Block.html">Slack::UI::Block</a>)? = <span class="n">nil</span>, text : String? = <span class="n">nil</span>, icon_emoji : String? = <span class="n">nil</span>, icon_url : String? = <span class="n">nil</span>, link_names : Bool? = <span class="n">nil</span>, mrkdwn : Bool? = <span class="n">nil</span>, parse : String? = <span class="s">&quot;none&quot;</span>, reply_broadcast : Bool? = <span class="n">nil</span>, thread_ts : String? = <span class="n">nil</span>, unfurl_links : Bool? = <span class="n">nil</span>, unfurl_media : Bool? = <span class="n">nil</span>, username : String? = <span class="n">nil</span>)
+        def self.<strong>new</strong>(token : String, channel : String, attachments : Array(<a href="../../Slack/EventData/Attachment.html">EventData::Attachment</a>) | Nil = <span class="n">nil</span>, blocks : Array(<a href="../../Slack/UI/Block.html">Slack::UI::Block</a>) | Nil = <span class="n">nil</span>, text : String | Nil = <span class="n">nil</span>, icon_emoji : String | Nil = <span class="n">nil</span>, icon_url : String | Nil = <span class="n">nil</span>, link_names : Bool | Nil = <span class="n">nil</span>, mrkdwn : Bool | Nil = <span class="n">nil</span>, parse : String | Nil = <span class="s">&quot;none&quot;</span>, reply_broadcast : Bool | Nil = <span class="n">nil</span>, thread_ts : String | Nil = <span class="n">nil</span>, unfurl_links : Bool | Nil = <span class="n">nil</span>, unfurl_media : Bool | Nil = <span class="n">nil</span>, username : String | Nil = <span class="n">nil</span>)
 
-        <a class="method-permalink" href="#new%28token%3AString%2Cchannel%3AString%2Cattachments%3AArray%28EventData%3A%3AAttachment%29%3F%3Dnil%2Cblocks%3AArray%28Slack%3A%3AUI%3A%3ABlock%29%3F%3Dnil%2Ctext%3AString%3F%3Dnil%2Cicon_emoji%3AString%3F%3Dnil%2Cicon_url%3AString%3F%3Dnil%2Clink_names%3ABool%3F%3Dnil%2Cmrkdwn%3ABool%3F%3Dnil%2Cparse%3AString%3F%3D%22none%22%2Creply_broadcast%3ABool%3F%3Dnil%2Cthread_ts%3AString%3F%3Dnil%2Cunfurl_links%3ABool%3F%3Dnil%2Cunfurl_media%3ABool%3F%3Dnil%2Cusername%3AString%3F%3Dnil%29-class-method">#</a>
+        <a class="method-permalink" href="#new%28token%3AString%2Cchannel%3AString%2Cattachments%3AArray%28EventData%3A%3AAttachment%29%7CNil%3Dnil%2Cblocks%3AArray%28Slack%3A%3AUI%3A%3ABlock%29%7CNil%3Dnil%2Ctext%3AString%7CNil%3Dnil%2Cicon_emoji%3AString%7CNil%3Dnil%2Cicon_url%3AString%7CNil%3Dnil%2Clink_names%3ABool%7CNil%3Dnil%2Cmrkdwn%3ABool%7CNil%3Dnil%2Cparse%3AString%7CNil%3D%22none%22%2Creply_broadcast%3ABool%7CNil%3Dnil%2Cthread_ts%3AString%7CNil%3Dnil%2Cunfurl_links%3ABool%7CNil%3Dnil%2Cunfurl_media%3ABool%7CNil%3Dnil%2Cusername%3AString%7CNil%3Dnil%29-class-method">#</a>
       </div>
       
       <br/>
@@ -1479,7 +1509,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/api/endpoints/chat_post_message.cr#L1" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/api/endpoints/chat_post_message.cr#L1" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1496,18 +1526,18 @@
     Class Method Detail
   </h2>
   
-    <div class="entry-detail" id="post_blocks(blocks:Enumerable,channel:String,token:String,thread_ts:String?=nil)-class-method">
+    <div class="entry-detail" id="post_blocks(blocks:Enumerable,channel:String,token:String,thread_ts:String|Nil=nil)-class-method">
       <div class="signature">
         
-        def self.<strong>post_blocks</strong>(blocks : Enumerable, channel : String, token : String, thread_ts : String? = <span class="n">nil</span>)
+        def self.<strong>post_blocks</strong>(blocks : Enumerable, channel : String, token : String, thread_ts : String | Nil = <span class="n">nil</span>)
 
-        <a class="method-permalink" href="#post_blocks%28blocks%3AEnumerable%2Cchannel%3AString%2Ctoken%3AString%2Cthread_ts%3AString%3F%3Dnil%29-class-method">#</a>
+        <a class="method-permalink" href="#post_blocks%28blocks%3AEnumerable%2Cchannel%3AString%2Ctoken%3AString%2Cthread_ts%3AString%7CNil%3Dnil%29-class-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/api/endpoints/chat_post_message.cr#L8" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/api/endpoints/chat_post_message.cr#L8" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1535,17 +1565,17 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/api/endpoints/chat_post_message.cr#L32" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/api/endpoints/chat_post_message.cr#L32" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="attachments:Array(EventData::Attachment)?-instance-method">
+    <div class="entry-detail" id="attachments:Array(EventData::Attachment)|Nil-instance-method">
       <div class="signature">
         
-        def <strong>attachments</strong> : Array(<a href="../../Slack/EventData/Attachment.html">EventData::Attachment</a>)?
+        def <strong>attachments</strong> : Array(<a href="../../Slack/EventData/Attachment.html">EventData::Attachment</a>) | Nil
 
-        <a class="method-permalink" href="#attachments%3AArray%28EventData%3A%3AAttachment%29%3F-instance-method">#</a>
+        <a class="method-permalink" href="#attachments%3AArray%28EventData%3A%3AAttachment%29%7CNil-instance-method">#</a>
       </div>
       
       <br/>
@@ -1554,12 +1584,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="attachments=(attachments:Array(EventData::Attachment)?)-instance-method">
+    <div class="entry-detail" id="attachments=(attachments:Array(EventData::Attachment)|Nil)-instance-method">
       <div class="signature">
         
-        def <strong>attachments=</strong>(attachments : Array(<a href="../../Slack/EventData/Attachment.html">EventData::Attachment</a>)?)
+        def <strong>attachments=</strong>(attachments : Array(<a href="../../Slack/EventData/Attachment.html">EventData::Attachment</a>) | Nil)
 
-        <a class="method-permalink" href="#attachments%3D%28attachments%3AArray%28EventData%3A%3AAttachment%29%3F%29-instance-method">#</a>
+        <a class="method-permalink" href="#attachments%3D%28attachments%3AArray%28EventData%3A%3AAttachment%29%7CNil%29-instance-method">#</a>
       </div>
       
       <br/>
@@ -1568,12 +1598,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="blocks:Array(Slack::UI::Block)?-instance-method">
+    <div class="entry-detail" id="blocks:Array(Slack::UI::Block)|Nil-instance-method">
       <div class="signature">
         
-        def <strong>blocks</strong> : Array(<a href="../../Slack/UI/Block.html">Slack::UI::Block</a>)?
+        def <strong>blocks</strong> : Array(<a href="../../Slack/UI/Block.html">Slack::UI::Block</a>) | Nil
 
-        <a class="method-permalink" href="#blocks%3AArray%28Slack%3A%3AUI%3A%3ABlock%29%3F-instance-method">#</a>
+        <a class="method-permalink" href="#blocks%3AArray%28Slack%3A%3AUI%3A%3ABlock%29%7CNil-instance-method">#</a>
       </div>
       
       <br/>
@@ -1582,12 +1612,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="blocks=(blocks:Array(Slack::UI::Block)?)-instance-method">
+    <div class="entry-detail" id="blocks=(blocks:Array(Slack::UI::Block)|Nil)-instance-method">
       <div class="signature">
         
-        def <strong>blocks=</strong>(blocks : Array(<a href="../../Slack/UI/Block.html">Slack::UI::Block</a>)?)
+        def <strong>blocks=</strong>(blocks : Array(<a href="../../Slack/UI/Block.html">Slack::UI::Block</a>) | Nil)
 
-        <a class="method-permalink" href="#blocks%3D%28blocks%3AArray%28Slack%3A%3AUI%3A%3ABlock%29%3F%29-instance-method">#</a>
+        <a class="method-permalink" href="#blocks%3D%28blocks%3AArray%28Slack%3A%3AUI%3A%3ABlock%29%7CNil%29-instance-method">#</a>
       </div>
       
       <br/>
@@ -1607,7 +1637,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/api/endpoints/chat_post_message.cr#L50" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/api/endpoints/chat_post_message.cr#L50" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1651,17 +1681,17 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/api/endpoints/chat_post_message.cr#L38" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/api/endpoints/chat_post_message.cr#L38" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="icon_emoji:String?-instance-method">
+    <div class="entry-detail" id="icon_emoji:String|Nil-instance-method">
       <div class="signature">
         
-        def <strong>icon_emoji</strong> : String?
+        def <strong>icon_emoji</strong> : String | Nil
 
-        <a class="method-permalink" href="#icon_emoji%3AString%3F-instance-method">#</a>
+        <a class="method-permalink" href="#icon_emoji%3AString%7CNil-instance-method">#</a>
       </div>
       
       <br/>
@@ -1670,12 +1700,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="icon_emoji=(icon_emoji:String?)-instance-method">
+    <div class="entry-detail" id="icon_emoji=(icon_emoji:String|Nil)-instance-method">
       <div class="signature">
         
-        def <strong>icon_emoji=</strong>(icon_emoji : String?)
+        def <strong>icon_emoji=</strong>(icon_emoji : String | Nil)
 
-        <a class="method-permalink" href="#icon_emoji%3D%28icon_emoji%3AString%3F%29-instance-method">#</a>
+        <a class="method-permalink" href="#icon_emoji%3D%28icon_emoji%3AString%7CNil%29-instance-method">#</a>
       </div>
       
       <br/>
@@ -1684,12 +1714,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="icon_url:String?-instance-method">
+    <div class="entry-detail" id="icon_url:String|Nil-instance-method">
       <div class="signature">
         
-        def <strong>icon_url</strong> : String?
+        def <strong>icon_url</strong> : String | Nil
 
-        <a class="method-permalink" href="#icon_url%3AString%3F-instance-method">#</a>
+        <a class="method-permalink" href="#icon_url%3AString%7CNil-instance-method">#</a>
       </div>
       
       <br/>
@@ -1698,12 +1728,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="icon_url=(icon_url:String?)-instance-method">
+    <div class="entry-detail" id="icon_url=(icon_url:String|Nil)-instance-method">
       <div class="signature">
         
-        def <strong>icon_url=</strong>(icon_url : String?)
+        def <strong>icon_url=</strong>(icon_url : String | Nil)
 
-        <a class="method-permalink" href="#icon_url%3D%28icon_url%3AString%3F%29-instance-method">#</a>
+        <a class="method-permalink" href="#icon_url%3D%28icon_url%3AString%7CNil%29-instance-method">#</a>
       </div>
       
       <br/>
@@ -1712,12 +1742,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="link_names:Bool?-instance-method">
+    <div class="entry-detail" id="link_names:Bool|Nil-instance-method">
       <div class="signature">
         
-        def <strong>link_names</strong> : Bool?
+        def <strong>link_names</strong> : Bool | Nil
 
-        <a class="method-permalink" href="#link_names%3ABool%3F-instance-method">#</a>
+        <a class="method-permalink" href="#link_names%3ABool%7CNil-instance-method">#</a>
       </div>
       
       <br/>
@@ -1726,12 +1756,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="link_names=(link_names:Bool?)-instance-method">
+    <div class="entry-detail" id="link_names=(link_names:Bool|Nil)-instance-method">
       <div class="signature">
         
-        def <strong>link_names=</strong>(link_names : Bool?)
+        def <strong>link_names=</strong>(link_names : Bool | Nil)
 
-        <a class="method-permalink" href="#link_names%3D%28link_names%3ABool%3F%29-instance-method">#</a>
+        <a class="method-permalink" href="#link_names%3D%28link_names%3ABool%7CNil%29-instance-method">#</a>
       </div>
       
       <br/>
@@ -1740,12 +1770,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="mrkdwn:Bool?-instance-method">
+    <div class="entry-detail" id="mrkdwn:Bool|Nil-instance-method">
       <div class="signature">
         
-        def <strong>mrkdwn</strong> : Bool?
+        def <strong>mrkdwn</strong> : Bool | Nil
 
-        <a class="method-permalink" href="#mrkdwn%3ABool%3F-instance-method">#</a>
+        <a class="method-permalink" href="#mrkdwn%3ABool%7CNil-instance-method">#</a>
       </div>
       
       <br/>
@@ -1754,12 +1784,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="mrkdwn=(mrkdwn:Bool?)-instance-method">
+    <div class="entry-detail" id="mrkdwn=(mrkdwn:Bool|Nil)-instance-method">
       <div class="signature">
         
-        def <strong>mrkdwn=</strong>(mrkdwn : Bool?)
+        def <strong>mrkdwn=</strong>(mrkdwn : Bool | Nil)
 
-        <a class="method-permalink" href="#mrkdwn%3D%28mrkdwn%3ABool%3F%29-instance-method">#</a>
+        <a class="method-permalink" href="#mrkdwn%3D%28mrkdwn%3ABool%7CNil%29-instance-method">#</a>
       </div>
       
       <br/>
@@ -1768,12 +1798,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="parse:String?-instance-method">
+    <div class="entry-detail" id="parse:String|Nil-instance-method">
       <div class="signature">
         
-        def <strong>parse</strong> : String?
+        def <strong>parse</strong> : String | Nil
 
-        <a class="method-permalink" href="#parse%3AString%3F-instance-method">#</a>
+        <a class="method-permalink" href="#parse%3AString%7CNil-instance-method">#</a>
       </div>
       
       <br/>
@@ -1782,12 +1812,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="parse=(parse:String?)-instance-method">
+    <div class="entry-detail" id="parse=(parse:String|Nil)-instance-method">
       <div class="signature">
         
-        def <strong>parse=</strong>(parse : String?)
+        def <strong>parse=</strong>(parse : String | Nil)
 
-        <a class="method-permalink" href="#parse%3D%28parse%3AString%3F%29-instance-method">#</a>
+        <a class="method-permalink" href="#parse%3D%28parse%3AString%7CNil%29-instance-method">#</a>
       </div>
       
       <br/>
@@ -1796,12 +1826,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="reply_broadcast:Bool?-instance-method">
+    <div class="entry-detail" id="reply_broadcast:Bool|Nil-instance-method">
       <div class="signature">
         
-        def <strong>reply_broadcast</strong> : Bool?
+        def <strong>reply_broadcast</strong> : Bool | Nil
 
-        <a class="method-permalink" href="#reply_broadcast%3ABool%3F-instance-method">#</a>
+        <a class="method-permalink" href="#reply_broadcast%3ABool%7CNil-instance-method">#</a>
       </div>
       
       <br/>
@@ -1810,12 +1840,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="reply_broadcast=(reply_broadcast:Bool?)-instance-method">
+    <div class="entry-detail" id="reply_broadcast=(reply_broadcast:Bool|Nil)-instance-method">
       <div class="signature">
         
-        def <strong>reply_broadcast=</strong>(reply_broadcast : Bool?)
+        def <strong>reply_broadcast=</strong>(reply_broadcast : Bool | Nil)
 
-        <a class="method-permalink" href="#reply_broadcast%3D%28reply_broadcast%3ABool%3F%29-instance-method">#</a>
+        <a class="method-permalink" href="#reply_broadcast%3D%28reply_broadcast%3ABool%7CNil%29-instance-method">#</a>
       </div>
       
       <br/>
@@ -1835,7 +1865,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/api/endpoints/chat_post_message.cr#L42" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/api/endpoints/chat_post_message.cr#L42" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1851,17 +1881,17 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/api/endpoints/chat_post_message.cr#L46" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/api/endpoints/chat_post_message.cr#L46" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="text:String?-instance-method">
+    <div class="entry-detail" id="text:String|Nil-instance-method">
       <div class="signature">
         
-        def <strong>text</strong> : String?
+        def <strong>text</strong> : String | Nil
 
-        <a class="method-permalink" href="#text%3AString%3F-instance-method">#</a>
+        <a class="method-permalink" href="#text%3AString%7CNil-instance-method">#</a>
       </div>
       
       <br/>
@@ -1870,12 +1900,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="text=(text:String?)-instance-method">
+    <div class="entry-detail" id="text=(text:String|Nil)-instance-method">
       <div class="signature">
         
-        def <strong>text=</strong>(text : String?)
+        def <strong>text=</strong>(text : String | Nil)
 
-        <a class="method-permalink" href="#text%3D%28text%3AString%3F%29-instance-method">#</a>
+        <a class="method-permalink" href="#text%3D%28text%3AString%7CNil%29-instance-method">#</a>
       </div>
       
       <br/>
@@ -1884,12 +1914,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="thread_ts:String?-instance-method">
+    <div class="entry-detail" id="thread_ts:String|Nil-instance-method">
       <div class="signature">
         
-        def <strong>thread_ts</strong> : String?
+        def <strong>thread_ts</strong> : String | Nil
 
-        <a class="method-permalink" href="#thread_ts%3AString%3F-instance-method">#</a>
+        <a class="method-permalink" href="#thread_ts%3AString%7CNil-instance-method">#</a>
       </div>
       
       <br/>
@@ -1898,12 +1928,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="thread_ts=(thread_ts:String?)-instance-method">
+    <div class="entry-detail" id="thread_ts=(thread_ts:String|Nil)-instance-method">
       <div class="signature">
         
-        def <strong>thread_ts=</strong>(thread_ts : String?)
+        def <strong>thread_ts=</strong>(thread_ts : String | Nil)
 
-        <a class="method-permalink" href="#thread_ts%3D%28thread_ts%3AString%3F%29-instance-method">#</a>
+        <a class="method-permalink" href="#thread_ts%3D%28thread_ts%3AString%7CNil%29-instance-method">#</a>
       </div>
       
       <br/>
@@ -1912,12 +1942,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="unfurl_links:Bool?-instance-method">
+    <div class="entry-detail" id="unfurl_links:Bool|Nil-instance-method">
       <div class="signature">
         
-        def <strong>unfurl_links</strong> : Bool?
+        def <strong>unfurl_links</strong> : Bool | Nil
 
-        <a class="method-permalink" href="#unfurl_links%3ABool%3F-instance-method">#</a>
+        <a class="method-permalink" href="#unfurl_links%3ABool%7CNil-instance-method">#</a>
       </div>
       
       <br/>
@@ -1926,12 +1956,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="unfurl_links=(unfurl_links:Bool?)-instance-method">
+    <div class="entry-detail" id="unfurl_links=(unfurl_links:Bool|Nil)-instance-method">
       <div class="signature">
         
-        def <strong>unfurl_links=</strong>(unfurl_links : Bool?)
+        def <strong>unfurl_links=</strong>(unfurl_links : Bool | Nil)
 
-        <a class="method-permalink" href="#unfurl_links%3D%28unfurl_links%3ABool%3F%29-instance-method">#</a>
+        <a class="method-permalink" href="#unfurl_links%3D%28unfurl_links%3ABool%7CNil%29-instance-method">#</a>
       </div>
       
       <br/>
@@ -1940,12 +1970,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="unfurl_media:Bool?-instance-method">
+    <div class="entry-detail" id="unfurl_media:Bool|Nil-instance-method">
       <div class="signature">
         
-        def <strong>unfurl_media</strong> : Bool?
+        def <strong>unfurl_media</strong> : Bool | Nil
 
-        <a class="method-permalink" href="#unfurl_media%3ABool%3F-instance-method">#</a>
+        <a class="method-permalink" href="#unfurl_media%3ABool%7CNil-instance-method">#</a>
       </div>
       
       <br/>
@@ -1954,12 +1984,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="unfurl_media=(unfurl_media:Bool?)-instance-method">
+    <div class="entry-detail" id="unfurl_media=(unfurl_media:Bool|Nil)-instance-method">
       <div class="signature">
         
-        def <strong>unfurl_media=</strong>(unfurl_media : Bool?)
+        def <strong>unfurl_media=</strong>(unfurl_media : Bool | Nil)
 
-        <a class="method-permalink" href="#unfurl_media%3D%28unfurl_media%3ABool%3F%29-instance-method">#</a>
+        <a class="method-permalink" href="#unfurl_media%3D%28unfurl_media%3ABool%7CNil%29-instance-method">#</a>
       </div>
       
       <br/>
@@ -1968,12 +1998,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="username:String?-instance-method">
+    <div class="entry-detail" id="username:String|Nil-instance-method">
       <div class="signature">
         
-        def <strong>username</strong> : String?
+        def <strong>username</strong> : String | Nil
 
-        <a class="method-permalink" href="#username%3AString%3F-instance-method">#</a>
+        <a class="method-permalink" href="#username%3AString%7CNil-instance-method">#</a>
       </div>
       
       <br/>
@@ -1982,12 +2012,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="username=(username:String?)-instance-method">
+    <div class="entry-detail" id="username=(username:String|Nil)-instance-method">
       <div class="signature">
         
-        def <strong>username=</strong>(username : String?)
+        def <strong>username=</strong>(username : String | Nil)
 
-        <a class="method-permalink" href="#username%3D%28username%3AString%3F%29-instance-method">#</a>
+        <a class="method-permalink" href="#username%3D%28username%3AString%7CNil%29-instance-method">#</a>
       </div>
       
       <br/>

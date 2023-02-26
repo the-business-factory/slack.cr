@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Crystal Docs 1.3.2">
+<meta name="generator" content="Crystal Docs 1.6.2">
 <meta name="crystal_docs.project_version" content="main">
 <meta name="crystal_docs.project_name" content="slack">
 
@@ -571,6 +571,36 @@
       
     </li>
   
+  <li class="parent " data-id="slack/Slack/SignInResponse" data-name="slack::signinresponse">
+      <a href="../../Slack/SignInResponse.html">SignInResponse</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/SignInResponse/DecodedResponse" data-name="slack::signinresponse::decodedresponse">
+      <a href="../../Slack/SignInResponse/DecodedResponse.html">DecodedResponse</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class="parent " data-id="slack/Slack/SignInWithSlack" data-name="slack::signinwithslack">
+      <a href="../../Slack/SignInWithSlack.html">SignInWithSlack</a>
+      
+        <ul>
+  
+  <li class=" " data-id="slack/Slack/SignInWithSlack/HabitatSettings" data-name="slack::signinwithslack::habitatsettings">
+      <a href="../../Slack/SignInWithSlack/HabitatSettings.html">HabitatSettings</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
   <li class="parent " data-id="slack/Slack/TypeAliases" data-name="slack::typealiases">
       <a href="../../Slack/TypeAliases.html">TypeAliases</a>
       
@@ -1078,7 +1108,7 @@
   </h2>
   
     
-      <a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/error_response.cr#L1" target="_blank">
+      <a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/error_response.cr#L1" target="_blank">
         slack/models/error_response.cr
       </a>
     
@@ -1124,7 +1154,7 @@
       </li>
     
       <li class="entry-summary">
-        <a href="#new%28error%3AString%2Cerrors%3AArray%28JSON%3A%3AAny%29%3F%3Dnil%2Cok%3ABool%3Dfalse%2Cresponse_metadata%3AJSON%3A%3AAny%3F%3Dnil%29-class-method" class="signature"><strong>.new</strong>(error : String, errors : Array(JSON::Any)? = <span class="n">nil</span>, ok : Bool = <span class="n">false</span>, response_metadata : JSON::Any? = <span class="n">nil</span>)</a>
+        <a href="#new%28error%3AString%2Cerrors%3AArray%28JSON%3A%3AAny%29%7CNil%3Dnil%2Cok%3ABool%3Dfalse%2Cresponse_metadata%3AJSON%3A%3AAny%7CNil%3Dnil%29-class-method" class="signature"><strong>.new</strong>(error : String, errors : Array(JSON::Any) | Nil = <span class="n">nil</span>, ok : Bool = <span class="n">false</span>, response_metadata : JSON::Any | Nil = <span class="n">nil</span>)</a>
         
       </li>
     
@@ -1160,12 +1190,12 @@
       </li>
     
       <li class="entry-summary">
-        <a href="#errors%3AArray%28JSON%3A%3AAny%29%3F-instance-method" class="signature"><strong>#errors</strong> : Array(JSON::Any)?</a>
+        <a href="#errors%3AArray%28JSON%3A%3AAny%29%7CNil-instance-method" class="signature"><strong>#errors</strong> : Array(JSON::Any) | Nil</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#errors%3D%28errors%3AArray%28JSON%3A%3AAny%29%3F%29-instance-method" class="signature"><strong>#errors=</strong>(errors : Array(JSON::Any)?)</a>
+        <a href="#errors%3D%28errors%3AArray%28JSON%3A%3AAny%29%7CNil%29-instance-method" class="signature"><strong>#errors=</strong>(errors : Array(JSON::Any) | Nil)</a>
         
       </li>
     
@@ -1180,12 +1210,12 @@
       </li>
     
       <li class="entry-summary">
-        <a href="#response_metadata%3AJSON%3A%3AAny%3F-instance-method" class="signature"><strong>#response_metadata</strong> : JSON::Any?</a>
+        <a href="#response_metadata%3AJSON%3A%3AAny%7CNil-instance-method" class="signature"><strong>#response_metadata</strong> : JSON::Any | Nil</a>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#response_metadata%3D%28response_metadata%3AJSON%3A%3AAny%3F%29-instance-method" class="signature"><strong>#response_metadata=</strong>(response_metadata : JSON::Any?)</a>
+        <a href="#response_metadata%3D%28response_metadata%3AJSON%3A%3AAny%7CNil%29-instance-method" class="signature"><strong>#response_metadata=</strong>(response_metadata : JSON::Any | Nil)</a>
         
       </li>
     
@@ -1308,17 +1338,17 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/error_response.cr#L1" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/error_response.cr#L1" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="new(error:String,errors:Array(JSON::Any)?=nil,ok:Bool=false,response_metadata:JSON::Any?=nil)-class-method">
+    <div class="entry-detail" id="new(error:String,errors:Array(JSON::Any)|Nil=nil,ok:Bool=false,response_metadata:JSON::Any|Nil=nil)-class-method">
       <div class="signature">
         
-        def self.<strong>new</strong>(error : String, errors : Array(JSON::Any)? = <span class="n">nil</span>, ok : Bool = <span class="n">false</span>, response_metadata : JSON::Any? = <span class="n">nil</span>)
+        def self.<strong>new</strong>(error : String, errors : Array(JSON::Any) | Nil = <span class="n">nil</span>, ok : Bool = <span class="n">false</span>, response_metadata : JSON::Any | Nil = <span class="n">nil</span>)
 
-        <a class="method-permalink" href="#new%28error%3AString%2Cerrors%3AArray%28JSON%3A%3AAny%29%3F%3Dnil%2Cok%3ABool%3Dfalse%2Cresponse_metadata%3AJSON%3A%3AAny%3F%3Dnil%29-class-method">#</a>
+        <a class="method-permalink" href="#new%28error%3AString%2Cerrors%3AArray%28JSON%3A%3AAny%29%7CNil%3Dnil%2Cok%3ABool%3Dfalse%2Cresponse_metadata%3AJSON%3A%3AAny%7CNil%3Dnil%29-class-method">#</a>
       </div>
       
       <br/>
@@ -1352,7 +1382,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/the-business-factory/slack.cr/blob/2900d8e71db8e883234c18912b6590ec3b3362a2/src/slack/models/error_response.cr#L8" target="_blank">View source</a>]
+          [<a href="https://github.com/the-business-factory/slack.cr/blob/8c72f02d4c8a155deb4ac2bbec14a398e72daff2/src/slack/models/error_response.cr#L8" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1385,12 +1415,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="errors:Array(JSON::Any)?-instance-method">
+    <div class="entry-detail" id="errors:Array(JSON::Any)|Nil-instance-method">
       <div class="signature">
         
-        def <strong>errors</strong> : Array(JSON::Any)?
+        def <strong>errors</strong> : Array(JSON::Any) | Nil
 
-        <a class="method-permalink" href="#errors%3AArray%28JSON%3A%3AAny%29%3F-instance-method">#</a>
+        <a class="method-permalink" href="#errors%3AArray%28JSON%3A%3AAny%29%7CNil-instance-method">#</a>
       </div>
       
       <br/>
@@ -1399,12 +1429,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="errors=(errors:Array(JSON::Any)?)-instance-method">
+    <div class="entry-detail" id="errors=(errors:Array(JSON::Any)|Nil)-instance-method">
       <div class="signature">
         
-        def <strong>errors=</strong>(errors : Array(JSON::Any)?)
+        def <strong>errors=</strong>(errors : Array(JSON::Any) | Nil)
 
-        <a class="method-permalink" href="#errors%3D%28errors%3AArray%28JSON%3A%3AAny%29%3F%29-instance-method">#</a>
+        <a class="method-permalink" href="#errors%3D%28errors%3AArray%28JSON%3A%3AAny%29%7CNil%29-instance-method">#</a>
       </div>
       
       <br/>
@@ -1441,12 +1471,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="response_metadata:JSON::Any?-instance-method">
+    <div class="entry-detail" id="response_metadata:JSON::Any|Nil-instance-method">
       <div class="signature">
         
-        def <strong>response_metadata</strong> : JSON::Any?
+        def <strong>response_metadata</strong> : JSON::Any | Nil
 
-        <a class="method-permalink" href="#response_metadata%3AJSON%3A%3AAny%3F-instance-method">#</a>
+        <a class="method-permalink" href="#response_metadata%3AJSON%3A%3AAny%7CNil-instance-method">#</a>
       </div>
       
       <br/>
@@ -1455,12 +1485,12 @@
       </div>
     </div>
   
-    <div class="entry-detail" id="response_metadata=(response_metadata:JSON::Any?)-instance-method">
+    <div class="entry-detail" id="response_metadata=(response_metadata:JSON::Any|Nil)-instance-method">
       <div class="signature">
         
-        def <strong>response_metadata=</strong>(response_metadata : JSON::Any?)
+        def <strong>response_metadata=</strong>(response_metadata : JSON::Any | Nil)
 
-        <a class="method-permalink" href="#response_metadata%3D%28response_metadata%3AJSON%3A%3AAny%3F%29-instance-method">#</a>
+        <a class="method-permalink" href="#response_metadata%3D%28response_metadata%3AJSON%3A%3AAny%7CNil%29-instance-method">#</a>
       </div>
       
       <br/>
