@@ -1,11 +1,11 @@
 struct Slack::UI::Components::ButtonActions < Slack::UI::BaseComponent
   alias Styles = BlockElements::Button::Styles
 
-  json_record ButtonData, text : String, style : Styles?
+  json_record ButtonData, text : String, style : Styles? = nil
 
   def self.render(
     action_id : String,
-    buttons : Array(ButtonData)? = default_buttons
+    buttons : Array(ButtonData)? = default_buttons,
   )
     Slack::UI::Blocks::Actions.new(
       elements: buttons.map do |button|

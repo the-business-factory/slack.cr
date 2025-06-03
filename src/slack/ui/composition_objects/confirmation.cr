@@ -9,7 +9,7 @@ struct Slack::UI::CompositionObjects::Confirmation
   properties_with_initializer \
     confirm : Confirm,
     deny : Deny,
-    style : String?,
+    style : String? = nil,
     text : Text,
     title : Title
 end

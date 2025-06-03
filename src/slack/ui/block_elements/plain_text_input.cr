@@ -7,11 +7,11 @@ struct Slack::UI::BlockElements::PlainTextInput < Slack::UI::BlockElement
 
   properties_with_initializer \
     action_id : String,
-    dispatch_action_config : ActionConfig?,
+    dispatch_action_config : ActionConfig? = nil,
     focus_on_load : Bool = false,
-    initial_value : String?,
-    max_length : Int16?,
-    min_length : Int8?,
+    initial_value : String? = nil,
+    max_length : Int16? = nil,
+    min_length : Int8? = nil,
     multiline : Bool = false,
     placeholder : Placeholder = Placeholder.new("Placeholder text")
 

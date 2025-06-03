@@ -1,9 +1,9 @@
 struct Slack::Api::ChatPostMessage < Slack::Api::Base
   properties_with_initializer \
     channel : String,
-    text : String?,
-    blocks : Array(Slack::UI::Block)?,
-    attachments : Array(EventData::Attachment)?
+    text : String? = nil,
+    blocks : Array(Slack::UI::Block)? = nil,
+    attachments : Array(EventData::Attachment)? = nil
 
   def self.post_blocks(blocks : Enumerable,
                        channel : String,
@@ -18,16 +18,16 @@ struct Slack::Api::ChatPostMessage < Slack::Api::Base
   end
 
   properties_with_initializer \
-    icon_emoji : String?,
-    icon_url : String?,
-    link_names : Bool?,
-    mrkdwn : Bool?,
+    icon_emoji : String? = nil,
+    icon_url : String? = nil,
+    link_names : Bool? = nil,
+    mrkdwn : Bool? = nil,
     parse : String? = "none",
-    reply_broadcast : Bool?,
-    thread_ts : String?,
-    unfurl_links : Bool?,
-    unfurl_media : Bool?,
-    username : String?
+    reply_broadcast : Bool? = nil,
+    thread_ts : String? = nil,
+    unfurl_links : Bool? = nil,
+    unfurl_media : Bool? = nil,
+    username : String? = nil
 
   def after_initialize
     return if text || blocks || attachments

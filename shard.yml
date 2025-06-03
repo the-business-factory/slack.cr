@@ -4,7 +4,7 @@ version: 0.1.0
 authors:
   - Rob Cole <robcole@gmail.com>
 
-crystal: 1.7.2
+crystal: 1.16.3
 
 license: MIT
 
@@ -21,7 +21,7 @@ dependencies:
 development_dependencies:
   ameba:
     github: crystal-ameba/ameba
-    version: ~> 1.4.2
+    version: ~> 1.6.0
   lucky_env:
     github: luckyframework/lucky_env
   vcr:

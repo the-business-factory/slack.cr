@@ -1,0 +1,11 @@
+# Ameba configuration
+# https://github.com/crystal-ameba/ameba
+
+# Disable UselessAssign for properties_with_initializer and json_record macros
+# These macros generate initializers that use the assigned variables
+Lint/UselessAssign:
+  Enabled: false
+
+# Disable DocumentationAdmonition to allow TODO comments
+Documentation/DocumentationAdmonition:
+  Enabled: false

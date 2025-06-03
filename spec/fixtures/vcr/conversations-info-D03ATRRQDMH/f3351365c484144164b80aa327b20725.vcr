@@ -1,0 +1,30 @@
+HTTP/1.1 200 OK
+date: Tue, 03 Jun 2025 23:39:16 GMT
+server: Apache
+vary: Accept-Encoding
+x-slack-req-id: 56182c364fd719e606d5ffc984d302b9
+x-content-type-options: nosniff
+x-xss-protection: 0
+x-robots-tag: noindex,nofollow
+pragma: no-cache
+cache-control: private, no-cache, no-store, must-revalidate
+expires: Sat, 26 Jul 1997 05:00:00 GMT
+content-type: application/json; charset=utf-8
+access-control-expose-headers: x-slack-req-id, retry-after
+access-control-allow-headers: slack-route, x-slack-version-ts, x-b3-traceid, x-b3-spanid, x-b3-parentspanid, x-b3-sampled, x-b3-flags
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+referrer-policy: no-referrer
+x-slack-unique-id: aD-HpJ2gK6_qjO9F6-B-2gAAIDA
+x-slack-backend: r
+access-control-allow-origin: *
+Content-Length: 35
+via: 1.1 slack-prod.tinyspeck.com, envoy-www-iad-ejngrmnu,envoy-edge-pdx-ylcydcgb
+x-envoy-attempt-count: 1
+x-envoy-upstream-service-time: 61
+x-backend: main_normal main_canary_with_overflow main_control_with_overflow
+x-server: slack-www-hhvm-main-iad-bxrp
+x-slack-shared-secret-outcome: no-match
+x-edge-backend: envoy-www
+x-slack-edge-shared-secret-outcome: no-match
+
+{"ok":false,"error":"invalid_auth"}

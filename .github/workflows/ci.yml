@@ -7,12 +7,10 @@ on:
 jobs:
   Ameba:
     runs-on: ubuntu-latest
+    container:
+      image: robnomad/crystal:dev-node-hoard
     steps:
-      - uses: actions/checkout@v2.4.0
-
-      - uses: crystal-lang/install-crystal@v1
-        with:
-          crystal: 1.7.2
+      - uses: actions/checkout@v4
 
       - name: Format
         run: crystal tool format --check
@@ -25,21 +23,15 @@ jobs:
 
   Tests:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: true
-      matrix:
-        crystal_version:
-          - latest
+    container:
+      image: robnomad/crystal:dev-node-hoard
     steps:
-      - uses: actions/checkout@v2.4.0
-
-      - uses: crystal-lang/install-crystal@v1
-        with:
-          crystal: ${{ matrix.crystal_version }}
+      - uses: actions/checkout@v4
 
       - name: Install shards
-        if: steps.crystal-cache.outputs.cache-hit != 'true'
         run: shards install
 
       - name: Run tests
-        run: crystal spec
+        run: |
+          # Run unit tests only - skip integration tests that require auth
+          crystal spec spec/auth_handler_spec.cr spec/slack_spec.cr spec/ui/

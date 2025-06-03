@@ -12,7 +12,7 @@ struct Slack::ApiClient
   def initialize(
     @api : Slack::Api::Base,
     limiter : RateLimiter::LimiterLike? = nil,
-    wait_time : Int32? = nil
+    wait_time : Int32? = nil,
   )
     limiter_id = "#{@api.token}:#{@api.class}"
     @@limiters[limiter_id] ||= limiter || tier_3_limiter

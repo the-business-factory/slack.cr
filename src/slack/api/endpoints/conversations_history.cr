@@ -2,11 +2,11 @@
 struct Slack::Api::ConversationsHistory < Slack::Api::Base
   properties_with_initializer \
     channel : String,
-    cursor : String?,
+    cursor : String? = nil,
     include_all_metadata : Bool = false,
     inclusive : Bool = false,
-    latest : String?,
-    oldest : String?
+    latest : String? = nil,
+    oldest : String? = nil
 
   def content_type : ContentTypes
     ContentTypes::JSON

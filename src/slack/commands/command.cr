@@ -13,15 +13,15 @@ struct Slack::Command
   properties_with_initializer api_app_id : String,
     channel_id : String,
     command : String,
-    enterprise_id : String?,
+    enterprise_id : String? = nil,
     response_url : String,
     team_id : String,
     text : String,
     trigger_id : String,
     user_id : String,
     channel_name : String,
-    enterprise_name : String?,
-    team_name : String?,
+    enterprise_name : String? = nil,
+    team_name : String? = nil,
     user_name : String
 
   # Escaped usernames in text will often be formatted with the user_id and

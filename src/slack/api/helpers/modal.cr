@@ -14,7 +14,7 @@ struct Slack::Helpers::Modal
     close : String,
     submit : String,
     trigger_id : String,
-    title : String
+    title : String,
   )
     Slack::Api::ViewsOpen.new(
       token: access_token,
