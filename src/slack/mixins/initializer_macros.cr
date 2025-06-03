@@ -6,7 +6,7 @@ module Slack::InitializerMacros
       {% raise "'properties_with_initializer' expects an array of type declarations" %}
     {% end %}
 
-    property {{ *type_declarations }}
+    property {{ type_declarations.splat }}
 
     {% for declaration in type_declarations.sort_by(&.var.id) %}
       {% ASSIGNED_TYPES << declaration %}

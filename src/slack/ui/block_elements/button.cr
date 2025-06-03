@@ -22,11 +22,11 @@ struct Slack::UI::BlockElements::Button < Slack::UI::BlockElement
 
   properties_with_initializer \
     action_id : String,
-    confirm : Slack::UI::CompositionObjects::Confirmation?,
-    style : Styles?,
+    confirm : Slack::UI::CompositionObjects::Confirmation? = nil,
+    style : Styles? = nil,
     text : Text,
-    url : String?,
-    value : String?
+    url : String? = nil,
+    value : String? = nil
 
   def to_json(json : JSON::Builder)
     json.object do

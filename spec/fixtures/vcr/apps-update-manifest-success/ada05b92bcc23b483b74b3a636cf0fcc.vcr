@@ -28,3 +28,4 @@ x-slack-edge-shared-secret-outcome: no-match
 Content-Length: 62
 
 {"ok":true,"app_id":"FAKEAPPID","permissions_updated":false}
+

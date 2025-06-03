@@ -6,7 +6,7 @@ struct Slack::VerifiedEvent
     api_app_id : String,
     authorizations : Array(JSON::Any) = [] of JSON::Any,
     event : Slack::Event,
-    event_context : String?,
+    event_context : String? = nil,
     event_id : String,
     team_id : String,
     token : String,

@@ -22,11 +22,11 @@ struct Slack::UI::Blocks::Section < Slack::UI::Block
   end
 
   properties_with_initializer \
-    accessory : BlockElement?,
-    block_id : String?,
+    accessory : BlockElement? = nil,
+    block_id : String? = nil,
     type : String = "section",
-    text : Text?,
-    fields : Array(FieldText)?
+    text : Text? = nil,
+    fields : Array(FieldText)? = nil
 
   def to_json(json : JSON::Builder)
     json.object do

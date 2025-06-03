@@ -2,7 +2,7 @@ struct Slack::UI::Blocks::Actions < Slack::UI::Block
   getter type : String = "actions"
 
   properties_with_initializer \
-    elements : Array(Slack::UI::BlockElements::Button)?,
+    elements : Array(Slack::UI::BlockElements::Button)? = nil,
     block_id : String? = nil
 
   def after_initialize
