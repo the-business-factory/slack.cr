@@ -50,13 +50,13 @@ module Slack::InitializerMacros
 
   macro generate_initializer
     {% if !@type.abstract? && ASSIGNED_TYPES.first %}
-      {% sorted_assigns = ASSIGNED_TYPES.sort_by { |dec|
+      {% sorted_assigns = ASSIGNED_TYPES.sort_by do |dec|
            has_explicit_value =
              dec.type.is_a?(Metaclass) ||
                dec.type.types.map(&.id).includes?(Nil.id) ||
                !dec.value.is_a?(Nop)
            has_explicit_value ? 1 : 0
-         } %}
+         end %}
       def initialize(
         {% for declaration in sorted_assigns %}
           {% var = declaration.var %}

@@ -141,38 +141,38 @@ describe Slack do
       # This is a subset of the full event body, so this mostly ensures that
       # all JSON converters are properly implementing from_json and to_json.
       expected_json = <<-JSON
-      {
-        "api_app_id": "A031L6N0Q3G",
-        "authorizations": [
-          {
-            "is_bot": true,
+        {
+          "api_app_id": "A031L6N0Q3G",
+          "authorizations": [
+            {
+              "is_bot": true,
+              "team_id": "T017GL5AV5E",
+              "user_id": "U0325FAKTL1",
+              "enterprise_id": null,
+              "is_enterprise_install": false
+            }
+          ],
+          "event": {
+            "type": "reaction_removed",
             "team_id": "T017GL5AV5E",
-            "user_id": "U0325FAKTL1",
-            "enterprise_id": null,
-            "is_enterprise_install": false
-          }
-        ],
-        "event": {
-          "type": "reaction_removed",
-          "team_id": "T017GL5AV5E",
-          "item": {
-            "ts": "1644728351.305109",
-            "type": "message",
-            "channel": "C016U8H75V1"
+            "item": {
+              "ts": "1644728351.305109",
+              "type": "message",
+              "channel": "C016U8H75V1"
+            },
+            "item_user": "U016SQZLFEE",
+            "reaction": "100",
+            "user": "U016SQZLFEE",
+            "event_ts": "1644729352.000400"
           },
-          "item_user": "U016SQZLFEE",
-          "reaction": "100",
-          "user": "U016SQZLFEE",
-          "event_ts": "1644729352.000400"
-        },
-        "event_context": "4-eyJldCI6InJlYWN0aW9uX3JlbW92ZWQiLCJ0aWQiOiJUMDE3R0w1QVY1RSIsImFpZCI6IkEwMzFMNk4wUTNHIiwiY2lkIjoiQzAxNlU4SDc1VjEifQ",
-        "event_id": "Ev032V4P2GQ3",
-        "team_id": "T017GL5AV5E",
-        "token": "E6FV7uzAaZoqjhbU56ZKNnIk",
-        "type": "event_callback",
-        "event_time": 1644729352
-      }
-      JSON
+          "event_context": "4-eyJldCI6InJlYWN0aW9uX3JlbW92ZWQiLCJ0aWQiOiJUMDE3R0w1QVY1RSIsImFpZCI6IkEwMzFMNk4wUTNHIiwiY2lkIjoiQzAxNlU4SDc1VjEifQ",
+          "event_id": "Ev032V4P2GQ3",
+          "team_id": "T017GL5AV5E",
+          "token": "E6FV7uzAaZoqjhbU56ZKNnIk",
+          "type": "event_callback",
+          "event_time": 1644729352
+        }
+        JSON
       json = Slack.process_webhook(request).to_pretty_json
       json.should eq expected_json
     end

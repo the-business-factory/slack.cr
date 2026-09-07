@@ -10,37 +10,37 @@ describe Slack::UI::Components::ButtonElement do
       )
       .to_pretty_json
       .should eq <<-JSON
-      {
-        "action_id": "test",
-        "confirm": {
+        {
+          "action_id": "test",
           "confirm": {
-            "type": "plain_text",
-            "text": "Confirm",
-            "emoji": false
-          },
-          "deny": {
-            "type": "plain_text",
-            "text": "Cancel",
-            "emoji": false
+            "confirm": {
+              "type": "plain_text",
+              "text": "Confirm",
+              "emoji": false
+            },
+            "deny": {
+              "type": "plain_text",
+              "text": "Cancel",
+              "emoji": false
+            },
+            "text": {
+              "type": "plain_text",
+              "text": "Are you sure?",
+              "emoji": false
+            },
+            "title": {
+              "type": "plain_text",
+              "text": "Title",
+              "emoji": false
+            }
           },
           "text": {
             "type": "plain_text",
-            "text": "Are you sure?",
+            "text": "test",
             "emoji": false
           },
-          "title": {
-            "type": "plain_text",
-            "text": "Title",
-            "emoji": false
-          }
-        },
-        "text": {
-          "type": "plain_text",
-          "text": "test",
-          "emoji": false
-        },
-        "type": "button"
-      }
-      JSON
+          "type": "button"
+        }
+        JSON
   end
 end

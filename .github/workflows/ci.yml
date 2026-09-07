@@ -4,13 +4,17 @@ on:
   - push
   - pull_request
 
+permissions:
+  contents: read
+
 jobs:
   Ameba:
     runs-on: ubuntu-latest
-    container:
-      image: robnomad/crystal:dev-node-hoard
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+      - uses: crystal-lang/install-crystal@v1
+        with:
+          crystal: 1.21.0
 
       - name: Format
         run: crystal tool format --check
@@ -19,19 +23,21 @@ jobs:
         run: shards install
 
       - name: Run ameba linter
-        run: ./bin/ameba
+        run: crystal run lib/ameba/src/cli.cr
 
   Tests:
     runs-on: ubuntu-latest
-    container:
-      image: robnomad/crystal:dev-node-hoard
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+      - uses: crystal-lang/install-crystal@v1
+        with:
+          crystal: 1.21.0
 
       - name: Install shards
         run: shards install
 
       - name: Run tests
-        run: |
-          # Run unit tests only - skip integration tests that require auth
-          crystal spec spec/auth_handler_spec.cr spec/slack_spec.cr spec/ui/
+        run: crystal spec
+
+      - name: Generate docs
+        run: crystal docs

@@ -6,14 +6,14 @@ describe Slack::UI::Components::TextSection do
       .render(text: "Text")
       .to_pretty_json
       .should eq <<-JSON
-      {
-        "type": "section",
-        "text": {
-          "type": "plain_text",
-          "text": "Text",
-          "emoji": false
+        {
+          "type": "section",
+          "text": {
+            "type": "plain_text",
+            "text": "Text",
+            "emoji": false
+          }
         }
-      }
-      JSON
+        JSON
   end
 end
