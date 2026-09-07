@@ -1,6 +1,17 @@
+require "json"
+require "../errors/auth"
+
 struct Slack::SignInResponse
   include JSON::Serializable
 
+  # Login is unavailable until full OIDC verification is implemented.
+  class VerificationUnavailable < Errors::Auth
+    def initialize
+      super("Sign in with Slack is unavailable: OIDC identity verification is not implemented")
+    end
+  end
+
+  # These fields contain claims from a response. Parsing them does not authenticate a user.
   struct DecodedResponse
     include JSON::Serializable
 
@@ -45,10 +56,9 @@ struct Slack::SignInResponse
 
   property? ok = true
 
-  def decoded_response
-    DecodedResponse.from_json(
-      JWT.decode(id_token, verify: false, validate: false)[0].to_json
-    )
+  # Never expose unchecked ID-token claims as an authenticated identity.
+  def decoded_response : NoReturn
+    raise VerificationUnavailable.new
   end
 
   def self.from_json(json : String | IO)
