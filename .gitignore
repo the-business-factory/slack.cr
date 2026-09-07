@@ -10,3 +10,6 @@
 
 .DS_Store
 .env
+
+# Local modernization audit and issue drafts
+/plans/
