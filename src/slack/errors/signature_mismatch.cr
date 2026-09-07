@@ -1,5 +1,5 @@
 class Slack::Errors::SignatureMismatch < Exception
-  def initialize
-    super("Slack webhook signature mismatch")
+  def initialize(message : String = "Slack webhook signature mismatch")
+    super(message)
   end
 end
