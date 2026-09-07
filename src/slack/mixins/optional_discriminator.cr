@@ -13,7 +13,7 @@ module Slack::OptionalDiscriminator
         JSON.build(io) do |builder|
           builder.start_object
           pull.read_object do |key|
-            if key == {{field.id.stringify}}
+            if key == {{ field.id.stringify }}
               value_kind = pull.kind
               case value_kind
               when .string?
@@ -23,7 +23,7 @@ module Slack::OptionalDiscriminator
               when .bool?
                 discriminator_value = pull.bool_value
               else
-                raise ::JSON::SerializableError.new("JSON discriminator field '{{field.id}}' has an invalid value type of #{value_kind.to_s}", to_s, nil, *location, nil)
+                raise ::JSON::SerializableError.new("JSON discriminator field '{{ field.id }}' has an invalid value type of #{value_kind.to_s}", to_s, nil, *location, nil)
               end
               builder.field(key, discriminator_value)
               pull.read_next
@@ -36,28 +36,28 @@ module Slack::OptionalDiscriminator
       end
 
       unless discriminator_value
-        return {{default_type}}.from_json(json)
+        return {{ default_type }}.from_json(json)
       end
 
       case discriminator_value
       {% for key, value in mapping %}
         {% if mapping.is_a?(NamedTupleLiteral) %}
-          when {{key.id.stringify}}
+          when {{ key.id.stringify }}
         {% else %}
           {% if key.is_a?(StringLiteral) %}
-            when {{key}}
+            when {{ key }}
           {% elsif key.is_a?(NumberLiteral) || key.is_a?(BoolLiteral) %}
-            when {{key.id}}
+            when {{ key.id }}
           {% elsif key.is_a?(Path) %}
-            when {{key.resolve}}
+            when {{ key.resolve }}
           {% else %}
             {% key.raise "mapping keys must be one of StringLiteral, NumberLiteral, BoolLiteral, or Path, not #{key.class_name.id}" %}
           {% end %}
         {% end %}
-        {{value.id}}.from_json(json)
+        {{ value.id }}.from_json(json)
       {% end %}
       else
-        raise ::JSON::SerializableError.new("Unknown '{{field.id}}' discriminator value: #{discriminator_value.inspect}", to_s, nil, *location, nil)
+        raise ::JSON::SerializableError.new("Unknown '{{ field.id }}' discriminator value: #{discriminator_value.inspect}", to_s, nil, *location, nil)
       end
     end
   end

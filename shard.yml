@@ -4,7 +4,7 @@ version: 0.1.0
 authors:
   - Rob Cole <robcole@gmail.com>
 
-crystal: 1.16.3
+crystal: 1.21.0
 
 license: MIT
 
@@ -15,14 +15,17 @@ targets:
 dependencies:
   habitat:
     github: luckyframework/habitat
-    version: ~> 0.4.7
+    version: ~> 0.4.9
   rate_limiter:
     github: lbarasti/rate_limiter
+    version: ~> 1.0.1
 development_dependencies:
   ameba:
     github: crystal-ameba/ameba
-    version: ~> 1.6.0
+    version: ~> 1.7.0
   lucky_env:
     github: luckyframework/lucky_env
+    version: ~> 0.3.0
   vcr:
     github: spoved/vcr.cr
+    version: ~> 0.5.3

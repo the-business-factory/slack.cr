@@ -9,6 +9,9 @@ end
 
 LuckyEnv.load(".env.test")
 
-# .env is not included in source control, but can be used locally to override
-# ENV vars used for API calls (Slack Team auth tokens, etc).
-LuckyEnv.load(".env") if File.exists?(".env")
+# Never send live HTTP requests when a cassette is absent or no longer matches.
+class HTTP::Client
+  private def orig_exec_internal_single(request, implicit_compression = false) : HTTP::Client::Response?
+    raise "Missing VCR recording for #{request.method} #{request.resource} in #{VCR.cassette_name.inspect}"
+  end
+end

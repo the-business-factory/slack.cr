@@ -8,12 +8,12 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
       - uses: crystal-lang/install-crystal@v1
         with:
-          crystal: 1.7.2
+          crystal: 1.21.0
       - name: "Install shards"
         run: shards install
       - name: "Generate docs"

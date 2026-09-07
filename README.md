@@ -2,6 +2,8 @@
 
 Crystal client for building Slack apps and tools using the Slack API.
 
+Requires Crystal 1.21.0 or later.
+
 ## Installation
 
 1. Add the dependency to your `shard.yml`:
@@ -146,6 +148,21 @@ class SlackLinkPage < WebhookAction
   end
 end
 ```
+
+## Development
+
+```sh
+shards install
+crystal spec
+crystal tool format --check
+crystal run lib/ameba/src/cli.cr
+```
+
+The full suite runs offline using `.env.test` and committed VCR recordings.
+Local `.env` files are not loaded by the tests. Missing recordings raise an error
+instead of making live Slack API calls. The recordings were recovered from the
+repository's successful API fixtures and keyed for Crystal 1.21.0; the manifest
+response uses the dummy app ID from `.env.test`.
 
 ## Contributing
 

@@ -11,27 +11,27 @@ describe Slack::UI::Components::InputElement do
       )
       .to_pretty_json
       .should eq <<-JSON
-      {
-        "type": "input",
-        "element": {
-          "type": "plain_text_input",
-          "action_id": "action_id",
-          "placeholder": {
+        {
+          "type": "input",
+          "element": {
+            "type": "plain_text_input",
+            "action_id": "action_id",
+            "placeholder": {
+              "type": "plain_text",
+              "text": "placeholder text",
+              "emoji": false
+            },
+            "initial_value": "initial_value",
+            "multiline": false,
+            "focus_on_load": false
+          },
+          "label": {
             "type": "plain_text",
-            "text": "placeholder text",
+            "text": "label_text",
             "emoji": false
           },
-          "initial_value": "initial_value",
-          "multiline": false,
-          "focus_on_load": false
-        },
-        "label": {
-          "type": "plain_text",
-          "text": "label_text",
-          "emoji": false
-        },
-        "dispatch_action": false
-      }
-      JSON
+          "dispatch_action": false
+        }
+        JSON
   end
 end
