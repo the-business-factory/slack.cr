@@ -10,6 +10,17 @@ Follow these guidelines when working on this Crystal project.
 - Handle nil cases with `#try` or proper nil checks.
 - Use unions, such as `String | Nil`, instead of loose typing.
 
+## Code Organization
+
+- Prefer one class or struct per file, with a filename that matches the type. Keep small, tightly related value types together only when this improves readability.
+- Give each type one clear responsibility. Separate parsing, storage, HTTP transport, and application flow at their natural boundaries.
+- Use clear names and short, focused methods so code explains its purpose. Add comments for constraints and decisions that the code cannot express.
+- Implement the current requirements. Avoid speculative abstractions, extension points, and configuration.
+- Keep test support small and specific. Separate reusable helpers from executable subprocess fixtures.
+- Test observable behavior, regressions, and important failure modes. Avoid tests that repeat implementation details or only exercise trivial wiring.
+- Prefer ecosystem tools over custom test infrastructure. Keep tests offline by default and use synthetic credentials.
+- Run `crystal tool format` on changed Crystal files and verify formatting with `crystal tool format --check`.
+
 ## Concurrency
 
 - Use fibers for concurrent operations, not threads.
