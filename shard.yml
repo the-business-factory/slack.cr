@@ -26,6 +26,6 @@ development_dependencies:
   lucky_env:
     github: luckyframework/lucky_env
     version: ~> 0.3.0
-  vcr:
-    github: spoved/vcr.cr
-    version: ~> 0.5.3
+  webmock:
+    github: manastech/webmock.cr
+    version: ~> 0.14.0

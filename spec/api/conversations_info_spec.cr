@@ -7,15 +7,17 @@ describe Slack::Api::ConversationsInfo do
   context "IM conversations" do
     describe "#call" do
       it "should request the conversation info resource from the API" do
-        load_cassette("conversations-info-#{IM_CONVERSATION_ID}") do
-          token = ENV.fetch("SLACK_TEAM_AUTH_TOKEN")
-          response = Slack::Api::ConversationsInfo
-            .new(token: token, channel: IM_CONVERSATION_ID)
-            .call
-            .should be_a(Slack::Models::IMChat)
+        WebMock.stub(:get, "https://slack.com/api/conversations.info?channel=#{IM_CONVERSATION_ID}")
+          .with(headers: {"Authorization" => "Bearer #{ENV.fetch("SLACK_TEAM_AUTH_TOKEN")}"})
+          .to_return(body: File.read("spec/fixtures/api/conversations-info-#{IM_CONVERSATION_ID}.json"))
 
-          response.latest.user.should eq(response.user)
-        end
+        token = ENV.fetch("SLACK_TEAM_AUTH_TOKEN")
+        response = Slack::Api::ConversationsInfo
+          .new(token: token, channel: IM_CONVERSATION_ID)
+          .call
+          .should be_a(Slack::Models::IMChat)
+
+        response.latest.user.should eq(response.user)
       end
     end
   end
@@ -23,15 +25,17 @@ describe Slack::Api::ConversationsInfo do
   context "Channels" do
     describe "#call" do
       it "should request the conversation info resource from the API" do
-        load_cassette("conversations-info-#{CHANNEL_CONVERSATION_ID}") do
-          token = ENV.fetch("SLACK_TEAM_AUTH_TOKEN")
-          response = Slack::Api::ConversationsInfo
-            .new(token: token, channel: CHANNEL_CONVERSATION_ID)
-            .call
-            .should be_a(Slack::Models::PublicChannel)
+        WebMock.stub(:get, "https://slack.com/api/conversations.info?channel=#{CHANNEL_CONVERSATION_ID}")
+          .with(headers: {"Authorization" => "Bearer #{ENV.fetch("SLACK_TEAM_AUTH_TOKEN")}"})
+          .to_return(body: File.read("spec/fixtures/api/conversations-info-#{CHANNEL_CONVERSATION_ID}.json"))
 
-          response.name.should eq "links"
-        end
+        token = ENV.fetch("SLACK_TEAM_AUTH_TOKEN")
+        response = Slack::Api::ConversationsInfo
+          .new(token: token, channel: CHANNEL_CONVERSATION_ID)
+          .call
+          .should be_a(Slack::Models::PublicChannel)
+
+        response.name.should eq "links"
       end
     end
   end

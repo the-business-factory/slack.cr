@@ -158,11 +158,11 @@ crystal tool format --check
 crystal run lib/ameba/src/cli.cr
 ```
 
-The full suite runs offline using `.env.test` and committed VCR recordings.
-Local `.env` files are not loaded by the tests. Missing recordings raise an error
-instead of making live Slack API calls. The recordings were recovered from the
-repository's successful API fixtures and keyed for Crystal 1.21.0; the manifest
-response uses the dummy app ID from `.env.test`.
+The full suite runs offline using `.env.test`, [WebMock](https://github.com/manastech/webmock.cr)
+request stubs, and committed JSON response fixtures. WebMock rejects unstubbed HTTP
+requests, including streaming requests. Keep real network access disabled in tests.
+Local `.env` files are not loaded. The response bodies come from the repository's
+existing API fixtures; the manifest response uses the dummy app ID from `.env.test`.
 
 ## Contributing
 
