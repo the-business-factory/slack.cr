@@ -1,3 +1,6 @@
+require "json"
+require "../mixins/initializer_macros"
+
 struct Slack::Auth::User
   include JSON::Serializable
   include Slack::InitializerMacros
@@ -8,4 +11,12 @@ struct Slack::Auth::User
     refresh_token : String? = nil,
     scope : String? = nil,
     token_type : String? = nil
+
+  def inspect(io : IO) : Nil
+    io << "Slack::Auth::User([REDACTED])"
+  end
+
+  def to_s(io : IO) : Nil
+    inspect(io)
+  end
 end

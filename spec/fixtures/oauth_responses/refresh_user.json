@@ -1,0 +1,8 @@
+{
+  "ok": true,
+  "access_token": "synthetic-next-user",
+  "refresh_token": "synthetic-next-user-refresh",
+  "scope": "search:read",
+  "token_type": "user",
+  "expires_in": 1800
+}

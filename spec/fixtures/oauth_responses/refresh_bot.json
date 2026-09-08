@@ -1,0 +1,8 @@
+{
+  "ok": true,
+  "access_token": "synthetic-next-bot",
+  "refresh_token": "synthetic-next-refresh",
+  "scope": "commands,chat:write",
+  "token_type": "bot",
+  "expires_in": 3600
+}

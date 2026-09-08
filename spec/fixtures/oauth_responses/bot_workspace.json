@@ -1,0 +1,11 @@
+{
+  "ok": true,
+  "app_id": "AAPP",
+  "team": {
+    "id": "TTEAM"
+  },
+  "access_token": "synthetic-bot-access",
+  "token_type": "bot",
+  "scope": "commands,chat:write",
+  "bot_user_id": "UBOT"
+}
