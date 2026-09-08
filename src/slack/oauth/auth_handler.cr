@@ -1,7 +1,7 @@
 # https://api.slack.com/authentication/oauth-v2
 class Slack::AuthHandler
   Habitat.create do
-    setting oauth_redirect_url : String = ENV["OAUTH_REDIRECT_URL"]
+    setting oauth_redirect_url : String? = ENV["OAUTH_REDIRECT_URL"]?
   end
 
   delegate bot_scopes, client_id, client_secret, user_scopes, to: Slack.settings
@@ -20,6 +20,15 @@ class Slack::AuthHandler
     @http_client = default_client
   end
 
+  # Redirects are optional at startup, but required when this handler is used.
+  private def required_redirect_url : String
+    value = settings.oauth_redirect_url
+    if value.nil? || value.blank?
+      raise Habitat::InvalidSettingFormatError.new("#{self.class}.oauth_redirect_url is required and must not be blank")
+    end
+    value
+  end
+
   private def default_client
     HTTP::Client.new("slack.com", port: 443, tls: true)
   end
@@ -28,20 +37,19 @@ class Slack::AuthHandler
     new(http_client).authenticate_user(request)
   end
 
-  def redirect_url
+  def redirect_url : String
     params = HTTP::Params.encode({
       client_id:    client_id,
       scope:        bot_scopes,
-      redirect_uri: settings.oauth_redirect_url,
+      redirect_uri: required_redirect_url,
       user_scope:   user_scopes,
     })
 
-    URI.decode_www_form(
-      URI.new("https", "slack.com/oauth/v2/authorize", query: params).to_s
-    )
+    URI.new(scheme: "https", host: "slack.com", path: "/oauth/v2/authorize", query: params).to_s
   end
 
   def authenticate_user(request : HTTP::Request)
+    redirect_uri = required_redirect_url
     code = request.query_params["code"]
     headers = HTTP::Headers.new
     headers["Content-Type"] = ContentTypes::FormEncoded.to_s
@@ -53,7 +61,7 @@ class Slack::AuthHandler
         client_id:     client_id,
         client_secret: client_secret,
         user_scopes:   user_scopes,
-        redirect_uri:  settings.oauth_redirect_url,
+        redirect_uri:  redirect_uri,
         scope:         bot_scopes,
       })
     )

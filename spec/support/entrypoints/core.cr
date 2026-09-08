@@ -1,0 +1,2 @@
+require "slack"
+require "./consumer"

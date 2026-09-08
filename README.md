@@ -25,6 +25,8 @@ A demo app is published at https://github.com/the-business-factory/hirobot.app.
 ### Configuration
 
 ```crystal
+require "slack"
+
 Slack.configure do |config|
   config.bot_scopes = ["incoming-webhook"] # Array(String)
   config.client_id = ENV["SLACK_CLIENT_ID"] # String
@@ -38,13 +40,23 @@ end
 Slack::AuthHandler.configure do |config|
   config.oauth_redirect_url = ENV["OAUTH_REDIRECT_URL"]
 end
-
-# To enable "Sign in with Slack," you'll need to configure
-# Slack's OpenID Connecion handling.
-Slack::SignIn.configure do |config|
-  config.sign_in_redirect_url = ENV["SIGN_IN_REDIRECT_URL"]
-end
 ```
+
+`require "slack"` loads the core and OAuth installation APIs. The compatibility
+entrypoint `require "slack/oauth"` loads the same APIs. Either require order is supported.
+`Slack::AuthHandler` handles app installation; it does not authenticate a login.
+Redirect settings are optional at startup. Set `oauth_redirect_url` for installation;
+`sign_in_redirect_url` is not required. Each handler rejects a missing or blank redirect
+with `Habitat::InvalidSettingFormatError` before authorization or token exchange.
+
+### Sign in with Slack
+
+Sign in with Slack is unavailable until full OIDC identity verification is
+implemented. The class is `Slack::SignInWithSlack`. Configuration does not enable
+verified login. The identity path raises
+`Slack::SignInResponse::VerificationUnavailable`; do not use decoded claims as an
+authenticated identity. Keep login scopes and routes separate from app installation.
+No JWT dependency is required for this guard.
 
 ### Processing Webhook Events
 ```crystal
