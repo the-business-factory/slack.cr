@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "app_id": "AAPP",
+  "enterprise": {
+    "id": "EORG"
+  },
+  "is_enterprise_install": true,
+  "access_token": "synthetic-bot-access",
+  "token_type": "bot",
+  "scope": "commands,chat:write",
+  "bot_user_id": "UBOT"
+}

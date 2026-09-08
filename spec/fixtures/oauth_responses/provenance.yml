@@ -1,0 +1,53 @@
+fixtures:
+  - id: bot_workspace
+    file: bot_workspace.json
+    origin: synthetic
+    source: local authentication response acceptance matrix
+    adaptations: []
+    expected: bot-workspace
+    live_verified: false
+  - id: user_workspace
+    file: user_workspace.json
+    origin: synthetic
+    source: local authentication response acceptance matrix
+    adaptations: []
+    expected: user-workspace
+    live_verified: false
+  - id: combined_rotating
+    file: combined_rotating.json
+    origin: synthetic
+    source: local authentication response acceptance matrix
+    adaptations: []
+    expected: combined-rotating
+    live_verified: false
+  - id: bot_org_absent_team
+    file: bot_org_absent_team.json
+    origin: synthetic
+    source: local authentication response acceptance matrix
+    adaptations: []
+    expected: bot-org-absent-team
+    live_verified: false
+  - id: user_org_null_team
+    file: user_org_null_team.json
+    origin: synthetic
+    source: local authentication response acceptance matrix
+    adaptations: []
+    expected: user-org-null-team
+    live_verified: false
+  - id: refresh_bot
+    file: refresh_bot.json
+    origin: synthetic
+    source: local authentication response acceptance matrix
+    adaptations: []
+    expected: refresh-bot
+    live_verified: false
+  - id: refresh_user
+    file: refresh_user.json
+    origin: synthetic
+    source: local authentication response acceptance matrix
+    adaptations: []
+    expected: refresh-user
+    live_verified: false
+
+# Created for offline parser tests; no captured Slack data or copied upstream material.
+# All credentials, identifiers, and bearer URLs are synthetic.

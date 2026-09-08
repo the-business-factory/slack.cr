@@ -1,0 +1,26 @@
+{
+  "ok": true,
+  "app_id": "AAPP",
+  "team": {
+    "id": "TTEAM"
+  },
+  "access_token": "synthetic-bot-access",
+  "token_type": "bot",
+  "scope": "commands,chat:write",
+  "bot_user_id": "UBOT",
+  "authed_user": {
+    "id": "UUSER",
+    "access_token": "synthetic-user-access",
+    "token_type": "user",
+    "scope": "search:read",
+    "refresh_token": "synthetic-user-refresh",
+    "expires_in": 1800
+  },
+  "refresh_token": "synthetic-bot-refresh",
+  "expires_in": 3600,
+  "incoming_webhook": {
+    "url": "https://hooks.example.invalid/synthetic-webhook",
+    "channel_id": "CCHANNEL",
+    "configuration_url": "https://example.invalid/synthetic-configuration"
+  }
+}

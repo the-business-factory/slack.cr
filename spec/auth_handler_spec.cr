@@ -40,10 +40,10 @@ describe Slack::AuthHandler do
         end
 
       result = Slack::AuthHandler.run(HTTP::Request.new("GET", "/install?code=dummy%2Bcode%26value%3D100%25"))
-      result.team.id.should eq("T9TK3CUKW")
-      result.team.name.should eq("Slack Softball Team")
+      result.team.should_not(be_nil).id.should eq("T9TK3CUKW")
+      result.team.should_not(be_nil).name.should eq("Slack Softball Team")
       result.access_token.should eq("xoxe.xoxb-1-..")
-      result.authed_user.id.should eq("U1234")
+      result.authed_user.should_not(be_nil).id.should eq("U1234")
       Slack::SignInWithSlack.settings.sign_in_redirect_url.should be_nil
     ensure
       Slack::AuthHandler.configure(&.oauth_redirect_url=(original_redirect))

@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "app_id": "AAPP",
+  "team": {
+    "id": "TTEAM"
+  },
+  "authed_user": {
+    "id": "UUSER",
+    "access_token": "synthetic-user-access",
+    "token_type": "user",
+    "scope": "search:read"
+  },
+  "enterprise": null
+}

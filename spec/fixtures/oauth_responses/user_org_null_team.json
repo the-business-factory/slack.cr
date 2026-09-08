@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "app_id": "AAPP",
+  "team": null,
+  "enterprise": {
+    "id": "EORG"
+  },
+  "is_enterprise_install": true,
+  "authed_user": {
+    "id": "UUSER",
+    "access_token": "synthetic-user-access",
+    "token_type": "user",
+    "scope": "search:read"
+  }
+}

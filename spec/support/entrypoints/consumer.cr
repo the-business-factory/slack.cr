@@ -32,7 +32,7 @@ WebMock.stub(:post, "https://slack.com/api/oauth.v2.access")
     HTTP::Client::Response.new(200, body: File.read("spec/fixtures/auth_success.json"))
   end
 installation = Slack::AuthHandler.run(HTTP::Request.new("GET", "/install?code=dummy%2Bcode%26value"))
-raise "Unexpected installation" unless installation.team.id == "T9TK3CUKW"
+raise "Unexpected installation" unless installation.team.try(&.id) == "T9TK3CUKW"
 raise "Installation configured login" unless Slack::SignInWithSlack.settings.sign_in_redirect_url.nil?
 
 Slack::SignInWithSlack.configure(&.sign_in_redirect_url=("https://example.test/login"))
