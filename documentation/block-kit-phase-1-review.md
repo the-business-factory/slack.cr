@@ -265,3 +265,121 @@ assigns a 256-character ID through the retained setter and proves
 All endpoint tests use WebMock and synthetic credentials. No live Slack request,
 push, merge, publication, checked endpoint, or catalog expansion was performed.
 There are no disputed findings or unresolved implementation issues.
+
+## Astra re-review — 2026-09-12
+
+Reviewed fix commit `111e774cee285481252faf84e592dd4ba2ad0f21`, following
+implementation `1fc4322dbadae36135816e3c0f265216fc4c98e7` and review
+`ec8675a9b1307b14a62ed5ce8c7082620baccfb2`.
+
+**Verdict: changes still required.** Findings 1 and 3 are closed. Finding 2 is
+partially resolved: fully positional calls work again, but valid mixed positional
+and named calls still fail. One medium-severity issue remains; another Sol repair
+cycle is required before Phase 1 approval. No other new actionable finding was
+established.
+
+I read the complete updated review, including the implementation response, and
+inspected every fix diff across all 12 changed files. I checked the current
+initializer macro, endpoint inheritance, helper calls, serializers, and relevant
+tests. References in this addendum identify lines at the fix commit. The earlier
+review and implementation response remain historical records; this addendum is
+the current reviewer disposition.
+
+### Finding dispositions
+
+| Finding | Disposition | Evidence |
+| --- | --- | --- |
+| 1. Modal conditional submit after mutation | Closed. | [Modal:28–35](../src/slack/ui/surfaces/modal.cr#L28) calls the same private check during construction and serialization. [ViewsOpen:12–21](../src/slack/api/endpoints/views_open.cr#L12) builds the complete body before transport; `call` uses `result`. Executed tests in [views_open_spec.cr](../spec/api/views_open_spec.cr) establish zero requests for retained-array mutation through `result` and submit-setter mutation through `call`, with valid sending controls. |
+| 2. Positional constructor compatibility | Partially resolved; medium issue remains below. | [Actions:14–18](../src/slack/ui/blocks/actions.cr#L14) and [Modal:14–25](../src/slack/ui/surfaces/modal.cr#L14) restore the fully positional forms. Their renamed parameter labels exclude mixed calls that worked at the base. |
+| 3. Section block ID bound | Closed. | [Section:29](../src/slack/ui/blocks/section.cr#L29) and [Section:39](../src/slack/ui/blocks/section.cr#L39) use the same private 255-character check. Executed [Section specs](../spec/ui/blocks/section_spec.cr) cover 254/255/256, Unicode, nil omission, valid JSON, and post-construction mutation. The [ChatPostMessage regression](../spec/api/chat_post_message_spec.cr#L61) rejects an overlong setter value with zero HTTP requests. |
+
+The implementation response correctly distinguishes struct copying from shared
+array mutation: setting submit on an original Modal after a request copies it
+does not change that request. Setting submit before request construction is the
+relevant setter route, and the new test exercises it. An additional independent
+runtime probe exercised missing-submit mutations through both `result` and `call`;
+all four combinations rejected with zero requests. Returning a previously cached
+response still sends no additional request and is not a transport bypass.
+
+### Remaining medium issue — Preserve the original labels in mixed constructor calls
+
+The compatibility overloads use `legacy_elements`, `legacy_submit`, and
+`legacy_title` as external argument names. These differ from the original
+`elements`, `submit`, and `title` labels. The current generated/default overloads
+cannot fill the gap because their positional orders differ.
+
+These four calls each compiled, executed, and serialized valid JSON against the
+original base `d908acca7c75229d90b789a8475a38caca62e544`. Each fails at compile time
+against `111e774` with `no overload matches`:
+
+```crystal
+alias B = Slack::UI::BlockElements::Button
+alias M = Slack::UI::Modal
+button = B.new(action_id: "go", text: B::Text.new("Go"))
+blocks = [Slack::UI::Components::TextSection.render("Details")] of Slack::TypeAliases::ModalBlock
+close = M::Close.new("Cancel")
+submit = M::Submit.new("Save")
+title = M::Title.new("Details")
+
+Slack::UI::Blocks::Actions.new("controls", elements: [button]).to_json
+Slack::UI::Blocks::Actions.new(nil, elements: [button]).to_json
+M.new(blocks, close, submit: submit, title: title).to_json
+M.new(blocks, close, submit, title: title).to_json
+```
+
+The complete overload diagnostics point to
+[Actions:15](../src/slack/ui/blocks/actions.cr#L15) and
+[Modal:16–19](../src/slack/ui/surfaces/modal.cr#L16). In particular, the current
+Actions overload treats the initial positional value as `elements`, while the
+compatibility overload only recognizes `legacy_elements`. The Modal compatibility
+overload similarly cannot accept the remaining original named labels. Paired
+fully positional calls and a Modal call with only `blocks` positional all execute
+successfully against both revisions, which rules out an import or fixture error.
+
+Required revision: preserve the old external labels for every valid positional
+prefix followed by named arguments, using narrow overloads or explicit external
+argument names. Keep the current named and optional-label forms unambiguous. Add
+compile-and-serialize coverage for the four cases above and retain the existing
+fully positional and fully named controls. This is the remaining part of the
+original source-compatibility finding, not a request for a new constructor API.
+The implementation response's claim that all three findings are resolved is
+premature until these calls work.
+
+### Regression and scope checks
+
+Both Actions constructors still use the same required-elements and collection
+checks. An independent executed probe confirmed that the compatibility constructor
+rejects nil, empty, and 26-element collections with `InvalidUIBlock`. Separate
+compiler probes confirmed that zero-argument Actions and a Modal missing its title
+remain rejected. The full suite retains the named display/form modal rules,
+optional close, label limits, enum wire values, nil/false/zero behavior, and old
+six-argument helper coverage.
+
+The Section check is limited to the repaired field. Modal validation remains a
+small shared conditional check. Neither fix introduces checked public types,
+builders, new catalog members, a general validation framework, or changes to the
+global initializer macro. Existing legacy mutability and unsupported parser
+limits remain as recorded in the first review. Apart from the compatibility gap,
+the updated support-manifest and release-note claims match the inspected changes.
+
+### Re-review validation and limits
+
+- `crystal spec`: 293 examples, zero failures, errors, or pending; 15.64 seconds.
+- `crystal tool format --check`: pass.
+- `crystal run lib/ameba/src/cli.cr --no-color`: 223 files, zero failures.
+- `crystal docs --output <OS temporary directory>/docs`: pass, with the existing
+  unavailable-LibXML2 sanitization notice.
+- Paired executed compiler probes: all four mixed calls pass at the original
+  base and fail at the fix commit; fully positional and partial-named controls
+  pass at both revisions.
+- Additional runtime probes: modal mutation rejects through both request entry
+  points with zero HTTP; the legacy Actions overload retains collection checks.
+- Required-argument compiler probes: missing Actions elements and Modal title
+  remain rejected with specific overload diagnostics.
+
+Only this review document was edited. Extra probes, documentation output, and an
+extracted base source snapshot were kept in an OS temporary directory. No other
+worktree, implementation file, or repository test was changed. No agent was
+launched and no live Slack request, push, merge, or publication occurred. HTTP
+checks used synthetic credentials and WebMock. No new protocol interpretation
+was needed beyond the official references verified in the first review.
