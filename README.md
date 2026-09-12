@@ -36,18 +36,21 @@ Slack.configure do |config|
   config.webhook_delivery_time_limit = 5.minutes # Time::Span
 end
 
-# Most apps will want to have OAuth enabled for installation.
-Slack::AuthHandler.configure do |config|
-  config.oauth_redirect_url = ENV["OAUTH_REDIRECT_URL"]
-end
 ```
 
 `require "slack"` loads the core and OAuth installation APIs. The compatibility
 entrypoint `require "slack/oauth"` loads the same APIs. Either require order is supported.
-`Slack::AuthHandler` handles app installation; it does not authenticate a login.
-Redirect settings are optional at startup. Set `oauth_redirect_url` for installation;
-`sign_in_redirect_url` is not required. Each handler rejects a missing or blank redirect
-with `Habitat::InvalidSettingFormatError` before authorization or token exchange.
+
+### OAuth installation
+
+`Slack::AuthHandler` handles app installation; it does not authenticate a login. Create it
+with an explicit `Slack::Auth::OAuthConfiguration`, `Slack::Auth::StateStore`, and
+`Slack::Auth::Transport`. Pass a trusted application session binding to both handler
+methods. The handler does not read that value from callback parameters or cookies.
+
+See [OAuth installation](documentation/oauth-installation.md) for setup, routing, storage,
+and migration examples. `Slack::Auth::MemoryStateStore` is for one process only. Use a
+shared application-owned adapter when callbacks can reach more than one process.
 
 ### Sign in with Slack
 

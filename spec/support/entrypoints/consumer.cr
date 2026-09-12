@@ -7,7 +7,6 @@ Slack.configure do |config|
   config.signing_secret = "dummy-signing-secret"
 end
 Habitat.raise_if_missing_settings!
-raise "Unexpected installation redirect" unless Slack::AuthHandler.settings.oauth_redirect_url.nil?
 raise "Unexpected login redirect" unless Slack::SignInWithSlack.settings.sign_in_redirect_url.nil?
 
 WebMock.stub(:get, "https://slack.com/api/team.info")
@@ -16,22 +15,38 @@ WebMock.stub(:get, "https://slack.com/api/team.info")
 team = Slack::Api::TeamInfo.new("dummy-token").call
 raise "Unexpected API response" unless team.name == "goalsurfer"
 
-redirect = "https://example.test/install?tenant=one&route=a+b%2Fc"
-Slack::AuthHandler.configure(&.oauth_redirect_url=(redirect))
-Habitat.raise_if_missing_settings!
-authorization = URI.parse(Slack::AuthHandler.new.redirect_url)
-raise "Incorrect installation redirect" unless authorization.query_params["redirect_uri"] == redirect
-WebMock.stub(:post, "https://slack.com/api/oauth.v2.access")
-  .with(headers: {"Content-Type" => "application/x-www-form-urlencoded"})
-  .to_return do |request|
-    form = URI::Params.parse(request.body.try(&.gets_to_end) || raise "Missing form")
+class ConsumerOAuthTransport < Slack::Auth::Transport
+  def execute(request : Slack::Auth::TransportRequest) : Slack::Auth::TransportResponse
+    raise "Incorrect token endpoint" unless request.uri == URI.parse("https://oauth.example.test/token")
+    form = URI::Params.parse(request.body || raise "Missing form")
     raise "Incorrect code" unless form["code"] == "dummy+code&value"
     raise "Incorrect client ID" unless form["client_id"] == "dummy-client"
     raise "Incorrect client secret" unless form["client_secret"] == "dummy-secret"
-    raise "Incorrect exchange redirect" unless form["redirect_uri"] == redirect
-    HTTP::Client::Response.new(200, body: File.read("spec/fixtures/auth_success.json"))
+    expected = "https://example.test/install?tenant=one&route=a+b%2Fc"
+    raise "Incorrect exchange redirect" unless form["redirect_uri"] == expected
+    Slack::Auth::TransportResponse.new(200, HTTP::Headers.new,
+      File.read("spec/fixtures/auth_success.json"))
   end
-installation = Slack::AuthHandler.run(HTTP::Request.new("GET", "/install?code=dummy%2Bcode%26value"))
+end
+
+redirect = "https://example.test/install?tenant=one&route=a+b%2Fc"
+configuration = Slack::Auth::OAuthConfiguration.new(
+  URI.parse("https://oauth.example.test/authorize"),
+  URI.parse("https://oauth.example.test/token"),
+  "dummy-client",
+  Slack::Auth::Secret.new("dummy-secret"),
+  URI.parse(redirect)
+)
+state_store = Slack::Auth::MemoryStateStore.new
+handler = Slack::AuthHandler.new(configuration, state_store, ConsumerOAuthTransport.new,
+  bot_scopes: ["commands"], user_scopes: ["users:read"])
+session_binding = Slack::Auth::Secret.new("trusted-browser-session")
+authorization = URI.parse(handler.redirect_url(session_binding))
+raise "Incorrect installation redirect" unless authorization.query_params["redirect_uri"] == redirect
+state = authorization.query_params["state"]
+callback_query = URI::Params.encode({"code" => "dummy+code&value", "state" => state})
+callback = HTTP::Request.new("GET", "/install?#{callback_query}")
+installation = handler.authenticate_user(callback, session_binding)
 raise "Unexpected installation" unless installation.team.try(&.id) == "T9TK3CUKW"
 raise "Installation configured login" unless Slack::SignInWithSlack.settings.sign_in_redirect_url.nil?
 
