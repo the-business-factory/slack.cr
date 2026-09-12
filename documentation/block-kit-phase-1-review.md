@@ -430,3 +430,85 @@ empty, and 26-element collections with `InvalidUIBlock`.
 All endpoint regressions remain offline with WebMock and synthetic credentials.
 No Phase 2 or Phase 3 API, catalog member, endpoint, auth change, push, merge, or
 publication is part of this response.
+
+## Final Astra independent re-review — 2026-09-12
+
+Reviewed commit `e7c7e2b3f1eaf2cf166d48c4dd4d72353b42c54d` against the preceding
+review and fix history, with original base
+`d908acca7c75229d90b789a8475a38caca62e544`.
+
+**Verdict: APPROVED FOR PHASE 1. No unresolved findings remain.** The three
+original medium findings, including the mixed-constructor gap from the first
+re-review, are closed. I found no new actionable regression or Phase 1 exit-gate
+failure. This final disposition supersedes the earlier changes-required
+verdicts; those records remain for history.
+
+I reread AGENTS.md, the complete architecture plan and plan review, the Phase 1
+implementation record, support manifest, and entire Phase 1 review history. I
+inspected every change in the latest seven-file fix and rechecked the current
+constructors, validation methods, serializers, endpoint boundary, relevant specs,
+and cumulative Phase 1 file scope.
+
+### Final finding dispositions
+
+| Finding | Final disposition and evidence |
+| --- | --- |
+| 1. Modal mutation bypasses conditional submit | Closed. [Modal:29–36](../src/slack/ui/surfaces/modal.cr#L29) uses the same conditional check during construction and serialization. [ViewsOpen:12–21](../src/slack/api/endpoints/views_open.cr#L12) serializes before transport, including through `call`. Rerun endpoint regressions reject retained-array mutation through `result` and submit-setter mutation through `call`, with zero requests. Valid display and form controls still send structured JSON. |
+| 2. Constructor source compatibility, including mixed calls | Closed. [Actions:16–22](../src/slack/ui/blocks/actions.cr#L16) preserves external `block_id, elements` labels, and [Modal:16–26](../src/slack/ui/surfaces/modal.cr#L16) preserves external `blocks, close, submit, title` labels. Distinct internal variable names no longer remove the public named arguments. The independent comparison below and the expanded semantic JSON specs pass. |
+| 3. Section block ID limit | Closed. [Section:29](../src/slack/ui/blocks/section.cr#L29) and [Section:39](../src/slack/ui/blocks/section.cr#L39) enforce the same 255-character bound at construction and serialization. Rerun specs cover 254/255/256 characters, Unicode, nil omission, setter mutation, and rejection before ChatPostMessage HTTP with zero requests. |
+
+### Independent constructor comparison
+
+I generated and executed the same 43 valid calls against an extracted copy of
+the original base source and the final production source. All calls compiled and
+ran successfully, and each final JSON value was semantically identical to its
+base counterpart. The comparison covered:
+
+- Modal: all five positional-prefix lengths, from zero through four, with every
+  permutation of the remaining named arguments: 34 calls.
+- Actions: all three positional-prefix lengths and every named-suffix ordering,
+  for both a supplied String block ID and nil: eight calls.
+- Actions with only named `elements`, allowing the block ID to default: one call.
+
+This includes all four failed mixed calls documented in the preceding addendum,
+every original Modal prefix, fully named forms, and fully positional forms. The
+repository regressions also execute both current positional orders and compare
+their complete JSON with the corresponding named construction.
+
+The compatibility fix preserves validation. The expanded Actions specs reject
+nil, empty, and 26-element input through the restored mixed overload. Valid
+one-to-25-element construction remains accepted. Modal's compatibility initializer
+still calls `after_initialize`; the named optional-label path still permits a
+display modal without submit or close and rejects an Input modal without submit.
+The shared initializer macro and concrete legacy type identities are unchanged.
+
+### Final validation
+
+| Check | Result |
+| --- | --- |
+| Independent base/final constructor probe | 43 calls per revision; all compile and execute; semantic JSON matches for every pair. |
+| Focused Actions, Modal, Section, ViewsOpen, ChatPostMessage, and modal-helper specs | 35 examples; zero failures, errors, or pending. |
+| `crystal spec`, run alone | 293 examples; zero failures, errors, or pending; 15.58 seconds. |
+| `crystal tool format --check` | Pass. |
+| `crystal run lib/ameba/src/cli.cr --no-color` | 223 files inspected; zero failures. |
+| `crystal docs --output <OS temporary directory>/docs` | Pass; existing unavailable-LibXML2 sanitization notice. |
+| `crystal spec spec/block_kit_support_manifest_spec.cr` | One example; zero failures. |
+
+The first full-suite attempt overlapped other `crystal spec` invocations and
+reported errors, ending with a missing shared `crystal-run-spec.tmp` executable.
+That attempt is not counted as passing evidence. After the other processes
+finished, the unchanged full suite passed when run alone, as recorded above.
+This supports a test-process collision rather than a production regression.
+
+The cumulative change stays within Phase 1 repairs. The support manifest still
+marks legacy implementations partial and placeholders unsupported. General
+legacy snapshot guarantees, broader field and placement validation, public
+checked types, and builders remain later-phase work, as already bounded in this
+review. No Phase 2 implementation or catalog expansion was introduced.
+
+Only this review record was edited. Compiler probes, the extracted base source,
+and generated docs were kept in an OS temporary directory. No other worktree or
+production/test file was changed, and no agent was launched. All HTTP validation
+used WebMock and synthetic credentials; no live Slack request, push, merge, or
+publication occurred. No new protocol interpretation was needed beyond the
+official references checked during the original review.
