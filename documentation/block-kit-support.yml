@@ -1,0 +1,205 @@
+schema_version: 1
+checked_on: "2026-09-12"
+scope: Public support in the current release. Phase 0 proof types are test-only.
+statuses:
+  - unsupported
+  - partial
+  - supported
+entries:
+  - wire_type: plain_text and mrkdwn text objects
+    kind: composition object
+    documentation_url: https://docs.slack.dev/reference/block-kit/composition-objects/text-object/
+    fields_supported: [type, text, emoji, verbatim]
+    parents: [legacy nested field owners]
+    surfaces: [message, modal]
+    restrictions: Legacy field-specific types permit mutable discriminators; distinct checked types exist only in Phase 0 test support.
+    implementation_status: partial
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/dynamic_text_composition.cr, spec/fixtures/compile/pass/text_types.cr, spec/fixtures/compile/fail/mrkdwn_button_label.cr]
+
+  - wire_type: confirmation
+    kind: composition object
+    documentation_url: https://docs.slack.dev/reference/block-kit/composition-objects/confirmation-dialog-object/
+    fields_supported: [title, text, confirm, deny, style]
+    parents: [button]
+    surfaces: [message, modal]
+    restrictions: Legacy mutable value; style is an unchecked string.
+    implementation_status: partial
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/composition_objects/confirmation.cr, spec/ui/components/confirmation_dialog_spec.cr]
+
+  - wire_type: dispatch_action_config
+    kind: composition object
+    documentation_url: https://docs.slack.dev/reference/block-kit/composition-objects/dispatch-action-configuration-object/
+    fields_supported: [trigger_actions_on]
+    parents: [plain_text_input]
+    surfaces: [modal]
+    restrictions: Legacy enum has no unnamed-value membership validation.
+    implementation_status: partial
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/composition_objects/dispatch_action_config.cr]
+
+  - wire_type: button
+    kind: block element
+    documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/button-element/
+    fields_supported: [type, text, action_id, url, value, style, confirm]
+    parents: [actions, section]
+    surfaces: [message, modal]
+    restrictions: Legacy action_id is required; values and unnamed styles are not fully validated.
+    implementation_status: partial
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/block_elements/button.cr, spec/fixtures/compile/pass/text_types.cr]
+
+  - wire_type: plain_text_input
+    kind: block element
+    documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/plain-text-input-element/
+    fields_supported: [type, action_id, initial_value, multiline, focus_on_load, min_length, max_length, dispatch_action_config, placeholder]
+    parents: [input]
+    surfaces: [modal]
+    restrictions: Legacy integer types and several bounds require Phase 1 repairs; placement is not certified beyond current modal use.
+    implementation_status: partial
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/block_elements/plain_text_input.cr, spec/ui/components/input_element_spec.cr]
+
+  - wire_type: checkboxes
+    kind: block element
+    documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/checkboxes-element/
+    fields_supported: [type]
+    parents: []
+    surfaces: []
+    restrictions: Discriminator-only placeholder; not in a supported placement union.
+    implementation_status: unsupported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/block_elements/checkbox.cr]
+
+  - wire_type: datepicker
+    kind: block element
+    documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/date-picker-element/
+    fields_supported: [type]
+    parents: []
+    surfaces: []
+    restrictions: Discriminator-only placeholder; not in a supported placement union.
+    implementation_status: unsupported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/block_elements/date_picker.cr]
+
+  - wire_type: image element
+    kind: block element
+    documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/image-element/
+    fields_supported: [type]
+    parents: []
+    surfaces: []
+    restrictions: Discriminator-only placeholder; not in a supported placement union.
+    implementation_status: unsupported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/block_elements/image.cr]
+
+  - wire_type: multi_static_select
+    kind: block element
+    documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/multi-select-menu-element/
+    fields_supported: [type]
+    parents: []
+    surfaces: []
+    restrictions: Discriminator-only placeholder; no options or source-specific contract.
+    implementation_status: unsupported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/block_elements/multi_select_menu.cr]
+
+  - wire_type: overflow
+    kind: block element
+    documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/overflow-menu-element/
+    fields_supported: [type]
+    parents: []
+    surfaces: []
+    restrictions: Discriminator-only placeholder; no option contract.
+    implementation_status: unsupported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/block_elements/overflow_menu.cr]
+
+  - wire_type: radio_buttons
+    kind: block element
+    documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/radio-button-group-element/
+    fields_supported: [type]
+    parents: []
+    surfaces: []
+    restrictions: Discriminator-only placeholder; no option contract.
+    implementation_status: unsupported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/block_elements/radio_button_group.cr]
+
+  - wire_type: static_select
+    kind: block element
+    documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/select-menu-element/
+    fields_supported: [type]
+    parents: []
+    surfaces: []
+    restrictions: Discriminator-only placeholder; source variants are not modeled.
+    implementation_status: unsupported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/block_elements/select_menu.cr]
+
+  - wire_type: timepicker
+    kind: block element
+    documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/time-picker-element/
+    fields_supported: [type]
+    parents: []
+    surfaces: []
+    restrictions: Discriminator-only placeholder; not in a supported placement union.
+    implementation_status: unsupported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/block_elements/time_picker.cr]
+
+  - wire_type: actions
+    kind: block
+    documentation_url: https://docs.slack.dev/reference/block-kit/blocks/actions-block/
+    fields_supported: [type, block_id, elements]
+    parents: [message, modal]
+    surfaces: [message, modal]
+    restrictions: Legacy implementation accepts only buttons and uses the obsolete five-element limit.
+    implementation_status: partial
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/blocks/actions.cr, spec/api/chat_post_message_spec.cr]
+
+  - wire_type: input
+    kind: block
+    documentation_url: https://docs.slack.dev/reference/block-kit/blocks/input-block/
+    fields_supported: [type, label, element, dispatch_action]
+    parents: [modal]
+    surfaces: [modal]
+    restrictions: Legacy implementation accepts only plain text input; Home placements are not certified.
+    implementation_status: partial
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/blocks/input.cr, spec/fixtures/compile/pass/nested_surfaces.cr]
+
+  - wire_type: section
+    kind: block
+    documentation_url: https://docs.slack.dev/reference/block-kit/blocks/section-block/
+    fields_supported: [type, text, fields, accessory, block_id]
+    parents: [message, modal]
+    surfaces: [message, modal]
+    restrictions: Legacy serializer drops block_id and accepts broad mutable children; Phase 0 checked conversion is test-only.
+    implementation_status: partial
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/blocks/section.cr, spec/block_kit_phase_0_proof_spec.cr]
+
+  - wire_type: context, divider, file, header, and image blocks
+    kind: block
+    documentation_url: https://docs.slack.dev/reference/block-kit/blocks/
+    fields_supported: []
+    parents: []
+    surfaces: []
+    restrictions: Empty source placeholders; not supported wire implementations.
+    implementation_status: unsupported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/blocks/context.cr, src/slack/ui/blocks/divider.cr, src/slack/ui/blocks/file.cr, src/slack/ui/blocks/header.cr, src/slack/ui/blocks/image.cr]
+
+  - wire_type: modal view
+    kind: surface
+    documentation_url: https://docs.slack.dev/reference/views/modal-views/
+    fields_supported: [type, title, submit, close, blocks]
+    parents: [views.open]
+    surfaces: [modal]
+    restrictions: Legacy view always requires submit and close, uses outdated label limits, and has a broad incomplete block alias.
+    implementation_status: partial
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/surfaces/modal.cr, spec/fixtures/compile/pass/collections_and_surfaces.cr]
