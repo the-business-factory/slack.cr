@@ -11,12 +11,13 @@ struct Slack::UI::Modal < Slack::UI::Surface
     close : Close? = nil,
     blocks : Array(Slack::TypeAliases::ModalBlock)
 
-  # Retains the positional order generated when all four fields were required.
+  # Retains the positional order and external labels generated when all four
+  # fields were required.
   def initialize(
-    legacy_blocks : Array(Slack::TypeAliases::ModalBlock),
-    legacy_close : Close,
-    legacy_submit : Submit,
-    legacy_title : Title,
+    blocks legacy_blocks : Array(Slack::TypeAliases::ModalBlock),
+    close legacy_close : Close,
+    submit legacy_submit : Submit,
+    title legacy_title : Title,
   )
     @blocks = legacy_blocks
     @close = legacy_close
