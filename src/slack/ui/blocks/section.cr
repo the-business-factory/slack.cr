@@ -9,9 +9,15 @@ struct Slack::UI::Blocks::Section < Slack::UI::Block
   # Defines validations that prevent Sections from being created:
   # - Some form of text is required
   # - Arrays of text can only have 10 text objects.
-  def after_initialize
+  def after_initialize : Nil
     if @text.nil? && @fields.nil?
       raise Slack::Errors::InvalidUIBlock.new("Text or Fields must be present")
+    end
+
+    if @fields.try(&.empty?)
+      raise Slack::Errors::InvalidUIBlock.new(
+        "Fields must have at least one text object"
+      )
     end
 
     if @fields.try &.size.>(10)
@@ -28,12 +34,13 @@ struct Slack::UI::Blocks::Section < Slack::UI::Block
     text : Text? = nil,
     fields : Array(FieldText)? = nil
 
-  def to_json(json : JSON::Builder)
+  def to_json(json : JSON::Builder) : Nil
     json.object do
       json.field "type", type
       json.field "text", text unless text.nil?
       json.field "fields", fields unless fields.nil?
       json.field "accessory", accessory unless accessory.nil?
+      json.field "block_id", block_id unless block_id.nil?
     end
   end
 end

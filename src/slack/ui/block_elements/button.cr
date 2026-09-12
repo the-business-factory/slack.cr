@@ -4,15 +4,19 @@ struct Slack::UI::BlockElements::Button < Slack::UI::BlockElement
     Primary
     Danger
 
-    def to_s
+    def wire_value : String
       case self
       when .primary?
         "primary"
       when .danger?
         "danger"
       else
-        raise "Unreachable condition."
+        raise Slack::Errors::InvalidUIBlock.new("Button style is invalid")
       end
+    end
+
+    def to_s : String
+      wire_value
     end
   end
 
@@ -28,11 +32,19 @@ struct Slack::UI::BlockElements::Button < Slack::UI::BlockElement
     url : String? = nil,
     value : String? = nil
 
-  def to_json(json : JSON::Builder)
+  def after_initialize : Nil
+    if (style = @style) && !Styles.valid?(style)
+      raise Errors::InvalidUIBlock.new("Button style is invalid")
+    end
+  end
+
+  def to_json(json : JSON::Builder) : Nil
     json.object do
       json.field "action_id", action_id
       json.field "confirm", confirm if confirm
-      json.field "style", style if style
+      if style_value = style
+        json.field "style", style_value.wire_value
+      end
       json.field "text", text
       json.field "type", type
       json.field "url", url if url
