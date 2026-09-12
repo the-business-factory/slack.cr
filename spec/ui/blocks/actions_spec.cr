@@ -58,4 +58,18 @@ describe Slack::UI::Blocks::Actions do
       }],
     }.to_json)
   end
+
+  it "preserves the legacy positional constructor with and without block_id" do
+    with_id = JSON.parse(
+      Slack::UI::Blocks::Actions.new("controls", [button.call(0)]).to_json
+    )
+    without_id = JSON.parse(
+      Slack::UI::Blocks::Actions.new(nil, [button.call(0)]).to_json
+    )
+
+    with_id["block_id"].as_s.should eq "controls"
+    with_id["elements"].as_a.size.should eq 1
+    without_id.as_h.has_key?("block_id").should be_false
+    without_id["elements"].as_a.size.should eq 1
+  end
 end

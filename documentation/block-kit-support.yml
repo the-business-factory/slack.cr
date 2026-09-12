@@ -155,7 +155,7 @@ entries:
     fields_supported: [type, block_id, elements]
     parents: [message, modal]
     surfaces: [message, modal]
-    restrictions: Legacy implementation accepts only buttons; elements are required and the supported collection size is 1 through 25.
+    restrictions: Legacy implementation accepts only buttons; elements are required, the supported collection size is 1 through 25, and the former positional constructor remains available.
     implementation_status: partial
     inbound_status: unsupported
     evidence_paths: [src/slack/ui/blocks/actions.cr, spec/ui/blocks/actions_spec.cr, spec/api/chat_post_message_spec.cr]
@@ -177,10 +177,10 @@ entries:
     fields_supported: [type, text, fields, accessory, block_id]
     parents: [message, modal]
     surfaces: [message, modal]
-    restrictions: Legacy type accepts broad mutable children; block_id serialization and non-empty fields are repaired, while Phase 0 checked conversion is test-only.
+    restrictions: Legacy type accepts broad mutable children; block_id serialization, its 255-character limit, and non-empty fields are repaired, while Phase 0 checked conversion is test-only.
     implementation_status: partial
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/blocks/section.cr, spec/ui/blocks/section_spec.cr, spec/block_kit_phase_0_proof_spec.cr]
+    evidence_paths: [src/slack/ui/blocks/section.cr, spec/ui/blocks/section_spec.cr, spec/api/chat_post_message_spec.cr, spec/block_kit_phase_0_proof_spec.cr]
 
   - wire_type: context, divider, file, header, and image blocks
     kind: block
@@ -199,7 +199,7 @@ entries:
     fields_supported: [type, title, submit, close, blocks]
     parents: [views.open]
     surfaces: [modal]
-    restrictions: Legacy view uses a broad incomplete block alias; labels are limited to 24, close is optional, and submit is required only with Input blocks.
+    restrictions: Legacy view uses a broad incomplete block alias; labels are limited to 24, close is optional, submit is rechecked before transport when Input blocks are present, and the former positional constructor remains available.
     implementation_status: partial
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/surfaces/modal.cr, spec/ui/surfaces/modal_spec.cr, spec/api/modal_helper_spec.cr, spec/fixtures/compile/pass/collections_and_surfaces.cr]
+    evidence_paths: [src/slack/ui/surfaces/modal.cr, spec/ui/surfaces/modal_spec.cr, spec/api/modal_helper_spec.cr, spec/api/views_open_spec.cr, spec/fixtures/compile/pass/collections_and_surfaces.cr]

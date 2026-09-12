@@ -84,4 +84,24 @@ describe Slack::UI::Modal do
     payload["submit"]["text"].as_s.should eq "Save"
     payload.as_h.has_key?("close").should be_false
   end
+
+  it "preserves the legacy positional constructor order" do
+    section = Slack::UI::Blocks::Section.new(
+      text: Slack::UI::Blocks::Section::Text.new("Details")
+    )
+    blocks = [section] of Slack::TypeAliases::ModalBlock
+    payload = JSON.parse(
+      Slack::UI::Modal.new(
+        blocks,
+        Slack::UI::Modal::Close.new("Cancel"),
+        Slack::UI::Modal::Submit.new("Save"),
+        Slack::UI::Modal::Title.new("Details")
+      ).to_json
+    )
+
+    payload["blocks"].as_a.size.should eq 1
+    payload["close"]["text"].as_s.should eq "Cancel"
+    payload["submit"]["text"].as_s.should eq "Save"
+    payload["title"]["text"].as_s.should eq "Details"
+  end
 end

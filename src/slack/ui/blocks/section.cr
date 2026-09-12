@@ -25,6 +25,8 @@ struct Slack::UI::Blocks::Section < Slack::UI::Block
         "Fields can include a max of 10 text objects"
       )
     end
+
+    validate_block_id!
   end
 
   properties_with_initializer \
@@ -35,12 +37,22 @@ struct Slack::UI::Blocks::Section < Slack::UI::Block
     fields : Array(FieldText)? = nil
 
   def to_json(json : JSON::Builder) : Nil
+    validate_block_id!
+
     json.object do
       json.field "type", type
       json.field "text", text unless text.nil?
       json.field "fields", fields unless fields.nil?
       json.field "accessory", accessory unless accessory.nil?
       json.field "block_id", block_id unless block_id.nil?
+    end
+  end
+
+  private def validate_block_id! : Nil
+    if @block_id.try &.size.>(255)
+      raise Slack::Errors::InvalidUIBlock.new(
+        "Block ID cannot be longer than 255 characters"
+      )
     end
   end
 end

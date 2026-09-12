@@ -11,21 +11,43 @@ struct Slack::UI::Modal < Slack::UI::Surface
     close : Close? = nil,
     blocks : Array(Slack::TypeAliases::ModalBlock)
 
+  # Retains the positional order generated when all four fields were required.
+  def initialize(
+    legacy_blocks : Array(Slack::TypeAliases::ModalBlock),
+    legacy_close : Close,
+    legacy_submit : Submit,
+    legacy_title : Title,
+  )
+    @blocks = legacy_blocks
+    @close = legacy_close
+    @submit = legacy_submit
+    @title = legacy_title
+    after_initialize
+  end
+
   def after_initialize : Nil
-    if @submit.nil? && @blocks.any?(Slack::UI::Blocks::Input)
-      raise Errors::InvalidUIBlock.new(
-        "Modal submit is required when blocks include an input"
-      )
-    end
+    validate_submit!
   end
 
   def to_json(json : JSON::Builder) : Nil
+    # Legacy arrays and setters remain mutable, so enforce the relationship
+    # again immediately before a ViewsOpen request serializes this value.
+    validate_submit!
+
     json.object do
       json.field "type", type
       json.field "title", title
       json.field "submit", submit unless submit.nil?
       json.field "close", close unless close.nil?
       json.field "blocks", blocks
+    end
+  end
+
+  private def validate_submit! : Nil
+    if @submit.nil? && @blocks.any?(Slack::UI::Blocks::Input)
+      raise Errors::InvalidUIBlock.new(
+        "Modal submit is required when blocks include an input"
+      )
     end
   end
 end
