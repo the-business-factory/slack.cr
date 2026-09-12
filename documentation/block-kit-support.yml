@@ -155,7 +155,7 @@ entries:
     fields_supported: [type, block_id, elements]
     parents: [message, modal]
     surfaces: [message, modal]
-    restrictions: Legacy implementation accepts only buttons; elements are required, the supported collection size is 1 through 25, and the former positional constructor remains available.
+    restrictions: Legacy implementation accepts only buttons; elements are required, the supported collection size is 1 through 25, and the former positional and mixed constructor forms remain available.
     implementation_status: partial
     inbound_status: unsupported
     evidence_paths: [src/slack/ui/blocks/actions.cr, spec/ui/blocks/actions_spec.cr, spec/api/chat_post_message_spec.cr]
@@ -199,7 +199,7 @@ entries:
     fields_supported: [type, title, submit, close, blocks]
     parents: [views.open]
     surfaces: [modal]
-    restrictions: Legacy view uses a broad incomplete block alias; labels are limited to 24, close is optional, submit is rechecked before transport when Input blocks are present, and the former positional constructor remains available.
+    restrictions: Legacy view uses a broad incomplete block alias; labels are limited to 24, close is optional, submit is rechecked before transport when Input blocks are present, and the former positional and mixed constructor forms remain available.
     implementation_status: partial
     inbound_status: unsupported
     evidence_paths: [src/slack/ui/surfaces/modal.cr, spec/ui/surfaces/modal_spec.cr, spec/api/modal_helper_spec.cr, spec/api/views_open_spec.cr, spec/fixtures/compile/pass/collections_and_surfaces.cr]

@@ -85,23 +85,68 @@ describe Slack::UI::Modal do
     payload.as_h.has_key?("close").should be_false
   end
 
-  it "preserves the legacy positional constructor order" do
+  it "preserves the legacy positional and mixed constructor forms" do
     section = Slack::UI::Blocks::Section.new(
       text: Slack::UI::Blocks::Section::Text.new("Details")
     )
     blocks = [section] of Slack::TypeAliases::ModalBlock
-    payload = JSON.parse(
+    close = Slack::UI::Modal::Close.new("Cancel")
+    submit = Slack::UI::Modal::Submit.new("Save")
+    title = Slack::UI::Modal::Title.new("Details")
+
+    named = JSON.parse(
+      Slack::UI::Modal.new(
+        blocks: blocks,
+        close: close,
+        submit: submit,
+        title: title
+      ).to_json
+    )
+    positional = JSON.parse(
       Slack::UI::Modal.new(
         blocks,
-        Slack::UI::Modal::Close.new("Cancel"),
-        Slack::UI::Modal::Submit.new("Save"),
-        Slack::UI::Modal::Title.new("Details")
+        close,
+        submit,
+        title
+      ).to_json
+    )
+    current_positional = JSON.parse(
+      Slack::UI::Modal.new(
+        blocks,
+        title,
+        close,
+        submit
+      ).to_json
+    )
+    mixed_after_blocks = JSON.parse(
+      Slack::UI::Modal.new(
+        blocks,
+        close: close,
+        submit: submit,
+        title: title
+      ).to_json
+    )
+    mixed_after_close = JSON.parse(
+      Slack::UI::Modal.new(
+        blocks,
+        close,
+        submit: submit,
+        title: title
+      ).to_json
+    )
+    mixed_after_submit = JSON.parse(
+      Slack::UI::Modal.new(
+        blocks,
+        close,
+        submit,
+        title: title
       ).to_json
     )
 
-    payload["blocks"].as_a.size.should eq 1
-    payload["close"]["text"].as_s.should eq "Cancel"
-    payload["submit"]["text"].as_s.should eq "Save"
-    payload["title"]["text"].as_s.should eq "Details"
+    positional.should eq named
+    current_positional.should eq named
+    mixed_after_blocks.should eq named
+    mixed_after_close.should eq named
+    mixed_after_submit.should eq named
   end
 end

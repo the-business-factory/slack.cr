@@ -18,13 +18,15 @@ catalog.
   valid.
 - Actions now requires an `elements` argument and rejects nil or empty input.
   Its supported range is one to 25 buttons, instead of one to five. The former
-  positional `block_id, elements` order remains available.
+  positional `block_id, elements` order and its mixed positional/named form
+  remain available.
 - Modal title, submit, and close labels now accept at most 24 characters. Submit
   can be absent when the modal has no Input block and is required when an Input
   block is present. The condition is checked again during serialization, before
   `views.open` transport, because legacy arrays and setters remain mutable.
-  Close is optional. The former direct positional constructor and existing
-  six-argument modal helper remain available, and a named helper overload permits
+  Close is optional. The former direct positional constructor, each former
+  positional prefix with the remaining named labels, and the existing
+  six-argument modal helper remain available. A named helper overload permits
   omitted labels.
 - Plain text input length fields now use `Int32`. `min_length` accepts 0 through
   3000, `max_length` accepts 1 through 3000, and minimum cannot exceed maximum.
@@ -41,11 +43,11 @@ setters or claim the compile-time guarantees reserved for the checked API.
 The production names remain `Slack::UI::Blocks::Section`,
 `Slack::UI::Blocks::Actions`, `Slack::UI::BlockElements::Button`,
 `Slack::UI::BlockElements::PlainTextInput`, and `Slack::UI::Modal`. Existing
-valid named constructors, former positional Actions and Modal constructors, and
-six-argument modal-helper calls remain valid. Calls that used nil or empty
-Actions elements, an empty Section fields array, Section block IDs longer than
-255 characters, labels longer than 24 characters, invalid length ranges, or
-unnamed enums now fail locally.
+valid named constructors, former positional and mixed Actions and Modal
+constructors, and six-argument modal-helper calls remain valid. Calls that used
+nil or empty Actions elements, an empty Section fields array, Section block IDs
+longer than 255 characters, labels longer than 24 characters, invalid length
+ranges, or unnamed enums now fail locally.
 
 The Phase 0 checked values stay under test support. This release does not load
 them from `require "slack"`, add a checked endpoint, or introduce the planned

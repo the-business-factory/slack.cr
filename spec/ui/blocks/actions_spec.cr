@@ -12,9 +12,18 @@ describe Slack::UI::Blocks::Actions do
     expect_raises(Slack::Errors::InvalidUIBlock, "Actions block elements are required") do
       Slack::UI::Blocks::Actions.new(elements: nil)
     end
+    expect_raises(Slack::Errors::InvalidUIBlock, "Actions block elements are required") do
+      Slack::UI::Blocks::Actions.new("controls", elements: nil)
+    end
 
     expect_raises(Slack::Errors::InvalidUIBlock, "Actions block must have at least one element") do
       Slack::UI::Blocks::Actions.new(
+        elements: [] of Slack::UI::BlockElements::Button
+      )
+    end
+    expect_raises(Slack::Errors::InvalidUIBlock, "Actions block must have at least one element") do
+      Slack::UI::Blocks::Actions.new(
+        "controls",
         elements: [] of Slack::UI::BlockElements::Button
       )
     end
@@ -31,6 +40,12 @@ describe Slack::UI::Blocks::Actions do
 
     expect_raises(Slack::Errors::InvalidUIBlock, "Actions block can only have up to 25 elements") do
       Slack::UI::Blocks::Actions.new(
+        elements: Array.new(26) { |index| button.call(index) }
+      )
+    end
+    expect_raises(Slack::Errors::InvalidUIBlock, "Actions block can only have up to 25 elements") do
+      Slack::UI::Blocks::Actions.new(
+        "controls",
         elements: Array.new(26) { |index| button.call(index) }
       )
     end
@@ -60,16 +75,33 @@ describe Slack::UI::Blocks::Actions do
   end
 
   it "preserves the legacy positional constructor with and without block_id" do
-    with_id = JSON.parse(
+    named = JSON.parse(
+      Slack::UI::Blocks::Actions.new(
+        block_id: "controls",
+        elements: [button.call(0)]
+      ).to_json
+    )
+    positional_with_id = JSON.parse(
       Slack::UI::Blocks::Actions.new("controls", [button.call(0)]).to_json
     )
-    without_id = JSON.parse(
+    current_positional = JSON.parse(
+      Slack::UI::Blocks::Actions.new([button.call(0)], "controls").to_json
+    )
+    positional_without_id = JSON.parse(
       Slack::UI::Blocks::Actions.new(nil, [button.call(0)]).to_json
     )
+    mixed_with_id = JSON.parse(
+      Slack::UI::Blocks::Actions.new("controls", elements: [button.call(0)]).to_json
+    )
+    mixed_without_id = JSON.parse(
+      Slack::UI::Blocks::Actions.new(nil, elements: [button.call(0)]).to_json
+    )
 
-    with_id["block_id"].as_s.should eq "controls"
-    with_id["elements"].as_a.size.should eq 1
-    without_id.as_h.has_key?("block_id").should be_false
-    without_id["elements"].as_a.size.should eq 1
+    positional_with_id.should eq named
+    current_positional.should eq named
+    mixed_with_id.should eq named
+    positional_without_id.as_h.has_key?("block_id").should be_false
+    positional_without_id["elements"].should eq named["elements"]
+    mixed_without_id.should eq positional_without_id
   end
 end

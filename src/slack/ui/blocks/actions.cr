@@ -11,8 +11,12 @@ struct Slack::UI::Blocks::Actions < Slack::UI::Block
     after_initialize
   end
 
-  # Retains the positional order generated before elements became required.
-  def initialize(legacy_block_id : String?, legacy_elements : Array(Button)?)
+  # Retains the positional order and external labels generated before elements
+  # became required.
+  def initialize(
+    block_id legacy_block_id : String?,
+    elements legacy_elements : Array(Button)?,
+  )
     @block_id = legacy_block_id
     @elements = required_elements(legacy_elements)
     after_initialize
