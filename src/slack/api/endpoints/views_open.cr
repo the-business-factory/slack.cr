@@ -10,7 +10,11 @@ struct Slack::Api::ViewsOpen < Slack::Api::Base
   end
 
   def result : HTTP::Client::Response
-    @result ||= api_client.post(body: to_json)
+    return result if result = @result
+
+    # Serializing rechecks relationships that legacy Modal mutation can change.
+    body = to_json
+    @result = api_client.post(body: body)
   end
 
   def call : Slack::Models::ViewsOpen

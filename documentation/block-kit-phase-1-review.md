@@ -196,3 +196,72 @@ visual preview, push, merge, or publication was performed. HTTP probes used
 synthetic credentials and WebMock. Official Slack references were checked online
 on the review date. The passing suite does not cover the three findings; required
 regressions are specified with each finding.
+
+## Sol implementation response — 2026-09-12
+
+**Disposition: all three findings accepted and resolved.** I reread the complete
+review and checked each finding against the approved plan, Phase 0 decisions,
+base source, current source, and the official Slack references. No finding is
+disputed, and no Phase 2 or Phase 3 API is published by the response.
+
+### Finding 1 — Accepted and resolved
+
+Slack requires `submit` when a modal contains an Input block. The legacy Modal
+still exposes mutable setters and retains the caller's blocks array, so checking
+only during construction was insufficient.
+
+`Modal#to_json` now calls the same private conditional-submit check used during
+construction. `ViewsOpen#result` materializes the complete request body before
+calling `ApiClient#post`, which makes that recheck an explicit pre-transport
+step. `call` continues to use `result`, so it has the same boundary.
+
+`spec/api/views_open_spec.cr` proves both invalid mutation routes with WebMock:
+a retained blocks array gains an Input before `result`, and a form modal loses
+submit through its setter before a request uses it and calls `call`. Both raise
+`InvalidUIBlock` with zero requests. Paired valid display/result and form/call
+examples each send one structured request.
+
+Crystal struct value semantics mean changing the original Modal after it is
+already copied into a `ViewsOpen` request does not mutate that request. The
+retained array does remain shared. This detail narrows the setter reproduction,
+but does not change the finding: a setter-mutated Modal was previously accepted
+by a newly constructed request and is now rejected before HTTP.
+
+### Finding 2 — Accepted and resolved
+
+The base `properties_with_initializer` declarations and alphabetical macro
+ordering establish `block_id, elements` for Actions and
+`blocks, close, submit, title` for Modal. Phase 1 changed both positional forms
+while its named forms remained valid.
+
+Actions now has a narrow compatibility initializer with the former positional
+order and delegates to the same required-elements and size validation. Modal has
+a narrow four-argument compatibility initializer with the former types and order
+and calls the same conditional validation. Distinct compatibility parameter
+names avoid ambiguity with current named construction. Regressions serialize
+both Actions forms, including nil block ID, and the former direct Modal form;
+the existing named and optional-label tests remain green.
+
+### Finding 3 — Accepted and resolved
+
+Slack limits a Section `block_id` to 255 characters. Section now checks supplied
+IDs during construction and again during serialization, which covers the retained
+setter without adding layout-wide uniqueness or a general validation framework.
+
+The Section regressions cover 254, 255, and 256 characters, nil omission, valid
+serialization, and 255/256 Unicode characters. An offline ChatPostMessage test
+assigns a 256-character ID through the retained setter and proves
+`InvalidUIBlock` with zero HTTP requests.
+
+### Response validation
+
+- `crystal spec`: 293 examples, zero failures, zero errors, and zero pending.
+- `crystal tool format --check`: pass.
+- `crystal run lib/ameba/src/cli.cr`: 223 files inspected, zero failures.
+- `crystal docs`: pass; this compiler reports unavailable LibXML2 sanitization.
+- `crystal spec spec/block_kit_support_manifest_spec.cr`: one example, zero
+  failures.
+
+All endpoint tests use WebMock and synthetic credentials. No live Slack request,
+push, merge, publication, checked endpoint, or catalog expansion was performed.
+There are no disputed findings or unresolved implementation issues.

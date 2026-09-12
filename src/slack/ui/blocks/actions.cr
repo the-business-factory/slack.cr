@@ -7,13 +7,14 @@ struct Slack::UI::Blocks::Actions < Slack::UI::Block
   property block_id : String?
 
   def initialize(elements : Array(Button)?, @block_id : String? = nil)
-    if elements.nil?
-      raise Errors::InvalidUIBlock.new(
-        "Actions block elements are required"
-      )
-    end
+    @elements = required_elements(elements)
+    after_initialize
+  end
 
-    @elements = elements
+  # Retains the positional order generated before elements became required.
+  def initialize(legacy_block_id : String?, legacy_elements : Array(Button)?)
+    @block_id = legacy_block_id
+    @elements = required_elements(legacy_elements)
     after_initialize
   end
 
@@ -37,5 +38,11 @@ struct Slack::UI::Blocks::Actions < Slack::UI::Block
       json.field "elements", elements
       json.field "type", type
     end
+  end
+
+  private def required_elements(elements : Array(Button)?) : Array(Button)
+    elements || raise Errors::InvalidUIBlock.new(
+      "Actions block elements are required"
+    )
   end
 end
