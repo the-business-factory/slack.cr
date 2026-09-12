@@ -37,7 +37,7 @@ module Slack
 
   def self.process_command(request : HTTP::Request) : Slack::Command
     verified_body = Webhooks::VerifiedRequest.new(request: request).verify!.body
-    Command.from_json URI::Params.parse(verified_body).to_h.to_json
+    Commands::Parser.parse(verified_body)
   end
 
   def self.process_interaction(request : HTTP::Request)
@@ -62,3 +62,5 @@ module Slack
     default || Slack::VerifiedEvent.from_json(json)
   end
 end
+
+require "./slack/auth/request_authorizer"
