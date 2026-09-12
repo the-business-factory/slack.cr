@@ -1,6 +1,6 @@
 schema_version: 1
 checked_on: "2026-09-12"
-scope: Public support in the current release. Phase 0 proof types are test-only.
+scope: Public support after Phase 1 repairs. Phase 0 proof types are test-only.
 statuses:
   - unsupported
   - partial
@@ -34,10 +34,10 @@ entries:
     fields_supported: [trigger_actions_on]
     parents: [plain_text_input]
     surfaces: [modal]
-    restrictions: Legacy enum has no unnamed-value membership validation.
+    restrictions: Legacy mutable value; PlainTextInput support and placement remain partial.
     implementation_status: partial
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/composition_objects/dispatch_action_config.cr]
+    evidence_paths: [src/slack/ui/composition_objects/dispatch_action_config.cr, spec/ui/composition_objects/dispatch_action_config_spec.cr]
 
   - wire_type: button
     kind: block element
@@ -45,10 +45,10 @@ entries:
     fields_supported: [type, text, action_id, url, value, style, confirm]
     parents: [actions, section]
     surfaces: [message, modal]
-    restrictions: Legacy action_id is required; values and unnamed styles are not fully validated.
+    restrictions: Legacy action_id is required and other field limits remain incomplete; style membership and wire strings are validated.
     implementation_status: partial
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/block_elements/button.cr, spec/fixtures/compile/pass/text_types.cr]
+    evidence_paths: [src/slack/ui/block_elements/button.cr, spec/ui/block_elements/button_spec.cr, spec/fixtures/compile/pass/text_types.cr]
 
   - wire_type: plain_text_input
     kind: block element
@@ -56,10 +56,10 @@ entries:
     fields_supported: [type, action_id, initial_value, multiline, focus_on_load, min_length, max_length, dispatch_action_config, placeholder]
     parents: [input]
     surfaces: [modal]
-    restrictions: Legacy integer types and several bounds require Phase 1 repairs; placement is not certified beyond current modal use.
+    restrictions: Length ranges and relationships are validated with Int32; other field limits and placement beyond current modal use remain incomplete.
     implementation_status: partial
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/block_elements/plain_text_input.cr, spec/ui/components/input_element_spec.cr]
+    evidence_paths: [src/slack/ui/block_elements/plain_text_input.cr, spec/ui/block_elements/plain_text_input_spec.cr, spec/ui/components/input_element_spec.cr]
 
   - wire_type: checkboxes
     kind: block element
@@ -155,10 +155,10 @@ entries:
     fields_supported: [type, block_id, elements]
     parents: [message, modal]
     surfaces: [message, modal]
-    restrictions: Legacy implementation accepts only buttons and uses the obsolete five-element limit.
+    restrictions: Legacy implementation accepts only buttons; elements are required and the supported collection size is 1 through 25.
     implementation_status: partial
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/blocks/actions.cr, spec/api/chat_post_message_spec.cr]
+    evidence_paths: [src/slack/ui/blocks/actions.cr, spec/ui/blocks/actions_spec.cr, spec/api/chat_post_message_spec.cr]
 
   - wire_type: input
     kind: block
@@ -177,10 +177,10 @@ entries:
     fields_supported: [type, text, fields, accessory, block_id]
     parents: [message, modal]
     surfaces: [message, modal]
-    restrictions: Legacy serializer drops block_id and accepts broad mutable children; Phase 0 checked conversion is test-only.
+    restrictions: Legacy type accepts broad mutable children; block_id serialization and non-empty fields are repaired, while Phase 0 checked conversion is test-only.
     implementation_status: partial
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/blocks/section.cr, spec/block_kit_phase_0_proof_spec.cr]
+    evidence_paths: [src/slack/ui/blocks/section.cr, spec/ui/blocks/section_spec.cr, spec/block_kit_phase_0_proof_spec.cr]
 
   - wire_type: context, divider, file, header, and image blocks
     kind: block
@@ -199,7 +199,7 @@ entries:
     fields_supported: [type, title, submit, close, blocks]
     parents: [views.open]
     surfaces: [modal]
-    restrictions: Legacy view always requires submit and close, uses outdated label limits, and has a broad incomplete block alias.
+    restrictions: Legacy view uses a broad incomplete block alias; labels are limited to 24, close is optional, and submit is required only with Input blocks.
     implementation_status: partial
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/surfaces/modal.cr, spec/fixtures/compile/pass/collections_and_surfaces.cr]
+    evidence_paths: [src/slack/ui/surfaces/modal.cr, spec/ui/surfaces/modal_spec.cr, spec/api/modal_helper_spec.cr, spec/fixtures/compile/pass/collections_and_surfaces.cr]
