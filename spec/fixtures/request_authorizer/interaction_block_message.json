@@ -1,0 +1,10 @@
+{
+  "type": "block_actions",
+  "api_app_id": "A1",
+  "is_enterprise_install": false,
+  "team": {"id": "T1"},
+  "user": {"id": "U_ACTOR"},
+  "channel": {"id": "C1"},
+  "container": {"type": "message", "channel_id": "C1", "message_ts": "1789232400.1"},
+  "actions": [{"action_id": "approve", "type": "button", "value": "yes"}]
+}

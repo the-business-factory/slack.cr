@@ -1,0 +1,10 @@
+{
+  "type": "block_actions",
+  "api_app_id": "A1",
+  "is_enterprise_install": false,
+  "team": {"id": "T_VISIBLE"},
+  "user": {"id": "U_ACTOR"},
+  "container": {"type": "view", "view_id": "V1"},
+  "view": {"id": "V1", "type": "modal", "app_installed_team_id": "T_OWNER"},
+  "actions": [{"action_id": "choose", "type": "static_select"}]
+}

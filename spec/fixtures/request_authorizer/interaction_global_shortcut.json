@@ -1,0 +1,9 @@
+{
+  "type": "shortcut",
+  "is_enterprise_install": false,
+  "team": {"id": "T1", "domain": "workspace-one", "enterprise_id": "E1"},
+  "enterprise": {"id": "E1", "name": "Enterprise One"},
+  "user": {"id": "U_ACTOR", "team_id": "T_ACTOR", "username": "actor"},
+  "callback_id": "open-global",
+  "trigger_id": "synthetic-trigger"
+}

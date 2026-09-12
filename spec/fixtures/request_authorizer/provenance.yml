@@ -1,0 +1,34 @@
+fixtures:
+  - path: event_connect_workspace.json
+    origin: synthetic
+    reference: https://docs.slack.dev/apis/events-api/
+    expected: workspace owner remains separate from Connect actor and visible teams
+  - path: event_org_context.json
+    origin: synthetic
+    reference: https://docs.slack.dev/enterprise/developing-for-enterprise-orgs/
+    expected: organization owner excludes contextual team
+  - path: interaction_global_shortcut.json
+    origin: synthetic
+    reference: https://docs.slack.dev/reference/interaction-payloads/shortcuts-interaction-payload/
+    expected: documented workspace shortcut omits api_app_id and retains nested enterprise evidence
+  - path: interaction_message_action.json
+    origin: synthetic
+    reference: https://docs.slack.dev/reference/interaction-payloads/shortcuts-interaction-payload/
+    expected: documented organization message shortcut omits api_app_id
+  - path: interaction_block_message.json
+    origin: synthetic
+    reference: https://docs.slack.dev/reference/interaction-payloads/block-actions-payload/
+  - path: interaction_block_view.json
+    origin: synthetic
+    reference: https://docs.slack.dev/reference/interaction-payloads/block-actions-payload/
+    expected: view installation team remains separate from visible workspace metadata
+  - path: interaction_view_submission.json
+    origin: synthetic
+    reference: https://docs.slack.dev/reference/interaction-payloads/view-interactions-payload/
+    expected: app_installed_team_id selects the installation owner across Slack Connect
+  - path: interaction_view_closed.json
+    origin: synthetic
+    reference: https://docs.slack.dev/reference/interaction-payloads/view-interactions-payload/
+    expected: app_installed_team_id selects the installation owner across Slack Connect
+reviewed: 2026-09-12
+live_verified: false

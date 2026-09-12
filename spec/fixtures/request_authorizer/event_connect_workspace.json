@@ -1,0 +1,32 @@
+{
+  "type": "event_callback",
+  "token": "synthetic-legacy-token",
+  "api_app_id": "A1",
+  "team_id": "T_VISIBLE",
+  "event_id": "Ev_CONNECT",
+  "event_time": 1789232400,
+  "authorizations": [
+    {
+      "enterprise_id": "E1",
+      "team_id": "T_OWNER",
+      "user_id": "U_INSTALLER",
+      "is_bot": true,
+      "is_enterprise_install": false
+    }
+  ],
+  "event": {
+    "type": "reaction_added",
+    "team_id": "T_EVENT",
+    "source_team": "T_SOURCE",
+    "user_team": "T_ACTOR",
+    "user": "U_EXTERNAL_ACTOR",
+    "item_user": "U_ITEM_OWNER",
+    "reaction": "white_check_mark",
+    "event_ts": "1789232400.000001",
+    "item": {
+      "type": "message",
+      "channel": "C_SHARED",
+      "ts": "1789232399.000001"
+    }
+  }
+}

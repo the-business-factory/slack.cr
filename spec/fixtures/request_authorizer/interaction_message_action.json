@@ -1,0 +1,11 @@
+{
+  "type": "message_action",
+  "is_enterprise_install": true,
+  "team": null,
+  "enterprise": {"id": "E_ORG", "name": "Enterprise One"},
+  "user": {"id": "U_ACTOR", "team_id": "T_EXTERNAL"},
+  "callback_id": "inspect-message",
+  "trigger_id": "synthetic-trigger",
+  "channel": {"id": "C_SHARED"},
+  "message": {"user": "U_MESSAGE_OWNER", "ts": "1789232400.1"}
+}

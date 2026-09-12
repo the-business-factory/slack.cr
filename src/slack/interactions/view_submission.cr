@@ -1,7 +1,7 @@
 struct Slack::Interactions::ViewSubmission < Slack::Interaction
-  property \
-    response_urls : JSON::Any,
-    team : JSON::Any,
-    user : JSON::Any,
-    view : JSON::Any
+  @[JSON::Field(emit_null: false)]
+  property response_urls : JSON::Any?
+
+  @[JSON::Field(emit_null: false)]
+  property view : Slack::Interactions::View?
 end

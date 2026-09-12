@@ -1,0 +1,29 @@
+{
+  "type": "event_callback",
+  "token": "synthetic-legacy-token",
+  "api_app_id": "A1",
+  "team_id": null,
+  "event_id": "Ev_ORG",
+  "event_time": 1789232400,
+  "authorizations": [
+    {
+      "enterprise_id": "E_ORG",
+      "team_id": "T_CONTEXT",
+      "user_id": "U_ORG_BOT",
+      "is_bot": true,
+      "is_enterprise_install": true
+    }
+  ],
+  "event": {
+    "type": "reaction_removed",
+    "user": "U_ACTOR",
+    "item_user": "U_ITEM_OWNER",
+    "reaction": "eyes",
+    "event_ts": "1789232400.000002",
+    "item": {
+      "type": "message",
+      "channel": "C_ORG",
+      "ts": "1789232399.000002"
+    }
+  }
+}
