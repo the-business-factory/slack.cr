@@ -13,6 +13,8 @@ describe "Block Kit Phase 3 public compile contracts" do
   {
     "phase_3_display_input"                       => {"phase_3_modal", "checked display_modal rejects its declared block item type"},
     "phase_3_display_builder_input"               => {"phase_3_modal", "expected argument #1 to 'Slack::UI::Checked::DisplayModalBuilder#add'"},
+    "phase_3_display_builder_input_helper"        => {"phase_3_modal", "undefined method 'input' for Slack::UI::Checked::DisplayModalBuilder"},
+    "phase_3_message_builder_input_helper"        => {"phase_3_modal", "undefined method 'input' for Slack::UI::Checked::MessageBuilder"},
     "phase_3_form_missing_submit"                 => {"phase_3_modal", "missing argument: submit"},
     "phase_3_form_builder_missing_submit"         => {"phase_3_modal", "missing argument: submit"},
     "phase_3_form_helper_missing_submit"          => {"phase_3_modal", "missing argument: submit"},

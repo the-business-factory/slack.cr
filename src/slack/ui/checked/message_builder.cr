@@ -25,28 +25,6 @@ class Slack::UI::Checked::MessageBuilder
     blocks.each { |block| add(block) }
   end
 
-  def section(
-    text : Slack::UI::Checked::CompositionObjects::Text,
-    accessory : Slack::UI::Checked::Blocks::Section::Accessory? = nil,
-    block_id : String? = nil,
-    expand : Bool? = nil,
-  ) : Nil
-    add(Slack::UI::Checked::Blocks::Section.new(
-      text: text,
-      accessory: accessory,
-      block_id: block_id,
-      expand: expand
-    ))
-  end
-
-  def actions(elements : Enumerable(T), block_id : String? = nil) : Nil forall T
-    add(Slack::UI::Checked::Blocks::Actions.new(elements: elements, block_id: block_id))
-  end
-
-  def divider(block_id : String? = nil) : Nil
-    add(Slack::UI::Checked::Blocks::Divider.new(block_id: block_id))
-  end
-
   def build : Message
     if fallback_text = @fallback_text
       Message.new(fallback_text: fallback_text, blocks: @blocks)
