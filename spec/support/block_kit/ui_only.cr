@@ -1,7 +1,3 @@
-require "json"
-require "./validation"
-require "./composition_objects"
-require "./button"
+require "../../../src/slack/ui"
 require "./declared_types"
-require "./section"
 require "./surfaces"
