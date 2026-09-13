@@ -1,6 +1,6 @@
 schema_version: 1
 checked_on: "2026-09-12"
-scope: Public support after Phase 1 repairs. Phase 0 proof types are test-only.
+scope: Public support after Phase 2 checked message construction and sending.
 statuses:
   - unsupported
   - partial
@@ -10,12 +10,12 @@ entries:
     kind: composition object
     documentation_url: https://docs.slack.dev/reference/block-kit/composition-objects/text-object/
     fields_supported: [type, text, emoji, verbatim]
-    parents: [legacy nested field owners]
-    surfaces: [message, modal]
-    restrictions: Legacy field-specific types permit mutable discriminators; distinct checked types exist only in Phase 0 test support.
-    implementation_status: partial
+    parents: [button, confirmation, section]
+    surfaces: [message]
+    restrictions: Immutable checked outbound values have fixed discriminators and format-specific options; legacy field-specific values remain mutable for compatibility.
+    implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/dynamic_text_composition.cr, spec/fixtures/compile/pass/text_types.cr, spec/fixtures/compile/fail/mrkdwn_button_label.cr]
+    evidence_paths: [src/slack/ui/checked/composition_objects/plain_text.cr, src/slack/ui/checked/composition_objects/mrkdwn.cr, spec/ui/checked/composition_objects_spec.cr, spec/fixtures/compile/fail/mrkdwn_button_label.cr]
 
   - wire_type: confirmation
     kind: composition object
@@ -23,10 +23,10 @@ entries:
     fields_supported: [title, text, confirm, deny, style]
     parents: [button]
     surfaces: [message, modal]
-    restrictions: Legacy mutable value; style is an unchecked string.
-    implementation_status: partial
+    restrictions: Checked outbound values are immutable and validated; the confirmation body accepts plain_text or mrkdwn as used by Slack's official examples. Legacy confirmation values remain mutable.
+    implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/composition_objects/confirmation.cr, spec/ui/components/confirmation_dialog_spec.cr]
+    evidence_paths: [src/slack/ui/checked/composition_objects/confirmation.cr, spec/ui/checked/composition_objects_spec.cr, spec/ui/checked/legacy_adapter_spec.cr]
 
   - wire_type: dispatch_action_config
     kind: composition object
@@ -42,13 +42,13 @@ entries:
   - wire_type: button
     kind: block element
     documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/button-element/
-    fields_supported: [type, text, action_id, url, value, style, confirm]
+    fields_supported: [type, text, action_id, url, value, style, confirm, accessibility_label, agent_prompt]
     parents: [actions, section]
     surfaces: [message, modal]
-    restrictions: Legacy action_id is required and other field limits remain incomplete; style membership and wire strings are validated.
-    implementation_status: partial
+    restrictions: Checked outbound values cover every currently documented field and keep action_id optional; legacy Button remains mutable and requires action_id. Button action decoding is deferred to Phase 3.
+    implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/block_elements/button.cr, spec/ui/block_elements/button_spec.cr, spec/fixtures/compile/pass/text_types.cr]
+    evidence_paths: [src/slack/ui/checked/block_elements/button.cr, spec/ui/checked/button_spec.cr, spec/fixtures/compile/pass/phase_2_message.cr, spec/fixtures/compile/fail/mrkdwn_button_label.cr]
 
   - wire_type: plain_text_input
     kind: block element
@@ -155,10 +155,10 @@ entries:
     fields_supported: [type, block_id, elements]
     parents: [message, modal]
     surfaces: [message, modal]
-    restrictions: Legacy implementation accepts only buttons; elements are required, the supported collection size is 1 through 25, and the former positional and mixed constructor forms remain available.
+    restrictions: Checked and legacy implementations accept only Button elements; other Slack interactive elements are not yet admitted. Checked collections are immutable snapshots and validate duplicate supplied action IDs.
     implementation_status: partial
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/blocks/actions.cr, spec/ui/blocks/actions_spec.cr, spec/api/chat_post_message_spec.cr]
+    evidence_paths: [src/slack/ui/checked/blocks/actions.cr, spec/ui/checked/blocks_spec.cr, spec/fixtures/compile/fail/phase_2_invalid_actions_element.cr, src/slack/ui/blocks/actions.cr]
 
   - wire_type: input
     kind: block
@@ -177,12 +177,23 @@ entries:
     fields_supported: [type, text, fields, accessory, block_id]
     parents: [message, modal]
     surfaces: [message, modal]
-    restrictions: Legacy type accepts broad mutable children; block_id serialization, its 255-character limit, and non-empty fields are repaired, while Phase 0 checked conversion is test-only.
+    restrictions: Checked Section supports text, fields, block_id, expand, and Button accessories. Other documented accessory element families are deferred and the legacy type still accepts broad mutable children.
     implementation_status: partial
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/blocks/section.cr, spec/ui/blocks/section_spec.cr, spec/api/chat_post_message_spec.cr, spec/block_kit_phase_0_proof_spec.cr]
+    evidence_paths: [src/slack/ui/checked/blocks/section.cr, spec/ui/checked/blocks_spec.cr, spec/fixtures/compile/fail/invalid_accessory.cr, src/slack/ui/blocks/section.cr]
 
-  - wire_type: context, divider, file, header, and image blocks
+  - wire_type: divider
+    kind: block
+    documentation_url: https://docs.slack.dev/reference/block-kit/blocks/divider-block/
+    fields_supported: [type, block_id]
+    parents: [message]
+    surfaces: [message]
+    restrictions: The checked Divider has the complete current outbound contract; the pre-existing short-name placeholder remains unsupported during coexistence.
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/checked/blocks/divider.cr, spec/ui/checked/blocks_spec.cr, spec/ui/checked/message_spec.cr]
+
+  - wire_type: context, file, header, and image blocks
     kind: block
     documentation_url: https://docs.slack.dev/reference/block-kit/blocks/
     fields_supported: []
@@ -191,7 +202,29 @@ entries:
     restrictions: Empty source placeholders; not supported wire implementations.
     implementation_status: unsupported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/blocks/context.cr, src/slack/ui/blocks/divider.cr, src/slack/ui/blocks/file.cr, src/slack/ui/blocks/header.cr, src/slack/ui/blocks/image.cr]
+    evidence_paths: [src/slack/ui/blocks/context.cr, src/slack/ui/blocks/file.cr, src/slack/ui/blocks/header.cr, src/slack/ui/blocks/image.cr]
+
+  - wire_type: Block Kit message payload
+    kind: surface
+    documentation_url: https://docs.slack.dev/block-kit/
+    fields_supported: [text, blocks]
+    parents: [chat.postMessage]
+    surfaces: [message]
+    restrictions: Supports explicit fallback text or the separately named Slack-generated fallback choice and a checked union of Section, Actions, and Divider. Other block families remain unsupported until their slices ship.
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/checked/surfaces/message.cr, src/slack/ui/checked/message_builder.cr, spec/ui/checked/message_spec.cr, examples/block_kit_message.cr]
+
+  - wire_type: chat.postMessage checked adapter
+    kind: endpoint
+    documentation_url: https://docs.slack.dev/reference/methods/chat.postMessage/
+    fields_supported: [channel, text, blocks, thread_ts, reply_broadcast, unfurl_links, unfurl_media]
+    parents: []
+    surfaces: [message]
+    restrictions: The checked adapter intentionally omits attachments, metadata, markdown_text, legacy authorship fields, draft fields, parse, link_names, and other endpoint options. Use the legacy ChatPostMessage request where those fields are required; they are outside the checked guarantee.
+    implementation_status: partial
+    inbound_status: unsupported
+    evidence_paths: [src/slack/api/endpoints/checked_chat_post_message.cr, spec/api/checked_chat_post_message_spec.cr, spec/fixtures/compile/pass/phase_2_endpoint.cr, spec/fixtures/compile/fail/phase_2_request_deserialization.cr]
 
   - wire_type: modal view
     kind: surface
