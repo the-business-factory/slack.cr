@@ -77,3 +77,16 @@ module Slack::UI::Checked
     builder.build
   end
 end
+
+module Slack::UI::Checked
+  def self.home(
+    private_metadata : String? = nil,
+    callback_id : String? = nil,
+    external_id : String? = nil,
+    & : HomeBuilder ->
+  ) : Home
+    builder = HomeBuilder.new(private_metadata: private_metadata, callback_id: callback_id, external_id: external_id)
+    yield builder
+    builder.build
+  end
+end

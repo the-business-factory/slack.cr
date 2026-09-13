@@ -1,4 +1,6 @@
 class Slack::UI::Checked::FormModalBuilder
+  include Slack::UI::Checked::DisplayBlockHelpers
+
   @blocks = [] of ModalBlock
 
   def initialize(
@@ -25,7 +27,7 @@ class Slack::UI::Checked::FormModalBuilder
 
   def section(
     text : Slack::UI::Checked::CompositionObjects::Text,
-    accessory : Slack::UI::Checked::BlockElements::Button? = nil,
+    accessory : Slack::UI::Checked::Blocks::Section::Accessory? = nil,
     block_id : String? = nil,
     expand : Bool? = nil,
   ) : Nil

@@ -1,6 +1,9 @@
 alias Slack::UI::Checked::MessageSourceBlock = Slack::UI::Checked::Blocks::Section |
                                                Slack::UI::Checked::Blocks::Actions |
-                                               Slack::UI::Checked::Blocks::Divider
+                                               Slack::UI::Checked::Blocks::Divider |
+                                               Slack::UI::Checked::Blocks::Header |
+                                               Slack::UI::Checked::Blocks::Context |
+                                               Slack::UI::Checked::Blocks::Image
 
 alias Slack::UI::Checked::MessageBlock = Slack::UI::Checked::MessageSourceBlock
 
@@ -113,15 +116,7 @@ struct Slack::UI::Checked::Message
     copied
   end
 
-  private def append_block(blocks : Array(MessageBlock), block : Slack::UI::Checked::Blocks::Section) : Nil
-    blocks << block
-  end
-
-  private def append_block(blocks : Array(MessageBlock), block : Slack::UI::Checked::Blocks::Actions) : Nil
-    blocks << block
-  end
-
-  private def append_block(blocks : Array(MessageBlock), block : Slack::UI::Checked::Blocks::Divider) : Nil
+  private def append_block(blocks : Array(MessageBlock), block : MessageBlock) : Nil
     blocks << block
   end
 end
