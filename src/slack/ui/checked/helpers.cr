@@ -19,3 +19,61 @@ module Slack::UI::Checked
     builder.build
   end
 end
+
+module Slack::UI::Checked
+  def self.display_modal(
+    title : CompositionObjects::PlainText,
+    submit : CompositionObjects::PlainText? = nil,
+    close : CompositionObjects::PlainText? = nil,
+    private_metadata : String? = nil,
+    callback_id : String? = nil,
+    external_id : String? = nil,
+    clear_on_close : Bool? = nil,
+    notify_on_close : Bool? = nil,
+    submit_disabled : Bool? = nil,
+    & : DisplayModalBuilder ->
+  ) : DisplayModal
+    builder = DisplayModalBuilder.new(
+      title: title,
+      submit: submit,
+      close: close,
+      private_metadata: private_metadata,
+      callback_id: callback_id,
+      external_id: external_id,
+      clear_on_close: clear_on_close,
+      notify_on_close: notify_on_close,
+      submit_disabled: submit_disabled
+    )
+    yield builder
+    builder.build
+  end
+end
+
+module Slack::UI::Checked
+  def self.form_modal(
+    title : CompositionObjects::PlainText,
+    submit : CompositionObjects::PlainText,
+    close : CompositionObjects::PlainText? = nil,
+    private_metadata : String? = nil,
+    callback_id : String? = nil,
+    external_id : String? = nil,
+    clear_on_close : Bool? = nil,
+    notify_on_close : Bool? = nil,
+    submit_disabled : Bool? = nil,
+    & : FormModalBuilder ->
+  ) : FormModal
+    builder = FormModalBuilder.new(
+      title: title,
+      submit: submit,
+      close: close,
+      private_metadata: private_metadata,
+      callback_id: callback_id,
+      external_id: external_id,
+      clear_on_close: clear_on_close,
+      notify_on_close: notify_on_close,
+      submit_disabled: submit_disabled
+    )
+    yield builder
+    builder.build
+  end
+end

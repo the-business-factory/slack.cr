@@ -17,3 +17,19 @@ module Slack::UI::Checked::DeclaredTypes
     {% end %}
   end
 end
+
+module Slack::UI::Checked::DeclaredTypes
+  def self.display_modal_block(type : T.class) : Nil forall T
+    {% unless T <= Slack::UI::Checked::DisplayModalBlock %}
+      {% raise "checked display_modal rejects its declared block item type" %}
+    {% end %}
+  end
+end
+
+module Slack::UI::Checked::DeclaredTypes
+  def self.form_modal_block(type : T.class) : Nil forall T
+    {% unless T <= Slack::UI::Checked::ModalBlock %}
+      {% raise "checked form_modal rejects its declared block item type" %}
+    {% end %}
+  end
+end
