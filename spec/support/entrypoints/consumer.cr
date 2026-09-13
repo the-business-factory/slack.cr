@@ -1,4 +1,5 @@
 require "webmock"
+require "slack/auth/storage/memory_installation_store"
 require "../auth/webmock_transport"
 
 # This consumer runs without spec_helper, dotenv, or redirect environment values.
@@ -50,6 +51,29 @@ callback = HTTP::Request.new("GET", "/install?#{callback_query}")
 installation = handler.authenticate_user(callback, session_binding)
 raise "Unexpected installation" unless installation.team.try(&.id) == "T9TK3CUKW"
 raise "Installation configured login" unless Slack::SignInWithSlack.settings.sign_in_redirect_url.nil?
+
+# The lifecycle services must be available through either public require order.
+installation_store = Slack::Auth::MemoryInstallationStore.new
+stored = installation_store.store(installation.installation_key,
+  installation.installation_patch(Slack::Auth::SystemClock.new), nil)
+refresh = Slack::Auth::RefreshClient.new(configuration, ConsumerOAuthTransport.new)
+rotation = Slack::Auth::RotationService.new(installation_store, refresh)
+query = Slack::Auth::InstallationQuery.new(stored.key, Slack::Auth::GrantKey.new(:bot))
+reference = rotation.rotate(query)
+raise "Unexpected credential generation" unless reference.generation == stored.version.generation
+lifecycle = Slack::Auth::CredentialLifecycle.new(stored.key.app_id, installation_store)
+event_body = {
+  token: "dummy-verification-token", api_app_id: stored.key.app_id, team_id: stored.key.team_id,
+  type: "event_callback", event_id: "EvCONSUMER", event_time: Time.utc.to_unix,
+  event: {type: "app_uninstalled"},
+}.to_json
+timestamp = Time.utc.to_unix.to_s
+uninstall_request = HTTP::Request.new("POST", "/slack", HTTP::Headers{
+  "X-Slack-Request-Timestamp" => timestamp,
+  "X-Slack-Signature"         => Slack::Webhooks::Signature.new(timestamp, event_body).compute,
+}, event_body)
+outcome = lifecycle.process(uninstall_request, stored.key)
+raise "Uninstall was not applied" unless outcome.applied?
 
 Slack::SignInWithSlack.configure(&.sign_in_redirect_url=("https://example.test/login"))
 login = URI.parse(Slack::SignInWithSlack.new.redirect_url)
