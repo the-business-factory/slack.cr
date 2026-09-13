@@ -10,22 +10,36 @@ struct Slack::UI::BlockElements::PlainTextInput < Slack::UI::BlockElement
     dispatch_action_config : ActionConfig? = nil,
     focus_on_load : Bool = false,
     initial_value : String? = nil,
-    max_length : Int16? = nil,
-    min_length : Int8? = nil,
+    max_length : Int32? = nil,
+    min_length : Int32? = nil,
     multiline : Bool = false,
     placeholder : Placeholder = Placeholder.new("Placeholder text")
 
-  def after_initialize
+  def after_initialize : Nil
     if @action_id.size > 255
       raise Errors::InvalidUIBlock.new("max allowed size for action_id is 255")
     end
 
-    if @min_length.try &.>(3000)
-      raise Errors::InvalidUIBlock.new("max allowed size for min_length is 3000")
+    if (min_length = @min_length) && !min_length.in?(0..3000)
+      raise Errors::InvalidUIBlock.new(
+        "min_length must be between 0 and 3000"
+      )
+    end
+
+    if (max_length = @max_length) && !max_length.in?(1..3000)
+      raise Errors::InvalidUIBlock.new(
+        "max_length must be between 1 and 3000"
+      )
+    end
+
+    if (min_length = @min_length) && (max_length = @max_length) && min_length > max_length
+      raise Errors::InvalidUIBlock.new(
+        "min_length cannot be greater than max_length"
+      )
     end
   end
 
-  def to_json(json : JSON::Builder)
+  def to_json(json : JSON::Builder) : Nil
     json.object do
       json.field "type", type
       json.field "action_id", action_id
