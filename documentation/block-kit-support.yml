@@ -221,7 +221,7 @@ entries:
     fields_supported: [channel, text, blocks, thread_ts, reply_broadcast, unfurl_links, unfurl_media]
     parents: []
     surfaces: [message]
-    restrictions: The checked adapter intentionally omits attachments, metadata, markdown_text, legacy authorship fields, draft fields, parse, link_names, and other endpoint options. Use the legacy ChatPostMessage request where those fields are required; they are outside the checked guarantee.
+    restrictions: The checked adapter is partial. Use the legacy ChatPostMessage request for attachments, parse, link_names, mrkdwn, username, icon_emoji, or icon_url; these fields are outside the checked guarantee. Neither request supports metadata, markdown_text, or draft fields.
     implementation_status: partial
     inbound_status: unsupported
     evidence_paths: [src/slack/api/endpoints/checked_chat_post_message.cr, spec/api/checked_chat_post_message_spec.cr, spec/fixtures/compile/pass/phase_2_endpoint.cr, spec/fixtures/compile/fail/phase_2_request_deserialization.cr]

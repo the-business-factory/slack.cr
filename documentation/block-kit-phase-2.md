@@ -101,10 +101,11 @@ request = Slack::Api::CheckedChatPostMessage.new(
 
 The checked adapter supports `channel`, Message `text` and `blocks`, `thread_ts`,
 `reply_broadcast`, `unfurl_links`, and `unfurl_media`. It is explicitly partial
-for the complete `chat.postMessage` method. It does not expose attachments,
-metadata, `markdown_text`, draft fields, parsing options, or legacy authorship
-fields. Use the existing `Slack::Api::ChatPostMessage` when these fields are
-required. See the current
+for the complete `chat.postMessage` method. Use the existing
+`Slack::Api::ChatPostMessage` when you need `attachments`, `parse`, `link_names`,
+`mrkdwn`, `username`, `icon_emoji`, or `icon_url`. These legacy request fields are
+outside the checked guarantee. Neither request supports `metadata`,
+`markdown_text`, or draft fields. See the current
 [`chat.postMessage` reference](https://docs.slack.dev/reference/methods/chat.postMessage/).
 
 ## Migration
