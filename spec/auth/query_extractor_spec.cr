@@ -63,6 +63,19 @@ describe Slack::Auth::QueryExtractor do
     end
   end
 
+  it "validates every authorization before accepting a selected owner" do
+    object = JSON.parse(RequestAuthorizerSupport.fixture("event_connect_workspace.json"))
+    authorizations = object["authorizations"].as_a
+    malformed = JSON.parse(authorizations.first.to_json)
+    malformed.as_h["user_id"] = JSON::Any.new("")
+    authorizations << malformed
+
+    extraction_failure(:missing_authorization_user) do
+      extractor.extract(Slack::VerifiedEvent.from_json(object.to_json), bot,
+        RequestAuthorizerSupport.workspace_key("T_OWNER", "E1"))
+    end
+  end
+
   it "extracts workspace and organization slash commands without actor fallback" do
     workspace = Slack::Commands::Parser.parse(RequestAuthorizerSupport.command_body(enterprise_id: "E1"))
     query = extractor.extract(workspace, Slack::Auth::GrantKey.new(:user, "U_INSTALLER"))

@@ -329,6 +329,42 @@ describe Slack::Auth::CredentialLifecycle do
     store.mutation_count.should eq(0)
   end
 
+  it "verifies malformed JSON before decoding it through the public preparation constructor" do
+    clock = RequestAuthorizerSupport::Clock.new
+    store = CredentialLifecycleSupport::Store.new(clock)
+    forged = CredentialLifecycleSpec.request("{", clock.now)
+    forged.headers["X-Slack-Signature"] = "v0=#{"0" * 64}"
+    expect_raises(Slack::Errors::SignatureMismatch) do
+      Slack::Auth::PreparedLifecycleDelivery.new(forged, "A1", store, clock: -> { clock.now })
+    end
+    expect_raises(Slack::Auth::RequestAuthorizationError) do
+      Slack::Auth::PreparedLifecycleDelivery.new(
+        CredentialLifecycleSpec.request("{", clock.now), "A1", store, clock: -> { clock.now })
+    end.reason.should eq(:invalid_payload)
+    store.fetch_count.should eq(0)
+    store.mutation_count.should eq(0)
+  end
+
+  it "restricts a selected owner without authorizations to the event's app and workspace" do
+    clock = RequestAuthorizerSupport::Clock.new
+    store = CredentialLifecycleSupport::Store.new(clock)
+    service = Slack::Auth::CredentialLifecycle.new("A1", store, -> { clock.now })
+    body = CredentialLifecycleSpec.body
+    expect_raises(Slack::Auth::RequestAuthorizationError) do
+      service.prepare(CredentialLifecycleSpec.request(body, clock.now), RequestAuthorizerSupport.org_key)
+    end.reason.should eq(:owner_not_authorized)
+    other_app = Slack::Auth::InstallationKey.new("OTHER", :workspace, team_id: "T1")
+    expect_raises(Slack::Auth::RequestAuthorizationError) do
+      service.prepare(CredentialLifecycleSpec.request(body, clock.now), other_app)
+    end.reason.should eq(:app_mismatch)
+    store.fetch_count.should eq(0)
+
+    workspace = RequestAuthorizerSupport.workspace_key("T1", "E_ORG")
+    service.prepare(CredentialLifecycleSpec.request(body, clock.now), workspace).owner.should eq(workspace)
+    store.fetch_count.should eq(1)
+    store.mutation_count.should eq(0)
+  end
+
   it "binds preparation to the store instance and app before applying cleanup" do
     clock = RequestAuthorizerSupport::Clock.new
     first = CredentialLifecycleSupport::Store.new(clock)
