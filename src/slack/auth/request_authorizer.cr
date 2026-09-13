@@ -80,8 +80,7 @@ module Slack::Auth
     end
 
     private def parse_interaction(body : String) : Slack::Interaction
-      values = [] of String
-      URI::Params.parse(body).each { |key, value| values << value if key == "payload" }
+      values = URI::Params.parse(body).fetch_all("payload")
       invalid_payload unless values.size == 1
       Slack::Interaction.from_json(values.first)
     rescue JSON::ParseException | JSON::SerializableError

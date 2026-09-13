@@ -18,24 +18,7 @@ module Slack::Auth
     def extract(event : Slack::VerifiedEvent, grant : GrantKey,
                 selected_owner : InstallationKey? = nil) : InstallationQuery
       verify_app(event.api_app_id)
-      invalid(:missing_owner) if event.authorizations.empty?
-
-      owners = [] of InstallationKey
-      event.authorizations.each do |authorization|
-        required_id(authorization.user_id, :missing_authorization_user)
-        owner = owner(authorization.enterprise_install, authorization.enterprise_id, authorization.team_id)
-        owners << owner unless owners.includes?(owner)
-      end
-
-      resolved = if selection = selected_owner
-                   invalid(:app_mismatch) unless selection.app_id == @expected_app_id
-                   invalid(:owner_not_authorized) unless owners.includes?(selection)
-                   selection
-                 else
-                   invalid(:ambiguous_owner) unless owners.size == 1
-                   owners.first
-                 end
-
+      resolved = select_owner(authorized_owners(event), selected_owner)
       InstallationQuery.new(resolved, grant, actor_user_id: actor(event.event), visible_team_id: optional_id(event.team_id))
     end
 
@@ -59,6 +42,25 @@ module Slack::Auth
         actor_user_id: required_id(actor_id, :missing_actor), visible_team_id: visible_team_id)
     end
 
+    private def authorized_owners(event : Slack::VerifiedEvent) : Array(InstallationKey)
+      invalid(:missing_owner) if event.authorizations.empty?
+      event.authorizations.map do |authorization|
+        required_id(authorization.user_id, :missing_authorization_user)
+        owner(authorization.enterprise_install, authorization.enterprise_id, authorization.team_id)
+      end.uniq!
+    end
+
+    private def select_owner(owners : Array(InstallationKey), selected : InstallationKey?) : InstallationKey
+      if selected
+        invalid(:app_mismatch) unless selected.app_id == @expected_app_id
+        invalid(:owner_not_authorized) unless owners.includes?(selected)
+        return selected
+      end
+
+      invalid(:ambiguous_owner) unless owners.size == 1
+      owners.first
+    end
+
     private def verify_interaction_app(interaction : Slack::Interaction) : Nil
       if app_id = interaction.api_app_id
         verify_app(app_id)
@@ -69,11 +71,7 @@ module Slack::Auth
 
     private def view_installed_team_id(interaction : Slack::Interaction) : String?
       case interaction
-      when Slack::Interactions::BlockAction
-        interaction.view.try(&.app_installed_team_id)
-      when Slack::Interactions::ViewSubmission
-        interaction.view.try(&.app_installed_team_id)
-      when Slack::Interactions::ViewClosed
+      when Slack::Interactions::BlockAction, Slack::Interactions::ViewSubmission, Slack::Interactions::ViewClosed
         interaction.view.try(&.app_installed_team_id)
       end
     end
@@ -132,13 +130,11 @@ module Slack::Auth
 
     private def actor(event : Slack::Event) : String?
       value = case event
-              when Slack::Events::AppHomeOpened      then event.user
-              when Slack::Events::AppMentioned       then event.user
-              when Slack::Events::Message            then event.user
-              when Slack::Events::Message::BotAdd    then event.user
-              when Slack::Events::Message::FileShare then event.user
-              when Slack::Events::ReactionAdded      then event.user
-              when Slack::Events::ReactionRemoved    then event.user
+              when Slack::Events::AppHomeOpened, Slack::Events::AppMentioned,
+                   Slack::Events::Message, Slack::Events::Message::BotAdd,
+                   Slack::Events::Message::FileShare, Slack::Events::ReactionAdded,
+                   Slack::Events::ReactionRemoved
+                event.user
               end
       optional_id(value)
     end

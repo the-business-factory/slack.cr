@@ -12,14 +12,7 @@ struct Slack::Auth::ResponseParser
     retry_seconds = headers["Retry-After"]?.try(&.to_i32?)
     @retry_after = retry_seconds.try { |seconds| seconds >= 0 ? seconds.seconds : nil }
     @data = read_body(body)
-    unless (200..299).includes?(@status) && @data["ok"]?.try(&.as_bool?) == true
-      remote = @data["ok"]?.try(&.as_bool?) == false ? @data["error"]?.try(&.as_s?) : nil
-      allowed = {"invalid_code", "code_already_used", "invalid_refresh_token", "token_revoked", "invalid_grant", "invalid_client_id", "bad_client_secret", "invalid_client_secret", "ratelimited"}
-      safe_error = remote && allowed.includes?(remote) ? remote : nil
-      rejected = {"invalid_code", "code_already_used", "invalid_refresh_token", "token_revoked", "invalid_grant"}.includes?(safe_error)
-      code = rejected ? ErrorCode::ReauthorizationRequired : ErrorCode::InvalidResponse
-      raise ResponseError.new(code, @status, @retry_after, safe_error)
-    end
+    validate_response
   end
 
   private def read_body(body : String | IO) : Hash(String, JSON::Any)
@@ -28,6 +21,23 @@ struct Slack::Auth::ResponseParser
     JSON.parse(input).as_h? || invalid!
   rescue JSON::ParseException | IO::Error | InvalidByteSequenceError
     invalid!
+  end
+
+  private def validate_response : Nil
+    ok = @data["ok"]?.try(&.as_bool?)
+    return if (200..299).includes?(@status) && ok == true
+
+    remote_error = ok == false ? @data["error"]?.try(&.as_s?) : nil
+    # Only known Slack error names may reach diagnostics.
+    code = case remote_error
+           when "invalid_code", "code_already_used", "invalid_refresh_token", "token_revoked", "invalid_grant"
+             ErrorCode::ReauthorizationRequired
+           when "invalid_client_id", "bad_client_secret", "invalid_client_secret", "ratelimited"
+             ErrorCode::InvalidResponse
+           else
+             invalid!
+           end
+    raise ResponseError.new(code, @status, @retry_after, remote_error)
   end
 
   def invalid! : NoReturn

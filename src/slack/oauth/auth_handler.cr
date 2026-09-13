@@ -60,17 +60,30 @@ class Slack::AuthHandler
   end
 
   def authenticate_user(request : HTTP::Request, session_binding : Auth::Secret) : Slack::AuthResponse
-    state = exactly_one_nonblank(request.query_params, "state", Auth::ErrorCode::InvalidState)
-    attempt = @state_store.consume(Auth::Secret.new(state), session_binding,
-      Auth::AuthorizationPurpose::Installation)
+    params = request.query_params
+    # Spend valid state before checking denial or code fields, even when they are invalid.
+    attempt = consume_attempt(params, session_binding)
+    code = authorization_code(params)
+    exchange_code(code, attempt.redirect_uri)
+  end
 
-    errors = request.query_params.fetch_all("error")
+  private def consume_attempt(params : URI::Params, session_binding : Auth::Secret) : Auth::AuthorizationAttempt
+    state = exactly_one_nonblank(params, "state", Auth::ErrorCode::InvalidState)
+    @state_store.consume(Auth::Secret.new(state), session_binding,
+      Auth::AuthorizationPurpose::Installation)
+  end
+
+  private def authorization_code(params : URI::Params) : String
+    errors = params.fetch_all("error")
     unless errors.empty?
       raise Auth::ContractError.new(Auth::ErrorCode::InvalidResponse) if errors.size != 1 || errors.first.blank?
       raise Auth::ContractError.new(Auth::ErrorCode::ReauthorizationRequired)
     end
 
-    code = exactly_one_nonblank(request.query_params, "code", Auth::ErrorCode::InvalidResponse)
+    exactly_one_nonblank(params, "code", Auth::ErrorCode::InvalidResponse)
+  end
+
+  private def exchange_code(code : String, redirect_uri : String) : Slack::AuthResponse
     response = @transport.execute(Auth::TransportRequest.new(
       "POST",
       snapshot_uri(@token_uri),
@@ -79,7 +92,7 @@ class Slack::AuthHandler
         "client_id"     => @client_id,
         "client_secret" => @client_secret.value,
         "code"          => code,
-        "redirect_uri"  => attempt.redirect_uri,
+        "redirect_uri"  => redirect_uri,
       })
     ))
     Slack::AuthResponse.parse(response)

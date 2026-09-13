@@ -37,7 +37,9 @@ module Slack::Auth
         mismatch unless result.enterprise_id == owner.enterprise_id
       else
         mismatch unless result.team_id == owner.team_id
-        mismatch unless result.enterprise_id == owner.enterprise_id if owner.enterprise_id
+        if enterprise_id = owner.enterprise_id
+          mismatch unless result.enterprise_id == enterprise_id
+        end
       end
       mismatch unless result.user_id == @expected_subject_id
     end

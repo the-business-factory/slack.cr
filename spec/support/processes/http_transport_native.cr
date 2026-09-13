@@ -604,6 +604,48 @@ describe Slack::Auth::HTTPTransport do
     proxy.try(&.close)
   end
 
+  it "closes rejected CONNECT tunnels without classifying proxy writes as an application send" do
+    proxy = AuthSupport::OneShotServer.new do |socket|
+      connect = AuthSupport.read_request(socket)
+      connect.method.should eq("CONNECT")
+      connect.resource.should eq("[::1]:8443")
+      connect.headers["Host"].should eq("[::1]:8443")
+      connect.headers["Authorization"]?.should be_nil
+      AuthSupport.respond(socket, 407, "proxy authentication required")
+      socket.read_timeout = 1.second
+      socket.read(Bytes.new(1)).should eq(0)
+    end
+    options = Slack::Auth::TransportOptions.new(
+      proxy_uri: URI.parse("http://127.0.0.1:#{proxy.port}"))
+
+    error_code(Slack::Auth::ErrorCode::TransportFailure) do
+      transport(options).execute(request("https://[::1]:8443/token", "POST", "synthetic-token"))
+    end
+    proxy.wait
+  ensure
+    proxy.try(&.close)
+  end
+
+  it "uses the connect timeout and closes the socket while waiting for a proxy tunnel" do
+    proxy = AuthSupport::OneShotServer.new do |socket|
+      AuthSupport.read_request(socket).method.should eq("CONNECT")
+      socket.read_timeout = 1.second
+      socket.read(Bytes.new(1)).should eq(0)
+    end
+    options = Slack::Auth::TransportOptions.new(
+      connect_timeout: 30.milliseconds, read_timeout: 1.second,
+      proxy_uri: URI.parse("http://127.0.0.1:#{proxy.port}"))
+
+    started = Time.instant
+    error_code(Slack::Auth::ErrorCode::TransportFailure) do
+      transport(options).execute(request("https://127.0.0.1/token", "POST", "synthetic-token"))
+    end
+    (Time.instant - started).should be < 500.milliseconds
+    proxy.wait
+  ensure
+    proxy.try(&.close)
+  end
+
   it "rejects invalid destination hosts before direct or proxy connections" do
     listener = TCPServer.new("127.0.0.1", 0)
     port = listener.local_address.port
