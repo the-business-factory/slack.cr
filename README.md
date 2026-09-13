@@ -52,6 +52,22 @@ See [OAuth installation](documentation/oauth-installation.md) for setup, routing
 and migration examples. `Slack::Auth::MemoryStateStore` is for one process only. Use a
 shared application-owned adapter when callbacks can reach more than one process.
 
+### Credential lifecycle
+
+Pass a `Slack::Auth::RotationService` to `RequestAuthorizer` with the named
+`rotation:` option to refresh expiring bot or user credentials before creating a
+request context. Use the same installation store for both services. Existing
+contexts keep their original credential references and reject invalidated grants.
+See [request authorization](documentation/request-authorization.md) and
+[token rotation](documentation/token-rotation.md).
+
+Use `Slack::Auth::CredentialLifecycle` to verify and prepare uninstall or token
+revocation events, then apply cleanup with the captured installation version.
+Retain the prepared delivery when retrying queued cleanup. Applications own
+event deduplication and durable queue storage. See
+[credential cleanup](documentation/credential-lifecycle.md) for ownership,
+delivery ordering, and migration examples.
+
 ### Sign in with Slack
 
 Sign in with Slack is unavailable until full OIDC identity verification is
