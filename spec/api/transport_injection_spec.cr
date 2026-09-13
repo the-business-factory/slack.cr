@@ -30,6 +30,44 @@ private class OrderingTransport < Slack::Auth::Transport
 end
 
 describe "API transport injection" do
+  {"chat.postMessage", "views.open", "views.publish"}.each do |method_path|
+    it "preserves checked #{method_path} envelopes with injected dispatch settings" do
+      transport = AuthSupport::RecordingTransport.new
+      transport.enqueue(Slack::Auth::TransportResponse.new(200, HTTP::Headers.new, %({"ok":true})))
+      limiter = OrderingLimiter.new
+      configuration = Slack::Auth::APIConfiguration.new(URI.parse("https://api.example.test/custom/"))
+      request = if method_path == "chat.postMessage"
+                  message = Slack::UI::Checked.message(fallback_text: "Details", &.divider)
+                  Slack::Api::CheckedChatPostMessage.new(
+                    token: "synthetic-checked-dispatch", channel: "C123", message: message,
+                    configuration: configuration, transport: transport, limiter: limiter
+                  )
+                elsif method_path == "views.open"
+                  view = Slack::UI::Checked.display_modal(title: Slack::UI::Checked.plain("Details")) { |builder| builder.divider }
+                  Slack::Api::CheckedViewsOpen.new(
+                    token: "synthetic-checked-dispatch", trigger_id: "trigger", view: view,
+                    configuration: configuration, transport: transport, limiter: limiter
+                  )
+                else
+                  view = Slack::UI::Checked.home(&.divider)
+                  Slack::Api::CheckedViewsPublish.new(
+                    token: "synthetic-checked-dispatch", user_id: "U123", view: view,
+                    configuration: configuration, transport: transport, limiter: limiter
+                  )
+                end
+
+      expected_body = JSON.parse(request.to_json)
+      request.result.status_code.should eq 200
+      request.result.status_code.should eq 200
+      limiter.passed?.should be_true
+      transport.requests.size.should eq 1
+      recorded = transport.requests.first
+      recorded.uri.to_s.should eq "https://api.example.test/custom/#{method_path}"
+      recorded.headers["Authorization"].should eq "Bearer synthetic-checked-dispatch"
+      JSON.parse(recorded.body || fail("Expected checked envelope")).should eq expected_body
+    end
+  end
+
   it "uses the configured host, prefix, encoded query, and bearer header" do
     transport = AuthSupport::RecordingTransport.new
     transport.enqueue(Slack::Auth::TransportResponse.new(200, HTTP::Headers.new,

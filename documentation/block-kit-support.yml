@@ -1,0 +1,348 @@
+schema_version: 1
+checked_on: "2026-09-12"
+scope: Public support through the first Phase 5 slice, with checked static selects and typed selection actions and state.
+statuses:
+  - unsupported
+  - partial
+  - supported
+entries:
+  - wire_type: plain_text and mrkdwn text objects
+    kind: composition object
+    documentation_url: https://docs.slack.dev/reference/block-kit/composition-objects/text-object/
+    fields_supported: [type, text, emoji, verbatim]
+    parents: [button, confirmation, section, input, plain_text_input, modal, header, context, image, option, option_group, static_select, multi_static_select]
+    surfaces: [message, modal, home]
+    restrictions: Immutable checked outbound values have fixed discriminators and format-specific options; legacy field-specific values remain mutable for compatibility.
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/checked/composition_objects/plain_text.cr, src/slack/ui/checked/composition_objects/mrkdwn.cr, spec/ui/checked/composition_objects_spec.cr, spec/fixtures/compile/fail/mrkdwn_button_label.cr]
+
+  - wire_type: confirmation
+    kind: composition object
+    documentation_url: https://docs.slack.dev/reference/block-kit/composition-objects/confirmation-dialog-object/
+    fields_supported: [title, text, confirm, deny, style]
+    parents: [button, static_select, multi_static_select]
+    surfaces: [message, modal, home]
+    restrictions: Checked outbound values are immutable and validated; the confirmation body accepts plain_text or mrkdwn as used by Slack's official examples. Legacy confirmation values remain mutable.
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/checked/composition_objects/confirmation.cr, spec/ui/checked/composition_objects_spec.cr, spec/ui/checked/legacy_adapter_spec.cr]
+
+  - wire_type: dispatch_action_config
+    kind: composition object
+    documentation_url: https://docs.slack.dev/reference/block-kit/composition-objects/dispatch-action-configuration-object/
+    fields_supported: [trigger_actions_on]
+    parents: [plain_text_input]
+    surfaces: [modal, home]
+    restrictions: Checked immutable dispatch configuration permits omission or one or both distinct typed triggers. Legacy configuration remains mutable.
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/checked/composition_objects/dispatch_action_config.cr, spec/ui/checked/input_spec.cr]
+
+  - wire_type: button
+    kind: block element
+    documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/button-element/
+    fields_supported: [type, text, action_id, url, value, style, confirm, accessibility_label, agent_prompt]
+    parents: [actions, section]
+    surfaces: [message, modal, home]
+    restrictions: Checked outbound values cover all documented fields with optional action_id. Inbound ButtonAction exposes IDs, value, and action_ts; other fields remain in raw JSON. Legacy Button remains mutable.
+    implementation_status: supported
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/checked/block_elements/button.cr, src/slack/interactions/button_action.cr, spec/interactions/block_kit_spec.cr, examples/block_kit_modal.cr]
+
+  - wire_type: plain_text_input
+    kind: block element
+    documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/plain-text-input-element/
+    fields_supported: [type, action_id, initial_value, multiline, focus_on_load, min_length, max_length, dispatch_action_config, placeholder]
+    parents: [input]
+    surfaces: [modal, home]
+    restrictions: Complete checked outbound field contract in modal and Home Input blocks. Plain text submission values have typed access with absent/null/empty distinction. Dispatched input actions remain UnknownAction; their state has typed access. Message placement remains outside the checked slice although Slack now lists it; this is a library support restriction.
+    implementation_status: supported
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/checked/block_elements/plain_text_input.cr, spec/ui/checked/input_spec.cr, spec/interactions/block_kit_spec.cr, examples/block_kit_modal.cr]
+
+  - wire_type: checkboxes
+    kind: block element
+    documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/checkboxes-element/
+    fields_supported: [type]
+    parents: []
+    surfaces: []
+    restrictions: Discriminator-only placeholder; not in a supported placement union.
+    implementation_status: unsupported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/block_elements/checkbox.cr]
+
+  - wire_type: datepicker
+    kind: block element
+    documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/date-picker-element/
+    fields_supported: [type]
+    parents: []
+    surfaces: []
+    restrictions: Discriminator-only placeholder; not in a supported placement union.
+    implementation_status: unsupported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/block_elements/date_picker.cr]
+
+  - wire_type: image element
+    kind: block element
+    documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/image-element/
+    fields_supported: [type, alt_text, image_url, slack_file]
+    parents: [section, context]
+    surfaces: [message, modal, home]
+    restrictions: Checked immutable image with exactly one public URL or SlackFile source; requires nonempty alt text as library policy. No element alt-text maximum is documented. File access and media format remain remote checks. Legacy placeholder remains unsupported.
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/checked/block_elements/image.cr, spec/ui/checked/display_spec.cr, spec/block_kit_phase_4_compile_spec.cr]
+
+  - wire_type: multi_static_select
+    kind: block element
+    documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/multi-select-menu-element/
+    fields_supported: [type, options, option_groups, action_id, placeholder, initial_options, confirm, focus_on_load, max_selected_items]
+    parents: [section, actions, input]
+    surfaces: [message, modal, home]
+    restrictions: Checked MultiStaticSelect supports all documented static-source fields. Exactly one nonempty option or group collection; unique values and exact initial membership. Section and Actions support all surfaces; Input remains limited to FormModal and Home by library policy. Typed selections and action IDs preserve absent/null/empty; echoed initial options, placeholder, confirm, and extra fields remain raw. Legacy discriminator-only placeholder remains unsupported.
+    implementation_status: supported
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/checked/block_elements/multi_static_select.cr, src/slack/interactions/multi_static_select_value.cr, src/slack/interactions/multi_static_select_action.cr, spec/ui/checked/static_select_spec.cr, spec/interactions/static_select_spec.cr, spec/api/static_select_snapshot_spec.cr, spec/block_kit_phase_5_compile_spec.cr, examples/block_kit_static_select.cr]
+
+  - wire_type: overflow
+    kind: block element
+    documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/overflow-menu-element/
+    fields_supported: [type]
+    parents: []
+    surfaces: []
+    restrictions: Discriminator-only placeholder; no option contract.
+    implementation_status: unsupported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/block_elements/overflow_menu.cr]
+
+  - wire_type: radio_buttons
+    kind: block element
+    documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/radio-button-group-element/
+    fields_supported: [type]
+    parents: []
+    surfaces: []
+    restrictions: Discriminator-only placeholder; no option contract.
+    implementation_status: unsupported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/block_elements/radio_button_group.cr]
+
+  - wire_type: static_select
+    kind: block element
+    documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/select-menu-element/
+    fields_supported: [type, options, option_groups, action_id, placeholder, initial_option, confirm, focus_on_load]
+    parents: [section, actions, input]
+    surfaces: [message, modal, home]
+    restrictions: Checked StaticSelect supports all documented static-source fields. Exactly one nonempty option or group collection; unique values and exact initial membership. Section and Actions support all surfaces; Input remains limited to FormModal and Home by library policy. Typed selections and action IDs preserve absent/null/empty; echoed initial options, placeholder, confirm, and extra fields remain raw. Legacy discriminator-only placeholder remains unsupported.
+    implementation_status: supported
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/checked/block_elements/static_select.cr, src/slack/interactions/static_select_value.cr, src/slack/interactions/static_select_action.cr, spec/ui/checked/static_select_spec.cr, spec/interactions/static_select_spec.cr, spec/api/static_select_snapshot_spec.cr, spec/block_kit_phase_5_compile_spec.cr, examples/block_kit_static_select.cr]
+
+  - wire_type: timepicker
+    kind: block element
+    documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/time-picker-element/
+    fields_supported: [type]
+    parents: []
+    surfaces: []
+    restrictions: Discriminator-only placeholder; not in a supported placement union.
+    implementation_status: unsupported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/block_elements/time_picker.cr]
+
+  - wire_type: actions
+    kind: block
+    documentation_url: https://docs.slack.dev/reference/block-kit/blocks/actions-block/
+    fields_supported: [type, block_id, elements]
+    parents: [message, modal, home]
+    surfaces: [message, modal, home]
+    restrictions: Checked Actions accepts Button, StaticSelect, and MultiStaticSelect; other Slack interactive elements are deferred. Legacy Actions still accepts only Button. Checked collections are immutable snapshots and validate duplicate supplied action IDs.
+    implementation_status: partial
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/checked/blocks/actions.cr, spec/ui/checked/blocks_spec.cr, spec/fixtures/compile/fail/phase_2_invalid_actions_element.cr, src/slack/ui/blocks/actions.cr]
+
+  - wire_type: input
+    kind: block
+    documentation_url: https://docs.slack.dev/reference/block-kit/blocks/input-block/
+    fields_supported: [type, label, element, dispatch_action, block_id, hint, optional]
+    parents: [modal, home]
+    surfaces: [modal, home]
+    restrictions: Checked Input accepts PlainTextInput, StaticSelect, and MultiStaticSelect in FormModal and Home; all Input fields are supported. Other elements and message placement are deferred; the message exclusion is a library support restriction. Legacy Input retains its previous partial contract.
+    implementation_status: partial
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/checked/blocks/input.cr, spec/ui/checked/input_spec.cr, spec/fixtures/compile/fail/phase_3_display_input.cr, spec/interactions/block_kit_spec.cr]
+
+  - wire_type: section
+    kind: block
+    documentation_url: https://docs.slack.dev/reference/block-kit/blocks/section-block/
+    fields_supported: [type, text, fields, accessory, block_id, expand]
+    parents: [message, modal, home]
+    surfaces: [message, modal, home]
+    restrictions: Checked Section supports text, fields, block_id, expand, and Button, Image, StaticSelect, or MultiStaticSelect accessories. Other documented accessory element families are deferred and the legacy type still accepts broad mutable children.
+    implementation_status: partial
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/checked/blocks/section.cr, spec/ui/checked/blocks_spec.cr, spec/fixtures/compile/fail/invalid_accessory.cr, src/slack/ui/blocks/section.cr]
+
+  - wire_type: divider
+    kind: block
+    documentation_url: https://docs.slack.dev/reference/block-kit/blocks/divider-block/
+    fields_supported: [type, block_id]
+    parents: [message, modal, home]
+    surfaces: [message, modal, home]
+    restrictions: The checked Divider has the complete current outbound contract; the pre-existing short-name placeholder remains unsupported during coexistence.
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/checked/blocks/divider.cr, spec/ui/checked/blocks_spec.cr, spec/ui/checked/message_spec.cr]
+
+  - wire_type: file block
+    kind: block
+    documentation_url: https://docs.slack.dev/reference/block-kit/blocks/file-block/
+    fields_supported: []
+    parents: []
+    surfaces: []
+    restrictions: Empty legacy placeholder; not a checked wire implementation.
+    implementation_status: unsupported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/blocks/file.cr]
+
+  - wire_type: Block Kit message payload
+    kind: surface
+    documentation_url: https://docs.slack.dev/block-kit/
+    fields_supported: [text, blocks]
+    parents: [chat.postMessage]
+    surfaces: [message]
+    restrictions: Supports explicit fallback text or the separately named Slack-generated fallback choice and a checked union of Section, Actions, Divider, Header, Context, and Image. Other block families remain unsupported until their slices ship.
+    implementation_status: supported
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/checked/surfaces/message.cr, src/slack/ui/checked/message_builder.cr, spec/ui/checked/message_spec.cr, examples/block_kit_message.cr]
+
+  - wire_type: chat.postMessage checked adapter
+    kind: endpoint
+    documentation_url: https://docs.slack.dev/reference/methods/chat.postMessage/
+    fields_supported: [channel, text, blocks, thread_ts, reply_broadcast, unfurl_links, unfurl_media]
+    parents: []
+    surfaces: [message]
+    restrictions: The checked adapter is partial. Use the legacy ChatPostMessage request for attachments, parse, link_names, mrkdwn, username, icon_emoji, or icon_url; these fields are outside the checked guarantee. Neither request supports metadata, markdown_text, or draft fields.
+    implementation_status: partial
+    inbound_status: unsupported
+    evidence_paths: [src/slack/api/endpoints/checked_chat_post_message.cr, spec/api/checked_chat_post_message_spec.cr, spec/fixtures/compile/pass/phase_2_endpoint.cr, spec/fixtures/compile/fail/phase_2_request_deserialization.cr]
+
+  - wire_type: modal view
+    kind: surface
+    documentation_url: https://docs.slack.dev/reference/views/modal-views/
+    fields_supported: [type, title, submit, close, blocks, private_metadata, callback_id, external_id, clear_on_close, notify_on_close, submit_disabled]
+    parents: [views.open]
+    surfaces: [modal]
+    restrictions: Checked DisplayModal excludes Input; FormModal requires submit. The block catalog is limited to Section, Actions, Divider, Header, Context, Image, and Input containing PlainTextInput or static selects. submit_disabled is for Slack configuration modals only. View lifecycle responses remain deferred. Legacy Modal keeps its previous contract.
+    implementation_status: partial
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/checked/surfaces/form_modal.cr, src/slack/ui/checked/surfaces/display_modal.cr, spec/ui/checked/modal_spec.cr, spec/block_kit_phase_3_compile_spec.cr, examples/block_kit_modal.cr]
+
+  - wire_type: views.open checked adapter
+    kind: endpoint
+    documentation_url: https://docs.slack.dev/reference/methods/views.open/
+    fields_supported: [trigger_id, view]
+    parents: []
+    surfaces: [modal]
+    restrictions: CheckedViewsOpen composes the existing transport and validates result and call. external_id belongs inside view. Trigger-based opening only; interactivity_pointer is deferred. Responses retain the existing ViewsOpen model with raw view JSON.
+    implementation_status: partial
+    inbound_status: partial
+    evidence_paths: [src/slack/api/endpoints/checked_views_open.cr, spec/api/checked_views_open_spec.cr, spec/fixtures/compile/pass/phase_3_endpoint.cr]
+
+  - wire_type: block_actions and view_submission
+    kind: interaction payload
+    documentation_url: https://docs.slack.dev/reference/interaction-payloads/view-interactions-payload/
+    fields_supported: [actions, state, view.state.values]
+    parents: []
+    surfaces: [message, modal, home]
+    restrictions: Typed button and static-select actions, plus plain text and static-select StateMap access through Interaction.from_json and process_interaction. Selection fields preserve absent/null/empty. Other known action metadata, view bodies, and dispatched text actions remain raw. UnknownAction and UnknownStateValue retain complete raw JSON. Other families and response actions are deferred.
+    implementation_status: partial
+    inbound_status: partial
+    evidence_paths: [src/slack/interactions/action_decoder.cr, src/slack/interactions/state_map.cr, spec/interactions/block_kit_spec.cr, spec/interactions/static_select_spec.cr, examples/block_kit_modal.cr, examples/block_kit_static_select.cr]
+
+  - wire_type: Slack file
+    kind: composition object
+    documentation_url: https://docs.slack.dev/reference/block-kit/composition-objects/slack-file-object/
+    fields_supported: [id, url]
+    parents: [image block, image element]
+    surfaces: [message, modal, home]
+    restrictions: Checked immutable SlackFile accepts exactly one nonempty id or url. The URL can be url_private or permalink. Slack checks image format and posting-user access.
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/checked/composition_objects/slack_file.cr, spec/ui/checked/display_spec.cr]
+
+  - wire_type: header
+    kind: block
+    documentation_url: https://docs.slack.dev/reference/block-kit/blocks/header-block/
+    fields_supported: [type, text, block_id, level]
+    parents: [message, modal, home]
+    surfaces: [message, modal, home]
+    restrictions: Checked plain-text heading supports 150 characters and optional Int32 level from 1 to 4. The legacy placeholder remains unsupported.
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/checked/blocks/header.cr, spec/ui/checked/display_spec.cr]
+
+  - wire_type: context
+    kind: block
+    documentation_url: https://docs.slack.dev/reference/block-kit/blocks/context-block/
+    fields_supported: [type, elements, block_id]
+    parents: [message, modal, home]
+    surfaces: [message, modal, home]
+    restrictions: Checked Context accepts text objects and image elements only; immutable copied collections contain one to ten elements. The nonempty minimum is library policy. The legacy placeholder remains unsupported.
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/checked/blocks/context.cr, spec/ui/checked/display_spec.cr, spec/block_kit_phase_4_compile_spec.cr]
+
+  - wire_type: image block
+    kind: block
+    documentation_url: https://docs.slack.dev/reference/block-kit/blocks/image-block/
+    fields_supported: [type, alt_text, image_url, slack_file, title, block_id]
+    parents: [message, modal, home]
+    surfaces: [message, modal, home]
+    restrictions: Checked image block accepts exactly one public URL or SlackFile source; nonempty plain alt text is library policy. Plain-text title and alt text allow 2000 characters; URL allows 3000. Media availability remains a remote check. Legacy placeholder remains unsupported.
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/checked/blocks/image.cr, spec/ui/checked/display_spec.cr]
+
+  - wire_type: Home view
+    kind: surface
+    documentation_url: https://docs.slack.dev/reference/views/home-tab-views/
+    fields_supported: [type, blocks, private_metadata, callback_id, external_id]
+    parents: [views.publish]
+    surfaces: [home]
+    restrictions: Checked Home and HomeBuilder accept Section, Actions, Divider, Header, Context, Image, and Input containing PlainTextInput or static selects. At most 100 blocks, unique supplied block IDs, and one focused element per view across Section, Actions, and Input. Modal fields are unavailable. Other block and input families remain deferred. Inbound Home views retain raw JSON; button/static-select actions and plain text/static-select state have typed access.
+    implementation_status: supported
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/checked/surfaces/home.cr, src/slack/ui/checked/home_builder.cr, spec/ui/checked/home_spec.cr, spec/interactions/home_spec.cr, examples/block_kit_home.cr]
+
+  - wire_type: views.publish checked adapter
+    kind: endpoint
+    documentation_url: https://docs.slack.dev/reference/methods/views.publish/
+    fields_supported: [user_id, view, hash, interactivity_pointer]
+    parents: []
+    surfaces: [home]
+    restrictions: CheckedViewsPublish validates result and call before injected transport and retains an immutable Home snapshot. Token is a transport header; hash and interactivity_pointer are opaque optional request strings. external_id belongs inside view; team-wide uniqueness and remote hash validity are checked by Slack. ViewsPublish response exposes ok and raw view JSON.
+    implementation_status: supported
+    inbound_status: partial
+    evidence_paths: [src/slack/api/endpoints/checked_views_publish.cr, src/slack/models/views/views_publish.cr, spec/api/checked_views_publish_spec.cr, spec/api/transport_injection_spec.cr, spec/fixtures/block_kit/phase_4_views_publish.json]
+
+  - wire_type: plain-text menu option
+    kind: composition object
+    documentation_url: https://docs.slack.dev/reference/block-kit/composition-objects/option-object/
+    fields_supported: [text, value, description]
+    parents: [static_select, multi_static_select, option_group]
+    surfaces: [message, modal, home]
+    restrictions: Checked Option has plain-text text and description only (75 characters each), and a value (150). URL belongs to the deferred overflow variant; markdown belongs to deferred checkbox/radio variants. Received SelectedOption exposes value, text, text_type, and complete raw JSON without outbound validation; emoji and description remain raw.
+    implementation_status: supported
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/checked/composition_objects/option.cr, src/slack/interactions/selected_option.cr, spec/ui/checked/static_select_spec.cr, spec/interactions/static_select_spec.cr]
+
+  - wire_type: plain-text option group
+    kind: composition object
+    documentation_url: https://docs.slack.dev/reference/block-kit/composition-objects/option-group-object/
+    fields_supported: [label, options]
+    parents: [static_select, multi_static_select]
+    surfaces: [message, modal, home]
+    restrictions: Checked OptionGroup uses a plain-text label (75 characters) and one to 100 distinct menu options. Nonempty lists are library policy. Selections arrive as individual options; groups have no separate inbound value. External suggestion responses remain deferred.
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/checked/composition_objects/option_group.cr, spec/ui/checked/static_select_spec.cr, spec/block_kit_phase_5_compile_spec.cr]

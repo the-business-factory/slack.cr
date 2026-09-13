@@ -20,13 +20,38 @@ struct Slack::Helpers::Modal
     transport : Slack::Auth::Transport? = nil,
     limiter : RateLimiter::LimiterLike? = nil,
   ) : Slack::Models::ViewsOpen
+    open(
+      access_token,
+      blocks,
+      trigger_id,
+      title,
+      close: close,
+      submit: submit,
+      configuration: configuration,
+      transport: transport,
+      limiter: limiter
+    )
+  end
+
+  def self.open(
+    access_token : String,
+    blocks : Array(ModalBlock),
+    trigger_id : String,
+    title : String,
+    *,
+    close : String? = nil,
+    submit : String? = nil,
+    configuration : Slack::Auth::APIConfiguration = Slack.settings.api_configuration,
+    transport : Slack::Auth::Transport? = nil,
+    limiter : RateLimiter::LimiterLike? = nil,
+  ) : Slack::Models::ViewsOpen
     Slack::Api::ViewsOpen.new(
       token: access_token,
       trigger_id: trigger_id,
       view: UIModal.new(
         title: UIModal::Title.new(text: title),
-        submit: UIModal::Submit.new(text: submit),
-        close: UIModal::Close.new(text: close),
+        submit: submit.try { |label| UIModal::Submit.new(text: label) },
+        close: close.try { |label| UIModal::Close.new(text: label) },
         blocks: blocks
       ),
       configuration: configuration,

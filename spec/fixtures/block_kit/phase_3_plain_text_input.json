@@ -1,0 +1,20 @@
+{
+  "type": "plain_text_input",
+  "action_id": "reason",
+  "initial_value": "",
+  "multiline": false,
+  "min_length": 0,
+  "max_length": 3000,
+  "focus_on_load": false,
+  "placeholder": {
+    "type": "plain_text",
+    "text": "Reason",
+    "emoji": false
+  },
+  "dispatch_action_config": {
+    "trigger_actions_on": [
+      "on_enter_pressed",
+      "on_character_entered"
+    ]
+  }
+}
