@@ -78,6 +78,9 @@ sends one structured JSON envelope with `trigger_id` and `view`; `external_id`
 is inside `view`. Tokens remain in transport headers. Response parsing and Slack
 API errors use the existing ViewsOpen model. Its response view remains raw JSON.
 Request deserialization and mutable setters are unavailable on the checked path.
+Optional `configuration`, `transport`, and `limiter` keyword arguments select the
+API host and dispatch dependencies without changing the checked JSON envelope.
+The offline example injects a transport that routes requests through WebMock.
 The newer `interactivity_pointer` opening path is not implemented.
 
 ## Read actions and submitted text

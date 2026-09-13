@@ -1,4 +1,5 @@
 require "../spec_helper"
+require "../support/auth/webmock_transport"
 
 describe Slack::Api::CheckedChatPostMessage do
   it "posts one structured checked snapshot through result" do
@@ -23,6 +24,8 @@ describe Slack::Api::CheckedChatPostMessage do
       end
 
     request = Slack::Api::CheckedChatPostMessage.new(
+
+      transport: AuthSupport::WebMockTransport.new,
       token: token,
       channel: "C-CHECKED",
       message: message,
@@ -39,6 +42,8 @@ describe Slack::Api::CheckedChatPostMessage do
       .to_return(body: File.read("spec/fixtures/api/chat-post-success-section.json"))
 
     response = Slack::Api::CheckedChatPostMessage.new(
+
+      transport: AuthSupport::WebMockTransport.new,
       token: "xoxb-synthetic-call",
       channel: "C-CALL",
       message: checked_message("Call")
@@ -55,6 +60,7 @@ describe Slack::Api::CheckedChatPostMessage do
       )]
     )
     request = Slack::Api::CheckedChatPostMessage.new(
+      transport: AuthSupport::WebMockTransport.new,
       token: "xoxb-synthetic-derived",
       channel: "C-DERIVED",
       message: message
@@ -88,6 +94,7 @@ describe Slack::Api::CheckedChatPostMessage do
           )
         end
         request = Slack::Api::CheckedChatPostMessage.new(
+          transport: AuthSupport::WebMockTransport.new,
           token: "xoxb-synthetic-thread",
           channel: "C-THREAD",
           message: checked_message("Thread"),
@@ -119,6 +126,7 @@ describe Slack::Api::CheckedChatPostMessage do
           )
         end
         request = Slack::Api::CheckedChatPostMessage.new(
+          transport: AuthSupport::WebMockTransport.new,
           token: "xoxb-synthetic-thread",
           channel: "C-THREAD",
           message: checked_message("Thread"),
@@ -142,6 +150,7 @@ describe Slack::Api::CheckedChatPostMessage do
 
         [nil, false, true].each do |broadcast|
           request = Slack::Api::CheckedChatPostMessage.new(
+            transport: AuthSupport::WebMockTransport.new,
             token: "xoxb-synthetic-thread",
             channel: "C-THREAD",
             message: checked_message("Thread"),
@@ -170,6 +179,7 @@ describe Slack::Api::CheckedChatPostMessage do
         HTTP::Client::Response.new(500)
       end
       request = Slack::Api::CheckedChatPostMessage.new(
+        transport: AuthSupport::WebMockTransport.new,
         token: "xoxb-synthetic-invalid",
         channel: "",
         message: checked_message("Invalid")
@@ -189,6 +199,7 @@ describe Slack::Api::CheckedChatPostMessage do
         HTTP::Client::Response.new(500)
       end
       request = Slack::Api::CheckedChatPostMessage.new(
+        transport: AuthSupport::WebMockTransport.new,
         token: "xoxb-synthetic-thread",
         channel: "C-THREAD",
         message: checked_message("Thread"),
@@ -215,6 +226,7 @@ describe Slack::Api::CheckedChatPostMessage do
       blocks: blocks
     )
     request = Slack::Api::CheckedChatPostMessage.new(
+      transport: AuthSupport::WebMockTransport.new,
       token: "xoxb-synthetic-snapshot",
       channel: "C-SNAPSHOT",
       message: message
@@ -233,6 +245,7 @@ describe Slack::Api::CheckedChatPostMessage do
 
     expect_raises(Slack::Errors::Api) do
       Slack::Api::CheckedChatPostMessage.new(
+        transport: AuthSupport::WebMockTransport.new,
         token: "xoxb-synthetic-error",
         channel: "C-ERROR",
         message: checked_message("Error")

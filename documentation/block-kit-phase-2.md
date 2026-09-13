@@ -86,6 +86,9 @@ builder, getter result, or legacy object cannot change a completed snapshot.
 mutable setters or JSON deserializer from `Api::Base`. It copies the Message,
 validates in both `result` and `call`, builds one JSON envelope, and uses the
 existing API client for headers, rate limiting, transport, and response parsing.
+Pass optional `configuration`, `transport`, and `limiter` keyword arguments to
+select a custom API host or inject dispatch dependencies. These settings are not
+part of the JSON envelope. Offline tests must inject a test transport.
 
 ```crystal
 request = Slack::Api::CheckedChatPostMessage.new(

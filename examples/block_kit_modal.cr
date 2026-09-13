@@ -2,6 +2,7 @@
 # WebMock intercepts every HTTP request. No Slack account or credentials needed.
 require "../src/slack"
 require "webmock"
+require "./support/webmock_transport"
 
 module OfflineModalExample
   alias UI = Slack::UI::Checked
@@ -40,7 +41,7 @@ module OfflineModalExample
         text: UI.plain("Add reason"), action_id: "request.open", value: "42"
       )])
     end
-    Slack::Api::CheckedChatPostMessage.new(token: "xoxb-synthetic-message", channel: "C-SYNTHETIC", message: message).call
+    Slack::Api::CheckedChatPostMessage.new(transport: OfflineExample::WebMockTransport.new, token: "xoxb-synthetic-message", channel: "C-SYNTHETIC", message: message).call
 
     # Simulate Slack returning the IDs and value from the posted button.
     button = JSON.parse(message.to_json)["blocks"][0]["elements"][0]
@@ -60,7 +61,7 @@ module OfflineModalExample
           builder.input(label: UI.plain("Reason"), block_id: "request.reason", optional: true,
             element: UI::BlockElements::PlainTextInput.new(action_id: "reason", multiline: true, max_length: 3000))
         end
-        opened = Slack::Api::CheckedViewsOpen.new(token: "xoxb-synthetic-modal", trigger_id: trigger, view: view).call
+        opened = Slack::Api::CheckedViewsOpen.new(transport: OfflineExample::WebMockTransport.new, token: "xoxb-synthetic-modal", trigger_id: trigger, view: view).call
         submit(opened.view)
       else
         raise "Expected button action"
