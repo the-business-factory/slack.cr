@@ -106,5 +106,7 @@ lifecycle through deletion/reinstall when that is the intended operation.
 
 Offline tests cover synthetic payloads, both delivery orders, target isolation,
 duplicate and partial cleanup, store conflicts, reinstall preservation, stale
-contexts, and stale refresh completion. Live Slack revocation, actual event
-delivery, and the combined rotation-service race remain separate validation.
+contexts, and stale refresh completion. Combined lifecycle tests cover actual
+rotation-service calls during user revocation and uninstall/reinstall, and
+uninstall after refresh completes. Live Slack revocation and actual event
+delivery remain pending.

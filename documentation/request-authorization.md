@@ -53,6 +53,34 @@ The authorizer does not scan the store or call auth.test to select a tenant.
 
 ## Credential fence
 
+### Rotate when creating a context
+
+Pass an optional `rotation` service to refresh the selected grant before creating
+a new context. Use the same installation-store instance for both services.
+
+```crystal
+refresh_client = Slack::Auth::RefreshClient.new(oauth_configuration, oauth_transport)
+rotation = Slack::Auth::RotationService.new(installation_store, refresh_client)
+authorizer = Slack::Auth::RequestAuthorizer.new(
+  "A123", installation_store, api_transport, api_configuration,
+  rotation: rotation,
+)
+```
+
+Signature verification and exact tenant selection happen before rotation. A
+fresh grant requires no refresh request. Rotation failures stop context creation.
+Concurrent refresh can return `RefreshBusy`; the caller decides when to try a
+new authorization attempt. No API write is sent or retried by this step.
+
+An existing context keeps its original credential reference. It does not switch
+to a replacement grant or a new installation. Create a new context for queued
+work when that work is ready to send. If a grant expires while a context waits,
+its final dispatch check rejects the send.
+
+See [token rotation](token-rotation.md) for refresh failures and recovery.
+
+### Check each send
+
 RequestContext stores a CredentialReference, not an access token. Its scoped
 transport calls credential_for_dispatch for every send, after the caller has
 finished any wait. It then replaces the Authorization header and immediately

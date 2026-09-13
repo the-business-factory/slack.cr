@@ -9,6 +9,7 @@ require "../interactions/**"
 require "../webhooks/verified_request"
 require "./query_extractor"
 require "./request_context"
+require "./rotation_service"
 
 module Slack::Auth
   # Verifies signed HTTP bytes before decoding ownership or touching the store.
@@ -19,7 +20,12 @@ module Slack::Auth
 
     def initialize(expected_app_id : String, @store : InstallationStore,
                    @transport : Transport, configuration : APIConfiguration,
-                   @clock : Proc(Time) = -> { Time.utc })
+                   @clock : Proc(Time) = -> { Time.utc }, *, @rotation : RotationService? = nil)
+      if rotation = @rotation
+        unless rotation.store.same?(@store)
+          raise ContractError.new(:invalid_configuration)
+        end
+      end
       @extractor = QueryExtractor.new(expected_app_id)
       @configuration = APIConfiguration.new(URI.parse(configuration.base_uri.to_s))
       ScopedTransport.validate_configuration(@configuration.base_uri)
@@ -83,7 +89,11 @@ module Slack::Auth
     end
 
     private def context(query : InstallationQuery) : RequestContext
-      reference = @store.acquire(query)
+      reference = if rotation = @rotation
+                    rotation.rotate(query)
+                  else
+                    @store.acquire(query)
+                  end
       RequestContext.new(query, reference, @store, @transport, @configuration)
     end
 
