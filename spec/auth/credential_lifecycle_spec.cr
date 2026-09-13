@@ -390,6 +390,31 @@ describe Slack::Auth::CredentialLifecycle do
     store.fetch(key).should_not(be_nil).version.should eq(updated.version)
   end
 
+  it "reports its successful removal when a competing cleanup removes the remaining target before a CAS retry" do
+    clock = RequestAuthorizerSupport::Clock.new
+    store = CredentialLifecycleSupport::Store.new(clock)
+    key = RequestAuthorizerSupport.workspace_key
+    RequestAuthorizerSupport.seed(store, key)
+    service = Slack::Auth::CredentialLifecycle.new("A1", store, -> { clock.now })
+    body = CredentialLifecycleSpec.body.gsub(%("U_ACTOR"), %("U_ACTOR", "U_INSTALLER"))
+    delivery = service.prepare(CredentialLifecycleSpec.request(body, clock.now), key)
+    store.before_mutation = -> {
+      store.before_mutation = -> {
+        current = store.fetch(key).should_not(be_nil)
+        current.users.keys.should eq(["U_INSTALLER"])
+        store.invalidate(key, Slack::Auth::GrantKey.new(:user, "U_INSTALLER"), current.version)
+        nil
+      }
+      nil
+    }
+
+    service.apply(delivery).applied?.should be_true
+    record = store.fetch(key).should_not(be_nil)
+    record.users.should be_empty
+    record.bot.should_not be_nil
+    service.apply(delivery).already_absent?.should be_true
+  end
+
   it "resumes partial multi-user cleanup using the original revisions after a storage failure" do
     clock = RequestAuthorizerSupport::Clock.new
     store = CredentialLifecycleSupport::Store.new(clock)

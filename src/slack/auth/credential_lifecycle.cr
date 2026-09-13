@@ -28,8 +28,10 @@ module Slack::Auth
         raise RequestAuthorizationError.new(:app_mismatch)
       end
       raise RequestAuthorizationError.new(:store_mismatch) unless delivery.prepared_for?(@store)
+      changed = false
       3.times do |attempt|
-        return cleanup(delivery)
+        outcome = cleanup(delivery) { changed = true; nil }
+        return changed && outcome.already_absent? ? LifecycleOutcome::Applied : outcome
       rescue error : ContractError
         # A fresh CAS revision can only remove unchanged, originally selected grants.
         # Uninstall can adopt a revision only inside the original generation.
@@ -38,7 +40,7 @@ module Slack::Auth
       raise ContractError.new(:conflict)
     end
 
-    private def cleanup(delivery : PreparedLifecycleDelivery) : LifecycleOutcome
+    private def cleanup(delivery : PreparedLifecycleDelivery, & : -> Nil) : LifecycleOutcome
       record = @store.fetch(delivery.owner)
       return LifecycleOutcome::AlreadyAbsent if record.nil? || record.deleted?
       expected = delivery.version
@@ -59,6 +61,8 @@ module Slack::Auth
       targets.each_key do |key|
         next unless record.grant(key)
         record = @store.invalidate(delivery.owner, key, record.version)
+        # Preserve this commit in the apply call even if a later target conflicts.
+        yield
         changed = true
       end
       changed ? LifecycleOutcome::Applied : LifecycleOutcome::AlreadyAbsent
