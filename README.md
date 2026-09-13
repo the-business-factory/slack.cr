@@ -190,6 +190,27 @@ The mutable Phase 1 types and component helpers remain available. See
 [Block Kit Phase 2](documentation/block-kit-phase-2.md) for supported fields,
 accessibility choices, and migration examples.
 
+### Checked modals and interactions
+
+Use `Slack::UI::Checked.form_modal` with a plain-text `title` and required
+`submit` label. Its builder accepts checked Input blocks containing PlainTextInput.
+Use `display_modal` for content without Input blocks. Both builders return stable
+snapshots that `Slack::Api::CheckedViewsOpen` can send.
+
+`Slack.process_interaction` keeps signature verification. For a received
+`BlockAction`, use `decoded_actions` to read button IDs and values. For a
+`ViewSubmission`, use `plain_text?(block_id, action_id)` to read submitted text.
+Unknown values remain available as raw JSON.
+
+Run the complete offline message-button-modal-submission example:
+
+```sh
+crystal run examples/block_kit_modal.cr
+```
+
+See [Block Kit Phase 3](documentation/block-kit-phase-3.md) for field limits,
+state presence, migration, and the remaining support limits.
+
 ## Development
 
 ```sh

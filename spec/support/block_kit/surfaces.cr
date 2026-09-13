@@ -93,7 +93,7 @@ module Slack::UI::Checked::Proof
       @title : Slack::UI::Checked::CompositionObjects::PlainText,
       blocks : Enumerable(T),
     ) forall T
-      Slack::UI::Checked::DeclaredTypes.display_modal_block(T)
+      Slack::UI::Checked::Proof::DeclaredTypes.display_modal_block(T)
       @blocks = copy_blocks(blocks)
     end
 
@@ -131,7 +131,7 @@ module Slack::UI::Checked::Proof
       @submit : Slack::UI::Checked::CompositionObjects::PlainText,
       blocks : Enumerable(T),
     ) forall T
-      Slack::UI::Checked::DeclaredTypes.form_modal_block(T)
+      Slack::UI::Checked::Proof::DeclaredTypes.form_modal_block(T)
       @blocks = copy_blocks(blocks)
     end
 
@@ -210,7 +210,7 @@ module Slack::UI::Checked::Proof
     end
 
     def add_all(blocks : Enumerable(T)) : Nil forall T
-      Slack::UI::Checked::DeclaredTypes.form_modal_block(T)
+      Slack::UI::Checked::Proof::DeclaredTypes.form_modal_block(T)
       blocks.each { |block| add(block) }
     end
 
@@ -223,7 +223,7 @@ module Slack::UI::Checked::Proof
     @blocks : Array(HomeBlock)
 
     def initialize(blocks : Enumerable(T)) forall T
-      Slack::UI::Checked::DeclaredTypes.home_block(T)
+      Slack::UI::Checked::Proof::DeclaredTypes.home_block(T)
       @blocks = copy_blocks(blocks)
     end
 

@@ -54,4 +54,12 @@ struct Slack::Interactions::View
   def to_json(json : JSON::Builder) : Nil
     @payload.to_json(json)
   end
+
+  def state_map : StateMap
+    StateMap.new(@payload["state"]?, "view.state")
+  end
+
+  def plain_text?(block_id : String, action_id : String) : String?
+    state_map.plain_text?(block_id, action_id)
+  end
 end
