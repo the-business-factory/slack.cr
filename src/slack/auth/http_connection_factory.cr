@@ -1,6 +1,7 @@
 require "http/client"
 require "openssl"
 require "socket"
+require "./http_response_headers"
 require "./proxy_configuration"
 require "./transport"
 
@@ -54,7 +55,7 @@ module Slack::Auth
       end
       HTTP::Request.new("CONNECT", authority, headers, "").to_io(socket)
       socket.flush
-      response = HTTP::Client::Response.from_io(socket, ignore_body: true)
+      response = HTTPResponseHeaders.read(socket)
       raise ContractError.new(ErrorCode::TransportFailure) unless response.success?
     end
 

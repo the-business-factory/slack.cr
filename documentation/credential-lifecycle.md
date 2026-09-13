@@ -110,3 +110,47 @@ contexts, and stale refresh completion. Combined lifecycle tests cover actual
 rotation-service calls during user revocation and uninstall/reinstall, and
 uninstall after refresh completes. Live Slack revocation and actual event
 delivery remain pending.
+
+## Event model migration
+
+`TokensRevoked#tokens` stores typed `Tokens` values. `VerifiedEvent#authorizations`
+stores `Array(Slack::Events::Authorization)`. Known fields still support `[]`
+and `[]?` lookups that return JSON values, like the compatibility accessors on
+interaction views. These existing expressions continue to compile:
+
+```crystal
+user_ids = event.tokens["oauth"].as_a.map(&.as_s)
+team_id = envelope.authorizations.first["team_id"].as_s
+```
+
+Use typed getters in new code:
+
+```crystal
+user_ids : Array(String) = event.tokens.oauth
+authorization = envelope.authorizations.first
+team_id : String? = authorization.team_id
+is_bot : Bool = authorization.bot?
+is_enterprise_install : Bool? = authorization.enterprise_install
+```
+
+The lookup keys are `oauth` and `bot` for token lists, and `user_id`, `team_id`,
+`enterprise_id`, `is_bot`, and `is_enterprise_install` for authorizations.
+An omitted or null token kind returns an empty array. An absent optional authorization
+field returns JSON null. Unknown fields are ignored during parsing; `[]` raises
+`KeyError` for an unknown key and `[]?` returns nil. Invalid known field types
+still fail parsing.
+
+This is read compatibility for known fields, not the full `JSON::Any` API.
+Token lookup arrays are snapshots; edits to them do not change typed values.
+Code that assigns `JSON::Any` tokens or `Array(JSON::Any)` authorizations must
+use the typed models instead:
+
+```crystal
+# Before: event.tokens = JSON.parse(%({"oauth":["U1"]}))
+event.tokens = Slack::Events::TokensRevoked::Tokens.from_json(%({"oauth":["U1"]}))
+
+# Before: envelope.authorizations = [JSON.parse(%({"user_id":"UB1","is_bot":true,"team_id":"T1"}))]
+envelope.authorizations = [
+  Slack::Events::Authorization.new(user_id: "UB1", bot: true, team_id: "T1"),
+]
+```

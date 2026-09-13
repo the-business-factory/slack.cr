@@ -113,6 +113,12 @@ contain a query or fragment. Optional basic proxy credentials must contain both
 a user and a password. `Proxy-Authorization` is sent to the proxy and is removed
 from requests inside an HTTPS tunnel.
 
+CONNECT consumes informational responses before it checks the final response,
+as required by [RFC 9110 section 15.2](https://www.rfc-editor.org/rfc/rfc9110.html#section-15.2).
+A 101 protocol switch is terminal and does not establish a CONNECT tunnel.
+Waiting for final CONNECT headers still uses the connect timeout. Rejection,
+EOF, or timeout during setup closes the socket and raises `TransportFailure`.
+
 ## Direct transport use
 
 The concrete factory and transport are available from `require "slack"` and
