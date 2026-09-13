@@ -1,0 +1,228 @@
+{
+  "user_id": "U-SYNTHETIC",
+  "view": {
+    "type": "home",
+    "blocks": [
+      {
+        "type": "actions",
+        "block_id": "choices",
+        "elements": [
+          {
+            "type": "static_select",
+            "options": [
+              {
+                "text": {
+                  "type": "plain_text",
+                  "text": "Red",
+                  "emoji": false
+                },
+                "value": "red",
+                "description": {
+                  "type": "plain_text",
+                  "text": "Team color"
+                }
+              },
+              {
+                "text": {
+                  "type": "plain_text",
+                  "text": "Blue",
+                  "emoji": false
+                },
+                "value": "blue",
+                "description": {
+                  "type": "plain_text",
+                  "text": "Team color"
+                }
+              }
+            ],
+            "action_id": "color",
+            "placeholder": {
+              "type": "plain_text",
+              "text": "Choose a color"
+            },
+            "initial_option": {
+              "text": {
+                "type": "plain_text",
+                "text": "Red",
+                "emoji": false
+              },
+              "value": "red",
+              "description": {
+                "type": "plain_text",
+                "text": "Team color"
+              }
+            },
+            "focus_on_load": false,
+            "confirm": {
+              "title": {
+                "type": "plain_text",
+                "text": "Change color?"
+              },
+              "text": {
+                "type": "plain_text",
+                "text": "Apply this color."
+              },
+              "confirm": {
+                "type": "plain_text",
+                "text": "Apply"
+              },
+              "deny": {
+                "type": "plain_text",
+                "text": "Cancel"
+              }
+            }
+          },
+          {
+            "type": "multi_static_select",
+            "option_groups": [
+              {
+                "label": {
+                  "type": "plain_text",
+                  "text": "Colors"
+                },
+                "options": [
+                  {
+                    "text": {
+                      "type": "plain_text",
+                      "text": "Red",
+                      "emoji": false
+                    },
+                    "value": "red",
+                    "description": {
+                      "type": "plain_text",
+                      "text": "Team color"
+                    }
+                  },
+                  {
+                    "text": {
+                      "type": "plain_text",
+                      "text": "Blue",
+                      "emoji": false
+                    },
+                    "value": "blue",
+                    "description": {
+                      "type": "plain_text",
+                      "text": "Team color"
+                    }
+                  }
+                ]
+              }
+            ],
+            "action_id": "colors",
+            "placeholder": {
+              "type": "plain_text",
+              "text": "Choose colors"
+            },
+            "initial_options": [
+              {
+                "text": {
+                  "type": "plain_text",
+                  "text": "Red",
+                  "emoji": false
+                },
+                "value": "red",
+                "description": {
+                  "type": "plain_text",
+                  "text": "Team color"
+                }
+              }
+            ],
+            "max_selected_items": 2,
+            "focus_on_load": true,
+            "confirm": {
+              "title": {
+                "type": "plain_text",
+                "text": "Change colors?"
+              },
+              "text": {
+                "type": "plain_text",
+                "text": "Apply these colors."
+              },
+              "confirm": {
+                "type": "plain_text",
+                "text": "Apply"
+              },
+              "deny": {
+                "type": "plain_text",
+                "text": "Cancel"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "input",
+        "block_id": "preferences",
+        "label": {
+          "type": "plain_text",
+          "text": "Color"
+        },
+        "element": {
+          "type": "static_select",
+          "options": [
+            {
+              "text": {
+                "type": "plain_text",
+                "text": "Red",
+                "emoji": false
+              },
+              "value": "red",
+              "description": {
+                "type": "plain_text",
+                "text": "Team color"
+              }
+            },
+            {
+              "text": {
+                "type": "plain_text",
+                "text": "Blue",
+                "emoji": false
+              },
+              "value": "blue",
+              "description": {
+                "type": "plain_text",
+                "text": "Team color"
+              }
+            }
+          ],
+          "action_id": "color",
+          "placeholder": {
+            "type": "plain_text",
+            "text": "Choose a color"
+          },
+          "initial_option": {
+            "text": {
+              "type": "plain_text",
+              "text": "Red",
+              "emoji": false
+            },
+            "value": "red",
+            "description": {
+              "type": "plain_text",
+              "text": "Team color"
+            }
+          },
+          "focus_on_load": false,
+          "confirm": {
+            "title": {
+              "type": "plain_text",
+              "text": "Change color?"
+            },
+            "text": {
+              "type": "plain_text",
+              "text": "Apply this color."
+            },
+            "confirm": {
+              "type": "plain_text",
+              "text": "Apply"
+            },
+            "deny": {
+              "type": "plain_text",
+              "text": "Cancel"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

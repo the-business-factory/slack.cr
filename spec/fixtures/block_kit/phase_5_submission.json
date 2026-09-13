@@ -1,0 +1,85 @@
+{
+  "type": "view_submission",
+  "team": null,
+  "user": {
+    "id": "U-SYNTHETIC"
+  },
+  "api_app_id": "A-SYNTHETIC",
+  "view": {
+    "id": "V-SYNTHETIC",
+    "type": "modal",
+    "callback_id": "preferences",
+    "state": {
+      "values": {
+        "preferences": {
+          "color": {
+            "type": "static_select",
+            "selected_option": {
+              "text": {
+                "type": "plain_text",
+                "text": "Red",
+                "emoji": false,
+                "future_text": "kept"
+              },
+              "value": "red",
+              "description": {
+                "type": "plain_text",
+                "text": "Team color"
+              },
+              "future_option": [
+                1,
+                2
+              ]
+            },
+            "future_state": true
+          },
+          "colors": {
+            "type": "multi_static_select",
+            "selected_options": [
+              {
+                "text": {
+                  "type": "plain_text",
+                  "text": "Red",
+                  "emoji": false,
+                  "future_text": "kept"
+                },
+                "value": "red",
+                "description": {
+                  "type": "plain_text",
+                  "text": "Team color"
+                },
+                "future_option": [
+                  1,
+                  2
+                ]
+              }
+            ]
+          },
+          "single_absent": {
+            "type": "static_select"
+          },
+          "single_null": {
+            "type": "static_select",
+            "selected_option": null
+          },
+          "multi_absent": {
+            "type": "multi_static_select"
+          },
+          "multi_null": {
+            "type": "multi_static_select",
+            "selected_options": null
+          },
+          "multi_empty": {
+            "type": "multi_static_select",
+            "selected_options": []
+          },
+          "future": {
+            "type": "future_select",
+            "selected_options": [],
+            "extra": null
+          }
+        }
+      }
+    }
+  }
+}
