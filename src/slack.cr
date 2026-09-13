@@ -68,3 +68,4 @@ module Slack
 end
 
 require "./slack/auth/request_authorizer"
+require "./slack/auth/credential_lifecycle"
