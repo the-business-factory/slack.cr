@@ -174,7 +174,7 @@ entries:
   - wire_type: section
     kind: block
     documentation_url: https://docs.slack.dev/reference/block-kit/blocks/section-block/
-    fields_supported: [type, text, fields, accessory, block_id]
+    fields_supported: [type, text, fields, accessory, block_id, expand]
     parents: [message, modal]
     surfaces: [message, modal]
     restrictions: Checked Section supports text, fields, block_id, expand, and Button accessories. Other documented accessory element families are deferred and the legacy type still accepts broad mutable children.
