@@ -1,0 +1,65 @@
+{
+  "type": "static_select",
+  "options": [
+    {
+      "text": {
+        "type": "plain_text",
+        "text": "Red",
+        "emoji": false
+      },
+      "value": "red",
+      "description": {
+        "type": "plain_text",
+        "text": "Team color"
+      }
+    },
+    {
+      "text": {
+        "type": "plain_text",
+        "text": "Blue",
+        "emoji": false
+      },
+      "value": "blue",
+      "description": {
+        "type": "plain_text",
+        "text": "Team color"
+      }
+    }
+  ],
+  "action_id": "color",
+  "placeholder": {
+    "type": "plain_text",
+    "text": "Choose a color"
+  },
+  "initial_option": {
+    "text": {
+      "type": "plain_text",
+      "text": "Red",
+      "emoji": false
+    },
+    "value": "red",
+    "description": {
+      "type": "plain_text",
+      "text": "Team color"
+    }
+  },
+  "focus_on_load": false,
+  "confirm": {
+    "title": {
+      "type": "plain_text",
+      "text": "Change color?"
+    },
+    "text": {
+      "type": "plain_text",
+      "text": "Apply this color."
+    },
+    "confirm": {
+      "type": "plain_text",
+      "text": "Apply"
+    },
+    "deny": {
+      "type": "plain_text",
+      "text": "Cancel"
+    }
+  }
+}
