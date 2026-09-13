@@ -1,6 +1,6 @@
 schema_version: 1
 checked_on: "2026-09-12"
-scope: Public support after Phase 2 checked message construction and sending.
+scope: Public support after Phase 3 checked messages, modals, and initial interaction decoding.
 statuses:
   - unsupported
   - partial
@@ -10,8 +10,8 @@ entries:
     kind: composition object
     documentation_url: https://docs.slack.dev/reference/block-kit/composition-objects/text-object/
     fields_supported: [type, text, emoji, verbatim]
-    parents: [button, confirmation, section]
-    surfaces: [message]
+    parents: [button, confirmation, section, input, plain_text_input, modal]
+    surfaces: [message, modal]
     restrictions: Immutable checked outbound values have fixed discriminators and format-specific options; legacy field-specific values remain mutable for compatibility.
     implementation_status: supported
     inbound_status: unsupported
@@ -34,10 +34,10 @@ entries:
     fields_supported: [trigger_actions_on]
     parents: [plain_text_input]
     surfaces: [modal]
-    restrictions: Legacy mutable value; PlainTextInput support and placement remain partial.
-    implementation_status: partial
+    restrictions: Checked immutable dispatch configuration permits omission or one or both distinct typed triggers. Legacy configuration remains mutable.
+    implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/composition_objects/dispatch_action_config.cr, spec/ui/composition_objects/dispatch_action_config_spec.cr]
+    evidence_paths: [src/slack/ui/checked/composition_objects/dispatch_action_config.cr, spec/ui/checked/input_spec.cr]
 
   - wire_type: button
     kind: block element
@@ -45,10 +45,10 @@ entries:
     fields_supported: [type, text, action_id, url, value, style, confirm, accessibility_label, agent_prompt]
     parents: [actions, section]
     surfaces: [message, modal]
-    restrictions: Checked outbound values cover every currently documented field and keep action_id optional; legacy Button remains mutable and requires action_id. Button action decoding is deferred to Phase 3.
+    restrictions: Checked outbound values cover all documented fields with optional action_id. Inbound ButtonAction exposes IDs, value, and action_ts; other fields remain in raw JSON. Legacy Button remains mutable.
     implementation_status: supported
-    inbound_status: unsupported
-    evidence_paths: [src/slack/ui/checked/block_elements/button.cr, spec/ui/checked/button_spec.cr, spec/fixtures/compile/pass/phase_2_message.cr, spec/fixtures/compile/fail/mrkdwn_button_label.cr]
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/checked/block_elements/button.cr, src/slack/interactions/button_action.cr, spec/interactions/block_kit_spec.cr, examples/block_kit_modal.cr]
 
   - wire_type: plain_text_input
     kind: block element
@@ -56,10 +56,10 @@ entries:
     fields_supported: [type, action_id, initial_value, multiline, focus_on_load, min_length, max_length, dispatch_action_config, placeholder]
     parents: [input]
     surfaces: [modal]
-    restrictions: Length ranges and relationships are validated with Int32; other field limits and placement beyond current modal use remain incomplete.
-    implementation_status: partial
-    inbound_status: unsupported
-    evidence_paths: [src/slack/ui/block_elements/plain_text_input.cr, spec/ui/block_elements/plain_text_input_spec.cr, spec/ui/components/input_element_spec.cr]
+    restrictions: Complete checked outbound field contract in modal Input blocks. Plain text submission values have typed access with absent/null/empty distinction. Dispatched input actions remain UnknownAction; their state has typed access. Home placement is deferred.
+    implementation_status: supported
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/checked/block_elements/plain_text_input.cr, spec/ui/checked/input_spec.cr, spec/interactions/block_kit_spec.cr, examples/block_kit_modal.cr]
 
   - wire_type: checkboxes
     kind: block element
@@ -157,19 +157,19 @@ entries:
     surfaces: [message, modal]
     restrictions: Checked and legacy implementations accept only Button elements; other Slack interactive elements are not yet admitted. Checked collections are immutable snapshots and validate duplicate supplied action IDs.
     implementation_status: partial
-    inbound_status: unsupported
+    inbound_status: partial
     evidence_paths: [src/slack/ui/checked/blocks/actions.cr, spec/ui/checked/blocks_spec.cr, spec/fixtures/compile/fail/phase_2_invalid_actions_element.cr, src/slack/ui/blocks/actions.cr]
 
   - wire_type: input
     kind: block
     documentation_url: https://docs.slack.dev/reference/block-kit/blocks/input-block/
-    fields_supported: [type, label, element, dispatch_action]
+    fields_supported: [type, label, element, dispatch_action, block_id, hint, optional]
     parents: [modal]
     surfaces: [modal]
-    restrictions: Legacy implementation accepts only plain text input; Home placements are not certified.
+    restrictions: Checked Input accepts only PlainTextInput in FormModal; all Input fields are supported. Other elements and Home placement are deferred. Legacy Input retains its previous partial contract.
     implementation_status: partial
-    inbound_status: unsupported
-    evidence_paths: [src/slack/ui/blocks/input.cr, spec/fixtures/compile/pass/nested_surfaces.cr]
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/checked/blocks/input.cr, spec/ui/checked/input_spec.cr, spec/fixtures/compile/fail/phase_3_display_input.cr, spec/interactions/block_kit_spec.cr]
 
   - wire_type: section
     kind: block
@@ -179,15 +179,15 @@ entries:
     surfaces: [message, modal]
     restrictions: Checked Section supports text, fields, block_id, expand, and Button accessories. Other documented accessory element families are deferred and the legacy type still accepts broad mutable children.
     implementation_status: partial
-    inbound_status: unsupported
+    inbound_status: partial
     evidence_paths: [src/slack/ui/checked/blocks/section.cr, spec/ui/checked/blocks_spec.cr, spec/fixtures/compile/fail/invalid_accessory.cr, src/slack/ui/blocks/section.cr]
 
   - wire_type: divider
     kind: block
     documentation_url: https://docs.slack.dev/reference/block-kit/blocks/divider-block/
     fields_supported: [type, block_id]
-    parents: [message]
-    surfaces: [message]
+    parents: [message, modal]
+    surfaces: [message, modal]
     restrictions: The checked Divider has the complete current outbound contract; the pre-existing short-name placeholder remains unsupported during coexistence.
     implementation_status: supported
     inbound_status: unsupported
@@ -212,7 +212,7 @@ entries:
     surfaces: [message]
     restrictions: Supports explicit fallback text or the separately named Slack-generated fallback choice and a checked union of Section, Actions, and Divider. Other block families remain unsupported until their slices ship.
     implementation_status: supported
-    inbound_status: unsupported
+    inbound_status: partial
     evidence_paths: [src/slack/ui/checked/surfaces/message.cr, src/slack/ui/checked/message_builder.cr, spec/ui/checked/message_spec.cr, examples/block_kit_message.cr]
 
   - wire_type: chat.postMessage checked adapter
@@ -229,10 +229,32 @@ entries:
   - wire_type: modal view
     kind: surface
     documentation_url: https://docs.slack.dev/reference/views/modal-views/
-    fields_supported: [type, title, submit, close, blocks]
+    fields_supported: [type, title, submit, close, blocks, private_metadata, callback_id, external_id, clear_on_close, notify_on_close, submit_disabled]
     parents: [views.open]
     surfaces: [modal]
-    restrictions: Legacy view uses a broad incomplete block alias; labels are limited to 24, close is optional, submit is rechecked before transport when Input blocks are present, and the former positional and mixed constructor forms remain available.
+    restrictions: Checked DisplayModal excludes Input; FormModal requires submit. The block catalog is limited to Section, Actions, Divider, and plain text Input. submit_disabled is for Slack configuration modals only. View lifecycle responses and Home views are deferred. Legacy Modal keeps its previous contract.
     implementation_status: partial
-    inbound_status: unsupported
-    evidence_paths: [src/slack/ui/surfaces/modal.cr, spec/ui/surfaces/modal_spec.cr, spec/api/modal_helper_spec.cr, spec/api/views_open_spec.cr, spec/fixtures/compile/pass/collections_and_surfaces.cr]
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/checked/surfaces/form_modal.cr, src/slack/ui/checked/surfaces/display_modal.cr, spec/ui/checked/modal_spec.cr, spec/block_kit_phase_3_compile_spec.cr, examples/block_kit_modal.cr]
+
+  - wire_type: views.open checked adapter
+    kind: endpoint
+    documentation_url: https://docs.slack.dev/reference/methods/views.open/
+    fields_supported: [trigger_id, view]
+    parents: []
+    surfaces: [modal]
+    restrictions: CheckedViewsOpen composes the existing transport and validates result and call. external_id belongs inside view. Trigger-based opening only; interactivity_pointer is deferred. Responses retain the existing ViewsOpen model with raw view JSON.
+    implementation_status: partial
+    inbound_status: partial
+    evidence_paths: [src/slack/api/endpoints/checked_views_open.cr, spec/api/checked_views_open_spec.cr, spec/fixtures/compile/pass/phase_3_endpoint.cr]
+
+  - wire_type: block_actions and view_submission
+    kind: interaction payload
+    documentation_url: https://docs.slack.dev/reference/interaction-payloads/view-interactions-payload/
+    fields_supported: [actions, state, view.state.values]
+    parents: []
+    surfaces: [message, modal, home]
+    restrictions: Additive typed button decoding and plain text StateMap access through Interaction.from_json and process_interaction. UnknownAction and UnknownStateValue retain raw JSON. Other actions, state families, and response actions have no typed contract. Existing optional fields and raw access remain available; inbound Home tolerance does not certify outbound Home placement.
+    implementation_status: partial
+    inbound_status: partial
+    evidence_paths: [src/slack/interactions/action_decoder.cr, src/slack/interactions/state_map.cr, spec/interactions/block_kit_spec.cr, examples/block_kit_modal.cr]

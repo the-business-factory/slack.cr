@@ -38,8 +38,8 @@ The field and size rules were checked against the current official references:
 
 Section and Actions placement remains partial because their checked child unions
 include only Button. Later phases will add other element families after their
-fields, limits, and placements are complete. Button interaction decoding remains
-unsupported until Phase 3.
+fields, limits, and placements are complete. Button interaction decoding was deferred in Phase 2 and is now available in
+[Phase 3](block-kit-phase-3.md).
 
 ## Accessibility choices
 
