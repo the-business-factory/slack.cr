@@ -5,12 +5,12 @@ struct Slack::Api::ViewsOpen < Slack::Api::Base
     ContentTypes::JSON
   end
 
-  def request_url : String
-    "https://slack.com/api/views.open"
+  def method_path : String
+    "views.open"
   end
 
   def result : HTTP::Client::Response
-    @result ||= ApiClient.new(api: self).post(body: to_json)
+    @result ||= api_client.post(body: to_json)
   end
 
   def call : Slack::Models::ViewsOpen

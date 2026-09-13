@@ -19,15 +19,18 @@ oauth = Slack::Auth::OAuthConfiguration.new(
 )
 
 state_store : Slack::Auth::StateStore = Slack::Auth::MemoryStateStore.new
-transport : Slack::Auth::Transport = application_oauth_transport
+transport : Slack::Auth::Transport = Slack::Auth::HTTPTransportFactory.new.build(
+  Slack::Auth::TransportOptions.new
+)
 handler = Slack::AuthHandler.new(oauth, state_store, transport,
   bot_scopes: ["commands", "chat:write"],
   user_scopes: ["users:read"])
 ```
 
-The library currently defines the transport contract. Inject the application transport
-that implements `Slack::Auth::Transport`. It must send one request without automatic
-retries or redirects. A later concrete transport can use the same constructor.
+The concrete HTTP transport sends one request without automatic retries or redirects.
+Use `TransportOptions` to set timeouts, a CA file, or an explicit HTTP proxy. You can
+instead inject an application transport that implements `Slack::Auth::Transport` with
+the same one-attempt behavior.
 
 The handler accepts HTTPS URIs only. URIs must be absolute and must not contain user
 information or fragments. The authorization URI can contain benign query parameters.

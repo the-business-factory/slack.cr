@@ -9,13 +9,12 @@ struct Slack::Api::ReactionsAdd < Slack::Api::Base
     ContentTypes::JSON
   end
 
-  def request_url : String
-    "https://slack.com/api/reactions.add"
+  def method_path : String
+    "reactions.add"
   end
 
   def result : HTTP::Client::Response
-    @result ||= HTTP::Client
-      .post(url: request_url, headers: headers, body: to_json)
+    @result ||= api_client.post(body: to_json)
   end
 
   def call : Slack::Models::DefaultResponse

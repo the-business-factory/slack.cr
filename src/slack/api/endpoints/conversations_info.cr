@@ -5,12 +5,16 @@ struct Slack::Api::ConversationsInfo < Slack::Api::Base
     ContentTypes::FormEncoded
   end
 
-  def request_url : String
-    "https://slack.com/api/conversations.info?channel=#{channel}"
+  def method_path : String
+    "conversations.info"
+  end
+
+  def query : String
+    HTTP::Params.encode({"channel" => channel})
   end
 
   def result : HTTP::Client::Response
-    @result ||= ApiClient.new(api: self).get
+    @result ||= api_client.get
   end
 
   def call : Models::Conversation

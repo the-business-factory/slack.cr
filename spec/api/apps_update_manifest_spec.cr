@@ -1,4 +1,5 @@
 require "../spec_helper"
+require "../support/auth/webmock_transport"
 
 describe Slack::Api::AppsManifestUpdate do
   describe "#call" do
@@ -17,7 +18,7 @@ describe Slack::Api::AppsManifestUpdate do
 
       app = JSON.parse File.read("spec/fixtures/app_config/app_manifest.json")
       response = Slack::Api::AppsManifestUpdate
-        .new(token: token, app_id: app_id, manifest: app)
+        .new(token: token, app_id: app_id, manifest: app, transport: AuthSupport::WebMockTransport.new)
         .call
         .should be_a(Slack::Models::Apps::ManifestUpdate)
 

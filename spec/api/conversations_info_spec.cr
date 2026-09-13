@@ -1,4 +1,5 @@
 require "../spec_helper"
+require "../support/auth/webmock_transport"
 
 CHANNEL_CONVERSATION_ID = "C032TLM43GA"
 IM_CONVERSATION_ID      = "D03ATRRQDMH"
@@ -13,7 +14,7 @@ describe Slack::Api::ConversationsInfo do
 
         token = ENV.fetch("SLACK_TEAM_AUTH_TOKEN")
         response = Slack::Api::ConversationsInfo
-          .new(token: token, channel: IM_CONVERSATION_ID)
+          .new(token: token, channel: IM_CONVERSATION_ID, transport: AuthSupport::WebMockTransport.new)
           .call
           .should be_a(Slack::Models::IMChat)
 
@@ -31,7 +32,7 @@ describe Slack::Api::ConversationsInfo do
 
         token = ENV.fetch("SLACK_TEAM_AUTH_TOKEN")
         response = Slack::Api::ConversationsInfo
-          .new(token: token, channel: CHANNEL_CONVERSATION_ID)
+          .new(token: token, channel: CHANNEL_CONVERSATION_ID, transport: AuthSupport::WebMockTransport.new)
           .call
           .should be_a(Slack::Models::PublicChannel)
 

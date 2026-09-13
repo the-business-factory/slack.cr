@@ -8,12 +8,34 @@ struct Slack::Api::ChatPostMessage < Slack::Api::Base
   def self.post_blocks(blocks : Enumerable,
                        channel : String,
                        token : String,
-                       thread_ts : String? = nil)
+                       thread_ts : String? = nil,
+                       *,
+                       configuration : Slack::Auth::APIConfiguration = Slack.settings.api_configuration,
+                       transport : Slack::Auth::Transport? = nil,
+                       limiter : RateLimiter::LimiterLike? = nil) : Slack::Models::Chat::PostMessage
     new(
       token: token,
       channel: channel,
       blocks: blocks.map &.as(Slack::UI::Block),
-      thread_ts: thread_ts
+      thread_ts: thread_ts,
+      configuration: configuration,
+      transport: transport,
+      limiter: limiter
+    ).call
+  end
+
+  def self.post_blocks(*, blocks : Enumerable, channel : String,
+                       transport : Slack::Auth::Transport,
+                       limiter : RateLimiter::LimiterLike,
+                       thread_ts : String? = nil,
+                       configuration : Slack::Auth::APIConfiguration = Slack.settings.api_configuration) : Slack::Models::Chat::PostMessage
+    tokenless(
+      channel: channel,
+      blocks: blocks.map &.as(Slack::UI::Block),
+      thread_ts: thread_ts,
+      configuration: configuration,
+      transport: transport,
+      limiter: limiter
     ).call
   end
 
@@ -39,12 +61,12 @@ struct Slack::Api::ChatPostMessage < Slack::Api::Base
     ContentTypes::JSON
   end
 
-  def request_url : String
-    "https://slack.com/api/chat.postMessage"
+  def method_path : String
+    "chat.postMessage"
   end
 
   def result : HTTP::Client::Response
-    @result ||= ApiClient.new(api: self).post(body: to_json)
+    @result ||= api_client.post(body: to_json)
   end
 
   def call : Slack::Models::Chat::PostMessage

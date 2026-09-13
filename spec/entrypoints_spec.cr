@@ -29,4 +29,27 @@ describe "public entrypoints" do
       end
     end
   end
+
+  %w[api_only transport_direct tokenless_api].each do |consumer|
+    it "supports the independent #{consumer} consumer" do
+      library_dir = File.tempname("slack-entrypoints")
+      Dir.mkdir(library_dir)
+      begin
+        File.symlink(root, File.join(library_dir, "slack"))
+        output = IO::Memory.new
+        status = Process.run("crystal", ["run", "spec/support/entrypoints/#{consumer}.cr"],
+          chdir: root,
+          env: {
+            "CRYSTAL_PATH"         => "#{library_dir}:#{crystal_path.to_s.strip}",
+            "SLACK_CLIENT_ID"      => nil,
+            "SLACK_CLIENT_SECRET"  => nil,
+            "SLACK_SIGNING_SECRET" => nil,
+          }, output: output, error: output)
+        status.success?.should be_true, output.to_s
+      ensure
+        File.delete?(File.join(library_dir, "slack"))
+        Dir.delete(library_dir)
+      end
+    end
+  end
 end

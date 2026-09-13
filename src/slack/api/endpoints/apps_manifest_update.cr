@@ -12,12 +12,12 @@ struct Slack::Api::AppsManifestUpdate < Slack::Api::Base
     ContentTypes::JSON
   end
 
-  def request_url : String
-    "https://slack.com/api/apps.manifest.update"
+  def method_path : String
+    "apps.manifest.update"
   end
 
   def result : HTTP::Client::Response
-    @result ||= ApiClient.new(api: self).post(body: to_json)
+    @result ||= api_client.post(body: to_json)
   end
 
   def call : Slack::Models::Apps::ManifestUpdate

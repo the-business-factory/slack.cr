@@ -44,7 +44,7 @@ class Slack::SignInWithSlack
 
   def redirect_url : String
     params = HTTP::Params.encode({
-      client_id:     client_id,
+      client_id:     required_client_id,
       scope:         settings.scopes.join(" "),
       redirect_uri:  required_redirect_url,
       response_type: "code",
@@ -68,13 +68,26 @@ class Slack::SignInWithSlack
       headers: headers,
       form: URI::Params.encode({
         code:          code,
-        client_id:     client_id,
-        client_secret: client_secret,
+        client_id:     required_client_id,
+        client_secret: required_client_secret,
         grant_type:    "authorization_code",
         redirect_uri:  redirect_uri,
       })
     )
 
     Slack::SignInResponse.from_json(response.body).decoded_response
+  end
+
+  private def required_client_id : String
+    required_credential(client_id)
+  end
+
+  private def required_client_secret : String
+    required_credential(client_secret)
+  end
+
+  private def required_credential(value : String?) : String
+    raise Slack::Auth::ContractError.new(Slack::Auth::ErrorCode::InvalidConfiguration) if value.nil? || value.blank?
+    value
   end
 end

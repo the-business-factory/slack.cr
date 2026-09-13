@@ -1,4 +1,5 @@
 require "../spec_helper"
+require "../support/auth/webmock_transport"
 
 describe Slack::Api::ChatPostMessage do
   describe ".post_blocks" do
@@ -20,7 +21,8 @@ describe Slack::Api::ChatPostMessage do
         .render(text: "*Testing!*", markdown: true)
 
       response = Slack::Api::ChatPostMessage
-        .post_blocks(token: token, channel: channel_id, blocks: [section])
+        .post_blocks(token: token, channel: channel_id, blocks: [section],
+          transport: AuthSupport::WebMockTransport.new)
         .should be_a(Slack::Models::Chat::PostMessage)
 
       response.ok?.should be_true
@@ -50,7 +52,8 @@ describe Slack::Api::ChatPostMessage do
         .render(action_id: "button_action_id")
 
       response = Slack::Api::ChatPostMessage
-        .post_blocks(token: token, channel: channel_id, blocks: [section, actions])
+        .post_blocks(token: token, channel: channel_id, blocks: [section, actions],
+          transport: AuthSupport::WebMockTransport.new)
         .should be_a(Slack::Models::Chat::PostMessage)
 
       response.ok?.should be_true

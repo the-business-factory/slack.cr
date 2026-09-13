@@ -1,4 +1,5 @@
 require "../spec_helper"
+require "../support/auth/webmock_transport"
 
 describe Slack::Api::ChatDelete do
   describe "#call" do
@@ -16,7 +17,7 @@ describe Slack::Api::ChatDelete do
         end
 
       response = Slack::Api::ChatDelete
-        .new(token: token, channel: "C03B5PUPDSQ", ts: ts)
+        .new(token: token, channel: "C03B5PUPDSQ", ts: ts, transport: AuthSupport::WebMockTransport.new)
         .call
         .should be_a(Slack::Models::Chat::Delete)
 

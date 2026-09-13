@@ -10,7 +10,13 @@ struct Slack::Webhooks::Signature
   end
 
   def compute
-    hex_hash = OpenSSL::HMAC.hexdigest(:sha256, signing_secret, basestring)
+    hex_hash = OpenSSL::HMAC.hexdigest(:sha256, required_signing_secret, basestring)
     [signing_secret_version, hex_hash].join("=")
+  end
+
+  private def required_signing_secret : String
+    value = signing_secret
+    raise Slack::Auth::ContractError.new(Slack::Auth::ErrorCode::InvalidConfiguration) if value.nil? || value.blank?
+    value
   end
 end

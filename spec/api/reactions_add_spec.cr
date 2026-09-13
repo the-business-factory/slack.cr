@@ -1,4 +1,5 @@
 require "../spec_helper"
+require "../support/auth/webmock_transport"
 
 describe Slack::Api::ReactionsAdd do
   describe "#call" do
@@ -18,7 +19,8 @@ describe Slack::Api::ReactionsAdd do
       reaction = "t-rex"
       token = ENV.fetch("SLACK_TEAM_AUTH_TOKEN")
       response = Slack::Api::ReactionsAdd
-        .new(token: token, name: reaction, channel: channel, timestamp: ts)
+        .new(token: token, name: reaction, channel: channel, timestamp: ts,
+          transport: AuthSupport::WebMockTransport.new)
         .call
         .should be_a(Slack::Models::DefaultResponse)
       response.ok?.should be_true
