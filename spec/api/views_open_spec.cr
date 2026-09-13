@@ -1,4 +1,5 @@
 require "../spec_helper"
+require "../support/auth/webmock_transport"
 
 describe Slack::Api::ViewsOpen do
   section = -> do
@@ -27,6 +28,7 @@ describe Slack::Api::ViewsOpen do
       blocks: blocks
     )
     request = Slack::Api::ViewsOpen.new(
+      transport: AuthSupport::WebMockTransport.new,
       token: "synthetic-result-token",
       trigger_id: "trigger",
       view: modal
@@ -58,6 +60,7 @@ describe Slack::Api::ViewsOpen do
     )
     modal.submit = nil
     request = Slack::Api::ViewsOpen.new(
+      transport: AuthSupport::WebMockTransport.new,
       token: "synthetic-call-token",
       trigger_id: "trigger",
       view: modal
@@ -89,6 +92,8 @@ describe Slack::Api::ViewsOpen do
     )
 
     Slack::Api::ViewsOpen.new(
+
+      transport: AuthSupport::WebMockTransport.new,
       token: "synthetic-valid-result-token",
       trigger_id: "trigger",
       view: modal
@@ -114,6 +119,8 @@ describe Slack::Api::ViewsOpen do
     )
 
     Slack::Api::ViewsOpen.new(
+
+      transport: AuthSupport::WebMockTransport.new,
       token: "synthetic-valid-call-token",
       trigger_id: "trigger",
       view: modal

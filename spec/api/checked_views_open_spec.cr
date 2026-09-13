@@ -1,4 +1,5 @@
 require "../spec_helper"
+require "../support/auth/webmock_transport"
 
 describe Slack::Api::CheckedViewsOpen do
   ["result", "call"].each do |entrypoint|
@@ -6,7 +7,7 @@ describe Slack::Api::CheckedViewsOpen do
       builder = Slack::UI::Checked::FormModalBuilder.new(title: Slack::UI::Checked.plain("Request"), submit: Slack::UI::Checked.plain("Send"), external_id: "request-42")
       builder.input(label: Slack::UI::Checked.plain("Reason"), block_id: "reason", element: Slack::UI::Checked::BlockElements::PlainTextInput.new(action_id: "text"))
       view = builder.build
-      request = Slack::Api::CheckedViewsOpen.new(token: "xoxb-synthetic-#{entrypoint}", trigger_id: "synthetic-trigger", view: view)
+      request = Slack::Api::CheckedViewsOpen.new(transport: AuthSupport::WebMockTransport.new, token: "xoxb-synthetic-#{entrypoint}", trigger_id: "synthetic-trigger", view: view)
       expected_view = JSON.parse(view.to_json)
       builder.divider
       view.blocks.clear
@@ -34,7 +35,7 @@ describe Slack::Api::CheckedViewsOpen do
         HTTP::Client::Response.new(500)
       end
       view = Slack::UI::Checked.display_modal(title: Slack::UI::Checked.plain("Display")) { |builder| builder.divider }
-      request = Slack::Api::CheckedViewsOpen.new(token: "xoxb-synthetic-invalid", trigger_id: "", view: view)
+      request = Slack::Api::CheckedViewsOpen.new(transport: AuthSupport::WebMockTransport.new, token: "xoxb-synthetic-invalid", trigger_id: "", view: view)
       error = expect_raises(Slack::UI::Checked::ValidationError) { entrypoint == "result" ? request.result : request.call }
       error.issues.map { |issue| {issue.code, issue.path} }.should eq [{"views_open.trigger_id.empty", "trigger_id"}]
       requests.should eq 0
@@ -51,7 +52,7 @@ describe Slack::Api::CheckedViewsOpen do
         view = Slack::UI::Checked.form_modal(title: Slack::UI::Checked.plain("Form"), submit: Slack::UI::Checked.plain("Send")) do |builder|
           builder.input(label: Slack::UI::Checked.plain("Text"), element: Slack::UI::Checked::BlockElements::PlainTextInput.new(dispatch_action_config: config))
         end
-        request = Slack::Api::CheckedViewsOpen.new(token: "xoxb-synthetic-invalid-config", trigger_id: "trigger", view: view)
+        request = Slack::Api::CheckedViewsOpen.new(transport: AuthSupport::WebMockTransport.new, token: "xoxb-synthetic-invalid-config", trigger_id: "trigger", view: view)
         entrypoint == "result" ? request.result : request.call
       end
       error.issues.map(&.code).should contain("dispatch_action_config.trigger.invalid")
@@ -65,6 +66,6 @@ describe Slack::Api::CheckedViewsOpen do
       JSON.parse(request.body || fail("Expected body"))["view"].as_h.has_key?("submit").should be_false
       HTTP::Client::Response.new(200, body: %({"ok":false,"error":"invalid_trigger"}))
     end
-    expect_raises(Slack::Errors::Api) { Slack::Api::CheckedViewsOpen.new(token: "xoxb-synthetic-error", trigger_id: "trigger", view: view).call }
+    expect_raises(Slack::Errors::Api) { Slack::Api::CheckedViewsOpen.new(transport: AuthSupport::WebMockTransport.new, token: "xoxb-synthetic-error", trigger_id: "trigger", view: view).call }
   end
 end

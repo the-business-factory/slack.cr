@@ -16,6 +16,10 @@ class Slack::Api::CheckedChatPostMessage
     @reply_broadcast : Bool? = nil,
     @unfurl_links : Bool? = nil,
     @unfurl_media : Bool? = nil,
+    *,
+    @configuration : Slack::Auth::APIConfiguration = Slack.settings.api_configuration,
+    @transport : Slack::Auth::Transport? = nil,
+    @limiter : RateLimiter::LimiterLike? = nil,
   )
     @snapshot = message.snapshot
     @result = nil
@@ -84,9 +88,12 @@ class Slack::Api::CheckedChatPostMessage
       descriptor = Slack::Api::ChatPostMessage.new(
         token: @token,
         channel: @channel,
-        text: @snapshot.fallback_text || ""
+        text: @snapshot.fallback_text || "",
+        configuration: @configuration,
+        transport: @transport,
+        limiter: @limiter
       )
-      Slack::ApiClient.new(api: descriptor).post(body: to_json)
+      descriptor.api_client.post(body: to_json)
     end
   end
 

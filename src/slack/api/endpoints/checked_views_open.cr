@@ -5,7 +5,15 @@ class Slack::Api::CheckedViewsOpen
 
   getter trigger_id : String
 
-  def initialize(@token : String, @trigger_id : String, view : Slack::UI::Checked::Modal)
+  def initialize(
+    @token : String,
+    @trigger_id : String,
+    view : Slack::UI::Checked::Modal,
+    *,
+    @configuration : Slack::Auth::APIConfiguration = Slack.settings.api_configuration,
+    @transport : Slack::Auth::Transport? = nil,
+    @limiter : RateLimiter::LimiterLike? = nil,
+  )
     @snapshot = view.snapshot
     @result = nil
   end
@@ -48,9 +56,12 @@ class Slack::Api::CheckedViewsOpen
         view: Slack::UI::Modal.new(
           title: Slack::UI::Modal::Title.new(@snapshot.title.text),
           blocks: [] of Slack::TypeAliases::ModalBlock
-        )
+        ),
+        configuration: @configuration,
+        transport: @transport,
+        limiter: @limiter
       )
-      Slack::ApiClient.new(api: descriptor).post(body: to_json)
+      descriptor.api_client.post(body: to_json)
     end
   end
 

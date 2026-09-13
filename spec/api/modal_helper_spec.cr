@@ -1,4 +1,5 @@
 require "../spec_helper"
+require "../support/auth/webmock_transport"
 
 describe Slack::Helpers::Modal do
   it "opens a display modal without submit or close" do
@@ -22,7 +23,8 @@ describe Slack::Helpers::Modal do
       access_token: token,
       blocks: blocks,
       trigger_id: "trigger",
-      title: "Details"
+      title: "Details",
+      transport: AuthSupport::WebMockTransport.new
     )
 
     response.ok?.should be_true
@@ -50,7 +52,8 @@ describe Slack::Helpers::Modal do
       blocks: blocks,
       trigger_id: "trigger",
       title: "Notes",
-      submit: "Save"
+      submit: "Save",
+      transport: AuthSupport::WebMockTransport.new
     )
 
     response.ok?.should be_true
@@ -77,7 +80,8 @@ describe Slack::Helpers::Modal do
       "Cancel",
       "Save",
       "trigger",
-      "Details"
+      "Details",
+      transport: AuthSupport::WebMockTransport.new
     ).ok?.should be_true
   end
 end

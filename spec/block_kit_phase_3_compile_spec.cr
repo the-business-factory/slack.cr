@@ -31,7 +31,7 @@ describe "Block Kit Phase 3 public compile contracts" do
     "phase_3_form_declared_enumerable"            => {"phase_3_modal", "checked form_modal rejects its declared block item type"},
     "phase_3_form_builder_declared_enumerable"    => {"phase_3_modal", "checked form_modal rejects its declared block item type"},
     "phase_3_request_deserialization"             => {"phase_3_endpoint", "checked request deserialization is unsupported"},
-    "phase_3_legacy_view"                         => {"phase_3_endpoint", "expected argument 'view'"},
+    "phase_3_legacy_view"                         => {"phase_3_endpoint", "no overload matches 'Slack::Api::CheckedViewsOpen.new'"},
   }.each do |name, pair|
     it "rejects #{name} after its positive pair compiles" do
       CompileContracts.assert_pass(CompileContracts.compile(root, "spec/fixtures/compile/pass/#{pair[0]}.cr"))
