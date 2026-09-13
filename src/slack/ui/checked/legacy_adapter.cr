@@ -67,7 +67,7 @@ module Slack::UI::Checked::LegacyAdapter
 
   def self.button(source : Slack::UI::BlockElements::Button) : Slack::UI::Checked::BlockElements::Button
     issues = [] of Slack::UI::Checked::ValidationIssue
-    converted = convert_button(source, "button", issues)
+    converted = convert_button(source, "", issues)
     raise Slack::UI::Checked::ValidationError.new(issues) unless issues.empty?
 
     converted
@@ -97,18 +97,20 @@ module Slack::UI::Checked::LegacyAdapter
     path : String,
     issues : Array(Slack::UI::Checked::ValidationIssue),
   ) : CheckedText
-    case type
-    when "plain_text"
-      Slack::UI::Checked::CompositionObjects::PlainText.new(value, emoji: emoji)
-    when "mrkdwn"
-      Slack::UI::Checked::CompositionObjects::Mrkdwn.new(value, verbatim: verbatim)
-    else
-      issues << Slack::UI::Checked::ValidationIssue.new(
-        code: "legacy.text.type.invalid",
-        path: "#{path}.type",
-        message: "Legacy text type must be plain_text or mrkdwn."
-      )
-      Slack::UI::Checked::CompositionObjects::PlainText.new(value)
+    with_validation_path(path) do
+      case type
+      when "plain_text"
+        Slack::UI::Checked::CompositionObjects::PlainText.new(value, emoji: emoji)
+      when "mrkdwn"
+        Slack::UI::Checked::CompositionObjects::Mrkdwn.new(value, verbatim: verbatim)
+      else
+        issues << Slack::UI::Checked::ValidationIssue.new(
+          code: "legacy.text.type.invalid",
+          path: "#{path}.type",
+          message: "Legacy text type must be plain_text or mrkdwn."
+        )
+        Slack::UI::Checked::CompositionObjects::PlainText.new(value)
+      end
     end
   end
 
@@ -133,17 +135,18 @@ module Slack::UI::Checked::LegacyAdapter
     path : String,
     issues : Array(Slack::UI::Checked::ValidationIssue),
   ) : Slack::UI::Checked::BlockElements::Button
+    prefix = path.empty? ? "" : "#{path}."
     unless source.type == "button"
       issues << Slack::UI::Checked::ValidationIssue.new(
         code: "legacy.button.type.invalid",
-        path: "#{path}.type",
+        path: "#{prefix}type",
         message: "Legacy button type must be button."
       )
     end
     unless source.text.type == "plain_text"
       issues << Slack::UI::Checked::ValidationIssue.new(
         code: "legacy.button.text.type.invalid",
-        path: "#{path}.text.type",
+        path: "#{prefix}text.type",
         message: "Legacy button text must be plain_text."
       )
     end
@@ -152,7 +155,7 @@ module Slack::UI::Checked::LegacyAdapter
       unless Slack::UI::BlockElements::Button::Styles.valid?(value)
         issues << Slack::UI::Checked::ValidationIssue.new(
           code: "legacy.button.style.invalid",
-          path: "#{path}.style",
+          path: "#{prefix}style",
           message: "Legacy button style must be primary or danger."
         )
         next
@@ -160,18 +163,23 @@ module Slack::UI::Checked::LegacyAdapter
       value.primary? ? Slack::UI::Checked::BlockElements::ButtonStyle::Primary : Slack::UI::Checked::BlockElements::ButtonStyle::Danger
     end
 
-    confirmation = source.confirm.try { |value| convert_confirmation(value, "#{path}.confirm", issues) }
-    Slack::UI::Checked::BlockElements::Button.new(
-      text: Slack::UI::Checked::CompositionObjects::PlainText.new(
+    confirmation = source.confirm.try { |value| convert_confirmation(value, "#{prefix}confirm", issues) }
+    text = with_validation_path("#{prefix}text") do
+      Slack::UI::Checked::CompositionObjects::PlainText.new(
         source.text.text,
         emoji: source.text.emoji
-      ),
-      action_id: source.action_id,
-      url: source.url,
-      value: source.value,
-      style: style,
-      confirm: confirmation
-    )
+      )
+    end
+    with_validation_path(path) do
+      Slack::UI::Checked::BlockElements::Button.new(
+        text: text,
+        action_id: source.action_id,
+        url: source.url,
+        value: source.value,
+        style: style,
+        confirm: confirmation
+      )
+    end
   end
 
   private def self.convert_confirmation(
@@ -185,13 +193,15 @@ module Slack::UI::Checked::LegacyAdapter
     deny = plain_confirmation_text(source.deny.text, source.deny.type, source.deny.emoji, "#{path}.deny", issues)
     style = confirmation_style(source.style, path, issues)
 
-    Slack::UI::Checked::CompositionObjects::Confirmation.new(
-      title: title,
-      text: body,
-      confirm: confirm,
-      deny: deny,
-      style: style
-    )
+    with_validation_path(path) do
+      Slack::UI::Checked::CompositionObjects::Confirmation.new(
+        title: title,
+        text: body,
+        confirm: confirm,
+        deny: deny,
+        style: style
+      )
+    end
   end
 
   private def self.plain_confirmation_text(
@@ -208,7 +218,18 @@ module Slack::UI::Checked::LegacyAdapter
         message: "This confirmation text must be plain_text."
       )
     end
-    Slack::UI::Checked::CompositionObjects::PlainText.new(value, emoji: emoji)
+    with_validation_path(path) do
+      Slack::UI::Checked::CompositionObjects::PlainText.new(value, emoji: emoji)
+    end
+  end
+
+  # Wrap only the local constructor; child conversions already have root-relative paths.
+  private def self.with_validation_path(path : String, & : -> T) : T forall T
+    yield
+  rescue error : Slack::UI::Checked::ValidationError
+    raise error if path.empty?
+
+    raise Slack::UI::Checked::ValidationError.new(error.issues.map(&.at(path)))
   end
 
   private def self.confirmation_style(
