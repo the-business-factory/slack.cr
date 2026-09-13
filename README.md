@@ -137,54 +137,58 @@ class ExampleSlackApiCall
 end
 ```
 
-### Slack UI Tools
+### Checked Block Kit messages
+
+Use `require "slack/ui"` to build and inspect messages without credentials. The
+checked values are immutable. They validate Slack limits when you construct them.
+
 ```crystal
-# Users can easily define custom UI components to help build out "app specific"
-# "UI Kits" fairly easily, focusing on the UX and business logic rather than
-# the stupid internals of Slack's API.
-struct ButtonSection < Slack::UI::CustomComponent
-  include Slack::UI::BaseComponents
+require "slack/ui"
 
-  def self.render(action_id : String)
-    buttons = %w(Submit Cancel).map do |text|
-      style = text == "Submit" ? ButtonStyles::Primary : ButtonStyles::Danger
-      ButtonElement.render(
-        action_id: "#{action_id}_#{text.downcase}",
-        button_text: text,
-        style: style
-      )
-    end
+struct RequestSummary
+  def initialize(@request_id : String)
+  end
 
-    Slack::UI::Blocks::Actions.new elements: buttons
+  def render : Slack::UI::Checked::Blocks::Section
+    Slack::UI::Checked::Blocks::Section.new(
+      text: Slack::UI::Checked.mrkdwn("*Request #{@request_id}* needs approval")
+    )
   end
 end
 
-class SlackLinkPage < WebhookAction
-  include Slack::UI::BaseComponents
-
-  post "/slack/links" do
-    command = Slack.process_command(request)
-    text = command.text.presence || "nothing"
-
-    text_section = TextSection.render(
-      text: "processed #{command.command} with #{text} as text."
-    )
-
-    input_element = InputElement.render(
-      action_id: "compensation",
-      placeholder_text: "e.g. $120,000-$190,000",
-      label_text: "Compensation",
-      initial_value: ""
-    )
-
-    button_section = ButtonSection.render(
-      action_id: "button_group_#{Random::Secure.hex}"
-    )
-
-    json({blocks: [text_section, input_element, button_section]})
-  end
+message = Slack::UI::Checked.message(
+  fallback_text: "Request 42 needs approval."
+) do |builder|
+  builder.add(RequestSummary.new("42").render)
+  builder.divider
+  builder.actions(elements: [
+    Slack::UI::Checked::BlockElements::Button.new(
+      text: Slack::UI::Checked.plain("Approve"),
+      action_id: "request.approve",
+      value: "42",
+      accessibility_label: "Approve request 42"
+    ),
+  ])
 end
+
+puts message.to_pretty_json
 ```
+
+Use `Slack::Api::CheckedChatPostMessage` after `require "slack"` to send the
+message. Tests can inspect `request.to_json` without sending it.
+
+```crystal
+request = Slack::Api::CheckedChatPostMessage.new(
+  token: token,
+  channel: channel_id,
+  message: message
+)
+response = request.call
+```
+
+The mutable Phase 1 types and component helpers remain available. See
+[Block Kit Phase 2](documentation/block-kit-phase-2.md) for supported fields,
+accessibility choices, and migration examples.
 
 ## Development
 

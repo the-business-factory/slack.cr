@@ -52,4 +52,26 @@ describe "public entrypoints" do
       end
     end
   end
+
+  it "loads the checked UI entrypoint without Slack credentials" do
+    library_dir = File.tempname("slack-ui-entrypoint")
+    Dir.mkdir(library_dir)
+    begin
+      File.symlink(root, File.join(library_dir, "slack"))
+      output = IO::Memory.new
+      status = Process.run("crystal", ["run", "spec/support/entrypoints/ui.cr"],
+        chdir: root,
+        env: {
+          "CRYSTAL_PATH"          => "#{library_dir}:#{crystal_path.to_s.strip}",
+          "SLACK_CLIENT_ID"       => nil,
+          "SLACK_CLIENT_SECRET"   => nil,
+          "SLACK_SIGNING_SECRET"  => nil,
+          "SLACK_TEAM_AUTH_TOKEN" => nil,
+        }, output: output, error: output)
+      status.success?.should be_true, output.to_s
+    ensure
+      File.delete?(File.join(library_dir, "slack"))
+      Dir.delete(library_dir)
+    end
+  end
 end
