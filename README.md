@@ -211,6 +211,22 @@ crystal run examples/block_kit_modal.cr
 See [Block Kit Phase 3](documentation/block-kit-phase-3.md) for field limits,
 state presence, migration, and the remaining support limits.
 
+### Checked display blocks and Home
+
+Use `Slack::UI::Checked.home` to build a Home view with Header, Context, images,
+and plain text Input. Header, Context, and images also work in checked messages
+and modals. Images require alt text and either a public URL or a checked SlackFile.
+Send Home through `Slack::Api::CheckedViewsPublish`; optional dispatch settings
+include `configuration`, `transport`, and `limiter`.
+
+```sh
+crystal run examples/block_kit_home.cr
+```
+
+The example publishes through an injected offline transport and reads text from
+a simulated Home action. See [Block Kit Phase 4](documentation/block-kit-phase-4.md)
+for fields, placement, migration, and the remaining inbound limits.
+
 ## Development
 
 ```sh
