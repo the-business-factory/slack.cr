@@ -1,0 +1,53 @@
+[
+  {
+    "type": "header",
+    "text": {
+      "type": "plain_text",
+      "text": "Overview",
+      "emoji": false
+    },
+    "block_id": "heading",
+    "level": 2
+  },
+  {
+    "type": "context",
+    "block_id": "status",
+    "elements": [
+      {
+        "type": "plain_text",
+        "text": "Status",
+        "emoji": false
+      },
+      {
+        "type": "mrkdwn",
+        "text": "*Ready*",
+        "verbatim": false
+      },
+      {
+        "type": "image",
+        "slack_file": {
+          "id": "F123"
+        },
+        "alt_text": "Project thumbnail"
+      }
+    ]
+  },
+  {
+    "type": "image",
+    "image_url": "https://example.test/project.png",
+    "alt_text": "Project diagram",
+    "title": {
+      "type": "plain_text",
+      "text": "Diagram",
+      "emoji": true
+    },
+    "block_id": "diagram"
+  },
+  {
+    "type": "image",
+    "slack_file": {
+      "url": "https://files.slack.com/files-pri/T123-F123/project.png"
+    },
+    "alt_text": "Private diagram"
+  }
+]
