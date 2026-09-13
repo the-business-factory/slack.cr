@@ -227,6 +227,23 @@ The example publishes through an injected offline transport and reads text from
 a simulated Home action. See [Block Kit Phase 4](documentation/block-kit-phase-4.md)
 for fields, placement, migration, and the remaining inbound limits.
 
+### Static choices
+
+Use checked `CompositionObjects::Option` and `OptionGroup` with
+`BlockElements::StaticSelect` or `MultiStaticSelect`. Supply `options:` or
+`option_groups:`. Both variants work in Section and Actions; FormModal and Home
+also accept them in Input blocks.
+
+```sh
+crystal run examples/block_kit_static_select.cr
+```
+
+This offline example posts a single select, reads a signed selection, opens a
+multi-select form, and reads its signed submission. Use `decoded_actions` and
+`state_map.static_select_value?` or `state_map.multi_static_select_value?` for
+received selections. See the [Phase 5 static-choice slice](documentation/block-kit-phase-5-static-selects.md)
+for limits, presence handling, migration, and deferred choice families.
+
 ## Development
 
 ```sh
