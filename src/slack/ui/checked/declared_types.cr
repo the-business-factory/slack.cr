@@ -6,7 +6,7 @@ module Slack::UI::Checked::DeclaredTypes
   end
 
   def self.actions_element(type : T.class) : Nil forall T
-    {% unless T <= Slack::UI::Checked::BlockElements::Button %}
+    {% unless T <= Slack::UI::Checked::Blocks::Actions::Element %}
       {% raise "checked actions rejects its declared element item type" %}
     {% end %}
   end
@@ -44,6 +44,20 @@ module Slack::UI::Checked::DeclaredTypes
   def self.home_block(type : T.class) : Nil forall T
     {% unless T <= Slack::UI::Checked::HomeBlock %}
       {% raise "checked home rejects its declared block item type" %}
+    {% end %}
+  end
+end
+
+module Slack::UI::Checked::DeclaredTypes
+  def self.option(type : T.class) : Nil forall T
+    {% unless T <= Slack::UI::Checked::CompositionObjects::Option %}
+      {% raise "checked options rejects its declared item type" %}
+    {% end %}
+  end
+
+  def self.option_group(type : T.class) : Nil forall T
+    {% unless T <= Slack::UI::Checked::CompositionObjects::OptionGroup %}
+      {% raise "checked option groups rejects its declared item type" %}
     {% end %}
   end
 end

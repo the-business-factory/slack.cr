@@ -1,4 +1,4 @@
-alias Slack::Interactions::StateValue = Slack::Interactions::PlainTextValue | Slack::Interactions::UnknownStateValue
+alias Slack::Interactions::StateValue = Slack::Interactions::PlainTextValue | Slack::Interactions::StaticSelectValue | Slack::Interactions::MultiStaticSelectValue | Slack::Interactions::UnknownStateValue
 
 # Reads state.values by stable block and action IDs without imposing outbound rules.
 struct Slack::Interactions::StateMap
@@ -23,8 +23,13 @@ struct Slack::Interactions::StateMap
     path = entry_path(block_id, action_id)
     object = PayloadAccess.object?(item, path)
     type = PayloadAccess.string?(object.try(&.["type"]?), "#{path}.type")
-    if type == "plain_text_input"
+    case type
+    when "plain_text_input"
       PlainTextValue.new(item, path)
+    when "static_select"
+      StaticSelectValue.new(item, path)
+    when "multi_static_select"
+      MultiStaticSelectValue.new(item, path)
     else
       UnknownStateValue.new(type, item)
     end
@@ -35,8 +40,28 @@ struct Slack::Interactions::StateMap
     case entry
     when Nil            then nil
     when PlainTextValue then entry
-    when UnknownStateValue
+    else
       raise TypeMismatch.new(entry_path(block_id, action_id), "plain_text_input", entry.type || "null or untyped state value")
+    end
+  end
+
+  def static_select_value?(block_id : String, action_id : String) : StaticSelectValue?
+    entry = self[block_id, action_id]?
+    case entry
+    when Nil               then nil
+    when StaticSelectValue then entry
+    else
+      raise TypeMismatch.new(entry_path(block_id, action_id), "static_select", entry.type || "null or untyped state value")
+    end
+  end
+
+  def multi_static_select_value?(block_id : String, action_id : String) : MultiStaticSelectValue?
+    entry = self[block_id, action_id]?
+    case entry
+    when Nil                    then nil
+    when MultiStaticSelectValue then entry
+    else
+      raise TypeMismatch.new(entry_path(block_id, action_id), "multi_static_select", entry.type || "null or untyped state value")
     end
   end
 

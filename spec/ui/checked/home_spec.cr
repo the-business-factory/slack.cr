@@ -76,7 +76,10 @@ describe HomeUI::Home do
     before = view.to_json
     blocks.clear
     triggers.clear
-    input.element.dispatch_action_config.try(&.trigger_actions_on.try(&.clear))
+    case element = input.element
+    when Slack::UI::Checked::BlockElements::PlainTextInput
+      element.dispatch_action_config.try(&.trigger_actions_on.try(&.clear))
+    end
     view.blocks.clear
     builder.divider
     view.snapshot.to_json.should eq before

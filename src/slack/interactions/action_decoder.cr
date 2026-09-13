@@ -1,4 +1,4 @@
-alias Slack::Interactions::Action = Slack::Interactions::ButtonAction | Slack::Interactions::UnknownAction
+alias Slack::Interactions::Action = Slack::Interactions::ButtonAction | Slack::Interactions::StaticSelectAction | Slack::Interactions::MultiStaticSelectAction | Slack::Interactions::UnknownAction
 
 module Slack::Interactions::ActionDecoder
   def self.decode(raw : JSON::Any?) : Array(Action)
@@ -9,8 +9,13 @@ module Slack::Interactions::ActionDecoder
       path = "actions[#{index}]"
       object = PayloadAccess.object?(item, path)
       type = PayloadAccess.string?(object.try(&.["type"]?), "#{path}.type")
-      actions << if type == "button"
+      actions << case type
+      when "button"
         ButtonAction.new(item, path)
+      when "static_select"
+        StaticSelectAction.new(item, path)
+      when "multi_static_select"
+        MultiStaticSelectAction.new(item, path)
       else
         UnknownAction.new(type, item)
       end

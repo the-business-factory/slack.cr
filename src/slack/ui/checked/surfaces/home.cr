@@ -46,7 +46,6 @@ struct Slack::UI::Checked::Home
       issues << ValidationIssue.new("home.blocks.too_many", "blocks", "Home cannot contain more than 100 blocks.")
     end
     block_ids = Set(String).new
-    focused = false
     @blocks.each_with_index do |block, index|
       block.validate.each { |issue| issues << issue.at("blocks[#{index}]") }
       if id = block.block_id
@@ -54,13 +53,8 @@ struct Slack::UI::Checked::Home
           issues << ValidationIssue.new("home.block_id.duplicate", "blocks[#{index}].block_id", "Block IDs must be unique within a view.")
         end
       end
-      if block.is_a?(Blocks::Input) && block.element.focus_on_load
-        if focused
-          issues << ValidationIssue.new("home.focus_on_load.duplicate", "blocks[#{index}].element.focus_on_load", "Only one element in a view can focus on load.")
-        end
-        focused = true
-      end
     end
+    issues.concat(Slack::UI::Checked::ViewFocus.validate(@blocks, "home"))
     issues
   end
 
