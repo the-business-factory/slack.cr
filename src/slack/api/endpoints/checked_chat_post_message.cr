@@ -34,6 +34,18 @@ class Slack::Api::CheckedChatPostMessage
         message: "Channel must not be empty."
       )
     end
+    if timestamp = @thread_ts
+      # Slack ts values contain epoch seconds and a fraction. Check only their
+      # shape: fixed digit counts are not documented, and Float loses precision.
+      # https://docs.slack.dev/changelog/2016/05/31/more-events-timestamps-in-rtm-api/
+      unless /\A[0-9]+\.[0-9]+\z/.matches?(timestamp)
+        issues << Slack::UI::Checked::ValidationIssue.new(
+          code: "chat_post_message.thread_ts.invalid",
+          path: "thread_ts",
+          message: "Thread timestamp must contain digits, a decimal point, and fractional digits."
+        )
+      end
+    end
     if @reply_broadcast && @thread_ts.nil?
       issues << Slack::UI::Checked::ValidationIssue.new(
         code: "chat_post_message.reply_broadcast.thread_required",
