@@ -71,21 +71,7 @@ struct Slack::UI::Checked::Message
       )
     end
 
-    block_ids = {} of String => Int32
-    @blocks.each_with_index do |block, index|
-      block.validate.each { |issue| issues << issue.at("blocks[#{index}]") }
-      if block_id = block.block_id
-        if block_ids.has_key?(block_id)
-          issues << Slack::UI::Checked::ValidationIssue.new(
-            code: "message.block_id.duplicate",
-            path: "blocks[#{index}].block_id",
-            message: "Block IDs must be unique within a message."
-          )
-        else
-          block_ids[block_id] = index
-        end
-      end
-    end
+    BlockValidation.validate(@blocks, issues, "message.block_id.duplicate", "Block IDs must be unique within a message.")
     issues
   end
 

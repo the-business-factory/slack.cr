@@ -24,15 +24,7 @@ module Slack::UI::Checked::ModalContent
     if @blocks.size > 100
       issues << Slack::UI::Checked::ValidationIssue.new("modal.blocks.too_many", "blocks", "A modal cannot contain more than 100 blocks.")
     end
-    block_ids = Set(String).new
-    @blocks.each_with_index do |block, index|
-      block.validate.each { |issue| issues << issue.at("blocks[#{index}]") }
-      if id = block.block_id
-        unless block_ids.add?(id)
-          issues << Slack::UI::Checked::ValidationIssue.new("modal.block_id.duplicate", "blocks[#{index}].block_id", "Block IDs must be unique within a view.")
-        end
-      end
-    end
+    BlockValidation.validate(@blocks, issues, "modal.block_id.duplicate", "Block IDs must be unique within a view.")
     issues.concat(Slack::UI::Checked::ViewFocus.validate(@blocks, "modal"))
     issues
   end
