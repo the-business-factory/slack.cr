@@ -60,5 +60,29 @@ describe Slack::Api::ChatPostMessage do
       response.channel.should eq channel_id
       response.message["bot_id"].should eq "B03ATRRPV4K"
     end
+
+    it "rejects a mutated overlong Section block_id before HTTP" do
+      requests = 0
+      WebMock.stub(:post, "https://slack.com/api/chat.postMessage")
+        .to_return do
+          requests += 1
+          HTTP::Client::Response.new(200, body: "{}")
+        end
+
+      section = Slack::UI::Components::TextSection.render("Details")
+      section.block_id = "i" * 256
+
+      expect_raises(
+        Slack::Errors::InvalidUIBlock,
+        "Block ID cannot be longer than 255 characters"
+      ) do
+        Slack::Api::ChatPostMessage.post_blocks(
+          token: "synthetic-section-token",
+          channel: "CSECTION",
+          blocks: [section]
+        )
+      end
+      requests.should eq 0
+    end
   end
 end
