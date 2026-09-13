@@ -1,0 +1,17 @@
+{
+  "token": "synthetic-unused-verification-token",
+  "team_id": "T1",
+  "api_app_id": "A1",
+  "type": "event_callback",
+  "event_id": "Ev_tokens_revoked",
+  "event_time": 1789232400,
+  "event": {
+    "type": "tokens_revoked",
+    "tokens": {
+      "oauth": [
+        "U_ACTOR"
+      ],
+      "bot": []
+    }
+  }
+}
