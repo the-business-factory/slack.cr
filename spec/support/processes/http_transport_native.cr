@@ -12,6 +12,7 @@ require "../auth/host_cases"
 private CA_FILE             = File.expand_path("../../fixtures/auth_transport/ca.pem", __DIR__)
 private CERT_FILE           = File.expand_path("../../fixtures/auth_transport/server.pem", __DIR__)
 private KEY_FILE            = File.expand_path("../../fixtures/auth_transport/server-key.pem", __DIR__)
+private IPV6_CERT_FILE      = File.expand_path("../../fixtures/auth_transport/ipv6-server.pem", __DIR__)
 private OAUTH_RESPONSE_FILE = File.expand_path("../../fixtures/oauth_responses/bot_workspace.json", __DIR__)
 
 private def transport(options : Slack::Auth::TransportOptions = Slack::Auth::TransportOptions.new) : Slack::Auth::Transport
@@ -23,9 +24,9 @@ private def request(uri : String, method : String = "GET", body : String? = nil)
     HTTP::Headers{"Authorization" => "Bearer synthetic-token"}, body)
 end
 
-private def tls_context : OpenSSL::SSL::Context::Server
+private def tls_context(certificate_file : String = CERT_FILE) : OpenSSL::SSL::Context::Server
   context = OpenSSL::SSL::Context::Server.new
-  context.certificate_chain = CERT_FILE
+  context.certificate_chain = certificate_file
   context.private_key = KEY_FILE
   context
 end
@@ -604,6 +605,82 @@ describe Slack::Auth::HTTPTransport do
     proxy.try(&.close)
   end
 
+  it "completes IPv6 CONNECT and TLS after multiple informational responses" do
+    proxy = AuthSupport::OneShotServer.new do |socket|
+      connect = AuthSupport.read_request(socket)
+      connect.method.should eq("CONNECT")
+      connect.resource.should eq("[::1]:8443")
+      connect.headers["Host"].should eq("[::1]:8443")
+      connect.headers["Authorization"]?.should be_nil
+      connect.headers["Proxy-Authorization"].should eq("Basic cHJveHktdXNlcjpwcm94eS1wYXNz")
+      socket << "HTTP/1.1 103 Early Hints\r\nLink: </asset.css>; rel=preload\r\n\r\n"
+      socket << "HTTP/1.1 100 Continue\r\n\r\n"
+      socket << "HTTP/1.1 200 Connection Established\r\n\r\n"
+      socket.flush
+      tls = OpenSSL::SSL::Socket::Server.new(socket, tls_context(IPV6_CERT_FILE), sync_close: false)
+      incoming = AuthSupport.read_request(tls)
+      incoming.method.should eq("POST")
+      incoming.resource.should eq("/token")
+      incoming.headers["Host"].should eq("[::1]:8443")
+      incoming.headers["Authorization"].should eq("Bearer synthetic-token")
+      incoming.headers["Proxy-Authorization"]?.should be_nil
+      incoming.body.try(&.gets_to_end).should eq("synthetic-body")
+      AuthSupport.respond(tls, 200, "tunneled after hints")
+    ensure
+      tls.try(&.close)
+    end
+    options = Slack::Auth::TransportOptions.new(ca_file: IPV6_CERT_FILE,
+      proxy_uri: URI.parse("http://proxy-user:proxy-pass@127.0.0.1:#{proxy.port}"))
+
+    response = transport(options).execute(request("https://[::1]:8443/token", "POST", "synthetic-body"))
+    response.status.should eq(200)
+    response.body.should eq("tunneled after hints")
+    proxy.wait
+  ensure
+    proxy.try(&.close)
+  end
+
+  it "rejects final proxy failures and terminal 101 responses after informational headers" do
+    {"407 Proxy Authentication Required", "101 Switching Protocols"}.each do |status|
+      proxy = AuthSupport::OneShotServer.new do |socket|
+        AuthSupport.read_request(socket).method.should eq("CONNECT")
+        socket << "HTTP/1.1 103 Early Hints\r\n\r\n"
+        socket << "HTTP/1.1 #{status}\r\n\r\n"
+        # The client must stop at the rejection or upgrade, even with a 200 buffered.
+        socket << "HTTP/1.1 200 Connection Established\r\n\r\n"
+        socket.flush
+        socket.read_timeout = 1.second
+        socket.read(Bytes.new(1)).should eq(0)
+      end
+      options = Slack::Auth::TransportOptions.new(
+        proxy_uri: URI.parse("http://127.0.0.1:#{proxy.port}"))
+
+      error_code(Slack::Auth::ErrorCode::TransportFailure) do
+        transport(options).execute(request("https://[::1]:8443/token", "POST", "synthetic-token"))
+      end
+      proxy.wait
+    ensure
+      proxy.try(&.close)
+    end
+  end
+
+  it "reports proxy EOF after informational headers as an unsent application request" do
+    proxy = AuthSupport::OneShotServer.new do |socket|
+      AuthSupport.read_request(socket).method.should eq("CONNECT")
+      socket << "HTTP/1.1 103 Early Hints\r\n\r\n"
+      socket.flush
+    end
+    options = Slack::Auth::TransportOptions.new(
+      proxy_uri: URI.parse("http://127.0.0.1:#{proxy.port}"))
+
+    error_code(Slack::Auth::ErrorCode::TransportFailure) do
+      transport(options).execute(request("https://[::1]:8443/token", "POST", "synthetic-token"))
+    end
+    proxy.wait
+  ensure
+    proxy.try(&.close)
+  end
+
   it "closes rejected CONNECT tunnels without classifying proxy writes as an application send" do
     proxy = AuthSupport::OneShotServer.new do |socket|
       connect = AuthSupport.read_request(socket)
@@ -639,6 +716,28 @@ describe Slack::Auth::HTTPTransport do
     started = Time.instant
     error_code(Slack::Auth::ErrorCode::TransportFailure) do
       transport(options).execute(request("https://127.0.0.1/token", "POST", "synthetic-token"))
+    end
+    (Time.instant - started).should be < 500.milliseconds
+    proxy.wait
+  ensure
+    proxy.try(&.close)
+  end
+
+  it "retains the connect timeout while waiting for final CONNECT headers after hints" do
+    proxy = AuthSupport::OneShotServer.new do |socket|
+      AuthSupport.read_request(socket).method.should eq("CONNECT")
+      socket << "HTTP/1.1 103 Early Hints\r\n\r\n"
+      socket.flush
+      socket.read_timeout = 1.second
+      socket.read(Bytes.new(1)).should eq(0)
+    end
+    options = Slack::Auth::TransportOptions.new(
+      connect_timeout: 30.milliseconds, read_timeout: 1.second,
+      proxy_uri: URI.parse("http://127.0.0.1:#{proxy.port}"))
+
+    started = Time.instant
+    error_code(Slack::Auth::ErrorCode::TransportFailure) do
+      transport(options).execute(request("https://[::1]:8443/token", "POST", "synthetic-token"))
     end
     (Time.instant - started).should be < 500.milliseconds
     proxy.wait

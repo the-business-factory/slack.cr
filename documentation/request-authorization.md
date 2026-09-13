@@ -51,6 +51,9 @@ matches an entry or reject the event. Missing IDs, empty IDs, app mismatches,
 unknown installation kind, and duplicate command routing fields fail closed.
 The authorizer does not scan the store or call auth.test to select a tenant.
 
+See [event model migration](credential-lifecycle.md#event-model-migration) for
+typed authorization fields and supported legacy JSON lookups.
+
 ## Credential fence
 
 ### Rotate when creating a context

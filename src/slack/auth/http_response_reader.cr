@@ -1,5 +1,6 @@
 require "http/client"
 require "mime/media_type"
+require "./http_response_headers"
 require "./transport"
 
 {% unless flag?(:without_zlib) %}
@@ -11,7 +12,7 @@ module Slack::Auth
   # charset decoding changes the representation bytes.
   class HTTPResponseReader
     def self.read(io : IO, method : String, implicit_compression : Bool) : TransportResponse
-      response = read_final_response(io)
+      response = HTTPResponseHeaders.read(io)
       status = response.status
       headers = response.headers
       return TransportResponse.new(status.code, headers, "") unless body_expected?(method, status)
@@ -20,14 +21,6 @@ module Slack::Auth
       body = decode_content(body, headers) if implicit_compression
       body = decode_charset(body, headers) unless headers.has_key?("Content-Encoding")
       TransportResponse.new(status.code, headers, body)
-    end
-
-    private def self.read_final_response(io : IO) : HTTP::Client::Response
-      loop do
-        response = HTTP::Client::Response.from_io(io, ignore_body: true, decompress: false)
-        # A 101 response is terminal because the connection changes protocols.
-        return response unless response.status.informational? && response.status.code != 101
-      end
     end
 
     private def self.read_representation(io : IO, headers : HTTP::Headers) : String
