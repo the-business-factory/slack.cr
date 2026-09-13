@@ -60,7 +60,17 @@ describe Slack::Api::CheckedChatPostMessage do
       message: message
     )
 
-    JSON.parse(request.to_json).as_h.has_key?("text").should be_false
+    WebMock.stub(:post, "https://slack.com/api/chat.postMessage")
+      .to_return do |http_request|
+        payload = JSON.parse(http_request.body || fail("Expected a JSON request body"))
+        payload.as_h.has_key?("text").should be_false
+        HTTP::Client::Response.new(
+          200,
+          body: File.read("spec/fixtures/api/chat-post-success-section.json")
+        )
+      end
+
+    request.result.status_code.should eq 200
   end
 
   ["result", "call"].each do |method|

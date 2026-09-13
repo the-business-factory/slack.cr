@@ -67,10 +67,12 @@ class Slack::Api::CheckedChatPostMessage
   def result : HTTP::Client::Response
     validate!
     @result ||= begin
+      # The legacy descriptor requires a content field, but its serializer is
+      # not used. The checked envelope below remains the only request body.
       descriptor = Slack::Api::ChatPostMessage.new(
         token: @token,
         channel: @channel,
-        text: @snapshot.fallback_text
+        text: @snapshot.fallback_text || ""
       )
       Slack::ApiClient.new(api: descriptor).post(body: to_json)
     end
