@@ -29,9 +29,9 @@ require "slack"
 
 Slack.configure do |config|
   config.bot_scopes = ["incoming-webhook"] # Array(String)
-  config.client_id = ENV["SLACK_CLIENT_ID"] # String
-  config.client_secret = ENV["SLACK_CLIENT_SECRET"] # String
-  config.signing_secret = ENV["SLACK_SIGNING_SECRET"] # String
+  config.client_id = ENV["SLACK_CLIENT_ID"] # String?
+  config.client_secret = ENV["SLACK_CLIENT_SECRET"] # String?
+  config.signing_secret = ENV["SLACK_SIGNING_SECRET"] # String?
   config.signing_secret_version = "v0" # String
   config.webhook_delivery_time_limit = 5.minutes # Time::Span
 end
@@ -91,6 +91,28 @@ When returning responses from the Slack API, error responses are raised, rather
 than returned as separate error objects. This provides strongly typed responses
 for the majority of API traffic; Slack::Api::Error errors can be rescued to
 allow customized error handling if needed.
+
+API calls use `https://slack.com/api/` by default. You can set a different API
+host or path and connection options without changing OAuth configuration:
+
+```crystal
+Slack.configure do |config|
+  config.api_configuration = Slack::Auth::APIConfiguration.new(
+    URI.parse("https://api.slack-gov.com/api/")
+  )
+  config.api_transport_options = Slack::Auth::TransportOptions.new(
+    connect_timeout: 5.seconds,
+    read_timeout: 20.seconds,
+    write_timeout: 20.seconds,
+    ca_file: "/etc/ssl/certs/company-ca.pem"
+  )
+end
+```
+
+Each API wrapper also accepts named `configuration` and `transport` arguments.
+This supports request-local credentials and offline tests. See
+[authentication transport](documentation/auth-transport.md) for the endpoint,
+proxy, TLS, and failure rules.
 
 ```crystal
 class ExampleSlackApiCall
@@ -174,10 +196,11 @@ crystal run lib/ameba/src/cli.cr
 ```
 
 The full suite runs offline using `.env.test`, [WebMock](https://github.com/manastech/webmock.cr)
-request stubs, and committed JSON response fixtures. WebMock rejects unstubbed HTTP
-requests, including streaming requests. Keep real network access disabled in tests.
-Local `.env` files are not loaded. The response bodies come from the repository's
-existing API fixtures; the manifest response uses the dummy app ID from `.env.test`.
+request stubs, and committed response fixtures. WebMock rejects unstubbed external
+requests, including streaming requests. Bounded transport specs use only local loopback
+sockets with synthetic TLS credentials. Local `.env` files are not loaded. The response
+bodies come from the repository's existing API fixtures; the manifest response uses the
+dummy app ID from `.env.test`.
 
 ## Contributing
 

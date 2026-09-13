@@ -5,6 +5,8 @@ require "openssl/hmac"
 require "./slack/mixins/**"
 require "./slack/types/**"
 require "./slack/errors/**"
+require "./slack/auth/contracts"
+require "./slack/auth/http_transport_factory"
 require "./slack/api/endpoints/base"
 require "./slack/api/**"
 require "./slack/commands/**"
@@ -23,12 +25,14 @@ require "./slack/oauth/**"
 module Slack
   Habitat.create do
     setting bot_scopes : Array(String) = [] of String
-    setting client_id : String = ENV["SLACK_CLIENT_ID"]
-    setting client_secret : String = ENV["SLACK_CLIENT_SECRET"]
+    setting client_id : String? = ENV["SLACK_CLIENT_ID"]?
+    setting client_secret : String? = ENV["SLACK_CLIENT_SECRET"]?
     setting user_scopes : Array(String) = [] of String
-    setting signing_secret : String = ENV["SLACK_SIGNING_SECRET"]
+    setting signing_secret : String? = ENV["SLACK_SIGNING_SECRET"]?
     setting signing_secret_version : String = "v0"
     setting webhook_delivery_time_limit : Time::Span = 5.minutes
+    setting api_configuration : Auth::APIConfiguration = Auth::APIConfiguration.default
+    setting api_transport_options : Auth::TransportOptions = Auth::TransportOptions.new
   end
 
   def self.process_webhook(request : HTTP::Request)

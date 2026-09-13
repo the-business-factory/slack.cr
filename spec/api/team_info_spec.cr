@@ -1,4 +1,5 @@
 require "../spec_helper"
+require "../support/auth/webmock_transport"
 
 describe Slack::Api::TeamInfo do
   describe "#call" do
@@ -9,7 +10,7 @@ describe Slack::Api::TeamInfo do
 
       token = ENV.fetch("SLACK_TEAM_AUTH_TOKEN")
       response = Slack::Api::TeamInfo
-        .new(token: token)
+        .new(token: token, transport: AuthSupport::WebMockTransport.new)
         .call
         .should be_a(Slack::Models::Team)
       response.name.should eq "goalsurfer"

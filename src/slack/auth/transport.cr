@@ -1,10 +1,10 @@
 require "http"
 require "uri"
 require "./errors"
+require "./api_configuration"
 
 module Slack::Auth
   # Feature-specific configs have no global environment reads or cross-feature requirements.
-  record APIConfiguration, base_uri : URI
   record OAuthConfiguration, authorization_uri : URI, token_uri : URI,
     client_id : String, client_secret : Secret, redirect_uri : URI
   record OIDCConfiguration, discovery_uri : URI, issuer : String, client_id : String

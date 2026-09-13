@@ -1,4 +1,5 @@
 require "../spec_helper"
+require "../support/auth/webmock_transport"
 
 describe Slack::Api::ConversationsHistory do
   describe "#call" do
@@ -15,7 +16,7 @@ describe Slack::Api::ConversationsHistory do
         end
 
       response = Slack::Api::ConversationsHistory
-        .new(token: token, channel: "C03B5PUPDSQ")
+        .new(token: token, channel: "C03B5PUPDSQ", transport: AuthSupport::WebMockTransport.new)
         .call
         .should be_a(Slack::Models::ConversationsHistory)
 

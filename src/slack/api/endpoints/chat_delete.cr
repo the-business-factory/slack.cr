@@ -6,12 +6,12 @@ struct Slack::Api::ChatDelete < Slack::Api::Base
     ContentTypes::JSON
   end
 
-  def request_url : String
-    "https://slack.com/api/chat.delete"
+  def method_path : String
+    "chat.delete"
   end
 
   def result : HTTP::Client::Response
-    @result ||= ApiClient.new(api: self).post(body: to_json)
+    @result ||= api_client.post(body: to_json)
   end
 
   def call : Slack::Models::Chat::Delete

@@ -3,12 +3,12 @@ struct Slack::Api::TeamInfo < Slack::Api::Base
     ContentTypes::FormEncoded
   end
 
-  def request_url : String
-    "https://slack.com/api/team.info"
+  def method_path : String
+    "team.info"
   end
 
   def result : HTTP::Client::Response
-    @result ||= ApiClient.new(api: self).get
+    @result ||= api_client.get
   end
 
   def call : Slack::Models::Team

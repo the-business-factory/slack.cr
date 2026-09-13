@@ -12,11 +12,11 @@ struct Slack::Api::ConversationsHistory < Slack::Api::Base
     ContentTypes::JSON
   end
 
-  def request_url : String
-    "https://slack.com/api/conversations.history?#{url_params}"
+  def method_path : String
+    "conversations.history"
   end
 
-  def url_params
+  def query : String
     HTTP::Params.build do |form|
       form.add "channel", channel
       form.add "cursor", cursor if cursor
@@ -27,8 +27,12 @@ struct Slack::Api::ConversationsHistory < Slack::Api::Base
     end
   end
 
+  def url_params : String
+    query
+  end
+
   def result : HTTP::Client::Response
-    @result ||= ApiClient.new(api: self).get(body: to_json)
+    @result ||= api_client.get(body: to_json)
   end
 
   def call : Slack::Models::ConversationsHistory

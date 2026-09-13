@@ -1,4 +1,5 @@
 require "webmock"
+require "../auth/webmock_transport"
 
 # This consumer runs without spec_helper, dotenv, or redirect environment values.
 Slack.configure do |config|
@@ -12,7 +13,7 @@ raise "Unexpected login redirect" unless Slack::SignInWithSlack.settings.sign_in
 WebMock.stub(:get, "https://slack.com/api/team.info")
   .with(headers: {"Authorization" => "Bearer dummy-token"})
   .to_return(body: File.read("spec/fixtures/api/team-info-success.json"))
-team = Slack::Api::TeamInfo.new("dummy-token").call
+team = Slack::Api::TeamInfo.new("dummy-token", transport: AuthSupport::WebMockTransport.new).call
 raise "Unexpected API response" unless team.name == "goalsurfer"
 
 class ConsumerOAuthTransport < Slack::Auth::Transport
@@ -53,3 +54,9 @@ raise "Installation configured login" unless Slack::SignInWithSlack.settings.sig
 Slack::SignInWithSlack.configure(&.sign_in_redirect_url=("https://example.test/login"))
 login = URI.parse(Slack::SignInWithSlack.new.redirect_url)
 raise "Incorrect login redirect" unless login.query_params["redirect_uri"] == "https://example.test/login"
+
+# Keep the original positional constructor and public query helper callable.
+history = Slack::Api::ConversationsHistory.new("dummy-token", "C1", "next +", false, false, "123", "100")
+expected_query = "channel=C1&cursor=next+%2B&include_all_metadata=false&inclusive=false&latest=123&oldest=100"
+raise "History query helper changed" unless history.url_params == expected_query
+raise "History query hooks differ" unless history.query == history.url_params
