@@ -436,3 +436,34 @@ describe Slack::AuthHandler do
     transport.requests.size.should eq(2)
   end
 end
+
+describe "OAuth installation and login settings" do
+  it "exchanges an installation without configuring the optional login redirect" do
+    original_redirect = Slack::SignInWithSlack.settings.sign_in_redirect_url
+    begin
+      Slack::SignInWithSlack.configure(&.sign_in_redirect_url = nil)
+      clock = OAuthStateSupport::Clock.new
+      transport = OAuthStateSupport::RecordingTransport.new
+      transport.enqueue(OAuthHandlerSpecSupport.response)
+      configuration = OAuthHandlerSpecSupport.configuration
+      handler = OAuthHandlerSpecSupport.handler(configuration,
+        Slack::Auth::MemoryStateStore.new(clock), transport, clock)
+      state = OAuthHandlerSpecSupport.issue(handler)
+      installation = handler.authenticate_user(OAuthHandlerSpecSupport.encoded_callback(state),
+        OAuthHandlerSpecSupport.secret)
+      installation.team.should_not(be_nil).id.should eq("TTEAM")
+      request = transport.requests.first
+      request.uri.should eq(configuration.token_uri)
+      form = URI::Params.parse(request.body.should_not(be_nil))
+      form.to_h.should eq({
+        "code"          => "dummy+code&value=100%",
+        "client_id"     => configuration.client_id,
+        "client_secret" => configuration.client_secret.value,
+        "redirect_uri"  => configuration.redirect_uri.to_s,
+      })
+      Slack::SignInWithSlack.settings.sign_in_redirect_url.should be_nil
+    ensure
+      Slack::SignInWithSlack.configure(&.sign_in_redirect_url = original_redirect)
+    end
+  end
+end
