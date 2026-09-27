@@ -1,0 +1,63 @@
+{
+  "type": "block_actions",
+  "user": {
+    "id": "U123"
+  },
+  "container": {
+    "type": "view",
+    "view_id": "V123"
+  },
+  "view": {
+    "id": "V123",
+    "type": "home",
+    "callback_id": "dashboard",
+    "external_id": "dashboard-U123",
+    "hash": "new-hash",
+    "future": true,
+    "state": {
+      "values": {
+        "note": {
+          "text": {
+            "type": "plain_text_input",
+            "value": "Ready"
+          }
+        },
+        "future": {
+          "select": {
+            "type": "future_select",
+            "selected_options": []
+          }
+        }
+      }
+    }
+  },
+  "actions": [
+    {
+      "type": "button",
+      "action_id": "refresh",
+      "block_id": "controls"
+    },
+    {
+      "type": "plain_text_input",
+      "action_id": "text",
+      "block_id": "note",
+      "value": "Ready"
+    }
+  ],
+  "state": {
+    "values": {
+      "note": {
+        "text": {
+          "type": "plain_text_input",
+          "value": "Ready"
+        }
+      },
+      "future": {
+        "select": {
+          "type": "future_select",
+          "selected_options": []
+        }
+      }
+    }
+  }
+}

@@ -1,4 +1,6 @@
 class Slack::UI::Checked::MessageBuilder
+  include Slack::UI::Checked::DisplayBlockHelpers
+
   @blocks : Array(MessageBlock)
   @fallback_text : String?
 
@@ -14,15 +16,7 @@ class Slack::UI::Checked::MessageBuilder
     @blocks = [] of MessageBlock
   end
 
-  def add(block : Slack::UI::Checked::Blocks::Section) : Nil
-    @blocks << block
-  end
-
-  def add(block : Slack::UI::Checked::Blocks::Actions) : Nil
-    @blocks << block
-  end
-
-  def add(block : Slack::UI::Checked::Blocks::Divider) : Nil
+  def add(block : MessageBlock) : Nil
     @blocks << block
   end
 
@@ -33,7 +27,7 @@ class Slack::UI::Checked::MessageBuilder
 
   def section(
     text : Slack::UI::Checked::CompositionObjects::Text,
-    accessory : Slack::UI::Checked::BlockElements::Button? = nil,
+    accessory : Slack::UI::Checked::Blocks::Section::Accessory? = nil,
     block_id : String? = nil,
     expand : Bool? = nil,
   ) : Nil

@@ -33,3 +33,17 @@ module Slack::UI::Checked::DeclaredTypes
     {% end %}
   end
 end
+
+module Slack::UI::Checked::DeclaredTypes
+  def self.context_element(type : T.class) : Nil forall T
+    {% unless T <= Slack::UI::Checked::Blocks::ContextElement %}
+      {% raise "checked context rejects its declared element item type" %}
+    {% end %}
+  end
+
+  def self.home_block(type : T.class) : Nil forall T
+    {% unless T <= Slack::UI::Checked::HomeBlock %}
+      {% raise "checked home rejects its declared block item type" %}
+    {% end %}
+  end
+end

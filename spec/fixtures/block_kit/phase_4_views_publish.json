@@ -1,0 +1,122 @@
+{
+  "user_id": "U123",
+  "view": {
+    "type": "home",
+    "blocks": [
+      {
+        "type": "header",
+        "text": {
+          "type": "plain_text",
+          "text": "Your projects",
+          "emoji": false
+        },
+        "block_id": "heading",
+        "level": 1
+      },
+      {
+        "type": "context",
+        "block_id": "status",
+        "elements": [
+          {
+            "type": "plain_text",
+            "text": "Updated today"
+          },
+          {
+            "type": "mrkdwn",
+            "text": "*Ready*",
+            "verbatim": false
+          },
+          {
+            "type": "image",
+            "slack_file": {
+              "id": "F123"
+            },
+            "alt_text": "Project thumbnail"
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "text": {
+          "type": "mrkdwn",
+          "text": "*Project 42*"
+        },
+        "accessory": {
+          "type": "image",
+          "image_url": "https://example.test/thumbnail.png",
+          "alt_text": "Project 42 thumbnail"
+        },
+        "block_id": "summary",
+        "expand": false
+      },
+      {
+        "type": "image",
+        "slack_file": {
+          "url": "https://files.slack.com/files-pri/T123-F123/project.png"
+        },
+        "alt_text": "Project 42 diagram",
+        "title": {
+          "type": "plain_text",
+          "text": "Diagram"
+        },
+        "block_id": "diagram"
+      },
+      {
+        "type": "actions",
+        "block_id": "controls",
+        "elements": [
+          {
+            "type": "button",
+            "text": {
+              "type": "plain_text",
+              "text": "Refresh"
+            },
+            "action_id": "refresh",
+            "accessibility_label": "Refresh your projects"
+          }
+        ]
+      },
+      {
+        "type": "input",
+        "block_id": "note",
+        "label": {
+          "type": "plain_text",
+          "text": "Project note"
+        },
+        "hint": {
+          "type": "plain_text",
+          "text": "Press Enter to save"
+        },
+        "optional": true,
+        "dispatch_action": true,
+        "element": {
+          "type": "plain_text_input",
+          "action_id": "text",
+          "initial_value": "",
+          "multiline": false,
+          "focus_on_load": true,
+          "min_length": 0,
+          "max_length": 3000,
+          "placeholder": {
+            "type": "plain_text",
+            "text": "Add a note"
+          },
+          "dispatch_action_config": {
+            "trigger_actions_on": [
+              "on_enter_pressed"
+            ]
+          }
+        }
+      },
+      {
+        "type": "divider",
+        "block_id": "end"
+      }
+    ],
+    "private_metadata": "",
+    "callback_id": "dashboard",
+    "external_id": "dashboard-U123"
+  },
+  "hash": "1710000000.000001",
+  "interactivity_pointer": "synthetic-pointer"
+}
