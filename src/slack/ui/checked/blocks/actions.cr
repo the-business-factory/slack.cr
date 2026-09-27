@@ -1,5 +1,5 @@
 struct Slack::UI::Checked::Blocks::Actions
-  alias Element = Slack::UI::Checked::BlockElements::Button
+  alias Element = Slack::UI::Checked::BlockElements::Button | Slack::UI::Checked::BlockElements::StaticSelect | Slack::UI::Checked::BlockElements::MultiStaticSelect
 
   ELEMENTS_MAX_SIZE   =  25
   BLOCK_ID_MAX_LENGTH = 255
@@ -28,13 +28,13 @@ struct Slack::UI::Checked::Blocks::Actions
       issues << Slack::UI::Checked::ValidationIssue.new(
         code: "actions.elements.empty",
         path: "elements",
-        message: "Elements must contain at least one button."
+        message: "Elements must contain at least one element."
       )
     elsif @elements.size > ELEMENTS_MAX_SIZE
       issues << Slack::UI::Checked::ValidationIssue.new(
         code: "actions.elements.too_many",
         path: "elements",
-        message: "Elements cannot contain more than #{ELEMENTS_MAX_SIZE} buttons."
+        message: "Elements cannot contain more than #{ELEMENTS_MAX_SIZE} elements."
       )
     end
 
