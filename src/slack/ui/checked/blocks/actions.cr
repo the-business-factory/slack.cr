@@ -9,7 +9,6 @@ struct Slack::UI::Checked::Blocks::Actions
   getter block_id : String?
 
   def initialize(elements : Enumerable(T), @block_id : String? = nil) forall T
-    Slack::UI::Checked::DeclaredTypes.actions_element(T)
     @elements = copy_elements(elements)
     validate!
   end

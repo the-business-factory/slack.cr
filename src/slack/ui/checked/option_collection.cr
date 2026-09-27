@@ -1,7 +1,6 @@
 # Shared copying and validation for the static menu option lists.
 module Slack::UI::Checked::OptionCollection
   def self.copy(options : Enumerable(T)) : Array(CompositionObjects::Option) forall T
-    DeclaredTypes.option(T)
     copied = [] of CompositionObjects::Option
     options.each { |option| copied << option }
     copied

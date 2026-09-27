@@ -25,9 +25,12 @@ struct Slack::UI::Checked::DisplayModal
     @notify_on_close : Bool? = nil,
     @submit_disabled : Bool? = nil,
   ) forall T
-    DeclaredTypes.display_modal_block(T)
     @blocks = [] of DisplayModalBlock
-    blocks.each { |block| @blocks << block }
+    blocks.each do |block|
+      # Diagnose Input using the actual yielded type, not Enumerable's declaration.
+      DeclaredTypes.display_modal_block(typeof(block))
+      @blocks << block
+    end
     validate!
   end
 

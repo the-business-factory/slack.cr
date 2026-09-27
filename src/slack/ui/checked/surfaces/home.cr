@@ -20,7 +20,6 @@ struct Slack::UI::Checked::Home
     @callback_id : String? = nil,
     @external_id : String? = nil,
   ) forall T
-    DeclaredTypes.home_block(T)
     @blocks = [] of HomeBlock
     blocks.each { |block| append_block(block) }
     validate!
@@ -45,15 +44,7 @@ struct Slack::UI::Checked::Home
     if @blocks.size > 100
       issues << ValidationIssue.new("home.blocks.too_many", "blocks", "Home cannot contain more than 100 blocks.")
     end
-    block_ids = Set(String).new
-    @blocks.each_with_index do |block, index|
-      block.validate.each { |issue| issues << issue.at("blocks[#{index}]") }
-      if id = block.block_id
-        unless block_ids.add?(id)
-          issues << ValidationIssue.new("home.block_id.duplicate", "blocks[#{index}].block_id", "Block IDs must be unique within a view.")
-        end
-      end
-    end
+    BlockValidation.validate(@blocks, issues, "home.block_id.duplicate", "Block IDs must be unique within a view.")
     issues.concat(Slack::UI::Checked::ViewFocus.validate(@blocks, "home"))
     issues
   end

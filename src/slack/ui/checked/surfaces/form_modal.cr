@@ -25,7 +25,6 @@ struct Slack::UI::Checked::FormModal
     @notify_on_close : Bool? = nil,
     @submit_disabled : Bool? = nil,
   ) forall T
-    DeclaredTypes.form_modal_block(T)
     @blocks = [] of ModalBlock
     blocks.each { |block| @blocks << block }
     validate!

@@ -3,7 +3,8 @@ alias Slack::UI::Checked::MessageSourceBlock = Slack::UI::Checked::Blocks::Secti
                                                Slack::UI::Checked::Blocks::Divider |
                                                Slack::UI::Checked::Blocks::Header |
                                                Slack::UI::Checked::Blocks::Context |
-                                               Slack::UI::Checked::Blocks::Image
+                                               Slack::UI::Checked::Blocks::Image |
+                                               Slack::UI::Checked::Blocks::Input
 
 alias Slack::UI::Checked::MessageBlock = Slack::UI::Checked::MessageSourceBlock
 
@@ -16,7 +17,6 @@ struct Slack::UI::Checked::Message
   getter fallback_text : String?
 
   def initialize(@fallback_text : String, blocks : Enumerable(T)) forall T
-    Slack::UI::Checked::DeclaredTypes.message_block(T)
     @blocks = copy_blocks(blocks)
     validate!
   end
@@ -26,7 +26,6 @@ struct Slack::UI::Checked::Message
   end
 
   private def initialize(blocks : Enumerable(T), @fallback_text : Nil) forall T
-    Slack::UI::Checked::DeclaredTypes.message_block(T)
     @blocks = copy_blocks(blocks)
     validate!
   end
@@ -71,21 +70,7 @@ struct Slack::UI::Checked::Message
       )
     end
 
-    block_ids = {} of String => Int32
-    @blocks.each_with_index do |block, index|
-      block.validate.each { |issue| issues << issue.at("blocks[#{index}]") }
-      if block_id = block.block_id
-        if block_ids.has_key?(block_id)
-          issues << Slack::UI::Checked::ValidationIssue.new(
-            code: "message.block_id.duplicate",
-            path: "blocks[#{index}].block_id",
-            message: "Block IDs must be unique within a message."
-          )
-        else
-          block_ids[block_id] = index
-        end
-      end
-    end
+    BlockValidation.validate(@blocks, issues, "message.block_id.duplicate", "Block IDs must be unique within a message.")
     issues
   end
 
