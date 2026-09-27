@@ -1,4 +1,4 @@
-module Slack::UI::Checked::DeclaredTypes
+module Slack::UI::Checked::Proof::DeclaredTypes
   def self.display_modal_block(type : T.class) : Nil forall T
     {% unless T <= Slack::UI::Checked::Proof::DisplayModalSourceBlock %}
       {% raise "display modal rejects its declared block item type" %}
