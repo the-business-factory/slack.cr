@@ -172,7 +172,7 @@ describe "tokenless API endpoints" do
     history = Slack::Api::ConversationsHistory.new(
       "history-token",
       "C456",
-      "cursor-value"
+      "next +", false, false, "123", "100"
     )
     message = Slack::Api::ChatPostMessage.new(
       "message-token",
@@ -190,7 +190,9 @@ describe "tokenless API endpoints" do
 
     positional.token.should eq("positional-token")
     positional.channel.should eq("C123")
-    history.cursor.should eq("cursor-value")
+    history.cursor.should eq("next +")
+    history.url_params.should eq("channel=C456&cursor=next+%2B&include_all_metadata=false&inclusive=false&latest=123&oldest=100")
+    history.query.should eq(history.url_params)
     message.text.should eq("positional message")
     named.token.should eq("named-token")
     named.name.should eq("wave")

@@ -49,8 +49,10 @@ describe Slack::Auth::RotationService do
 
   it "preserves long-lived grants and fails closed for an expiring grant without refresh credentials" do
     record = store.fetch(RotationSupport.query.owner).should_not(be_nil)
-    store.store(record.key, Slack::Auth::InstallationPatch.new(bot: RotationSupport.grant("B1", refresh: nil)), record.version)
-    service.rotate(RotationSupport.query)
+    stored = store.store(record.key, Slack::Auth::InstallationPatch.new(bot: RotationSupport.grant("B1", refresh: nil)), record.version)
+    reference = service.rotate(RotationSupport.query)
+    reference.generation.should eq(stored.version.generation)
+    store.credential_for_dispatch(reference).should eq(stored.bot.should_not(be_nil).grant.access_token)
     transport.requests.should be_empty
     record = store.fetch(record.key).should_not(be_nil)
     store.store(record.key, Slack::Auth::InstallationPatch.new(bot: RotationSupport.grant("B1", clock.now, nil)), record.version)

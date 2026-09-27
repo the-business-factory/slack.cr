@@ -1,2 +1,2 @@
-# Compatibility entry point. The core also exposes OAuth installation APIs.
+# Compatibility forwarding shim. Use require "slack" in application code.
 require "./slack"

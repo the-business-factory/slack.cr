@@ -1,4 +1,5 @@
 require "../spec_helper"
+require "../support/auth/fakes"
 
 describe "optional feature credentials" do
   it "allows Habitat validation when API-unrelated credentials are absent" do
@@ -12,6 +13,11 @@ describe "optional feature credentials" do
         settings.signing_secret = nil
       end
       Habitat.raise_if_missing_settings!
+      transport = AuthSupport::RecordingTransport.new
+      transport.enqueue(Slack::Auth::TransportResponse.new(200, HTTP::Headers.new,
+        File.read("spec/fixtures/api/team-info-success.json")))
+      Slack::Api::TeamInfo.new("synthetic-token", transport: transport).call.name.should eq("goalsurfer")
+      transport.requests.first.headers["Authorization"].should eq("Bearer synthetic-token")
     ensure
       Slack.configure do |settings|
         settings.client_id = original_client_id
@@ -24,6 +30,7 @@ describe "optional feature credentials" do
   it "validates explicit OAuth installation credentials independently of global settings" do
     store = Slack::Auth::MemoryStateStore.new
     transport = Slack::Auth::HTTPTransportFactory.new.build(Slack::Auth::TransportOptions.new)
+    transport.should be_a(Slack::Auth::HTTPTransport)
 
     [{"", "synthetic-secret"}, {"synthetic-client", " \t"}].each do |client_id, client_secret|
       configuration = Slack::Auth::OAuthConfiguration.new(
