@@ -1,0 +1,17 @@
+{
+  "type": "input",
+  "label": {
+    "type": "plain_text",
+    "text": "Label"
+  },
+  "element": {
+    "type": "plain_text_input"
+  },
+  "block_id": "reason",
+  "hint": {
+    "type": "plain_text",
+    "text": "Hint"
+  },
+  "optional": false,
+  "dispatch_action": false
+}

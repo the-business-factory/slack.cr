@@ -14,6 +14,8 @@ module Slack::UI::Checked::Proof
       @token : String,
       @channel : String,
       message : Message,
+      *,
+      @transport : Slack::Auth::Transport? = nil,
     )
       @snapshot = message.snapshot
       @result = nil
@@ -58,7 +60,7 @@ module Slack::UI::Checked::Proof
           channel: @channel,
           text: @snapshot.fallback_text
         )
-        Slack::ApiClient.new(api: descriptor).post(body: to_json)
+        Slack::ApiClient.new(api: descriptor, transport: @transport).post(body: to_json)
       end
     end
 

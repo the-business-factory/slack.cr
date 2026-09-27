@@ -1,0 +1,38 @@
+{
+  "type": "modal",
+  "title": {
+    "type": "plain_text",
+    "text": "Request",
+    "emoji": false
+  },
+  "submit": {
+    "type": "plain_text",
+    "text": "Send"
+  },
+  "close": {
+    "type": "plain_text",
+    "text": "Cancel"
+  },
+  "private_metadata": "",
+  "callback_id": "request",
+  "external_id": "request-42",
+  "clear_on_close": false,
+  "notify_on_close": true,
+  "submit_disabled": false,
+  "blocks": [
+    {
+      "type": "input",
+      "label": {
+        "type": "plain_text",
+        "text": "Reason"
+      },
+      "element": {
+        "type": "plain_text_input",
+        "action_id": "reason"
+      },
+      "block_id": "request.reason",
+      "optional": true,
+      "dispatch_action": true
+    }
+  ]
+}

@@ -1,4 +1,5 @@
 require "./spec_helper"
+require "./support/auth/webmock_transport"
 require "./support/block_kit/prototype"
 
 private alias Checked = Slack::UI::Checked
@@ -142,6 +143,8 @@ describe "Block Kit Phase 0 executed proofs" do
       end
 
     request = CheckedProof::CheckedChatPostMessage.new(
+
+      transport: AuthSupport::WebMockTransport.new,
       token: token,
       channel: "C-result",
       message: message
@@ -160,6 +163,8 @@ describe "Block Kit Phase 0 executed proofs" do
       .to_return(body: File.read("spec/fixtures/api/chat-post-success-section.json"))
 
     response = CheckedProof::CheckedChatPostMessage.new(
+
+      transport: AuthSupport::WebMockTransport.new,
       token: token,
       channel: "C-call",
       message: message
@@ -180,6 +185,7 @@ describe "Block Kit Phase 0 executed proofs" do
       )
       message = CheckedProof::Message.new(fallback_text: "Invalid request", blocks: [section])
       request = CheckedProof::CheckedChatPostMessage.new(
+        transport: AuthSupport::WebMockTransport.new,
         token: "xoxb-synthetic",
         channel: "",
         message: message
@@ -199,6 +205,7 @@ describe "Block Kit Phase 0 executed proofs" do
     caller_blocks = [checked]
     message = CheckedProof::Message.new(fallback_text: "Snapshot", blocks: caller_blocks)
     request = CheckedProof::CheckedChatPostMessage.new(
+      transport: AuthSupport::WebMockTransport.new,
       token: "xoxb-synthetic",
       channel: "C-snapshot",
       message: message
