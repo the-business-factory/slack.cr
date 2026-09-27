@@ -4,10 +4,9 @@ struct Slack::UI::Checked::CompositionObjects::DispatchActionConfig
   @trigger_actions_on : Array(DispatchTrigger)?
 
   def initialize(trigger_actions_on : Enumerable(T)) forall T
-    {% unless T <= Slack::UI::Checked::CompositionObjects::DispatchTrigger %}
-      {% raise "checked dispatch config rejects its declared trigger item type" %}
-    {% end %}
-    @trigger_actions_on = trigger_actions_on.map { |trigger| trigger }.to_a
+    triggers = [] of DispatchTrigger
+    trigger_actions_on.each { |trigger| triggers << trigger }
+    @trigger_actions_on = triggers
     validate!
   end
 

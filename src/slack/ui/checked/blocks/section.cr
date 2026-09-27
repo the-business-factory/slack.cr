@@ -31,7 +31,6 @@ struct Slack::UI::Checked::Blocks::Section
     @block_id : String? = nil,
     @expand : Bool? = nil,
   ) forall T
-    Slack::UI::Checked::DeclaredTypes.text(T)
     @text = nil
     @fields = copy_fields(fields)
     validate!
@@ -44,7 +43,6 @@ struct Slack::UI::Checked::Blocks::Section
     @block_id : String? = nil,
     @expand : Bool? = nil,
   ) forall T
-    Slack::UI::Checked::DeclaredTypes.text(T)
     @fields = copy_fields(fields)
     validate!
   end

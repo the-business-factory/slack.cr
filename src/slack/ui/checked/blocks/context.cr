@@ -7,7 +7,6 @@ struct Slack::UI::Checked::Blocks::Context
   getter block_id : String?
 
   def initialize(elements : Enumerable(T), @block_id : String? = nil) forall T
-    Slack::UI::Checked::DeclaredTypes.context_element(T)
     @elements = [] of ContextElement
     elements.each { |element| append_element(element) }
     validate!

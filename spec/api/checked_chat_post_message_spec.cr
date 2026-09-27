@@ -37,6 +37,26 @@ describe Slack::Api::CheckedChatPostMessage do
     request.result.status_code.should eq 200
   end
 
+  it "posts a Message Input as a structured block with explicit false flags" do
+    message = Slack::UI::Checked.message(fallback_text: "Note") do |builder|
+      builder.input(label: Slack::UI::Checked.plain("Note"),
+        element: Slack::UI::Checked::BlockElements::PlainTextInput.new(action_id: "note", multiline: false),
+        optional: false, dispatch_action: false)
+    end
+    WebMock.stub(:post, "https://slack.com/api/chat.postMessage")
+      .with(headers: {"Authorization" => "Bearer xoxb-synthetic-input"})
+      .to_return do |http_request|
+        JSON.parse(http_request.body || fail("Expected JSON body")).should eq JSON.parse(<<-JSON)
+          {"channel":"C-INPUT","text":"Note","blocks":[{"type":"input","label":{"type":"plain_text","text":"Note"},"element":{"type":"plain_text_input","action_id":"note","multiline":false},"optional":false,"dispatch_action":false}],"unfurl_links":false}
+          JSON
+        HTTP::Client::Response.new(200, body: File.read("spec/fixtures/api/chat-post-success-section.json"))
+      end
+    request = Slack::Api::CheckedChatPostMessage.new(
+      transport: AuthSupport::WebMockTransport.new, token: "xoxb-synthetic-input",
+      channel: "C-INPUT", message: message, unfurl_links: false)
+    request.result.status_code.should eq 200
+  end
+
   it "parses a successful checked request through call" do
     WebMock.stub(:post, "https://slack.com/api/chat.postMessage")
       .to_return(body: File.read("spec/fixtures/api/chat-post-success-section.json"))

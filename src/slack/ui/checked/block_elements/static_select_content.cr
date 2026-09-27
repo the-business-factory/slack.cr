@@ -21,7 +21,6 @@ module Slack::UI::Checked::BlockElements::StaticSelectContent
   end
 
   private def copy_groups(groups : Enumerable(T)) : Array(OptionGroup) forall T
-    Slack::UI::Checked::DeclaredTypes.option_group(T)
     copied = [] of OptionGroup
     groups.each { |group| copied << group }
     copied
