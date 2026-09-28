@@ -20,9 +20,6 @@ require "./slack/model"
 require "./slack/models/**"
 require "./slack/webhooks/**"
 require "./slack/socket_mode/**"
-require "./slack/ui/dynamic_text_composition"
-require "./slack/ui/composition_objects/**"
-require "./slack/ui/**"
 require "./slack/oauth/**"
 
 module Slack

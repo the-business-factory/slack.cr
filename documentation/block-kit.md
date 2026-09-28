@@ -75,7 +75,7 @@ file.to_json
 # {"type":"file","external_id":"plan-2026-q4","source":"remote","block_id":"plan.file"}
 ```
 
-The block always sends `source: "remote"`. The `external_id` must not be empty, and `block_id` is limited to 255 characters. A checked `Message` can contain the block because Slack lists messages as its only surface; `DisplayModal`, `FormModal`, and `Home` reject `Blocks::File` at compile time. This placement does not make `chat.postMessage` or `chat.update` a supported way to share a file. Slack checks that the remote file exists. Received message blocks are not decoded. See the [file block reference](https://docs.slack.dev/reference/block-kit/blocks/file-block/), the [remote file guide](https://docs.slack.dev/messaging/working-with-files/), and the offline [remote-file example](../examples/block_kit_remote_file.cr). The legacy `Slack::UI::Blocks::File` placeholder does not change.
+The block always sends `source: "remote"`. The `external_id` must not be empty, and `block_id` is limited to 255 characters. A checked `Message` can contain the block because Slack lists messages as its only surface; `DisplayModal`, `FormModal`, and `Home` reject `Blocks::File` at compile time. This placement does not make `chat.postMessage` or `chat.update` a supported way to share a file. Slack checks that the remote file exists. Received message blocks are not decoded. See the [file block reference](https://docs.slack.dev/reference/block-kit/blocks/file-block/), the [remote file guide](https://docs.slack.dev/messaging/working-with-files/), and the offline [remote-file example](../examples/block_kit_remote_file.cr).
 
 `MessageBlock` now contains `Blocks::File`. An exhaustive `case ... in` or overload set over `MessageBlock` must add a `Blocks::File` branch. Before this change, `Blocks::Input` and `DisplayModalBlock` were sufficient.
 
@@ -238,7 +238,7 @@ Only the single control accepts `response_url_enabled`. It is allowed only in mo
 
 Read `ConversationsSelectAction#selected_conversation` (`String?`) and `MultiConversationsSelectAction#selected_conversations` (`Array(String)?`), or use `state_map.conversations_select_value?` and `state_map.multi_conversations_select_value?` with block/action IDs. Presence accessors distinguish Absent, Null, and Present. A cleared single selection is null; a cleared multi-selection is an empty array. Missing entries return nil, malformed known values raise path-aware `TypeMismatch`, and unknown fields stay in raw JSON. Received IDs have no outbound limits; selected-array getters return copies. Input can use `dispatch_action: true` for changes; submissions also carry state.
 
-Migration: these controls now decode as `ConversationsSelectAction`/`MultiConversationsSelectAction` and `ConversationsSelectValue`/`MultiConversationsSelectValue`, instead of unknown types. Move raw handlers to these branches and extend exhaustive matches on `Interactions::Action`, `StateValue`, and checked placement unions. The [offline workflow](../examples/block_kit_conversations_select.cr) posts a filtered conversation menu, reads a signed action, opens a destination form, and reads its signed submission. It does not prove live permissions, rendering, default precedence, remote acceptance, or acknowledgment timing.
+These controls decode as `ConversationsSelectAction`/`MultiConversationsSelectAction` and `ConversationsSelectValue`/`MultiConversationsSelectValue`. The [offline workflow](../examples/block_kit_conversations_select.cr) posts a filtered conversation menu, reads a signed action, opens a destination form, and reads its signed submission. It does not prove live permissions, rendering, default precedence, remote acceptance, or acknowledgment timing.
 
 ## Choose a date and time
 
@@ -261,7 +261,7 @@ Only TimePicker accepts `timezone`, an IANA timezone hint such as `America/Chica
 
 Read `DatePickerAction#selected_date` and `TimePickerAction#selected_time`, or `state_map.date_picker_value?` and `state_map.time_picker_value?` with block/action IDs. Selections remain `String?`. Their `selected_date_presence` and `selected_time_presence` distinguish Absent, Null (cleared), and Present. TimePickerAction/TimePickerValue also expose optional `timezone` and `timezone_presence`. Missing state entries return nil. Empty or malformed-format strings remain present without outbound calendar/clock validation; wrong JSON types raise path-aware `TypeMismatch`. Unknown fields remain in `raw`. Input can set `dispatch_action: true` to receive changes.
 
-Picker interactions now decode as `DatePickerAction`/`TimePickerAction` and `DatePickerValue`/`TimePickerValue` instead of unknown types. Move raw picker handlers to these typed branches and extend exhaustive matches on `Interactions::Action`, `StateValue`, `Blocks::Section::Accessory`, `Blocks::Actions::Element`, and `Blocks::InputElement`. Legacy placeholder types are unchanged. The [offline scheduling-choice workflow](../examples/block_kit_date_time_pickers.cr) posts a date choice, opens a form, and reads the final date, time, and timezone from a signed submission.
+Picker interactions decode as `DatePickerAction`/`TimePickerAction` and `DatePickerValue`/`TimePickerValue`. The [offline scheduling-choice workflow](../examples/block_kit_date_time_pickers.cr) posts a date choice, opens a form, and reads the final date, time, and timezone from a signed submission.
 
 ## Choose an instant
 
@@ -337,7 +337,7 @@ Supply `options:` (0 to 100 options; an empty list shows no results) or `option_
 
 Read `ExternalSelectAction#selected_option` (`SelectedOption?`) and `MultiExternalSelectAction#selected_options` (`Array(SelectedOption)?`), or use `state_map.external_select_value?` and `state_map.multi_external_select_value?` with block/action IDs. Presence accessors distinguish Absent, Null, and Present. A cleared multi-selection is an empty array. Missing entries return nil, malformed known values raise path-aware `TypeMismatch`, and unknown fields stay in raw JSON. Received options have no outbound limits.
 
-Migration: `block_suggestion` payloads now decode as `BlockSuggestion` instead of raising an unknown-discriminator error. External select actions and state now decode as `ExternalSelectAction`/`MultiExternalSelectAction` and `ExternalSelectValue`/`MultiExternalSelectValue` instead of unknown types. Extend exhaustive matches on `Slack::Interaction` subtypes, `Interactions::Action`, `StateValue`, and the checked placement unions. The [offline workflow](../examples/block_kit_external_select.cr) posts an external menu, answers a signed suggestion, reads a signed selection, opens a related-project form, and reads its signed submission. It does not prove live acceptance, rendering, or response timing.
+`block_suggestion` payloads decode as `BlockSuggestion`. External select actions and state decode as `ExternalSelectAction`/`MultiExternalSelectAction` and `ExternalSelectValue`/`MultiExternalSelectValue`. The [offline workflow](../examples/block_kit_external_select.cr) posts an external menu, answers a signed suggestion, reads a signed selection, opens a related-project form, and reads its signed submission. It does not prove live acceptance, rendering, or response timing.
 
 ## Show rich text
 
@@ -399,7 +399,7 @@ reply.elements.each do |container|
 end
 ```
 
-Migration: received `team`, `file`, `canvas`, and `workflow_mention` nodes now decode as `RichText::Team`, `File`, `Canvas`, and `WorkflowMention` instead of `RichText::Unknown`. Move handlers that match `Unknown#type` to these types, and extend exhaustive matches on `Interactions::RichText::Element` and `UI::Checked::RichText::Element`. Existing constructors are unchanged; the new style flags, `Channel#tab_id`, and `Date#timezone` are optional named arguments.
+Received `team`, `file`, `canvas`, and `workflow_mention` nodes decode as `RichText::Team`, `File`, `Canvas`, and `WorkflowMention`. The style flags, `Channel#tab_id`, and `Date#timezone` are optional named arguments.
 
 ## Show a table
 
@@ -661,7 +661,7 @@ if value = submission.state_map.file_input_value?("receipts", "files")
 end
 ```
 
-Migration: `file_input` state entries now decode as `FileInputValue` instead of `UnknownStateValue`, and `Blocks::ModalInputElement` now includes FileInput. Extend exhaustive matches on `StateValue` and `ModalInputElement`. The [offline upload workflow](../examples/block_kit_file_input.cr) opens a receipt form from a signed button action and reads the uploaded file IDs from a signed submission. It does not prove upload completion, file access, or remote acceptance.
+`file_input` state entries decode as `FileInputValue`, and `Blocks::ModalInputElement` includes FileInput. The [offline upload workflow](../examples/block_kit_file_input.cr) opens a receipt form from a signed button action and reads the uploaded file IDs from a signed submission. It does not prove upload completion, file access, or remote acceptance.
 
 ## Enter a URL
 
@@ -759,7 +759,7 @@ section = UI::Blocks::Section.new(text: UI.mrkdwn("*INC-7* is resolved."), acces
 
 Slack does not document a `block_actions` payload for a workflow button click. If Slack sends one, it decodes as `UnknownAction` with raw JSON. The [offline incident workflow](../examples/block_kit_workflow_button.cr) posts workflow buttons with trigger inputs and shows the Home rejection. It does not prove that the trigger is valid or that the workflow runs.
 
-Migration: `Blocks::Section::Accessory` and `Blocks::Actions::Element` now include `WorkflowButton`. Extend exhaustive matches on these unions.
+`Blocks::Section::Accessory` and `Blocks::Actions::Element` include `WorkflowButton`.
 
 ## Build modals and Home
 
@@ -869,7 +869,7 @@ The route must configure the signing secret and handle other callbacks, interact
 
 `ModalErrors` copies the supplied map; `errors` returns a copy. Construction rejects an empty map or blank messages with `Slack::UI::Checked::ValidationError`. These are library policies so the response contains useful feedback. `validate` and `validate!` use the existing checked validation conventions. No message length or block-ID format restriction is added. The application owns business rules and must ensure each key identifies an Input block in the submitted view; no original modal is required or checked.
 
-This outbound value needs no token and makes no API request. It is separate from `views.update` and API failure responses. The legacy `Slack::Helpers::Modal::CLOSE` constant is unchanged. The [offline example](../examples/block_kit_modal_errors.cr) verifies signed invalid and corrected submissions and prepares their HTTP responses. Ordinary consumer specs check the complete error body and JSON content type; they do not prove live rendering or handler timing.
+This outbound value needs no token and makes no API request. It is separate from `views.update` and API failure responses. The [offline example](../examples/block_kit_modal_errors.cr) verifies signed invalid and corrected submissions and prepares their HTTP responses. Ordinary consumer specs check the complete error body and JSON content type; they do not prove live rendering or handler timing.
 
 ## Close the modal stack after submission
 
@@ -884,7 +884,7 @@ response = HTTP::Client::Response.new(200,
 
 The application must send the response within three seconds. `clear` closes **all views** in the modal stack. An empty HTTP 200 instead closes only the submitted view and reveals the previous view, if one exists. See [Slack's closing guidance](https://docs.slack.dev/surfaces/modals/#closing-views).
 
-`ModalClear` has no options, needs no token, and makes no API request. The legacy `Slack::Helpers::Modal::CLOSE` named tuple remains unchanged. The [offline clear example](../examples/block_kit_modal_clear.cr) verifies a synthetic signed submission, accepts its input, and prepares the response. Consumer specs independently check its exact body and content type; they do not prove live closure, rendering, or acknowledgment timing.
+`ModalClear` has no options, needs no token, and makes no API request. The [offline clear example](../examples/block_kit_modal_clear.cr) verifies a synthetic signed submission, accepts its input, and prepares the response. Consumer specs independently check its exact body and content type; they do not prove live closure, rendering, or acknowledgment timing.
 
 ## Push a view in a submission acknowledgment
 
@@ -987,7 +987,7 @@ The [offline example](../examples/interaction_context.cr) updates the clicked me
 
 ## Validation, limits, and ownership
 
-Constructors check supported local values, and the complete surface checks placement, block IDs, and cross-block rules. `validate` returns `Array(ValidationIssue)`; `validate!` raises `ValidationError`. Each issue has a code, field path, and message. `ValidationError` is an `InvalidUIBlock`.
+Constructors check supported local values, and the complete surface checks placement, block IDs, and cross-block rules. `validate` returns `Array(ValidationIssue)`; `validate!` raises `ValidationError`. Each issue has a code, field path, and message.
 
 ```crystal
 begin
@@ -1001,7 +1001,7 @@ Text and field lengths count characters. Common limits: top-level Message 50 blo
 
 Checked constructors and builders accept arrays, tuples, and custom enumerables according to the **types actually yielded by `each`**. A broad declared `Enumerable(T?)` is allowed if its `each` yields only supported `T` values. Unsupported yielded values cause a compile error; constructors do no runtime filtering. Inputs are traversed once and copied into owned typed arrays. Getters return snapshots, so changing a caller array, a getter result, or a builder cannot mutate an already built surface or endpoint request.
 
-Use a collection typed for the destination surface. An ordinary `Array(Slack::UI::Checked::MessageBlock)` has an item union that includes Input, File, Table, DataVisualization, Carousel, Container, Markdown, and ContextActions; it cannot be passed to `DisplayModal` even if its present elements happen to be display blocks. Use `Array(Slack::UI::Checked::DisplayModalBlock)` for that surface. An `Array(Slack::UI::Checked::DisplayModalBlock)` includes Alert, so it cannot be passed to `Message` or `Home`. Legacy conversion helpers remain available in the API for supported mutable Section and Actions values; checked values can be built directly from application data.
+Use a collection typed for the destination surface. An ordinary `Array(Slack::UI::Checked::MessageBlock)` has an item union that includes Input, File, Table, DataVisualization, Carousel, Container, Markdown, and ContextActions; it cannot be passed to `DisplayModal` even if its present elements happen to be display blocks. Use `Array(Slack::UI::Checked::DisplayModalBlock)` for that surface. An `Array(Slack::UI::Checked::DisplayModalBlock)` includes Alert, so it cannot be passed to `Message` or `Home`.
 
 ## Offline examples
 

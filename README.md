@@ -26,7 +26,7 @@ team = Slack::Api::TeamInfo.new(token: token).call
 puts team.name
 ```
 
-Slack API error responses raise `Slack::Api::Error`. API calls use `https://slack.com/api/` by default. Endpoint constructors accept named `configuration` and `transport` options where supported; see [authentication and transport](documentation/authentication.md).
+Slack API error responses raise `Slack::Errors::Api`. API calls use `https://slack.com/api/` by default. Endpoint constructors accept named `configuration` and `transport` options where supported; see [authentication and transport](documentation/authentication.md).
 
 | Feature | Credentials and setup |
 | --- | --- |

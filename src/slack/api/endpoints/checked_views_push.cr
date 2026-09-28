@@ -48,8 +48,8 @@ class Slack::Api::CheckedViewsPush
   def result : HTTP::Client::Response
     validate!
     @result ||= begin
-      descriptor = ViewsPushDescriptor.new(
-        token: @token, body: to_json,
+      descriptor = JsonBodyRequest(Slack::Models::ViewsPush).new(
+        token: @token, method_path: "views.push", body: to_json,
         configuration: @configuration, transport: @transport, limiter: @limiter
       )
       descriptor.result

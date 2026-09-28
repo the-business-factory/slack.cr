@@ -48,20 +48,11 @@ class Slack::Api::CheckedViewsOpen
   def result : HTTP::Client::Response
     validate!
     @result ||= begin
-      # Only the legacy descriptor's transport settings are used. Its view is
-      # never serialized; the checked envelope is the sole request body.
-      descriptor = Slack::Api::ViewsOpen.new(
-        token: @token,
-        trigger_id: @trigger_id,
-        view: Slack::UI::Modal.new(
-          title: Slack::UI::Modal::Title.new(@snapshot.title.text),
-          blocks: [] of Slack::TypeAliases::ModalBlock
-        ),
-        configuration: @configuration,
-        transport: @transport,
-        limiter: @limiter
+      descriptor = JsonBodyRequest(Slack::Models::ViewsOpen).new(
+        token: @token, method_path: "views.open", body: to_json,
+        configuration: @configuration, transport: @transport, limiter: @limiter
       )
-      descriptor.api_client.post(body: to_json)
+      descriptor.result
     end
   end
 

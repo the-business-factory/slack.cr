@@ -13,7 +13,7 @@ team = Slack::Api::TeamInfo.new(token: ENV["SLACK_BOT_TOKEN"]).call
 puts team.name
 ```
 
-Direct token callers own token expiry, revocation, and renewal. A `Slack::Api::Error` reports an unsuccessful API result. A configured API base URI or transport changes dispatch, not the token's scopes.
+Direct token callers own token expiry, revocation, and renewal. A `Slack::Errors::Api` reports an unsuccessful API result. A configured API base URI or transport changes dispatch, not the token's scopes.
 
 For Events API, commands, and interactions, set the app's signing secret on the trusted HTTP route. Pass the original `HTTP::Request` to `Slack.process_webhook`, `Slack.process_command`, or `Slack.process_interaction`. These verify the signature and timestamp freshness before parsing. Timestamp checks reject stale requests; they do not suppress duplicate deliveries. Keep an application event ID registry if duplicate processing matters. Return Slack's URL verification challenge from `Slack::UrlVerification#response` in your framework's HTTP response.
 

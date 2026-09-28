@@ -67,7 +67,7 @@ struct Slack::Interactions::BlockAction < Slack::Interaction
   end
 
   def state_map : StateMap
-    # The legacy nilable field can collapse explicit JSON null; presence retains it.
+    # The nilable `state` field collapses explicit JSON null; presence retains it.
     raw = @state
     raw = JSON::Any.new(nil) if raw.nil? && @state_present
     StateMap.new(raw)

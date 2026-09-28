@@ -86,6 +86,25 @@ describe "API transport injection" do
     end
   end
 
+  it "keeps a separate default limiter for each checked Slack method" do
+    token = "synthetic-checked-limiter"
+    transport = AuthSupport::RecordingTransport.new
+    2.times { transport.enqueue(Slack::Auth::TransportResponse.new(200, HTTP::Headers.new, %({"ok":true}))) }
+    message = Slack::UI::Checked.message(fallback_text: "Details", &.divider)
+    view = Slack::UI::Checked.display_modal(title: Slack::UI::Checked.plain("Details"), &.divider)
+
+    begin
+      Slack::Api::CheckedChatPostMessage.new(token: token, channel: "C123", message: message, transport: transport).result
+      Slack::Api::CheckedViewsOpen.new(token: token, trigger_id: "trigger", view: view, transport: transport).result
+
+      limiters = Slack::ApiClient.limiters.select { |key, _limiter| key.starts_with?("#{token}:") }
+      limiters.size.should eq 2
+      limiters.values.uniq!(&.object_id).size.should eq 2
+    ensure
+      Slack::ApiClient.limiters.reject! { |key, _limiter| key.starts_with?("#{token}:") }
+    end
+  end
+
   it "uses the configured host, prefix, encoded query, and bearer header" do
     transport = AuthSupport::RecordingTransport.new
     transport.enqueue(Slack::Auth::TransportResponse.new(200, HTTP::Headers.new,
@@ -121,27 +140,39 @@ describe "API transport injection" do
     transport.executed_after_limit?.should be_true
   end
 
-  it "passes transport and configuration through the modal convenience method" do
+  it "sends the checked views.open envelope through injected transport and configuration" do
     transport = AuthSupport::RecordingTransport.new
     transport.enqueue(Slack::Auth::TransportResponse.new(200, HTTP::Headers.new,
       %({"ok":true,"view":{}})))
     configuration = Slack::Auth::APIConfiguration.new(URI.parse("https://api.gov.example/custom/"))
+    view = Slack::UI::Checked.display_modal(
+      title: Slack::UI::Checked.plain("Title"),
+      close: Slack::UI::Checked.plain("Close")
+    ) { |builder| builder.divider }
 
-    Slack::Helpers::Modal.open(
-      access_token: "synthetic-token",
-      blocks: [] of Slack::TypeAliases::ModalBlock,
-      close: "Close",
-      submit: "Submit",
+    Slack::Api::CheckedViewsOpen.new(
+      token: "synthetic-token",
       trigger_id: "trigger",
-      title: "Title",
+      view: view,
       configuration: configuration,
       transport: transport
-    ).should be_a(Slack::Models::ViewsOpen)
+    ).call.should be_a(Slack::Models::ViewsOpen)
 
+    expected_body = JSON.parse(<<-JSON)
+      {
+        "trigger_id": "trigger",
+        "view": {
+          "type": "modal",
+          "title": {"type": "plain_text", "text": "Title"},
+          "close": {"type": "plain_text", "text": "Close"},
+          "blocks": [{"type": "divider"}]
+        }
+      }
+      JSON
     recorded = transport.requests.first
     recorded.uri.to_s.should eq("https://api.gov.example/custom/views.open")
     recorded.headers["Authorization"].should eq("Bearer synthetic-token")
-    recorded.body.to_s.should_not contain("synthetic-token")
-    recorded.body.to_s.should_not contain("api.gov.example")
+    recorded.headers["Content-Type"].should eq("application/json; charset=utf-8")
+    JSON.parse(recorded.body || fail("Expected views.open body")).should eq(expected_body)
   end
 end

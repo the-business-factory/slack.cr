@@ -52,8 +52,8 @@ class Slack::Api::CheckedViewsPublish
   def result : HTTP::Client::Response
     validate!
     @result ||= begin
-      descriptor = ViewsPublishDescriptor.new(
-        token: @token, body: to_json,
+      descriptor = JsonBodyRequest(Slack::Models::ViewsPublish).new(
+        token: @token, method_path: "views.publish", body: to_json,
         configuration: @configuration, transport: @transport, limiter: @limiter
       )
       descriptor.result

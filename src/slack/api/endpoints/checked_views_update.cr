@@ -72,8 +72,8 @@ class Slack::Api::CheckedViewsUpdate
   def result : HTTP::Client::Response
     validate!
     @result ||= begin
-      descriptor = ViewsUpdateDescriptor.new(
-        token: @token, body: to_json,
+      descriptor = JsonBodyRequest(Slack::Models::ViewsUpdate).new(
+        token: @token, method_path: "views.update", body: to_json,
         configuration: @configuration, transport: @transport, limiter: @limiter
       )
       descriptor.result

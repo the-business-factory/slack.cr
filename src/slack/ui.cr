@@ -1,6 +1,5 @@
 require "json"
 require "set"
-require "./errors/invalid_ui_block"
 require "./ui/checked/validation_issue"
 require "./ui/checked/validation_error"
 require "./ui/checked/value_validation"

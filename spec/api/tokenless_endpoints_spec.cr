@@ -174,13 +174,6 @@ describe "tokenless API endpoints" do
       "C456",
       "next +", false, false, "123", "100"
     )
-    message = Slack::Api::ChatPostMessage.new(
-      "message-token",
-      "C789",
-      nil,
-      nil,
-      "positional message"
-    )
     named = Slack::Api::ReactionsAdd.new(
       token: "named-token",
       channel: "C123",
@@ -193,40 +186,7 @@ describe "tokenless API endpoints" do
     history.cursor.should eq("next +")
     history.url_params.should eq("channel=C456&cursor=next+%2B&include_all_metadata=false&inclusive=false&latest=123&oldest=100")
     history.query.should eq(history.url_params)
-    message.text.should eq("positional message")
     named.token.should eq("named-token")
     named.name.should eq("wave")
-  end
-
-  it "supports tokenless message and modal convenience paths" do
-    limiter = TrackingLimiter.new
-    transport = AuthSupport::RecordingTransport.new
-    transport.enqueue(Slack::Auth::TransportResponse.new(200, HTTP::Headers.new,
-      File.read("spec/fixtures/api/chat-post-success-section.json")))
-    transport.enqueue(Slack::Auth::TransportResponse.new(200, HTTP::Headers.new,
-      %({"ok":true,"view":{}})))
-    section = Slack::UI::Components::TextSection.render(text: "Tokenless", markdown: true)
-
-    Slack::Api::ChatPostMessage.post_blocks(
-      blocks: [section],
-      channel: "C123",
-      transport: transport,
-      limiter: limiter
-    ).should be_a(Slack::Models::Chat::PostMessage)
-    Slack::Helpers::Modal.open(
-      blocks: [] of Slack::TypeAliases::ModalBlock,
-      close: "Close",
-      submit: "Submit",
-      trigger_id: "trigger",
-      title: "Title",
-      transport: transport,
-      limiter: limiter
-    ).should be_a(Slack::Models::ViewsOpen)
-
-    transport.requests.size.should eq(2)
-    transport.requests.each do |request|
-      request.headers["Authorization"]?.should be_nil
-    end
-    limiter.calls.should eq(2)
   end
 end

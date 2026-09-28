@@ -71,8 +71,8 @@ class Slack::Api::CheckedChatUpdate
   def result : HTTP::Client::Response
     validate!
     @result ||= begin
-      descriptor = ChatUpdateDescriptor.new(
-        token: @token, body: to_json,
+      descriptor = JsonBodyRequest(Slack::Models::Chat::UpdateMessage).new(
+        token: @token, method_path: "chat.update", body: to_json,
         configuration: @configuration, transport: @transport, limiter: @limiter
       )
       descriptor.result
