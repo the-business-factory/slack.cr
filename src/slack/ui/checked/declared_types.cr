@@ -24,6 +24,9 @@ module Slack::UI::Checked::DeclaredTypes
       {% if T.union_types.any? { |member| member <= Slack::UI::Checked::Blocks::Carousel } %}
         {% raise "DisplayModal rejects Carousel blocks. Slack shows carousels in messages and Home tabs only." %}
       {% end %}
+      {% if T.union_types.any? { |member| member <= Slack::UI::Checked::Blocks::Container } %}
+        {% raise "DisplayModal rejects Container blocks. Slack shows container blocks in messages and Home tabs only." %}
+      {% end %}
       {% raise "DisplayModal rejects its yielded block item type. For Input, use FormModal with submit." %}
     {% end %}
   end

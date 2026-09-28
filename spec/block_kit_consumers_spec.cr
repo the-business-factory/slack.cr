@@ -33,6 +33,7 @@ require "../examples/support/table_example"
 require "../examples/support/data_table_example"
 require "../examples/support/data_visualization_example"
 require "../examples/support/card_carousel_example"
+require "../examples/support/container_example"
 require "../examples/support/rich_text_input_example"
 require "../examples/support/markdown_example"
 require "../examples/support/workflow_button_example"
@@ -395,6 +396,26 @@ describe "documented Block Kit workflows" do
           {"type":"card","block_id":"department.wellness","slack_icon":{"type":"icon","name":"heart"},
            "title":{"type":"plain_text","text":"Wellness Center"},"body":{"type":"plain_text","text":"Please wait until called."},
            "actions":[{"type":"button","text":{"type":"plain_text","text":"Visit"},"action_id":"visit.request","value":"wellness","style":"primary"}]}]}]}
+      JSON
+  end
+
+  it "posts a collapsible bulk update and reads a signed click inside the container" do
+    output = IO::Memory.new
+    posted = OfflineContainerExample.run(output)
+    output.to_s.should eq "bulk.confirm in bulk.actions: DCW-1024,DCW-1025\n"
+    # Authored from Slack's container block and chat.postMessage references, not from the serializer.
+    posted.should eq JSON.parse(<<-'JSON')
+      {"channel":"C-SYNTHETIC","text":"Bulk update: 2 records selected","blocks":[
+        {"type":"container","block_id":"bulk.update","is_collapsible":true,
+         "title":{"type":"plain_text","text":"Bulk update: 2 records selected"},
+         "subtitle":{"type":"plain_text","text":"Review changes before confirming"},
+         "child_blocks":[
+           {"type":"section","block_id":"record.DCW-1024","text":{"type":"mrkdwn","text":"*DCW-1024*\nStatus: Open → Closed"}},
+           {"type":"divider"},
+           {"type":"section","block_id":"record.DCW-1025","text":{"type":"mrkdwn","text":"*DCW-1025*\nStatus: In Progress → Closed"}},
+           {"type":"actions","block_id":"bulk.actions","elements":[
+             {"type":"button","text":{"type":"plain_text","text":"Confirm all"},"action_id":"bulk.confirm","value":"DCW-1024,DCW-1025","style":"primary"},
+             {"type":"button","text":{"type":"plain_text","text":"Cancel"},"action_id":"bulk.cancel"}]}]}]}
       JSON
   end
 

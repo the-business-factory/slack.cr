@@ -11,6 +11,7 @@ alias Slack::UI::Checked::HomeBlock = Slack::UI::Checked::Blocks::Section |
                                       Slack::UI::Checked::Blocks::DataVisualization |
                                       Slack::UI::Checked::Blocks::Card |
                                       Slack::UI::Checked::Blocks::Carousel |
+                                      Slack::UI::Checked::Blocks::Container |
                                       Slack::UI::Checked::Blocks::Input |
                                       Slack::UI::Checked::Blocks::ViewInput
 
@@ -74,17 +75,30 @@ struct Slack::UI::Checked::Home
     end
   end
 
-  # Slack documents datetimepicker for messages and modals only.
+  # Slack documents datetimepicker for messages and modals only, and remote
+  # file blocks for messages only. Container children can hold either.
   private def datetime_picker_issues(issues : Array(ValidationIssue)) : Nil
     @blocks.each_with_index do |block, index|
-      case block
-      when Blocks::Actions
-        block.elements.each_with_index do |element, position|
-          datetime_picker_issue(issues, "blocks[#{index}].elements[#{position}]") if element.is_a?(BlockElements::DatetimePicker)
+      if block.is_a?(Blocks::Container)
+        block.child_blocks.each_with_index do |child, position|
+          surface_issues(issues, child, "blocks[#{index}].child_blocks[#{position}]")
         end
-      when Blocks::Input
-        datetime_picker_issue(issues, "blocks[#{index}].element") if block.element.is_a?(BlockElements::DatetimePicker)
+      else
+        surface_issues(issues, block, "blocks[#{index}]")
       end
+    end
+  end
+
+  private def surface_issues(issues : Array(ValidationIssue), block : HomeBlock | Blocks::Container::Child, path : String) : Nil
+    case block
+    when Blocks::Actions
+      block.elements.each_with_index do |element, position|
+        datetime_picker_issue(issues, "#{path}.elements[#{position}]") if element.is_a?(BlockElements::DatetimePicker)
+      end
+    when Blocks::Input
+      datetime_picker_issue(issues, "#{path}.element") if block.element.is_a?(BlockElements::DatetimePicker)
+    when Blocks::File
+      issues << ValidationIssue.new("home.file.unsupported_surface", path, "Slack supports remote file blocks only in messages.")
     end
   end
 
