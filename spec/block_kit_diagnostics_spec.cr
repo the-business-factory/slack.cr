@@ -29,6 +29,7 @@ describe "Block Kit construction diagnostics" do
     "message_alert"              => ["Messages and Home tabs reject Alert blocks", "modals only"],
     "display_data_table"         => ["DisplayModal rejects DataTable blocks", "messages and Home tabs only"],
     "display_data_visualization" => ["DisplayModal rejects DataVisualization blocks", "messages and Home tabs only"],
+    "display_carousel"           => ["DisplayModal rejects Carousel blocks", "messages and Home tabs only"],
     "data_table_rich_header"     => ["DataTable#append_header_cell", "Table::RawText", "Table::RawNumber"],
     "rich_text_list_item"        => ["RichText::List#append_element", "RichText::Section", "not Slack::UI::Checked::RichText::Text"],
     "number_input_message"       => ["MessageBuilder#input", "argument 'element'", "NumberInput"],

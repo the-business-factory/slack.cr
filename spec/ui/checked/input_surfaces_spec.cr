@@ -79,6 +79,8 @@ module SurfaceConsumer
       "table"
     in UI::Blocks::DataVisualization
       "chart"
+    in UI::Blocks::Carousel
+      "carousel"
     in UI::DisplayModalBlock
       "display"
     end
@@ -96,13 +98,13 @@ module SurfaceConsumer
     block.text
   end
 
-  def self.caption(block : UI::DisplayModalBlock | UI::Blocks::Table | UI::Blocks::ContextActions | UI::Blocks::DataTable | UI::Blocks::DataVisualization) : String
+  def self.caption(block : UI::DisplayModalBlock | UI::Blocks::Table | UI::Blocks::ContextActions | UI::Blocks::DataTable | UI::Blocks::DataVisualization | UI::Blocks::Carousel) : String
     block.type
   end
 end
 
 describe "typed surface consumers" do
-  it "dispatches Input, message-only, table, and display blocks through exhaustive cases and overloads" do
+  it "dispatches Input, message-only, table, carousel, and display blocks through exhaustive cases and overloads" do
     input = Slack::UI::Checked::Blocks::Input.new(
       label: Slack::UI::Checked.plain("Note"),
       element: Slack::UI::Checked::BlockElements::PlainTextInput.new
@@ -117,10 +119,12 @@ describe "typed surface consumers" do
     context_actions = Slack::UI::Checked::Blocks::ContextActions.new(elements: {trash})
     data_table = Slack::UI::Checked::Blocks::DataTable.new(caption: "Queue", header: {Slack::UI::Checked::Table::RawText.new("Ticket")},
       rows: { {Slack::UI::Checked::Table::RawText.new("T-1")} })
-    message_blocks = [divider, input, file, table, markdown, context_actions, data_table] of Slack::UI::Checked::MessageBlock
+    card = Slack::UI::Checked::Blocks::Card.new(title: Slack::UI::Checked.plain("Card"))
+    carousel = Slack::UI::Checked::Blocks::Carousel.new(elements: {card})
+    message_blocks = [divider, input, file, table, markdown, context_actions, data_table, carousel] of Slack::UI::Checked::MessageBlock
     consumer_message = Slack::UI::Checked::Message.new(fallback_text: "Note", blocks: message_blocks)
     Slack::UI::Checked::DisplayModal.new(title: Slack::UI::Checked.plain("Display"), blocks: display_blocks)
-    consumer_message.blocks.map { |block| SurfaceConsumer.kind(block) }.should eq(["display", "input", "message-only", "table", "message-only", "message-only", "table"])
-    consumer_message.blocks.map { |block| SurfaceConsumer.caption(block) }.should eq(["divider", "Note", "ABCD1", "table", "**Open**", "context_actions", "data_table"])
+    consumer_message.blocks.map { |block| SurfaceConsumer.kind(block) }.should eq(["display", "input", "message-only", "table", "message-only", "message-only", "table", "carousel"])
+    consumer_message.blocks.map { |block| SurfaceConsumer.caption(block) }.should eq(["divider", "Note", "ABCD1", "table", "**Open**", "context_actions", "data_table", "carousel"])
   end
 end
