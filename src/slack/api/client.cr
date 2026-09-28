@@ -76,6 +76,13 @@ module Slack::Api
       call(GenericRequest.new(method, params, tier))
     end
 
+    # Starts a streamed message and returns its `MessageStream`.
+    # See `ChatStartStream` for the request fields.
+    def start_stream(request : ChatStartStream) : MessageStream
+      message = call(request)
+      MessageStream.new(message.channel, message.ts)
+    end
+
     def inspect(io : IO) : Nil
       io << "#<Slack::Api::Client token=" << (@token ? "[REDACTED]" : "none")
       io << " base_uri=" << @configuration.base_uri << '>'

@@ -501,6 +501,61 @@ entries:
     inbound_status: partial
     evidence_paths: [src/slack/api/requests/chat/update.cr, src/slack/models/chat/update_message.cr, spec/api/chat_update_spec.cr, spec/api/client_spec.cr, examples/block_kit_message_update.cr, spec/block_kit_consumers_spec.cr]
 
+  - wire_type: chat.startStream request
+    kind: endpoint
+    documentation_url: https://docs.slack.dev/reference/methods/chat.startStream
+    fields_supported: [channel, thread_ts, recipient_user_id, recipient_team_id, markdown_text, chunks, task_display_mode, username]
+    parents: []
+    surfaces: [message]
+    restrictions: "Constructors take markdown_text (1–12,000 characters) or a nonempty chunks list, or no content, so one request cannot send both. thread_ts is nil for a top-level stream (Slack's \"0\"); a given value must have the ts shape. The recipient user and team IDs are sent together or not at all; Slack requires them in channels. task_display_mode is timeline or plan. icon_emoji and icon_url are not sent yet; they arrive with the shared message icon type. Client#start_stream returns a MessageStream with the channel and ts. Tier 2. Slack checks the channel, thread, and streaming support."
+    implementation_status: partial
+    inbound_status: unsupported
+    evidence_paths: [src/slack/api/requests/chat/start_stream.cr, src/slack/api/message_stream.cr, src/slack/models/chat/stream_message.cr, spec/api/chat_stream_spec.cr, examples/support/streaming_example.cr, spec/block_kit_consumers_spec.cr]
+
+  - wire_type: chat.appendStream request
+    kind: endpoint
+    documentation_url: https://docs.slack.dev/reference/methods/chat.appendStream
+    fields_supported: [channel, ts, markdown_text, chunks]
+    parents: []
+    surfaces: [message]
+    restrictions: "Constructors take markdown_text (1–12,000 characters) or a nonempty chunks list; Slack requires one of them and requires the mode that started the stream. The library does not track that mode. MessageStream#append sends it for a started stream. Tier 4. Slack checks the streaming state, ownership, and streaming mode (message_not_in_streaming_state, message_not_owned_by_app, streaming_mode_mismatch); the codes arrive as Api::Error#code."
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/api/requests/chat/append_stream.cr, src/slack/api/message_stream.cr, spec/api/chat_stream_spec.cr, examples/support/streaming_example.cr, spec/block_kit_consumers_spec.cr]
+
+  - wire_type: chat.stopStream request
+    kind: endpoint
+    documentation_url: https://docs.slack.dev/reference/methods/chat.stopStream
+    fields_supported: [channel, ts, markdown_text, chunks, blocks, session_status]
+    parents: []
+    surfaces: [message]
+    restrictions: "Constructors take markdown_text or a nonempty chunks list, or no content. blocks are copied and validated with the message block rules, at most 50, separate from blocks chunks. session_status is active, processing, suspended, or closed. metadata is not sent yet; it arrives with the shared message metadata type. The response gives channel, ts, and the raw message. Tier 2."
+    implementation_status: partial
+    inbound_status: unsupported
+    evidence_paths: [src/slack/api/requests/chat/stop_stream.cr, src/slack/api/message_stream.cr, spec/api/chat_stream_spec.cr, examples/support/streaming_example.cr, spec/block_kit_consumers_spec.cr]
+
+  - wire_type: streaming chunks
+    kind: composition object
+    documentation_url: https://docs.slack.dev/reference/methods/chat.appendStream
+    fields_supported: [type, text, id, title, status, hide_title, icon, details, output, sources, blocks]
+    parents: [chat.startStream, chat.appendStream, chat.stopStream]
+    surfaces: [message]
+    restrictions: "MarkdownTextChunk, TaskUpdateChunk, PlanUpdateChunk, and BlocksChunk are immutable values that validate on construction. Task and plan titles are 1–256 characters. Task status is in_progress, complete, error, or pending (SDK-sourced). The task icon is an opaque IconRef name (undocumented). BlocksChunk holds 1–50 message blocks under the message rules. Offline evidence does not prove live rendering."
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/api/streaming/markdown_text_chunk.cr, src/slack/api/streaming/task_update_chunk.cr, src/slack/api/streaming/plan_update_chunk.cr, src/slack/api/streaming/blocks_chunk.cr, src/slack/ui/task_status.cr, spec/api/chat_stream_spec.cr]
+
+  - wire_type: url
+    kind: block element
+    documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/url-source-element
+    fields_supported: [type, url, text]
+    parents: [task_update]
+    surfaces: [message]
+    restrictions: "UrlSource requires nonempty url and text. Slack accepts it only in task cards and task updates and does not check that the URL resolves. The task card block is not supported yet."
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/block_elements/url_source.cr, spec/api/chat_stream_spec.cr, examples/support/streaming_example.cr]
+
   - wire_type: modal view
     kind: surface
     documentation_url: https://docs.slack.dev/reference/views/modal-views/
@@ -1691,3 +1746,17 @@ rules:
     source_section: "Fields: message, view"
     reviewed_on: "2026-09-28"
     evidence_paths: [src/slack/interactions/received_blocks.cr, spec/interactions/received_blocks_spec.cr, examples/support/received_blocks_example.cr, spec/block_kit_consumers_spec.cr]
+  - id: stream_content
+    classification: slack_requirement
+    requirement: "A streaming request cannot send both markdown_text and chunks; chat.appendStream needs one of them. markdown_text is at most 12,000 characters. Task and plan updates are at most 256 characters; the library applies the limit to titles. A blocks chunk and stopStream blocks each hold at most 50 blocks."
+    source_url: https://docs.slack.dev/reference/methods/chat.startStream
+    source_section: "Arguments: markdown_text, chunks; Errors: cannot_provide_both_markdown_text_and_chunks"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/api/chat_stream_spec.cr]
+  - id: stream_task_extras
+    classification: library_support
+    requirement: "Task status pending comes from the Slack Python SDK TaskUpdateChunk, not the reference. The task icon example {type: icon, name: URL} conflicts with the Slack icon object, so IconRef sends the name unchanged. Empty chunks lists and one recipient field without the other are rejected as library policy."
+    source_url: https://docs.slack.dev/reference/methods/chat.appendStream
+    source_section: "Chunks: task_update"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/api/chat_stream_spec.cr]
