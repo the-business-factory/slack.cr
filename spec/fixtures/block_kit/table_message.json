@@ -1,0 +1,53 @@
+{
+  "text": "Quarterly revenue by region",
+  "blocks": [
+    {
+      "type": "table",
+      "block_id": "revenue",
+      "column_settings": [
+        {"is_wrapped": true},
+        null,
+        {"align": "right", "is_wrapped": false}
+      ],
+      "rows": [
+        [
+          {"type": "raw_text", "text": "Region"},
+          {"type": "raw_text", "text": "Owner"},
+          {"type": "raw_text", "text": "Revenue"}
+        ],
+        [
+          {"type": "raw_text", "text": "EMEA"},
+          {
+            "type": "rich_text",
+            "elements": [
+              {
+                "type": "rich_text_section",
+                "elements": [{"type": "user", "user_id": "U-SYNTHETIC"}]
+              }
+            ]
+          },
+          {"type": "raw_number", "value": 1250000, "text": "$1.25M"}
+        ],
+        [
+          {"type": "raw_text", "text": "APAC"},
+          {
+            "type": "rich_text",
+            "elements": [
+              {
+                "type": "rich_text_section",
+                "elements": [{"type": "link", "url": "https://example.com/apac", "text": "APAC team"}]
+              }
+            ]
+          },
+          {"type": "raw_number", "value": 980000.5, "text": "$980,000.50"}
+        ]
+      ]
+    },
+    {
+      "type": "table",
+      "rows": [
+        [{"type": "raw_text", "text": "Total"}, {"type": "raw_number", "value": -3, "text": "-3"}]
+      ]
+    }
+  ]
+}

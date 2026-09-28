@@ -29,6 +29,7 @@ require "../examples/support/number_input_example"
 require "../examples/support/file_input_example"
 require "../examples/support/url_input_example"
 require "../examples/support/email_input_example"
+require "../examples/support/table_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -246,6 +247,27 @@ describe "documented Block Kit workflows" do
     output = IO::Memory.new
     OfflineRichTextExample.run(output)
     output.to_s.should eq "Mentioned users: U-AUTHOR\nFollow-up items: docs, changelog\n"
+  end
+
+  it "posts a revenue table built from application records" do
+    output = IO::Memory.new
+    posted = OfflineTableExample.run(output)
+    output.to_s.should eq "Posted 2 regions to C-SYNTHETIC/1710000000.000300\nRejected before sending: table.row.too_many_cells\n"
+    # Authored from Slack's table block and chat.postMessage references, not from the serializer.
+    posted.should eq JSON.parse(<<-JSON)
+      {"channel":"C-SYNTHETIC","text":"Q3 revenue by region","blocks":[
+        {"type":"table","block_id":"q3.revenue",
+         "column_settings":[{"is_wrapped":true},null,{"align":"right"},{"align":"right"}],
+         "rows":[
+           [{"type":"raw_text","text":"Region"},{"type":"raw_text","text":"Owner"},
+            {"type":"raw_text","text":"Deals"},{"type":"raw_text","text":"Revenue"}],
+           [{"type":"raw_text","text":"EMEA"},
+            {"type":"rich_text","elements":[{"type":"rich_text_section","elements":[{"type":"user","user_id":"U-EMEA"}]}]},
+            {"type":"raw_number","value":12,"text":"12"},{"type":"raw_number","value":1250000.0,"text":"$1250000.00"}],
+           [{"type":"raw_text","text":"APAC"},
+            {"type":"rich_text","elements":[{"type":"rich_text_section","elements":[{"type":"user","user_id":"U-APAC"}]}]},
+            {"type":"raw_number","value":7,"text":"7"},{"type":"raw_number","value":980000.5,"text":"$980000.50"}]]}]}
+      JSON
   end
 
   it "collects whole seats and a decimal budget through a signed modal form" do

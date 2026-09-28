@@ -24,6 +24,7 @@ describe "Block Kit construction diagnostics" do
     "datetime_accessory"     => ["Section.new", "accessory", "DatetimePicker"],
     "home_file"              => ["Home#append_block", "Blocks::File"],
     "display_file"           => ["DisplayModal rejects File blocks", "messages only"],
+    "display_table"          => ["DisplayModal rejects Table blocks", "messages and Home tabs only"],
     "rich_text_list_item"    => ["RichText::List#append_element", "RichText::Section", "not Slack::UI::Checked::RichText::Text"],
     "number_input_message"   => ["MessageBuilder#input", "argument 'element'", "NumberInput"],
   }.each do |name, fragments|

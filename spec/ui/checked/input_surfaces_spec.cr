@@ -75,6 +75,8 @@ module SurfaceConsumer
       "input"
     in UI::Blocks::File
       "message-only"
+    in UI::Blocks::Table
+      "table"
     in UI::DisplayModalBlock
       "display"
     end
@@ -88,23 +90,24 @@ module SurfaceConsumer
     block.external_id
   end
 
-  def self.caption(block : UI::DisplayModalBlock) : String
+  def self.caption(block : UI::DisplayModalBlock | UI::Blocks::Table) : String
     block.type
   end
 end
 
 describe "typed surface consumers" do
-  it "dispatches Input, message-only, and display blocks through exhaustive cases and overloads" do
+  it "dispatches Input, message-only, table, and display blocks through exhaustive cases and overloads" do
     input = Slack::UI::Checked::Blocks::Input.new(
       label: Slack::UI::Checked.plain("Note"),
       element: Slack::UI::Checked::BlockElements::PlainTextInput.new
     )
     display_blocks = [Slack::UI::Checked::Blocks::Divider.new] of Slack::UI::Checked::DisplayModalBlock
     file = Slack::UI::Checked::Blocks::File.new(external_id: "ABCD1")
-    message_blocks = [display_blocks.first, input, file] of Slack::UI::Checked::MessageBlock
+    table = Slack::UI::Checked::Blocks::Table.new(rows: { {Slack::UI::Checked::Table::RawText.new("Open")} })
+    message_blocks = [display_blocks.first, input, file, table] of Slack::UI::Checked::MessageBlock
     consumer_message = Slack::UI::Checked::Message.new(fallback_text: "Note", blocks: message_blocks)
     Slack::UI::Checked::DisplayModal.new(title: Slack::UI::Checked.plain("Display"), blocks: display_blocks)
-    consumer_message.blocks.map { |block| SurfaceConsumer.kind(block) }.should eq(["display", "input", "message-only"])
-    consumer_message.blocks.map { |block| SurfaceConsumer.caption(block) }.should eq(["divider", "Note", "ABCD1"])
+    consumer_message.blocks.map { |block| SurfaceConsumer.kind(block) }.should eq(["display", "input", "message-only", "table"])
+    consumer_message.blocks.map { |block| SurfaceConsumer.caption(block) }.should eq(["divider", "Note", "ABCD1", "table"])
   end
 end
