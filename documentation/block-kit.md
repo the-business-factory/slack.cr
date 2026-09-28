@@ -6,23 +6,23 @@ Use `require "slack"` and `Slack::UI::Checked` to construct validated, immutable
 
 | Checked surface | Direct blocks | Input children | Send with |
 | --- | --- | --- | --- |
-| `Message` | Section, Actions, Divider, Header, Context, Image, Video, Input | PlainTextInput, StaticSelect, MultiStaticSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, DatetimePicker | `Slack::Api::CheckedChatPostMessage`, `Slack::Api::CheckedChatUpdate` |
+| `Message` | Section, Actions, Divider, Header, Context, Image, Video, Input | PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, DatetimePicker | `Slack::Api::CheckedChatPostMessage`, `Slack::Api::CheckedChatUpdate` |
 | `DisplayModal` | Section, Actions, Divider, Header, Context, Image, Video | None, even if a submit label is supplied | `Slack::Api::CheckedViewsOpen`, `Slack::Api::CheckedViewsUpdate`, `Slack::Api::CheckedViewsPush` |
-| `FormModal` | Section, Actions, Divider, Header, Context, Image, Video, Input | PlainTextInput, StaticSelect, MultiStaticSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, DatetimePicker | `Slack::Api::CheckedViewsOpen`, `Slack::Api::CheckedViewsUpdate`, `Slack::Api::CheckedViewsPush` |
-| `Home` | Section, Actions, Divider, Header, Context, Image, Video, Input | PlainTextInput, StaticSelect, MultiStaticSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker | `Slack::Api::CheckedViewsPublish` |
+| `FormModal` | Section, Actions, Divider, Header, Context, Image, Video, Input | PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, DatetimePicker | `Slack::Api::CheckedViewsOpen`, `Slack::Api::CheckedViewsUpdate`, `Slack::Api::CheckedViewsPush` |
+| `Home` | Section, Actions, Divider, Header, Context, Image, Video, Input | PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker | `Slack::Api::CheckedViewsPublish` |
 
 `FormModal` always needs a plain-text `submit` label, including forms without Input. `DisplayModal` cannot contain Input. Message and Home need no submit label. A Message can contain Input even though older phase notes excluded it. [Slack's Input reference](https://docs.slack.dev/reference/block-kit/blocks/input-block.md) lists Messages, Modals, and Home.
 
 | Parent | Supported children |
 | --- | --- |
-| Section accessory | Button, Image element, StaticSelect, MultiStaticSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker |
-| Actions elements | Button, StaticSelect, MultiStaticSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, DatetimePicker (not Home) |
+| Section accessory | Button, Image element, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker |
+| Actions elements | Button, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, DatetimePicker (not Home) |
 | Context elements | PlainText, Mrkdwn, Image element |
-| Input element | PlainTextInput, StaticSelect, MultiStaticSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, DatetimePicker (not Home) |
+| Input element | PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, DatetimePicker (not Home) |
 
 Checked Header, Context, Image, and Video blocks are display content on all four surfaces. An Image block or element needs alt text and exactly one public `image_url` or `SlackFile` source. `SlackFile` takes an ID or URL. Remote image availability and file access are checked by Slack. Section supports text, fields, and the listed accessory; Actions checks duplicate supplied action IDs within that block.
 
-Static choices use plain-text `Option` values, optional `OptionGroup` values, and exactly one `options:` or `option_groups:` source. `StaticSelect` has one `initial_option`; `MultiStaticSelect` has `initial_options` and optional `max_selected_items`. Choice values must be unique within a menu, and initial selections must match offered options. Each group can contain up to 100 options. These two types use a **static** source. User, channel, and conversation selects use Slack-provided lists; external option sources remain unsupported.
+Static choices use plain-text `Option` values, optional `OptionGroup` values, and exactly one `options:` or `option_groups:` source. `StaticSelect` has one `initial_option`; `MultiStaticSelect` has `initial_options` and optional `max_selected_items`. Choice values must be unique within a menu, and initial selections must match offered options. Each group can contain up to 100 options. These two types use a **static** source. User, channel, and conversation selects use Slack-provided lists. External selects load options from your app; see [Load options from your app](#load-options-from-your-app).
 
 Placeholder or mutable types elsewhere in the library do not extend the checked placement matrix. The checked endpoints cover only their documented request fields; they are not complete wrappers for every Slack method field or view lifecycle action.
 
@@ -274,6 +274,46 @@ end
 
 Local checks: title and description text fewer than 200 characters, `author_name` fewer than 50 characters, and valid absolute HTTPS URLs for `video_url` and `title_url`. Slack does more checks when it gets the request. The app needs the `links.embed:write` scope, and the `video_url` domain must be in the app's unfurl domains. The page must work in an iframe, must not be on a Slack domain, and must be reachable. A local check does not prove that Slack will play the video.
 
+## Load options from your app
+
+Use `BlockElements::ExternalSelect` for one choice and `MultiExternalSelect` for several. Slack gets the options from your app. Both controls work in Section and Actions on all checked surfaces, and in Input on Message, FormModal, and Home.
+
+Before you use them, set the **Options Load URL** under **Interactivity & Shortcuts** in the app settings. Slack sends a signed `block_suggestion` request to that URL when the menu opens and when the user types. `min_query_length` sets the minimum number of typed characters before Slack sends a request. Slack uses 3 if you omit it.
+
+```crystal
+project = UI::BlockElements::ExternalSelect.new(
+  action_id: "project", placeholder: UI.plain("Find a project"),
+  min_query_length: 2
+)
+related = UI::BlockElements::MultiExternalSelect.new(
+  action_id: "related", max_selected_items: 3,
+  initial_options: {UI::CompositionObjects::Option.new(text: UI.plain("Apollo"), value: "apollo")}
+)
+```
+
+Both accept optional `action_id` (255 characters), plain-text `placeholder` (150 characters), `min_query_length`, `confirm`, and `focus_on_load`. Only one element per view can request focus. Single selection uses `initial_option`; multiple selection uses `initial_options` and optional `max_selected_items` of at least one. The library cannot compare initial options with remote results, so it checks only the option values. A negative `min_query_length`, empty `initial_options`, repeated initial values, and more initial options than `max_selected_items` are rejected as library policy. Initial options are copied in one pass; getters return copies. See Slack's [single-select](https://docs.slack.dev/reference/block-kit/block-elements/select-menu-element/#external_select) and [multi-select](https://docs.slack.dev/reference/block-kit/block-elements/multi-select-menu-element/#external_multi_select) references.
+
+Pass the signed options-load request to `Slack.process_interaction`. It verifies the signature and timestamp before it parses the payload, and returns a `Slack::Interactions::BlockSuggestion`. Read `action_id`, `block_id`, and `value` (the typed query; it can be an empty string). `user`, `team`, `enterprise`, `api_app_id`, `token`, and `view` are typed as in other interactions; `container`, `channel`, and `message` stay raw JSON. A payload without a string `action_id`, `block_id`, or `value` raises `JSON::SerializableError`.
+
+Answer with a `BlockSuggestionResponse` as HTTP 200 `application/json` within three seconds:
+
+```crystal
+case suggestion = Slack.process_interaction(request)
+when Slack::Interactions::BlockSuggestion
+  options = find_projects(suggestion.value).first(100).map do |item|
+    UI::CompositionObjects::Option.new(text: UI.plain(item.name), value: item.id)
+  end
+  body = Slack::Interactions::BlockSuggestionResponse.new(options: options).to_json
+  # Send body with status 200 and Content-Type: application/json.
+end
+```
+
+Supply `options:` (0 to 100 options; an empty list shows no results) or `option_groups:` (up to 100 `OptionGroup` values, each with 1 to 100 options). Values must be unique across the response; this is library policy. The response owns a copy of the collection. The library does not route the Options Load URL, run an HTTP server, or enforce the deadline. See the [block_suggestion payload](https://docs.slack.dev/reference/interaction-payloads/block_suggestion-payload/).
+
+Read `ExternalSelectAction#selected_option` (`SelectedOption?`) and `MultiExternalSelectAction#selected_options` (`Array(SelectedOption)?`), or use `state_map.external_select_value?` and `state_map.multi_external_select_value?` with block/action IDs. Presence accessors distinguish Absent, Null, and Present. A cleared multi-selection is an empty array. Missing entries return nil, malformed known values raise path-aware `TypeMismatch`, and unknown fields stay in raw JSON. Received options have no outbound limits.
+
+Migration: `block_suggestion` payloads now decode as `BlockSuggestion` instead of raising an unknown-discriminator error. External select actions and state now decode as `ExternalSelectAction`/`MultiExternalSelectAction` and `ExternalSelectValue`/`MultiExternalSelectValue` instead of unknown types. Extend exhaustive matches on `Slack::Interaction` subtypes, `Interactions::Action`, `StateValue`, and the checked placement unions. The [offline workflow](../examples/block_kit_external_select.cr) posts an external menu, answers a signed suggestion, reads a signed selection, opens a related-project form, and reads its signed submission. It does not prove live acceptance, rendering, or response timing.
+
 ## Build modals and Home
 
 Use `form_modal` for input and `display_modal` for display content. Both have a plain-text title; a form has a required plain-text submit label. A modal can have at most 100 blocks. For a form:
@@ -452,7 +492,7 @@ The [offline example](../examples/block_kit_modal_update.cr) verifies a signed s
 
 Pass the original signed HTTP request to `Slack.process_interaction`. It checks the signature and timestamp freshness before decoding. For JSON already verified by trusted code, use `Slack::Interaction.from_json`. Timestamp freshness is not duplicate suppression; applications own event deduplication and HTTP acknowledgments.
 
-`BlockAction#decoded_actions` gives typed ButtonAction, StaticSelectAction, MultiStaticSelectAction, OverflowAction, CheckboxesAction, RadioButtonsAction, UsersSelectAction, MultiUsersSelectAction, ChannelsSelectAction, MultiChannelsSelectAction, ConversationsSelectAction, MultiConversationsSelectAction, DatePickerAction, TimePickerAction, and DatetimePickerAction values with block/action IDs, selections, and raw JSON. A dispatched `plain_text_input` action stays `UnknownAction`; read its text through `state_map`. Unknown action and state families retain raw JSON for application inspection.
+`BlockAction#decoded_actions` gives typed ButtonAction, StaticSelectAction, MultiStaticSelectAction, ExternalSelectAction, MultiExternalSelectAction, OverflowAction, CheckboxesAction, RadioButtonsAction, UsersSelectAction, MultiUsersSelectAction, ChannelsSelectAction, MultiChannelsSelectAction, ConversationsSelectAction, MultiConversationsSelectAction, DatePickerAction, TimePickerAction, and DatetimePickerAction values with block/action IDs, selections, and raw JSON. A dispatched `plain_text_input` action stays `UnknownAction`; read its text through `state_map`. Unknown action and state families retain raw JSON for application inspection.
 
 ```crystal
 case interaction = Slack.process_interaction(request)
@@ -464,7 +504,7 @@ when Slack::Interactions::ViewSubmission
 end
 ```
 
-`StateMap#plain_text?`, `#static_select_value?`, `#multi_static_select_value?`, `#checkboxes_value?`, `#radio_buttons_value?`, `#users_select_value?`, `#multi_users_select_value?`, `#channels_select_value?`, `#multi_channels_select_value?`, `#conversations_select_value?`, and `#multi_conversations_select_value?` work on supported BlockAction, View, and ViewSubmission state. A missing block/action key returns nil. For an existing selection entry, the matching `selected_option_presence`, `selected_options_presence`, `selected_user_presence`, `selected_users_presence`, `selected_channel_presence`, `selected_channels_presence`, `selected_conversation_presence`, or `selected_conversations_presence` distinguishes Absent, Null, and Present. A cleared single choice can be null; a cleared multi choice can be a present empty array. `selected_options`, `selected_users`, `selected_channels`, and `selected_conversations` can also be nil if absent or null. Asking for the wrong typed family raises `TypeMismatch`, as do malformed known values; it does not silently return nil. Complete raw JSON remains available for unmodeled fields. This library does not implement a full view lifecycle, response-action framework, or external suggestion responses.
+`StateMap#plain_text?`, `#static_select_value?`, `#multi_static_select_value?`, `#external_select_value?`, `#multi_external_select_value?`, `#checkboxes_value?`, `#radio_buttons_value?`, `#users_select_value?`, `#multi_users_select_value?`, `#channels_select_value?`, `#multi_channels_select_value?`, `#conversations_select_value?`, and `#multi_conversations_select_value?` work on supported BlockAction, View, and ViewSubmission state. A missing block/action key returns nil. For an existing selection entry, the matching `selected_option_presence`, `selected_options_presence`, `selected_user_presence`, `selected_users_presence`, `selected_channel_presence`, `selected_channels_presence`, `selected_conversation_presence`, or `selected_conversations_presence` distinguishes Absent, Null, and Present. A cleared single choice can be null; a cleared multi choice can be a present empty array. `selected_options`, `selected_users`, `selected_channels`, and `selected_conversations` can also be nil if absent or null. Asking for the wrong typed family raises `TypeMismatch`, as do malformed known values; it does not silently return nil. Complete raw JSON remains available for unmodeled fields. This library does not implement a full view lifecycle or response-action framework.
 
 ## Validation, limits, and ownership
 
@@ -509,6 +549,7 @@ crystal run examples/block_kit_conversations_select.cr
 crystal run examples/block_kit_date_time_pickers.cr
 crystal run examples/block_kit_datetime_picker.cr
 crystal run examples/block_kit_video.cr
+crystal run examples/block_kit_external_select.cr
 ```
 
-The message example builds and prints a request. The modal example posts a button, verifies a signed action, opens a form, and reads a signed submission. The Home example publishes through a stub and reads simulated state. The static choice example posts a single choice, reads a signed selection, opens a grouped multi-choice form, and reads its submission. The overflow example posts action and URL choices and acknowledges a signed URL selection. The checkbox example posts initial choices, reads a signed checkbox action, and reads a cleared selection from a signed submission. The radio example posts an initial choice, reads a signed selection, opens an optional override form, and reads an unselected submission. The message-update example replaces a posted approval button with the completed status and new fallback text. The user-select example assigns an owner and submits multiple reviewers. The video example posts a message with a video block and shows a local rejection of an HTTP video link. Real handlers must acknowledge interactions within Slack's response window.
+The message example builds and prints a request. The modal example posts a button, verifies a signed action, opens a form, and reads a signed submission. The Home example publishes through a stub and reads simulated state. The static choice example posts a single choice, reads a signed selection, opens a grouped multi-choice form, and reads its submission. The overflow example posts action and URL choices and acknowledges a signed URL selection. The checkbox example posts initial choices, reads a signed checkbox action, and reads a cleared selection from a signed submission. The radio example posts an initial choice, reads a signed selection, opens an optional override form, and reads an unselected submission. The message-update example replaces a posted approval button with the completed status and new fallback text. The user-select example assigns an owner and submits multiple reviewers. The video example posts a message with a video block and shows a local rejection of an HTTP video link. The external-select example answers a signed options-load request, then reads a signed selection and submission. Real handlers must acknowledge interactions within Slack's response window.

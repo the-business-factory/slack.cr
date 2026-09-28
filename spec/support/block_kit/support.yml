@@ -1,6 +1,6 @@
 schema_version: 2
 checked_on: "2026-09-27"
-scope: Checked Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, channel selects, date/time pickers, the datetime picker, and video blocks, including Input in Messages, FormModal and Home.
+scope: Checked Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, channel selects, date/time pickers, the datetime picker, video blocks, and external selects with block_suggestion option responses, including Input in Messages, FormModal and Home.
 statuses:
   - unsupported
   - partial
@@ -54,7 +54,7 @@ entries:
     kind: composition object
     documentation_url: https://docs.slack.dev/reference/block-kit/composition-objects/text-object/
     fields_supported: [type, text, emoji, verbatim]
-    parents: [button, confirmation, section, input, plain_text_input, modal, header, context, image, video, option, overflow option, checkbox option, radio option, option_group, static_select, multi_static_select, users_select, multi_users_select, channels_select, multi_channels_select, conversations_select, multi_conversations_select, datepicker, timepicker]
+    parents: [button, confirmation, section, input, plain_text_input, modal, header, context, image, video, option, overflow option, checkbox option, radio option, option_group, static_select, multi_static_select, users_select, multi_users_select, channels_select, multi_channels_select, conversations_select, multi_conversations_select, external_select, multi_external_select, datepicker, timepicker]
     surfaces: [message, modal, home]
     restrictions: Immutable checked outbound values have fixed discriminators and format-specific options; legacy field-specific values remain mutable for compatibility.
     implementation_status: supported
@@ -65,7 +65,7 @@ entries:
     kind: composition object
     documentation_url: https://docs.slack.dev/reference/block-kit/composition-objects/confirmation-dialog-object/
     fields_supported: [title, text, confirm, deny, style]
-    parents: [button, static_select, multi_static_select, overflow, checkboxes, radio_buttons, users_select, multi_users_select, channels_select, multi_channels_select, conversations_select, multi_conversations_select, datepicker, timepicker, datetimepicker]
+    parents: [button, static_select, multi_static_select, overflow, checkboxes, radio_buttons, users_select, multi_users_select, channels_select, multi_channels_select, conversations_select, multi_conversations_select, external_select, multi_external_select, datepicker, timepicker, datetimepicker]
     surfaces: [message, modal, home]
     restrictions: Checked outbound values are immutable and validated; the confirmation body accepts plain_text or mrkdwn as used by Slack's official examples. Legacy confirmation values remain mutable.
     implementation_status: supported
@@ -292,6 +292,50 @@ entries:
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/block_elements/multi_conversations_select.cr, src/slack/interactions/multi_conversations_select_action.cr, src/slack/interactions/multi_conversations_select_value.cr, spec/ui/checked/conversations_select_spec.cr, spec/interactions/conversations_select_spec.cr, spec/api/conversations_select_snapshot_spec.cr, examples/block_kit_conversations_select.cr]
 
+  - wire_type: external_select
+    kind: block element
+    documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/select-menu-element/
+    fields_supported: [type, action_id, placeholder, initial_option, min_query_length, confirm, focus_on_load]
+    parents: [section, actions, input]
+    surfaces: [message, modal, home]
+    restrictions: Options come from the app's Options Load URL through block_suggestion. The initial option is checked only as an Option; membership in remote results cannot be checked. A negative min_query_length is rejected as library policy; Slack defaults to 3. Input supports Message, FormModal and Home; view focus is unique. Typed selection preserves absent/null/present and raw fields.
+    implementation_status: supported
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/checked/block_elements/external_select.cr, src/slack/interactions/external_select_action.cr, src/slack/interactions/external_select_value.cr, spec/ui/checked/external_select_spec.cr, spec/interactions/external_select_spec.cr, examples/block_kit_external_select.cr]
+
+  - wire_type: multi_external_select
+    kind: block element
+    documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/multi-select-menu-element/
+    fields_supported: [type, action_id, placeholder, initial_options, min_query_length, max_selected_items, confirm, focus_on_load]
+    parents: [section, actions, input]
+    surfaces: [message, modal, home]
+    restrictions: Options come from the Options Load URL. Supplied initial options are nonempty, distinct by value and within max_selected_items as library policy; remote membership is not checked. max_selected_items is at least one; a negative min_query_length is rejected. Input supports Message, FormModal and Home; view focus is unique. Typed selections preserve absent/null/empty and raw fields; getters return copies.
+    implementation_status: supported
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/checked/block_elements/multi_external_select.cr, src/slack/interactions/multi_external_select_action.cr, src/slack/interactions/multi_external_select_value.cr, spec/ui/checked/external_select_spec.cr, spec/interactions/external_select_spec.cr, examples/block_kit_external_select.cr]
+
+  - wire_type: block_suggestion
+    kind: interaction payload
+    documentation_url: https://docs.slack.dev/reference/interaction-payloads/block_suggestion-payload/
+    fields_supported: [type, action_id, block_id, value, user, team, enterprise, is_enterprise_install, api_app_id, container, channel, message, view, token]
+    parents: []
+    surfaces: [message, modal, home]
+    restrictions: BlockSuggestion decodes through Interaction.from_json and process_interaction, which verifies the signature and timestamp before parsing. action_id, block_id and value are required strings; a missing or wrong-typed field raises JSON::SerializableError. container, channel and message stay raw JSON; view keeps the existing View wrapper. Deno function_data and bot_access_token stay unmodeled. No Options Load URL routing or HTTP server.
+    implementation_status: supported
+    inbound_status: partial
+    evidence_paths: [src/slack/interactions/block_suggestion.cr, spec/interactions/external_select_spec.cr, examples/support/external_select_example.cr, spec/block_kit_consumers_spec.cr]
+
+  - wire_type: block suggestion options response
+    kind: interaction acknowledgment
+    documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/select-menu-element/#external_select
+    fields_supported: [options, option_groups]
+    parents: [block_suggestion]
+    surfaces: [message, modal, home]
+    restrictions: BlockSuggestionResponse owns exactly one options or option_groups snapshot. Up to 100 options (empty shows no results) or up to 100 groups of one to 100 options. Values are unique across the response as library policy. Applications return HTTP 200 application/json within three seconds; no transport or deadline enforcement.
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/interactions/block_suggestion_response.cr, spec/interactions/external_select_spec.cr, examples/support/external_select_example.cr, spec/block_kit_consumers_spec.cr]
+
   - wire_type: timepicker
     kind: block element
     documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/time-picker-element/
@@ -320,7 +364,7 @@ entries:
     fields_supported: [type, block_id, elements]
     parents: [message, modal, home]
     surfaces: [message, modal, home]
-    restrictions: Checked Actions accepts Button, StaticSelect, MultiStaticSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, and DatetimePicker (not Home); other Slack interactive elements are deferred. Legacy Actions still accepts only Button. Checked collections are immutable snapshots and validate duplicate supplied action IDs.
+    restrictions: Checked Actions accepts Button, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, and DatetimePicker (not Home); other Slack interactive elements are deferred. Legacy Actions still accepts only Button. Checked collections are immutable snapshots and validate duplicate supplied action IDs.
     implementation_status: partial
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/blocks/actions.cr, spec/ui/checked/blocks_spec.cr, src/slack/ui/blocks/actions.cr]
@@ -331,7 +375,7 @@ entries:
     fields_supported: [type, label, element, dispatch_action, block_id, hint, optional]
     parents: [message, modal, home]
     surfaces: [message, modal, home]
-    restrictions: Checked Input accepts PlainTextInput, StaticSelect, MultiStaticSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, and TimePicker in Message, FormModal and Home, and DatetimePicker in Message and FormModal; all Input fields are supported. Other input element families remain deferred. Legacy Input retains its previous partial contract.
+    restrictions: Checked Input accepts PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, and TimePicker in Message, FormModal and Home, and DatetimePicker in Message and FormModal; all Input fields are supported. Other input element families remain deferred. Legacy Input retains its previous partial contract.
     implementation_status: partial
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/blocks/input.cr, spec/ui/checked/input_spec.cr, spec/interactions/block_kit_spec.cr]
@@ -342,7 +386,7 @@ entries:
     fields_supported: [type, text, fields, accessory, block_id, expand]
     parents: [message, modal, home]
     surfaces: [message, modal, home]
-    restrictions: Checked Section supports text, fields, block_id, expand, and Button, Image, StaticSelect, MultiStaticSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, or TimePicker accessories. Other documented accessory element families are deferred and the legacy type still accepts broad mutable children.
+    restrictions: Checked Section supports text, fields, block_id, expand, and Button, Image, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, or TimePicker accessories. Other documented accessory element families are deferred and the legacy type still accepts broad mutable children.
     implementation_status: partial
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/blocks/section.cr, spec/ui/checked/blocks_spec.cr, src/slack/ui/blocks/section.cr]
@@ -452,7 +496,7 @@ entries:
     fields_supported: [actions, state, view.state.values]
     parents: []
     surfaces: [message, modal, home]
-    restrictions: Typed button, static-select, overflow, checkbox, radio, user-select, channel-select, conversation-select, date/time-picker, and datetime-picker actions, plus plain text, static-select, checkbox, radio, user-select, channel-select, conversation-select, date/time-picker, and datetime-picker StateMap access through Interaction.from_json and process_interaction. Selection fields preserve absent/null/empty. Other known action metadata, view bodies, and dispatched text actions remain raw. UnknownAction and UnknownStateValue retain complete raw JSON. Other incoming families are deferred; outbound validation-error acknowledgments are listed separately.
+    restrictions: Typed button, static-select, external-select, overflow, checkbox, radio, user-select, channel-select, conversation-select, date/time-picker, and datetime-picker actions, plus plain text, static-select, external-select, checkbox, radio, user-select, channel-select, conversation-select, date/time-picker, and datetime-picker StateMap access through Interaction.from_json and process_interaction. BlockSuggestion is listed separately. Selection fields preserve absent/null/empty. Other known action metadata, view bodies, and dispatched text actions remain raw. UnknownAction and UnknownStateValue retain complete raw JSON. Other incoming families are deferred; outbound validation-error acknowledgments are listed separately.
     implementation_status: partial
     inbound_status: partial
     evidence_paths: [src/slack/interactions/action_decoder.cr, src/slack/interactions/state_map.cr, spec/interactions/block_kit_spec.cr, spec/interactions/static_select_spec.cr, examples/block_kit_modal.cr, examples/block_kit_static_select.cr]
@@ -538,7 +582,7 @@ entries:
     kind: composition object
     documentation_url: https://docs.slack.dev/reference/block-kit/composition-objects/option-object/
     fields_supported: [text, value, description]
-    parents: [static_select, multi_static_select, option_group]
+    parents: [static_select, multi_static_select, option_group, external_select, multi_external_select, block suggestion options response]
     surfaces: [message, modal, home]
     restrictions: Checked Option has plain-text text and description only (75 characters each), and a value (150). URL belongs to OverflowOption; markdown belongs to CheckboxOption and RadioOption. Received SelectedOption exposes value, text, text_type, and complete raw JSON without outbound validation; emoji and description remain raw.
     implementation_status: supported
@@ -549,9 +593,9 @@ entries:
     kind: composition object
     documentation_url: https://docs.slack.dev/reference/block-kit/composition-objects/option-group-object/
     fields_supported: [label, options]
-    parents: [static_select, multi_static_select]
+    parents: [static_select, multi_static_select, block suggestion options response]
     surfaces: [message, modal, home]
-    restrictions: Checked OptionGroup uses a plain-text label (75 characters) and one to 100 distinct menu options. Nonempty lists are library policy. Selections arrive as individual options; groups have no separate inbound value. External suggestion responses remain deferred.
+    restrictions: Checked OptionGroup uses a plain-text label (75 characters) and one to 100 distinct menu options. Nonempty lists are library policy. Selections arrive as individual options; groups have no separate inbound value. BlockSuggestionResponse accepts up to 100 groups with values unique across groups.
     implementation_status: supported
     inbound_status: unsupported
     evidence_paths: [src/slack/ui/checked/composition_objects/option_group.cr, spec/ui/checked/static_select_spec.cr]
@@ -1031,3 +1075,35 @@ rules:
     source_section: "Fields: initial_date_time"
     reviewed_on: "2026-09-28"
     evidence_paths: [spec/ui/checked/datetime_picker_spec.cr, spec/interactions/datetime_picker_spec.cr]
+
+  - id: external-select-fields
+    classification: slack_requirement
+    requirement: "External selects support action_id 255, plain-text placeholder 150, initial_option or initial_options, min_query_length (default 3), confirm and focus_on_load; multi max_selected_items is at least one. Section/Actions/Input on Messages, Modals and Home. Options load from the Options Load URL."
+    source_url: https://docs.slack.dev/reference/block-kit/block-elements/select-menu-element/
+    source_section: "Select menu of external data source; multi-select-menu-element External data source"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/ui/checked/external_select_spec.cr]
+
+  - id: external-select-local-policies
+    classification: library_policy
+    requirement: "Negative min_query_length is rejected. Supplied initial options are nonempty, distinct by value and within a supplied maximum. Initial options are not checked against remote results. Collections are consumed once into owned snapshots."
+    source_url: https://docs.slack.dev/reference/block-kit/block-elements/multi-select-menu-element/
+    source_section: "External data source fields; library ownership policy"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/ui/checked/external_select_spec.cr]
+
+  - id: block-suggestion-inbound
+    classification: library_support
+    requirement: "Signed block_suggestion requests decode to BlockSuggestion with required string action_id, block_id and value (empty when the menu opens). Typed selected_option and selected_options actions and state preserve absent/null/empty and raw fields."
+    source_url: https://docs.slack.dev/reference/interaction-payloads/block_suggestion-payload/
+    source_section: "Properties and Examples"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/interactions/external_select_spec.cr, spec/block_kit_consumers_spec.cr]
+
+  - id: block-suggestion-response
+    classification: slack_requirement
+    requirement: "Respond with HTTP 200 application/json containing options (at most 100) or option_groups (at most 100 groups of at most 100 options). Unique values across the response and nonempty groups are library policy."
+    source_url: https://docs.slack.dev/reference/block-kit/block-elements/select-menu-element/
+    source_section: "Select menu of external data source: Setup"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/interactions/external_select_spec.cr, spec/block_kit_consumers_spec.cr]
