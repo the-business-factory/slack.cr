@@ -1,0 +1,35 @@
+{
+  "type": "rich_text",
+  "block_id": "Xy7=",
+  "elements": [
+    {
+      "type": "rich_text_section",
+      "elements": [
+        {"type": "text", "text": "Release ", "style": {"bold": true, "code": false, "client_highlight": true}},
+        {"type": "link", "url": "https://example.com/r/9", "text": "notes", "unsafe": true, "from_llm": false},
+        {"type": "emoji", "name": "tada", "unicode": "1f389"},
+        {"type": "user", "user_id": "U-SYNTHETIC", "style": {"italic": true}},
+        {"type": "usergroup", "usergroup_id": "S-SYNTHETIC"},
+        {"type": "channel", "channel_id": "C-SYNTHETIC", "tab_id": "Ct-SYNTHETIC"},
+        {"type": "broadcast", "range": "everyone"},
+        {"type": "date", "timestamp": 1800000000, "format": "{date_num}", "timezone": "UTC", "fallback": "2027-01-15"},
+        {"type": "color", "value": "#E01E5A"},
+        {"type": "team", "team_id": "T-SYNTHETIC"}
+      ]
+    },
+    {
+      "type": "rich_text_list",
+      "style": "bullet",
+      "indent": 1,
+      "offset": 0,
+      "border": 1,
+      "elements": [
+        {"type": "rich_text_section", "elements": [{"type": "text", "text": "Faster builds"}]},
+        {"type": "rich_text_section", "elements": []}
+      ]
+    },
+    {"type": "rich_text_preformatted", "border": 0, "language": "json", "elements": [{"type": "text", "text": "{}"}]},
+    {"type": "rich_text_quote", "elements": [{"type": "text", "text": "Ship it"}]},
+    {"type": "rich_text_future_container", "elements": []}
+  ]
+}

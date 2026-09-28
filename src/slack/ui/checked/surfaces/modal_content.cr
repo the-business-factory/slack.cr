@@ -5,7 +5,8 @@ alias Slack::UI::Checked::DisplayModalBlock = Slack::UI::Checked::Blocks::Sectio
                                               Slack::UI::Checked::Blocks::Header |
                                               Slack::UI::Checked::Blocks::Context |
                                               Slack::UI::Checked::Blocks::Image |
-                                              Slack::UI::Checked::Blocks::Video
+                                              Slack::UI::Checked::Blocks::Video |
+                                              Slack::UI::Checked::Blocks::RichText
 alias Slack::UI::Checked::ModalBlock = Slack::UI::Checked::DisplayModalBlock | Slack::UI::Checked::Blocks::Input
 alias Slack::UI::Checked::Modal = Slack::UI::Checked::DisplayModal | Slack::UI::Checked::FormModal
 

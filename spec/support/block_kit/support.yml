@@ -1,6 +1,6 @@
 schema_version: 2
 checked_on: "2026-09-27"
-scope: Checked Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, channel selects, date/time pickers, the datetime picker, video blocks, external selects with block_suggestion option responses, and remote file blocks, including Input in Messages, FormModal and Home.
+scope: Checked Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, channel selects, date/time pickers, the datetime picker, video blocks, external selects with block_suggestion option responses, remote file blocks, and rich text display blocks, including Input in Messages, FormModal and Home.
 statuses:
   - unsupported
   - partial
@@ -419,7 +419,7 @@ entries:
     fields_supported: [text, blocks]
     parents: [chat.postMessage, chat.update]
     surfaces: [message]
-    restrictions: Supports explicit fallback text or the separately named Slack-generated fallback choice and a checked union of Section, Actions, Divider, Header, Context, Image, and Input. The update adapter requires explicit fallback. Other block families remain unsupported until their slices ship.
+    restrictions: Supports explicit fallback text or the separately named Slack-generated fallback choice and a checked union of Section, Actions, Divider, Header, Context, Image, RichText, and Input. The update adapter requires explicit fallback. Other block families remain unsupported until their slices ship.
     implementation_status: supported
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/surfaces/message.cr, src/slack/ui/checked/message_builder.cr, spec/ui/checked/message_spec.cr, examples/block_kit_message.cr]
@@ -452,7 +452,7 @@ entries:
     fields_supported: [type, title, submit, close, blocks, private_metadata, callback_id, external_id, clear_on_close, notify_on_close, submit_disabled]
     parents: [views.open, views.update, views.push, push response action, update response action]
     surfaces: [modal]
-    restrictions: Checked DisplayModal excludes Input; FormModal requires submit. The block catalog is limited to Section, Actions, Divider, Header, Context, Image, and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, user selects, channel selects, conversation selects, or date/time pickers. submit_disabled is for Slack configuration modals only. Typed validation-error, clear, push, and update acknowledgments are listed separately. Legacy Modal keeps its previous contract.
+    restrictions: Checked DisplayModal excludes Input; FormModal requires submit. The block catalog is limited to Section, Actions, Divider, Header, Context, Image, RichText, and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, user selects, channel selects, conversation selects, or date/time pickers. submit_disabled is for Slack configuration modals only. Typed validation-error, clear, push, and update acknowledgments are listed separately. Legacy Modal keeps its previous contract.
     implementation_status: partial
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/surfaces/form_modal.cr, src/slack/ui/checked/surfaces/display_modal.cr, spec/ui/checked/modal_spec.cr, examples/block_kit_modal.cr]
@@ -562,7 +562,7 @@ entries:
     fields_supported: [type, blocks, private_metadata, callback_id, external_id]
     parents: [views.publish]
     surfaces: [home]
-    restrictions: Checked Home and HomeBuilder accept Section, Actions, Divider, Header, Context, Image, and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, user selects, channel selects, conversation selects, or date/time pickers. At most 100 blocks, unique supplied block IDs, and one focused element per view across Section, Actions, and Input. Modal fields are unavailable. Other block and input families remain deferred. Inbound Home views retain raw JSON; button/static-select/overflow/checkbox/radio/user-select/channel-select/conversation-select/date-picker/time-picker actions and plain text/static-select/checkbox/radio/user-select/channel-select/conversation-select/date-picker/time-picker state have typed access.
+    restrictions: Checked Home and HomeBuilder accept Section, Actions, Divider, Header, Context, Image, RichText, and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, user selects, channel selects, conversation selects, or date/time pickers. At most 100 blocks, unique supplied block IDs, and one focused element per view across Section, Actions, and Input. Modal fields are unavailable. Other block and input families remain deferred. Inbound Home views retain raw JSON; button/static-select/overflow/checkbox/radio/user-select/channel-select/conversation-select/date-picker/time-picker actions and plain text/static-select/checkbox/radio/user-select/channel-select/conversation-select/date-picker/time-picker state have typed access.
     implementation_status: supported
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/surfaces/home.cr, src/slack/ui/checked/home_builder.cr, spec/ui/checked/home_spec.cr, spec/interactions/home_spec.cr, examples/block_kit_home.cr]
@@ -599,6 +599,39 @@ entries:
     implementation_status: supported
     inbound_status: unsupported
     evidence_paths: [src/slack/ui/checked/composition_objects/option_group.cr, spec/ui/checked/static_select_spec.cr]
+
+  - wire_type: rich_text
+    kind: block
+    documentation_url: https://docs.slack.dev/reference/block-kit/blocks/rich-text-block/
+    fields_supported: [type, elements, block_id]
+    parents: [message, modal, home]
+    surfaces: [message, modal, home]
+    restrictions: Checked Blocks::RichText owns a copied list of one or more RichText Section, List, Preformatted, or Quote containers; the nonempty minimum is library policy. It is display content on all four checked surfaces, including DisplayModal. Slack::Interactions::RichText::Block reads received trees, for example from message event blocks, without outbound policy. Unknown node types stay as RichText::Unknown; unknown fields stay in raw. Known types in the wrong tree position raise path-aware TypeMismatch. rich_text_input is a separate element.
+    implementation_status: supported
+    inbound_status: supported
+    evidence_paths: [src/slack/ui/checked/blocks/rich_text.cr, src/slack/interactions/rich_text/block.cr, spec/ui/checked/rich_text_spec.cr, spec/interactions/rich_text_spec.cr, spec/api/rich_text_snapshot_spec.cr, examples/block_kit_rich_text.cr]
+
+  - wire_type: rich_text_section, rich_text_list, rich_text_preformatted, rich_text_quote
+    kind: rich text container
+    documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/rich-text-section-element/
+    fields_supported: [type, elements, style, indent, offset, border, language]
+    parents: [rich_text]
+    surfaces: [message, modal, home]
+    restrictions: Types enforce Slack's documented children. List items are Section only; Preformatted holds Text or Link; Section and Quote hold the supported inline elements. List style is the ListStyle enum. Each container needs one or more children; border is 0 or 1; indent and offset are not negative. These values are library policy. Received containers keep strings and numbers as sent and accept empty children.
+    implementation_status: supported
+    inbound_status: supported
+    evidence_paths: [src/slack/ui/checked/rich_text/section.cr, src/slack/ui/checked/rich_text/list.cr, src/slack/ui/checked/rich_text/preformatted.cr, src/slack/ui/checked/rich_text/quote.cr, spec/ui/checked/rich_text_spec.cr, spec/block_kit_diagnostics_spec.cr]
+
+  - wire_type: rich text inline elements
+    kind: rich text element
+    documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/text-element/
+    fields_supported: [text, link, emoji, user, usergroup, channel, broadcast, date, color, style.bold, style.italic, style.strike, style.code]
+    parents: [rich_text_section, rich_text_quote, rich_text_preformatted]
+    surfaces: [message, modal, home]
+    restrictions: "Supported fields: text text/style; link url/text/unsafe/style; emoji name/unicode; user user_id/style; usergroup usergroup_id/style; channel channel_id/style; broadcast range/style; date timestamp/format/url/fallback/style; color value/style. Only TextStyle has code. Required strings must not be empty (library policy). Unsupported: other style flags (highlight, client_highlight, underline, unlink), link from_llm/is_slack_url/truncated, channel tab_id, date timezone, and other element types such as team, file, canvas, and workflow mentions. Received values keep those in raw or as RichText::Unknown."
+    implementation_status: partial
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/checked/rich_text/text.cr, src/slack/ui/checked/rich_text/date.cr, src/slack/interactions/rich_text/decoder.cr, spec/ui/checked/rich_text_spec.cr, spec/interactions/rich_text_spec.cr]
 
 # Classification is independent of support status. Missing features are not invalid Slack payloads.
 review_policy:
@@ -1114,3 +1147,18 @@ rules:
     source_section: "Select menu of external data source: Setup"
     reviewed_on: "2026-09-28"
     evidence_paths: [spec/interactions/external_select_spec.cr, spec/block_kit_consumers_spec.cr]
+
+  - id: rich_text_structure
+    classification: slack_requirement
+    requirement: "rich_text elements are section, list, preformatted, or quote containers. List elements are rich_text_section; preformatted holds text or link; section and quote hold inline elements. List style is bullet or ordered; broadcast range is here, channel, or everyone; date needs timestamp and format. Available in Messages, Modals and Home tabs."
+    source_url: https://docs.slack.dev/reference/block-kit/blocks/rich-text-block.md
+    source_section: "Fields, container element pages, and available_in_surfaces metadata"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/ui/checked/rich_text_spec.cr, spec/api/rich_text_snapshot_spec.cr, spec/block_kit_diagnostics_spec.cr]
+  - id: rich_text_policy
+    classification: library_policy
+    requirement: "Outbound containers need one or more children; required strings are not empty; border is 0 or 1; indent and offset are not negative. Received trees are not held to these rules."
+    source_url: https://docs.slack.dev/reference/block-kit/block-elements/rich-text-list-element/
+    source_section: "Fields: elements, indent, offset, border"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/ui/checked/rich_text_spec.cr, spec/interactions/rich_text_spec.cr]

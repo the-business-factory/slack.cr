@@ -24,6 +24,8 @@ require "../examples/support/video_example"
 require "../examples/support/external_select_example"
 require "../examples/support/remote_file_example"
 
+require "../examples/support/rich_text_example"
+
 describe "documented Block Kit workflows" do
   around_each do |example|
     client_id = Slack.settings.client_id
@@ -234,5 +236,11 @@ describe "documented Block Kit workflows" do
         {"text":{"type":"plain_text","text":"Artemis"},"value":"artemis"}]}
       JSON
     output.to_s.should eq "Suggested 2 projects (HTTP 200)\nSelected project: artemis (acknowledged 200)\nSaved related projects: artemis, gemini (acknowledged 200)\n"
+  end
+
+  it "posts rich text notes and reads a signed rich text reply" do
+    output = IO::Memory.new
+    OfflineRichTextExample.run(output)
+    output.to_s.should eq "Mentioned users: U-AUTHOR\nFollow-up items: docs, changelog\n"
   end
 end
