@@ -16,3 +16,6 @@ overflow_option = UI::CompositionObjects::OverflowOption.new(text: label, value:
 overflow = UI::BlockElements::Overflow.new(options: {overflow_option})
 UI::Blocks::Section.new(text: label, accessory: overflow)
 UI::Blocks::Actions.new(elements: {overflow})
+datetime = UI::BlockElements::DatetimePicker.new(action_id: "start")
+UI::Blocks::Actions.new(elements: {datetime})
+UI::Blocks::Input.new(label: label, element: datetime)

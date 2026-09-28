@@ -19,6 +19,7 @@ require "../examples/support/modal_update_example"
 require "../examples/support/conversations_select_example"
 
 require "../examples/support/date_time_pickers_example"
+require "../examples/support/datetime_picker_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -198,5 +199,11 @@ describe "documented Block Kit workflows" do
     output = IO::Memory.new
     OfflineDateTimePickersExample.run(output)
     output.to_s.should eq "Chosen date: 2028-02-29 (acknowledged 200)\nSaved choice: 2028-03-01 at 09:30 (America/Chicago; acknowledged 200)\n"
+  end
+
+  it "proposes and saves a meeting start through a signed datetime form" do
+    output = IO::Memory.new
+    OfflineDatetimePickerExample.run(output)
+    output.to_s.should eq "Proposed start: 2028-02-29T16:30:00Z (acknowledged 200)\nSaved start: 2028-02-29T17:30:00Z (acknowledged 200)\n"
   end
 end

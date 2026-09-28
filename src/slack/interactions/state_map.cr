@@ -1,4 +1,4 @@
-alias Slack::Interactions::StateValue = Slack::Interactions::PlainTextValue | Slack::Interactions::StaticSelectValue | Slack::Interactions::MultiStaticSelectValue | Slack::Interactions::CheckboxesValue | Slack::Interactions::RadioButtonsValue | Slack::Interactions::UsersSelectValue | Slack::Interactions::MultiUsersSelectValue | Slack::Interactions::ConversationsSelectValue | Slack::Interactions::MultiConversationsSelectValue | Slack::Interactions::ChannelsSelectValue | Slack::Interactions::MultiChannelsSelectValue | Slack::Interactions::DatePickerValue | Slack::Interactions::TimePickerValue | Slack::Interactions::UnknownStateValue
+alias Slack::Interactions::StateValue = Slack::Interactions::PlainTextValue | Slack::Interactions::StaticSelectValue | Slack::Interactions::MultiStaticSelectValue | Slack::Interactions::CheckboxesValue | Slack::Interactions::RadioButtonsValue | Slack::Interactions::UsersSelectValue | Slack::Interactions::MultiUsersSelectValue | Slack::Interactions::ConversationsSelectValue | Slack::Interactions::MultiConversationsSelectValue | Slack::Interactions::ChannelsSelectValue | Slack::Interactions::MultiChannelsSelectValue | Slack::Interactions::DatePickerValue | Slack::Interactions::TimePickerValue | Slack::Interactions::DatetimePickerValue | Slack::Interactions::UnknownStateValue
 
 # Reads state.values by stable block and action IDs without imposing outbound rules.
 struct Slack::Interactions::StateMap
@@ -30,6 +30,8 @@ struct Slack::Interactions::StateMap
       DatePickerValue.new(item, path)
     when "timepicker"
       TimePickerValue.new(item, path)
+    when "datetimepicker"
+      DatetimePickerValue.new(item, path)
     when "channels_select"
       ChannelsSelectValue.new(item, path)
     when "multi_channels_select"
@@ -134,6 +136,16 @@ struct Slack::Interactions::StateMap
     when TimePickerValue then entry
     else
       raise TypeMismatch.new(entry_path(block_id, action_id), "timepicker", entry.type || "null or untyped state value")
+    end
+  end
+
+  def datetime_picker_value?(block_id : String, action_id : String) : DatetimePickerValue?
+    entry = self[block_id, action_id]?
+    case entry
+    when Nil                 then nil
+    when DatetimePickerValue then entry
+    else
+      raise TypeMismatch.new(entry_path(block_id, action_id), "datetimepicker", entry.type || "null or untyped state value")
     end
   end
 

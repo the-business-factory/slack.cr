@@ -54,6 +54,8 @@ For conversation selects, verify the original signed request before reading `Con
 
 For date/time pickers, verify the original signed request before reading `DatePickerAction`, `TimePickerAction`, or the corresponding StateMap accessors. The received date, time, and optional timezone remain strings. See [picker handling](block-kit.md#choose-a-date-and-time) and `examples/block_kit_date_time_pickers.cr`.
 
+For datetime pickers, verify the original signed request before reading `DatetimePickerAction#selected_date_time` or `StateMap#datetime_picker_value?`. The received value is Unix seconds as `Int64?`. See [instant handling](block-kit.md#choose-an-instant) and `examples/block_kit_datetime_picker.cr`.
+
 ## OAuth app installation
 
 `Slack::AuthHandler` installs an app; it does not authenticate a human login. Give it explicit configuration, state storage, and transport. Global `Slack.configure` client credentials or scopes do not configure this handler.

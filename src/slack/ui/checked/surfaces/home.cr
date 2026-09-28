@@ -47,6 +47,7 @@ struct Slack::UI::Checked::Home
     BlockValidation.validate(@blocks, issues, "home.block_id.duplicate", "Block IDs must be unique within a view.")
     issues.concat(Slack::UI::Checked::ViewFocus.validate(@blocks, "home"))
     issues.concat(ChannelResponseUrl.non_modal_inputs(@blocks))
+    datetime_picker_issues(issues)
     issues
   end
 
@@ -59,6 +60,24 @@ struct Slack::UI::Checked::Home
       json.field "callback_id", @callback_id if @callback_id
       json.field "external_id", @external_id if @external_id
     end
+  end
+
+  # Slack documents datetimepicker for messages and modals only.
+  private def datetime_picker_issues(issues : Array(ValidationIssue)) : Nil
+    @blocks.each_with_index do |block, index|
+      case block
+      when Blocks::Actions
+        block.elements.each_with_index do |element, position|
+          datetime_picker_issue(issues, "blocks[#{index}].elements[#{position}]") if element.is_a?(BlockElements::DatetimePicker)
+        end
+      when Blocks::Input
+        datetime_picker_issue(issues, "blocks[#{index}].element") if block.element.is_a?(BlockElements::DatetimePicker)
+      end
+    end
+  end
+
+  private def datetime_picker_issue(issues : Array(ValidationIssue), path : String) : Nil
+    issues << ValidationIssue.new("home.datetimepicker.unsupported_surface", path, "Slack supports datetimepicker only in messages and modals.")
   end
 
   private def append_block(block : HomeBlock) : Nil
