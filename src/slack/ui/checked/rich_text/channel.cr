@@ -3,8 +3,9 @@ struct Slack::UI::Checked::RichText::Channel
 
   getter channel_id : String
   getter style : Style?
+  getter tab_id : String?
 
-  def initialize(@channel_id : String, @style : Style? = nil)
+  def initialize(@channel_id : String, @style : Style? = nil, @tab_id : String? = nil)
     validate!
   end
 
@@ -23,6 +24,7 @@ struct Slack::UI::Checked::RichText::Channel
     json.object do
       json.field "type", type
       json.field "channel_id", @channel_id
+      json.field "tab_id", @tab_id if @tab_id
       json.field "style", @style if @style
     end
   end

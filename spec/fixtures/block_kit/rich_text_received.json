@@ -6,15 +6,19 @@
       "type": "rich_text_section",
       "elements": [
         {"type": "text", "text": "Release ", "style": {"bold": true, "code": false, "client_highlight": true}},
-        {"type": "link", "url": "https://example.com/r/9", "text": "notes", "unsafe": true, "from_llm": false},
+        {"type": "link", "url": "https://example.com/r/9", "text": "notes", "unsafe": true, "from_llm": false, "is_slack_url": true, "truncated": false},
         {"type": "emoji", "name": "tada", "unicode": "1f389"},
-        {"type": "user", "user_id": "U-SYNTHETIC", "style": {"italic": true}},
+        {"type": "user", "user_id": "U-SYNTHETIC", "from_llm": true, "style": {"italic": true}},
         {"type": "usergroup", "usergroup_id": "S-SYNTHETIC"},
-        {"type": "channel", "channel_id": "C-SYNTHETIC", "tab_id": "Ct-SYNTHETIC"},
+        {"type": "channel", "channel_id": "C-SYNTHETIC", "tab_id": "Ct-SYNTHETIC", "from_llm": false},
         {"type": "broadcast", "range": "everyone"},
         {"type": "date", "timestamp": 1800000000, "format": "{date_num}", "timezone": "UTC", "fallback": "2027-01-15"},
         {"type": "color", "value": "#E01E5A"},
-        {"type": "team", "team_id": "T-SYNTHETIC"}
+        {"type": "team", "team_id": "T-SYNTHETIC", "style": {"highlight": true, "unlink": false}},
+        {"type": "file", "file_id": "F-SYNTHETIC", "text": "plan.pdf", "is_skill_invocation": false},
+        {"type": "canvas", "file_id": "F-CANVAS", "label": "Runbook", "hide_title": true, "section_id": "temp:C:abc", "url": "https://example.com/docs/runbook", "is_skill_invocation": true, "style": {"underline": true}},
+        {"type": "workflow_mention", "workflow_id": "Wf-SYNTHETIC", "function_trigger_id": "Ft-SYNTHETIC", "text": "Request access", "channel_id": "C-SYNTHETIC", "ts": "1710000000.000001"},
+        {"type": "citation", "url": "https://example.com/source"}
       ]
     },
     {

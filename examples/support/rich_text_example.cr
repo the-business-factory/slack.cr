@@ -7,18 +7,30 @@ module OfflineRichTextExample
   alias RT = UI::RichText
   alias Received = Slack::Interactions::RichText
 
-  def self.run(output : IO = STDOUT) : Nil
+  # Returns the JSON body that the stubbed chat.postMessage endpoint received.
+  def self.run(output : IO = STDOUT) : JSON::Any
     Slack.configure { |settings| settings.signing_secret = "synthetic-signing-secret" }
-    install_transport
+    posted : JSON::Any? = nil
+    WebMock.allow_net_connect = false
+    WebMock.stub(:post, "https://slack.com/api/chat.postMessage").to_return do |request|
+      wire = JSON.parse(request.body || raise "Missing message")
+      posted = wire
+      HTTP::Client::Response.new(200, body: {ok: true, channel: "C-SYNTHETIC", ts: "1710000000.000001", message: wire}.to_json)
+    end
     message = UI.message(fallback_text: "Release 2.0 is live") do |builder|
       builder.rich_text(block_id: "notes", elements: [
         RT::Section.new(elements: [
-          RT::Text.new("Release "), RT::Text.new("2.0", style: RT::TextStyle.new(bold: true)),
-          RT::Text.new(" is live. "), RT::Emoji.new("tada"),
+          RT::Text.new("Release "), RT::Text.new("2.0", style: RT::TextStyle.new(bold: true, highlight: true)),
+          RT::Text.new(" is live for "), RT::Team.new("T-PARTNER"), RT::Text.new(". "), RT::Emoji.new("tada"),
         ] of RT::Element),
         RT::List.new(RT::ListStyle::Bullet, elements: [
           RT::Section.new(elements: {RT::Text.new("Faster builds")}),
           RT::Section.new(elements: {RT::Text.new("New "), RT::Link.new("https://example.com/api", text: "API")}),
+          RT::Section.new(elements: {
+            RT::Text.new("Rollout: "),
+            # A link to one section of a canvas.
+            RT::Canvas.new("F-RUNBOOK", section_id: "temp:C:rollout", text: "Release runbook", style: RT::Style.new(underline: true)),
+          }),
         ]),
         RT::Preformatted.new(elements: {RT::Text.new("shards update")}, language: "shell"),
       ])
@@ -33,6 +45,8 @@ module OfflineRichTextExample
       "thread_ts":"1710000000.000001","text":"Thanks <@U-AUTHOR>! Next: docs, changelog","blocks":[
       {"type":"rich_text","block_id":"r3Pl","elements":[
       {"type":"rich_text_section","elements":[{"type":"text","text":"Thanks "},{"type":"user","user_id":"U-AUTHOR"},{"type":"text","text":"! Next:"}]},
+      {"type":"rich_text_section","elements":[{"type":"text","text":"Questions? "},{"type":"workflow_mention","workflow_id":"Wf-FEEDBACK",
+      "function_trigger_id":"Ft-FEEDBACK","text":"Send feedback","channel_id":"C-SYNTHETIC","ts":"1710000001.000002"}]},
       {"type":"rich_text_list","style":"ordered","indent":0,"border":0,"elements":[
       {"type":"rich_text_section","elements":[{"type":"text","text":"docs"}]},
       {"type":"rich_text_section","elements":[{"type":"text","text":"changelog","style":{"italic":true}}]}]}]}]}}
@@ -45,7 +59,11 @@ module OfflineRichTextExample
       reply = Received::Block.new(raw, "event.blocks[#{index}]")
       output.puts "Mentioned users: #{mentioned_users(reply).join(", ")}"
       output.puts "Follow-up items: #{list_items(reply).join(", ")}"
+      output.puts "Workflows offered: #{workflows(reply).join(", ")}"
     end
+    body = posted
+    raise "chat.postMessage was not called" unless body
+    body
   end
 
   def self.mentioned_users(block : Received::Block) : Array(String)
@@ -55,6 +73,15 @@ module OfflineRichTextExample
         container.elements.compact_map { |element| element.user_id if element.is_a?(Received::User) }
       else
         [] of String
+      end
+    end
+  end
+
+  def self.workflows(block : Received::Block) : Array(String)
+    block.elements.flat_map do |container|
+      next [] of String unless container.is_a?(Received::Section)
+      container.elements.compact_map do |element|
+        "#{element.text} (#{element.function_trigger_id})" if element.is_a?(Received::WorkflowMention)
       end
     end
   end
@@ -76,16 +103,5 @@ module OfflineRichTextExample
     }
     event = Slack.process_webhook(HTTP::Request.new("POST", "/events", headers, body))
     event.as?(Slack::VerifiedEvent) || raise "Expected an event callback"
-  end
-
-  private def self.install_transport : Nil
-    WebMock.allow_net_connect = false
-    WebMock.stub(:post, "https://slack.com/api/chat.postMessage").to_return do |request|
-      wire = JSON.parse(request.body || raise "Missing message")
-      notes = wire["blocks"][0]
-      raise "Expected rich text" unless notes["type"].as_s == "rich_text"
-      raise "Expected a bullet list" unless notes["elements"][1]["style"].as_s == "bullet"
-      HTTP::Client::Response.new(200, body: {ok: true, channel: "C-SYNTHETIC", ts: "1710000000.000001", message: wire}.to_json)
-    end
   end
 end

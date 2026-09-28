@@ -680,13 +680,13 @@ entries:
   - wire_type: rich text inline elements
     kind: rich text element
     documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/text-element/
-    fields_supported: [text, link, emoji, user, usergroup, channel, broadcast, date, color, style.bold, style.italic, style.strike, style.code]
+    fields_supported: [text, link, emoji, user, usergroup, channel, broadcast, date, color, team, file, canvas, workflow_mention, style.bold, style.italic, style.strike, style.code, style.highlight, style.client_highlight, style.underline, style.unlink, channel.tab_id, date.timezone]
     parents: [rich_text_section, rich_text_quote, rich_text_preformatted]
     surfaces: [message, modal, home]
-    restrictions: "Supported fields: text text/style; link url/text/unsafe/style; emoji name/unicode; user user_id/style; usergroup usergroup_id/style; channel channel_id/style; broadcast range/style; date timestamp/format/url/fallback/style; color value/style. Only TextStyle has code. Required strings must not be empty (library policy). Unsupported: other style flags (highlight, client_highlight, underline, unlink), link from_llm/is_slack_url/truncated, channel tab_id, date timezone, and other element types such as team, file, canvas, and workflow mentions. Received values keep those in raw or as RichText::Unknown."
+    restrictions: "Outbound fields: text text/style; link url/text/unsafe/style; emoji name/unicode; user user_id/style; usergroup usergroup_id/style; channel channel_id/tab_id/style; broadcast range/style; date timestamp/format/timezone/url/fallback/style; color value/style; team team_id/style; file file_id/text/url/style; canvas file_id/label/hide_title/section_id/text/url/style; workflow_mention workflow_id/function_trigger_id/text/url/style. Style has bold, italic, strike, highlight, client_highlight, underline, and unlink; only TextStyle has code. Slack omits unlink for date, color, and file; the library does not check this. Required strings must not be empty (library policy). Fields that Slack sets to describe a received node are typed on receipt only: link from_llm/is_slack_url/truncated, user and channel from_llm, file and canvas is_skill_invocation, workflow_mention channel_id/ts. Preformatted still holds only text and link outbound. Unsupported: other documented element types, such as citation, tag, message_mention, and attachment_mention; received values keep them as RichText::Unknown and keep unknown fields in raw."
     implementation_status: partial
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/rich_text/text.cr, src/slack/ui/checked/rich_text/date.cr, src/slack/interactions/rich_text/decoder.cr, spec/ui/checked/rich_text_spec.cr, spec/interactions/rich_text_spec.cr]
+    evidence_paths: [src/slack/ui/checked/rich_text/text.cr, src/slack/ui/checked/rich_text/style.cr, src/slack/ui/checked/rich_text/workflow_mention.cr, src/slack/interactions/rich_text/decoder.cr, spec/ui/checked/rich_text_spec.cr, spec/interactions/rich_text_spec.cr, examples/support/rich_text_example.cr, spec/block_kit_consumers_spec.cr]
 
   - wire_type: table
     kind: block
@@ -1320,6 +1320,13 @@ rules:
     source_section: "Fields, container element pages, and available_in_surfaces metadata"
     reviewed_on: "2026-09-28"
     evidence_paths: [spec/ui/checked/rich_text_spec.cr, spec/api/rich_text_snapshot_spec.cr, spec/block_kit_diagnostics_spec.cr]
+  - id: rich_text_inline_fields
+    classification: slack_requirement
+    requirement: "team needs team_id; file and canvas need file_id; workflow_mention needs workflow_id, function_trigger_id, and text. Style flags are optional booleans: bold, italic, strike, highlight, client_highlight, underline, unlink, and code on text only. channel tab_id and date timezone are optional strings."
+    source_url: https://docs.slack.dev/reference/block-kit/block-elements/workflow-mention-element/
+    source_section: "Fields of the text, link, channel, date, team, file, canvas, and workflow_mention element pages"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/ui/checked/rich_text_spec.cr, spec/interactions/rich_text_spec.cr]
   - id: rich_text_policy
     classification: library_policy
     requirement: "Outbound containers need one or more children; required strings are not empty; border is 0 or 1; indent and offset are not negative. Received trees are not held to these rules."

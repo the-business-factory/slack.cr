@@ -3,7 +3,7 @@
 # Unknown node types stay opaque. A known type in the wrong position is malformed.
 module Slack::Interactions::RichText::Decoder
   CONTAINER_TYPES = {"rich_text_section", "rich_text_list", "rich_text_preformatted", "rich_text_quote"}
-  ELEMENT_TYPES   = {"text", "link", "emoji", "user", "usergroup", "channel", "broadcast", "date", "color"}
+  ELEMENT_TYPES   = {"text", "link", "emoji", "user", "usergroup", "channel", "broadcast", "date", "color", "team", "file", "canvas", "workflow_mention"}
 
   def self.object(raw : JSON::Any, path : String) : Hash(String, JSON::Any)
     PayloadAccess.object?(raw, path) || raise TypeMismatch.new(path, "rich text object", "null")
@@ -62,20 +62,36 @@ module Slack::Interactions::RichText::Decoder
 
   private def self.element(raw : JSON::Any, path : String) : Element
     type = type(object(raw, path), path)
+    content(type, raw, path) || reference(type, raw, path) || unknown_element(type, raw, path)
+  end
+
+  private def self.content(type : String, raw : JSON::Any, path : String) : Element?
     case type
-    when "text"      then Text.new(raw, path)
-    when "link"      then Link.new(raw, path)
-    when "emoji"     then Emoji.new(raw, path)
-    when "user"      then User.new(raw, path)
-    when "usergroup" then Usergroup.new(raw, path)
-    when "channel"   then Channel.new(raw, path)
-    when "broadcast" then Broadcast.new(raw, path)
-    when "date"      then Date.new(raw, path)
-    when "color"     then Color.new(raw, path)
-    else
-      raise TypeMismatch.new("#{path}.type", "rich text element", type) if CONTAINER_TYPES.includes?(type)
-      Unknown.new(type, raw)
+    when "text"  then Text.new(raw, path)
+    when "link"  then Link.new(raw, path)
+    when "emoji" then Emoji.new(raw, path)
+    when "date"  then Date.new(raw, path)
+    when "color" then Color.new(raw, path)
     end
+  end
+
+  # Mentions of, and links to, Slack objects.
+  private def self.reference(type : String, raw : JSON::Any, path : String) : Element?
+    case type
+    when "user"             then User.new(raw, path)
+    when "usergroup"        then Usergroup.new(raw, path)
+    when "channel"          then Channel.new(raw, path)
+    when "broadcast"        then Broadcast.new(raw, path)
+    when "team"             then Team.new(raw, path)
+    when "file"             then File.new(raw, path)
+    when "canvas"           then Canvas.new(raw, path)
+    when "workflow_mention" then WorkflowMention.new(raw, path)
+    end
+  end
+
+  private def self.unknown_element(type : String, raw : JSON::Any, path : String) : Unknown
+    raise TypeMismatch.new("#{path}.type", "rich text element", type) if CONTAINER_TYPES.includes?(type)
+    Unknown.new(type, raw)
   end
 
   private def self.type(object : Hash(String, JSON::Any), path : String) : String
