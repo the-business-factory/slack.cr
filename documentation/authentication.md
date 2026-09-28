@@ -40,6 +40,8 @@ For checkbox interactions, the same signed-request boundary applies. After verif
 
 For radio interactions, verify the same original signed request before reading `RadioButtonsAction#selected_option` or `StateMap#radio_buttons_value?`. Use `selected_option_presence` to distinguish an absent field from explicit null (no selection). See [radio handling](block-kit.md#add-radio-buttons) and `examples/block_kit_radio_buttons.cr`.
 
+For user selects, verify the original signed request before reading `UsersSelectAction#selected_user`, `MultiUsersSelectAction#selected_users`, or the corresponding StateMap accessors. Presence distinguishes absent and null fields from a present empty multi-selection. See [user selection handling](block-kit.md#select-an-owner-and-reviewers) and `examples/block_kit_users_select.cr`.
+
 ## OAuth app installation
 
 `Slack::AuthHandler` installs an app; it does not authenticate a human login. Give it explicit configuration, state storage, and transport. Global `Slack.configure` client credentials or scopes do not configure this handler.
