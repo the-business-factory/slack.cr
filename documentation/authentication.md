@@ -62,6 +62,8 @@ For received rich text, verify the signed event or interaction request before re
 
 For number inputs, verify the original signed request before reading `NumberInputAction#value` or `StateMap#number_input_value?`. The received number remains a string; parse and check it in the application. See [number input handling](block-kit.md#enter-a-number) and `examples/block_kit_number_input.cr`.
 
+For file inputs, verify the original signed submission before reading `StateMap#file_input_value?`. A received file ID or `url_private` does not prove that the app can read the file; downloads need a token with `files:read`. See [file handling](block-kit.md#collect-uploaded-files) and `examples/block_kit_file_input.cr`.
+
 ## OAuth app installation
 
 `Slack::AuthHandler` installs an app; it does not authenticate a human login. Give it explicit configuration, state storage, and transport. Global `Slack.configure` client credentials or scopes do not configure this handler.

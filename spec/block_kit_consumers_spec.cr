@@ -26,6 +26,7 @@ require "../examples/support/remote_file_example"
 
 require "../examples/support/rich_text_example"
 require "../examples/support/number_input_example"
+require "../examples/support/file_input_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -255,5 +256,11 @@ describe "documented Block Kit workflows" do
     # Slack closes the submitted view only for an empty HTTP 200 acknowledgment.
     accepted.status_code.should eq 200
     accepted.body.should be_empty
+  end
+
+  it "collects uploaded receipts through a signed form submission" do
+    output = IO::Memory.new
+    OfflineFileInputExample.run(output)
+    output.to_s.should eq "Received receipts: F-ONE (receipt.pdf, application/pdf), F-TWO (taxi.png, image/png) (acknowledged 200)\n"
   end
 end
