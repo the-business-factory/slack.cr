@@ -11,6 +11,7 @@ require "../examples/support/view_update_example"
 require "../examples/support/users_select_example"
 require "../examples/support/view_push_example"
 require "../examples/support/modal_errors_example"
+require "../examples/support/modal_clear_example"
 require "../examples/support/channels_select_example"
 
 describe "documented Block Kit workflows" do
@@ -119,5 +120,13 @@ describe "documented Block Kit workflows" do
     output = IO::Memory.new
     OfflineChannelsSelectExample.run(output)
     output.to_s.should eq "Selected notification channel: C-NOTIFY (acknowledged 200)\nSaved destinations: C-ONE, C-TWO (acknowledged 200)\n"
+  end
+  it "prepares a clear acknowledgment for a signed successful submission" do
+    output = IO::Memory.new
+    response = OfflineModalClearExample.run(output)
+    response.status_code.should eq(200)
+    response.headers["Content-Type"].should eq("application/json")
+    response.body.should eq(%q({"response_action":"clear"}))
+    output.to_s.should eq("Accepted reason: Need a test environment. (prepared HTTP 200 clear)\n")
   end
 end

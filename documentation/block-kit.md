@@ -291,7 +291,22 @@ The route must configure the signing secret and handle other callbacks, interact
 
 `ModalErrors` copies the supplied map; `errors` returns a copy. Construction rejects an empty map or blank messages with `Slack::UI::Checked::ValidationError`. These are library policies so the response contains useful feedback. `validate` and `validate!` use the existing checked validation conventions. No message length or block-ID format restriction is added. The application owns business rules and must ensure each key identifies an Input block in the submitted view; no original modal is required or checked.
 
-This outbound value needs no token and makes no API request. It is separate from `views.update` and API failure responses. Typed `update`, `push`, and `clear` response actions remain unsupported; the legacy `Slack::Helpers::Modal::CLOSE` constant is unchanged. The [offline example](../examples/block_kit_modal_errors.cr) verifies signed invalid and corrected submissions and prepares their HTTP responses. Ordinary consumer specs check the complete error body and JSON content type; they do not prove live rendering or handler timing.
+This outbound value needs no token and makes no API request. It is separate from `views.update` and API failure responses. Typed `update` and `push` response actions remain unsupported; the legacy `Slack::Helpers::Modal::CLOSE` constant is unchanged. The [offline example](../examples/block_kit_modal_errors.cr) verifies signed invalid and corrected submissions and prepares their HTTP responses. Ordinary consumer specs check the complete error body and JSON content type; they do not prove live rendering or handler timing.
+
+## Close the modal stack after submission
+
+Use `Slack::Interactions::ModalClear.new.to_json` as the body of an HTTP 200 JSON response to a successful `view_submission`:
+
+```crystal
+response = HTTP::Client::Response.new(200,
+  headers: HTTP::Headers{"Content-Type" => "application/json"},
+  body: Slack::Interactions::ModalClear.new.to_json)
+# Body: {"response_action":"clear"}
+```
+
+The application must send the response within three seconds. `clear` closes **all views** in the modal stack. An empty HTTP 200 instead closes only the submitted view and reveals the previous view, if one exists. See [Slack's closing guidance](https://docs.slack.dev/surfaces/modals/#closing-views).
+
+`ModalClear` has no options, needs no token, and makes no API request. The legacy `Slack::Helpers::Modal::CLOSE` named tuple remains unchanged. The [offline clear example](../examples/block_kit_modal_clear.cr) verifies a synthetic signed submission, accepts its input, and prepares the response. Consumer specs independently check its exact body and content type; they do not prove live closure, rendering, or acknowledgment timing.
 
 ## Read actions and state
 
@@ -331,7 +346,7 @@ Use a collection typed for the destination surface. An ordinary `Array(Slack::UI
 
 ## Offline examples
 
-From a repository checkout, run `shards install` to install development dependencies, including WebMock. All thirteen commands use synthetic credentials and no Slack network call:
+From a repository checkout, run `shards install` to install development dependencies, including WebMock. All fourteen commands use synthetic credentials and no Slack network call:
 
 ```sh
 crystal run examples/block_kit_message.cr
@@ -346,6 +361,7 @@ crystal run examples/block_kit_view_update.cr
 crystal run examples/block_kit_users_select.cr
 crystal run examples/block_kit_view_push.cr
 crystal run examples/block_kit_modal_errors.cr
+crystal run examples/block_kit_modal_clear.cr
 crystal run examples/block_kit_channels_select.cr
 ```
 

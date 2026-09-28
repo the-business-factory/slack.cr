@@ -87,6 +87,7 @@ crystal run examples/block_kit_view_update.cr
 crystal run examples/block_kit_users_select.cr
 crystal run examples/block_kit_view_push.cr
 crystal run examples/block_kit_modal_errors.cr
+crystal run examples/block_kit_modal_clear.cr
 crystal run examples/block_kit_channels_select.cr
 ```
 
