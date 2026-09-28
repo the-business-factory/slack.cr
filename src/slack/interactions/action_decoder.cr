@@ -1,4 +1,4 @@
-alias Slack::Interactions::Action = Slack::Interactions::ButtonAction | Slack::Interactions::StaticSelectAction | Slack::Interactions::MultiStaticSelectAction | Slack::Interactions::OverflowAction | Slack::Interactions::CheckboxesAction | Slack::Interactions::RadioButtonsAction | Slack::Interactions::UnknownAction
+alias Slack::Interactions::Action = Slack::Interactions::ButtonAction | Slack::Interactions::StaticSelectAction | Slack::Interactions::MultiStaticSelectAction | Slack::Interactions::OverflowAction | Slack::Interactions::CheckboxesAction | Slack::Interactions::RadioButtonsAction | Slack::Interactions::UsersSelectAction | Slack::Interactions::MultiUsersSelectAction | Slack::Interactions::UnknownAction
 
 module Slack::Interactions::ActionDecoder
   def self.decode(raw : JSON::Any?) : Array(Action)
@@ -10,6 +10,10 @@ module Slack::Interactions::ActionDecoder
       object = PayloadAccess.object?(item, path)
       type = PayloadAccess.string?(object.try(&.["type"]?), "#{path}.type")
       actions << case type
+      when "users_select"
+        UsersSelectAction.new(item, path)
+      when "multi_users_select"
+        MultiUsersSelectAction.new(item, path)
       when "radio_buttons"
         RadioButtonsAction.new(item, path)
       when "checkboxes"
