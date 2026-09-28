@@ -19,6 +19,15 @@ jobs:
       - name: Format
         run: crystal tool format --check
 
+      # shard.lock is not committed (this is a library), so shard.yml is the cache key.
+      - name: Cache shards
+        uses: actions/cache@v6
+        with:
+          path: |
+            lib
+            ~/.cache/shards
+          key: shards-${{ runner.os }}-crystal-1.21.0-${{ hashFiles('shard.yml') }}
+
       - name: Install shards
         run: shards install
 
@@ -33,11 +42,27 @@ jobs:
         with:
           crystal: 1.21.0
 
+      # shard.lock is not committed (this is a library), so shard.yml is the cache key.
+      - name: Cache shards
+        uses: actions/cache@v6
+        with:
+          path: |
+            lib
+            ~/.cache/shards
+          key: shards-${{ runner.os }}-crystal-1.21.0-${{ hashFiles('shard.yml') }}
+
       - name: Install shards
         run: shards install
 
+      # The spec output ends with "Randomized with seed: N".
+      # Reproduce an order-dependent failure with `crystal spec --order N`.
       - name: Run tests
-        run: crystal spec
+        run: crystal spec --order random
+
+      # The spec executable runs examples/support/*; this type-checks the
+      # thin examples/*.cr entry points together in one compiler run.
+      - name: Type-check examples
+        run: crystal build --no-codegen examples/*.cr
 
       - name: Generate docs
-        run: crystal docs
+        run: crystal docs --error-on-warnings
