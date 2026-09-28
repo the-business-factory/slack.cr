@@ -32,6 +32,7 @@ require "../examples/support/email_input_example"
 require "../examples/support/table_example"
 require "../examples/support/data_table_example"
 require "../examples/support/data_visualization_example"
+require "../examples/support/card_carousel_example"
 require "../examples/support/rich_text_input_example"
 require "../examples/support/markdown_example"
 require "../examples/support/workflow_button_example"
@@ -377,6 +378,23 @@ describe "documented Block Kit workflows" do
              {"name":"us-east","data":[{"label":"Mon","value":120.5},{"label":"Tue","value":98.0},{"label":"Wed","value":101.25}]},
              {"name":"eu-west","data":[{"label":"Mon","value":140.0},{"label":"Tue","value":133.5},{"label":"Wed","value":150.0}]}],
            "axis_config":{"categories":["Mon","Tue","Wed"],"x_label":"Day","y_label":"Latency (ms)"}}}]}
+      JSON
+  end
+
+  it "posts a carousel of department cards and reads a signed card button click" do
+    output = IO::Memory.new
+    posted = OfflineCardCarouselExample.run(output)
+    output.to_s.should eq "Posted 2 cards to C-SYNTHETIC/1710000000.000400\nVisit requested: wellness\nRejected before sending: card.content.missing\n"
+    # Authored from Slack's card, carousel, and Slack icon references, not from the serializer.
+    posted.should eq JSON.parse(<<-JSON)
+      {"channel":"C-SYNTHETIC","text":"Departments open for visits","blocks":[
+        {"type":"carousel","block_id":"departments","elements":[
+          {"type":"card","block_id":"department.mdr","slack_icon":{"type":"icon","name":"code"},
+           "title":{"type":"plain_text","text":"MDR"},"body":{"type":"plain_text","text":"Refining data files."},
+           "actions":[{"type":"button","text":{"type":"plain_text","text":"Visit"},"action_id":"visit.request","value":"mdr","style":"primary"}]},
+          {"type":"card","block_id":"department.wellness","slack_icon":{"type":"icon","name":"heart"},
+           "title":{"type":"plain_text","text":"Wellness Center"},"body":{"type":"plain_text","text":"Please wait until called."},
+           "actions":[{"type":"button","text":{"type":"plain_text","text":"Visit"},"action_id":"visit.request","value":"wellness","style":"primary"}]}]}]}
       JSON
   end
 

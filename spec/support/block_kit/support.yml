@@ -1,6 +1,6 @@
 schema_version: 2
 checked_on: "2026-09-28"
-scope: Checked Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, channel selects, date/time pickers, the datetime picker, video blocks, external selects with block_suggestion option responses, remote file blocks, rich text display blocks, table blocks, data table blocks, data visualization blocks, alert blocks, markdown blocks, context actions blocks with feedback and icon buttons, number inputs, file inputs, URL inputs, email inputs, rich text inputs, and message workflow buttons, including Input in Messages, FormModal and Home, modal-only Input children in FormModal, and view-only Input children in FormModal and Home.
+scope: Checked Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, channel selects, date/time pickers, the datetime picker, video blocks, external selects with block_suggestion option responses, remote file blocks, rich text display blocks, table blocks, data table blocks, data visualization blocks, card and carousel blocks, alert blocks, markdown blocks, context actions blocks with feedback and icon buttons, number inputs, file inputs, URL inputs, email inputs, rich text inputs, and message workflow buttons, including Input in Messages, FormModal and Home, modal-only Input children in FormModal, and view-only Input children in FormModal and Home.
 statuses:
   - unsupported
   - partial
@@ -87,7 +87,7 @@ entries:
     kind: block element
     documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/button-element/
     fields_supported: [type, text, action_id, url, value, style, confirm, accessibility_label, agent_prompt]
-    parents: [actions, section]
+    parents: [actions, section, card]
     surfaces: [message, modal, home]
     restrictions: Checked outbound values cover all documented fields with optional action_id. Inbound ButtonAction exposes IDs, value, and action_ts; other fields remain in raw JSON. Legacy Button remains mutable.
     implementation_status: supported
@@ -186,9 +186,9 @@ entries:
     kind: block element
     documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/image-element/
     fields_supported: [type, alt_text, image_url, slack_file]
-    parents: [section, context]
+    parents: [section, context, card]
     surfaces: [message, modal, home]
-    restrictions: Checked immutable image with exactly one public URL or SlackFile source; requires nonempty alt text as library policy. No element alt-text maximum is documented. File access and media format remain remote checks. Legacy placeholder remains unsupported.
+    restrictions: Checked immutable image with exactly one public URL or SlackFile source; requires nonempty alt text as library policy. No general element alt-text maximum is documented; Card checks its documented 2000-character alt-text maximum for hero_image and icon. File access and media format remain remote checks. Legacy placeholder remains unsupported.
     implementation_status: supported
     inbound_status: unsupported
     evidence_paths: [src/slack/ui/checked/block_elements/image.cr, spec/ui/checked/display_spec.cr]
@@ -474,7 +474,7 @@ entries:
     fields_supported: [text, blocks]
     parents: [chat.postMessage, chat.update]
     surfaces: [message]
-    restrictions: Supports explicit fallback text or the separately named Slack-generated fallback choice and a checked union of Section, Actions, Divider, Header, Context, Image, RichText, Table, DataTable, DataVisualization, Markdown, ContextActions, and Input. At most two DataVisualization blocks per message. The text of all Markdown blocks in one message is at most 12,000 characters. The update adapter requires explicit fallback. Other block families remain unsupported until their slices ship.
+    restrictions: Supports explicit fallback text or the separately named Slack-generated fallback choice and a checked union of Section, Actions, Divider, Header, Context, Image, RichText, Table, DataTable, DataVisualization, Card, Carousel, Markdown, ContextActions, and Input. At most two DataVisualization blocks per message. The text of all Markdown blocks in one message is at most 12,000 characters. The update adapter requires explicit fallback. Other block families remain unsupported until their slices ship.
     implementation_status: supported
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/surfaces/message.cr, src/slack/ui/checked/message_builder.cr, spec/ui/checked/message_spec.cr, examples/block_kit_message.cr]
@@ -507,7 +507,7 @@ entries:
     fields_supported: [type, title, submit, close, blocks, private_metadata, callback_id, external_id, clear_on_close, notify_on_close, submit_disabled]
     parents: [views.open, views.update, views.push, push response action, update response action]
     surfaces: [modal]
-    restrictions: Checked DisplayModal excludes Input; FormModal requires submit. The block catalog is limited to Section, Actions, Divider, Header, Context, Image, RichText, Alert, and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, user selects, channel selects, conversation selects, or date/time pickers; FormModal also accepts ModalInput containing NumberInput, FileInput, UrlInput, or EmailInput and ViewInput containing RichTextInput. submit_disabled is for Slack configuration modals only. Typed validation-error, clear, push, and update acknowledgments are listed separately. Legacy Modal keeps its previous contract.
+    restrictions: Checked DisplayModal excludes Input; FormModal requires submit. The block catalog is limited to Section, Actions, Divider, Header, Context, Image, RichText, Alert, Card, and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, user selects, channel selects, conversation selects, or date/time pickers; FormModal also accepts ModalInput containing NumberInput, FileInput, UrlInput, or EmailInput and ViewInput containing RichTextInput. submit_disabled is for Slack configuration modals only. Typed validation-error, clear, push, and update acknowledgments are listed separately. Legacy Modal keeps its previous contract.
     implementation_status: partial
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/surfaces/form_modal.cr, src/slack/ui/checked/surfaces/display_modal.cr, spec/ui/checked/modal_spec.cr, examples/block_kit_modal.cr]
@@ -617,7 +617,7 @@ entries:
     fields_supported: [type, blocks, private_metadata, callback_id, external_id]
     parents: [views.publish]
     surfaces: [home]
-    restrictions: Checked Home and HomeBuilder accept Section, Actions, Divider, Header, Context, Image, RichText, Table, DataTable, DataVisualization, and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, user selects, channel selects, conversation selects, or date/time pickers, and ViewInput containing RichTextInput. At most 100 blocks, unique supplied block IDs, and one focused element per view across Section, Actions, and Input. Modal fields are unavailable. Other block and input families remain deferred. Inbound Home views retain raw JSON; button/static-select/overflow/checkbox/radio/user-select/channel-select/conversation-select/date-picker/time-picker actions and plain text/static-select/checkbox/radio/user-select/channel-select/conversation-select/date-picker/time-picker/rich-text-input state have typed access; rich-text-input actions are also typed.
+    restrictions: Checked Home and HomeBuilder accept Section, Actions, Divider, Header, Context, Image, RichText, Table, DataTable, DataVisualization, Card, Carousel, and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, user selects, channel selects, conversation selects, or date/time pickers, and ViewInput containing RichTextInput. At most 100 blocks, unique supplied block IDs, and one focused element per view across Section, Actions, and Input. Modal fields are unavailable. Other block and input families remain deferred. Inbound Home views retain raw JSON; button/static-select/overflow/checkbox/radio/user-select/channel-select/conversation-select/date-picker/time-picker actions and plain text/static-select/checkbox/radio/user-select/channel-select/conversation-select/date-picker/time-picker/rich-text-input state have typed access; rich-text-input actions are also typed.
     implementation_status: supported
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/surfaces/home.cr, src/slack/ui/checked/home_builder.cr, spec/ui/checked/home_spec.cr, spec/interactions/home_spec.cr, examples/block_kit_home.cr]
@@ -819,6 +819,39 @@ entries:
     implementation_status: supported
     inbound_status: unsupported
     evidence_paths: [src/slack/ui/checked/data_visualization/pie_chart.cr, src/slack/ui/checked/data_visualization/series_chart.cr, src/slack/ui/checked/data_visualization/data_series.cr, src/slack/ui/checked/data_visualization/axis_config.cr, spec/ui/checked/data_visualization_block_spec.cr]
+
+  - wire_type: card
+    kind: block
+    documentation_url: https://docs.slack.dev/reference/block-kit/blocks/card-block/
+    fields_supported: [type, block_id, hero_image, icon, slack_icon, title, subtitle, body, subtext, actions]
+    parents: [message, modal, home, carousel]
+    surfaces: [message, modal, home]
+    restrictions: Checked Blocks::Card takes one Card::Icon value, an image element (sent as icon) or a SlackIcon (sent as slack_icon), so both cannot be sent. title and subtitle are text objects of at most 150 characters; body and subtext at most 200. hero_image and icon alt_text at most 2000. actions is a copied plain array of 1 to 3 Button elements with unique supplied action IDs; block_id 255. A card needs hero_image, title, actions, or body. The reference types actions as an Actions block, but every Slack example sends a plain button array; the library follows the examples. An empty actions array and duplicate action IDs are library policy. Buttons in a card send ordinary block_actions button payloads; Slack does not document which block_id they carry. Received message cards are not decoded.
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/checked/blocks/card.cr, spec/ui/checked/card_carousel_spec.cr, spec/fixtures/block_kit/card_carousel_message.json, examples/support/card_carousel_example.cr, spec/block_kit_consumers_spec.cr]
+
+  - wire_type: carousel
+    kind: block
+    documentation_url: https://docs.slack.dev/reference/block-kit/blocks/carousel-block/
+    fields_supported: [type, elements, block_id]
+    parents: [message, home]
+    surfaces: [message, home]
+    restrictions: Checked Blocks::Carousel owns a copied list of 1 to 10 Blocks::Card values; block_id 255. Card block IDs must be unique within the carousel (library policy); uniqueness against top-level block IDs is not checked because Slack does not document it. Slack lists Messages and Home tabs only, so DisplayModal and FormModal reject it at compile time. Received message carousels are not decoded.
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/checked/blocks/carousel.cr, spec/ui/checked/card_carousel_spec.cr, spec/block_kit_diagnostics_spec.cr, examples/support/card_carousel_example.cr, spec/block_kit_consumers_spec.cr]
+
+  - wire_type: slack icon
+    kind: composition object
+    documentation_url: https://docs.slack.dev/reference/block-kit/composition-objects/slack-icon-object/
+    fields_supported: [type, name]
+    parents: [card]
+    surfaces: [message, modal, home]
+    restrictions: Checked SlackIcon takes a SlackIconName enum member for each of the 54 documented names and sends its kebab-case name, for example CaretLeft as caret-left. An unnamed enum value, such as SlackIconName.new(99), raises a ValidationError. Only Card accepts it.
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/checked/composition_objects/slack_icon.cr, src/slack/ui/checked/composition_objects/slack_icon_name.cr, spec/ui/checked/card_carousel_spec.cr]
 
 # Classification is independent of support status. Missing features are not invalid Slack payloads.
 review_policy:
@@ -1510,3 +1543,24 @@ rules:
     source_section: "Charts (data_visualization)"
     reviewed_on: "2026-09-28"
     evidence_paths: [spec/ui/checked/data_visualization_block_spec.cr]
+  - id: card_block
+    classification: slack_requirement
+    requirement: "Card fields hero_image and icon (image elements, URL 3000, alt_text 2000), slack_icon (mutually exclusive with icon), title and subtitle (plain_text or mrkdwn, 150), body and subtext (plain_text or mrkdwn, 200), actions (at most 3 buttons), and block_id. At least one of hero_image, title, actions, or body. Available in Modals, Messages, and Home tabs. The Slack icon object has type icon and one of 54 documented names."
+    source_url: https://docs.slack.dev/reference/block-kit/blocks/card-block.md
+    source_section: "Fields, Example, available_in_surfaces metadata, and the Slack icon object Fields"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/ui/checked/card_carousel_spec.cr, spec/block_kit_consumers_spec.cr]
+  - id: carousel_block
+    classification: slack_requirement
+    requirement: "elements is required and holds 1 to 10 card blocks; block_id is optional. Available in Messages and Home tabs."
+    source_url: https://docs.slack.dev/reference/block-kit/blocks/carousel-block.md
+    source_section: "Fields, Example, and available_in_surfaces metadata"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/ui/checked/card_carousel_spec.cr, spec/block_kit_consumers_spec.cr, spec/block_kit_diagnostics_spec.cr]
+  - id: card_carousel_policy
+    classification: library_policy
+    requirement: "Card actions is sent as a plain button array, following Slack's examples rather than the Actions block type in the field table. An empty actions array is rejected (omit actions instead). Supplied action IDs are unique within a card, card block IDs are unique within a carousel, and card and carousel block_id have at most 255 characters."
+    source_url: https://docs.slack.dev/reference/block-kit/blocks/card-block/
+    source_section: "Fields: actions, block_id; Example"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/ui/checked/card_carousel_spec.cr]

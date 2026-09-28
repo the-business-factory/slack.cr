@@ -36,6 +36,12 @@ class Slack::UI::Checked::HomeBuilder
     add(Blocks::DataVisualization.new(title: title, chart: chart, block_id: block_id))
   end
 
+  # Adds a carousel of cards. Modal builders do not have this helper because
+  # Slack shows carousels in messages and Home tabs only.
+  def carousel(elements : Enumerable(T), block_id : String? = nil) : Nil forall T
+    add(Blocks::Carousel.new(elements: elements, block_id: block_id))
+  end
+
   def add_all(blocks : Enumerable(T)) : Nil forall T
     blocks.each { |block| add(block) }
   end

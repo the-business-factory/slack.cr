@@ -1,0 +1,37 @@
+{
+  "text": "Departments open for visits",
+  "blocks": [
+    {
+      "type": "carousel",
+      "block_id": "departments",
+      "elements": [
+        {
+          "type": "card",
+          "block_id": "department.mdr",
+          "icon": {"type": "image", "image_url": "https://example.com/icons/mdr.png", "alt_text": "MDR badge"},
+          "title": {"type": "mrkdwn", "text": "*MDR*", "verbatim": false},
+          "subtitle": {"type": "plain_text", "text": "Refining data files"},
+          "hero_image": {"type": "image", "image_url": "https://example.com/heroes/mdr.png", "alt_text": "The MDR office"},
+          "body": {"type": "mrkdwn", "text": "Blue badge required to gain access."},
+          "subtext": {"type": "plain_text", "text": "Floor 3", "emoji": true},
+          "actions": [
+            {"type": "button", "text": {"type": "plain_text", "text": "Decline"}, "action_id": "visit.decline", "value": "mdr", "style": "danger"},
+            {"type": "button", "text": {"type": "plain_text", "text": "Map"}, "action_id": "visit.map", "url": "https://example.com/map/mdr"},
+            {"type": "button", "text": {"type": "plain_text", "text": "Visit"}, "action_id": "visit.request", "value": "mdr", "style": "primary"}
+          ]
+        },
+        {
+          "type": "card",
+          "block_id": "department.wellness",
+          "slack_icon": {"type": "icon", "name": "heart"},
+          "title": {"type": "plain_text", "text": "Wellness Center"},
+          "body": {"type": "plain_text", "text": "Please take a seat in the waiting room until called."}
+        }
+      ]
+    },
+    {
+      "type": "card",
+      "hero_image": {"type": "image", "slack_file": {"id": "F-SYNTHETIC"}, "alt_text": "Break room"}
+    }
+  ]
+}
