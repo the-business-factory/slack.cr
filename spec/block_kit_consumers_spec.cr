@@ -324,10 +324,10 @@ describe "documented Block Kit workflows" do
       JSON
   end
 
-  it "posts answer feedback and delete buttons and reads a signed feedback click" do
+  it "posts answer feedback and delete buttons and reads signed feedback and delete clicks" do
     output = IO::Memory.new
     posted = OfflineContextActionsExample.run(output)
-    output.to_s.should eq "Feedback: bad\n"
+    output.to_s.lines.should eq ["Feedback: bad", "Delete requested: answer.delete"]
     # Authored from Slack's context actions, feedback buttons, and icon button references, not from the serializer.
     posted.should eq JSON.parse(<<-JSON)
       {"channel":"C-SYNTHETIC","text":"Answer","blocks":[

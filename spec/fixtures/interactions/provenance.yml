@@ -23,5 +23,9 @@ fixtures:
     origin: synthetic
     reference: https://docs.slack.dev/reference/interaction-payloads/shortcuts-interaction-payload/
     expected: message shortcut channel, message_ts, and raw message
+  - path: block_actions_context_clicks.json
+    origin: synthetic
+    reference: https://github.com/slackapi/bolt-js/blob/7567b38be32e0efb3c0f0353c5e1282773ad1ea7/src/types/actions/block-action.ts
+    expected: feedback_buttons and icon_button clicks follow the Bolt JS FeedbackButtonsAction and IconButtonAction types; the workflow_button click is an assumption that echoes the outbound element fields; an unlisted type stays unknown
 reviewed: 2026-09-28
 live_verified: false

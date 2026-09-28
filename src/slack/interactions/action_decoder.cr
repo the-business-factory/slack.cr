@@ -1,4 +1,4 @@
-alias Slack::Interactions::Action = Slack::Interactions::ButtonAction | Slack::Interactions::StaticSelectAction | Slack::Interactions::MultiStaticSelectAction | Slack::Interactions::ExternalSelectAction | Slack::Interactions::MultiExternalSelectAction | Slack::Interactions::OverflowAction | Slack::Interactions::CheckboxesAction | Slack::Interactions::RadioButtonsAction | Slack::Interactions::UsersSelectAction | Slack::Interactions::MultiUsersSelectAction | Slack::Interactions::ConversationsSelectAction | Slack::Interactions::MultiConversationsSelectAction | Slack::Interactions::ChannelsSelectAction | Slack::Interactions::MultiChannelsSelectAction | Slack::Interactions::DatePickerAction | Slack::Interactions::TimePickerAction | Slack::Interactions::DatetimePickerAction | Slack::Interactions::NumberInputAction | Slack::Interactions::UrlInputAction | Slack::Interactions::EmailInputAction | Slack::Interactions::RichTextInputAction | Slack::Interactions::UnknownAction
+alias Slack::Interactions::Action = Slack::Interactions::ButtonAction | Slack::Interactions::StaticSelectAction | Slack::Interactions::MultiStaticSelectAction | Slack::Interactions::ExternalSelectAction | Slack::Interactions::MultiExternalSelectAction | Slack::Interactions::OverflowAction | Slack::Interactions::CheckboxesAction | Slack::Interactions::RadioButtonsAction | Slack::Interactions::UsersSelectAction | Slack::Interactions::MultiUsersSelectAction | Slack::Interactions::ConversationsSelectAction | Slack::Interactions::MultiConversationsSelectAction | Slack::Interactions::ChannelsSelectAction | Slack::Interactions::MultiChannelsSelectAction | Slack::Interactions::DatePickerAction | Slack::Interactions::TimePickerAction | Slack::Interactions::DatetimePickerAction | Slack::Interactions::NumberInputAction | Slack::Interactions::UrlInputAction | Slack::Interactions::EmailInputAction | Slack::Interactions::RichTextInputAction | Slack::Interactions::FeedbackButtonsAction | Slack::Interactions::IconButtonAction | Slack::Interactions::WorkflowButtonAction | Slack::Interactions::UnknownAction
 
 module Slack::Interactions::ActionDecoder
   def self.decode(raw : JSON::Any?) : Array(Action)
@@ -60,6 +60,12 @@ module Slack::Interactions::ActionDecoder
       ExternalSelectAction.new(item, path)
     when "multi_external_select"
       MultiExternalSelectAction.new(item, path)
+    when "feedback_buttons"
+      FeedbackButtonsAction.new(item, path)
+    when "icon_button"
+      IconButtonAction.new(item, path)
+    when "workflow_button"
+      WorkflowButtonAction.new(item, path)
     else
       UnknownAction.new(type, item)
     end

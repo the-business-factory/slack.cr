@@ -727,10 +727,10 @@ entries:
     fields_supported: [type, text, workflow, action_id, style, accessibility_label]
     parents: [section, actions]
     surfaces: [message]
-    restrictions: WorkflowButton requires a plain-text label (75), a Workflow, and action_id (255). Optional ButtonStyle and accessibility_label (75). No confirm, url, or value. It compiles in Section accessories and Actions blocks, and Home and modal validation raise the workflow_button.unsupported_surface issue because Slack lists Messages only. No Input placement. Slack documents no block_actions payload for a click, so a received workflow_button action stays UnknownAction with raw JSON. Offline tests do not prove that the trigger URL is valid or that the workflow runs.
+    restrictions: WorkflowButton requires a plain-text label (75), a Workflow, and action_id (255). Optional ButtonStyle and accessibility_label (75). No confirm, url, or value. It compiles in Section accessories and Actions blocks, and Home and modal validation raise the workflow_button.unsupported_surface issue because Slack lists Messages only. No Input placement. Slack and the Slack SDKs document no block_actions payload for a click. Interactions::WorkflowButtonAction decodes action_id, block_id, and nilable action_ts, text, and workflow (raw JSON object); this shape is an assumption that echoes the outbound element, unverified against live Slack. Offline tests do not prove that the trigger URL is valid, that the workflow runs, or that Slack sends the click to the app.
     implementation_status: supported
-    inbound_status: unsupported
-    evidence_paths: [src/slack/ui/block_elements/workflow_button.cr, src/slack/ui/workflow_button_placement.cr, spec/ui/workflow_button_spec.cr, spec/fixtures/block_kit/workflow_button.json, examples/support/workflow_button_example.cr, spec/block_kit_consumers_spec.cr]
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/block_elements/workflow_button.cr, src/slack/ui/workflow_button_placement.cr, src/slack/interactions/workflow_button_action.cr, spec/ui/workflow_button_spec.cr, spec/interactions/context_clicks_spec.cr, spec/fixtures/block_kit/workflow_button.json, spec/fixtures/interactions/block_actions_context_clicks.json, examples/support/workflow_button_example.cr, spec/block_kit_consumers_spec.cr]
 
   - wire_type: workflow, trigger, input parameter
     kind: composition object
@@ -760,10 +760,10 @@ entries:
     fields_supported: [type, positive_button, negative_button, action_id, positive_button.text, positive_button.value, positive_button.accessibility_label, negative_button.text, negative_button.value, negative_button.accessibility_label]
     parents: [context_actions]
     surfaces: [message]
-    restrictions: BlockElements::FeedbackButtons needs a positive and a negative CompositionObjects::FeedbackButton; action_id 255. Each button has plain text of up to 75 characters, a required value of up to 2000, and an optional accessibility_label of up to 75. Received feedback_buttons actions stay UnknownAction with complete raw JSON, because Slack does not document the action shape.
+    restrictions: BlockElements::FeedbackButtons needs a positive and a negative CompositionObjects::FeedbackButton; action_id 255. Each button has plain text of up to 75 characters, a required value of up to 2000, and an optional accessibility_label of up to 75. Interactions::FeedbackButtonsAction decodes a received click with action_id, block_id, and nilable action_ts, value (the pressed button's value), and text. The shape is SDK-sourced (Bolt JS FeedbackButtonsAction), unverified against live Slack; Slack does not document it. A non-string value raises TypeMismatch.
     implementation_status: supported
-    inbound_status: unsupported
-    evidence_paths: [src/slack/ui/block_elements/feedback_buttons.cr, src/slack/ui/composition_objects/feedback_button.cr, spec/ui/context_actions_spec.cr, examples/support/context_actions_example.cr]
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/block_elements/feedback_buttons.cr, src/slack/ui/composition_objects/feedback_button.cr, src/slack/interactions/feedback_buttons_action.cr, spec/ui/context_actions_spec.cr, spec/interactions/context_clicks_spec.cr, spec/fixtures/interactions/block_actions_context_clicks.json, examples/support/context_actions_example.cr, spec/block_kit_consumers_spec.cr]
 
   - wire_type: icon_button
     kind: element
@@ -771,10 +771,10 @@ entries:
     fields_supported: [type, icon, text, action_id, value, confirm, accessibility_label, visible_to_user_ids]
     parents: [context_actions]
     surfaces: [message]
-    restrictions: BlockElements::IconButton takes an IconButtonIcon (Trash is the only documented icon) and plain text of up to 75 characters (library policy that matches Button; the icon button reference gives no text maximum). action_id 255, value 2000, accessibility_label 75, and a Confirmation. visible_to_user_ids is copied; when present it must contain one or more nonempty IDs (library policy). Slack checks that the IDs are real users. Received icon_button actions stay UnknownAction with complete raw JSON, because Slack does not document the action shape.
+    restrictions: BlockElements::IconButton takes an IconButtonIcon (Trash is the only documented icon) and plain text of up to 75 characters (library policy that matches Button; the icon button reference gives no text maximum). action_id 255, value 2000, accessibility_label 75, and a Confirmation. visible_to_user_ids is copied; when present it must contain one or more nonempty IDs (library policy). Slack checks that the IDs are real users. Interactions::IconButtonAction decodes a received click with action_id, block_id, and nilable action_ts, icon, value, and text. The shape is SDK-sourced (Bolt JS IconButtonAction), unverified against live Slack; Slack does not document it.
     implementation_status: supported
-    inbound_status: unsupported
-    evidence_paths: [src/slack/ui/block_elements/icon_button.cr, src/slack/ui/block_elements/icon_button_icon.cr, spec/ui/context_actions_spec.cr, examples/support/context_actions_example.cr]
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/block_elements/icon_button.cr, src/slack/ui/block_elements/icon_button_icon.cr, src/slack/interactions/icon_button_action.cr, spec/ui/context_actions_spec.cr, spec/interactions/context_clicks_spec.cr, spec/fixtures/interactions/block_actions_context_clicks.json, examples/support/context_actions_example.cr, spec/block_kit_consumers_spec.cr]
 
   - wire_type: alert
     kind: block
@@ -1511,7 +1511,7 @@ rules:
     evidence_paths: [spec/ui/workflow_button_spec.cr, spec/block_kit_consumers_spec.cr]
   - id: workflow_button_policy
     classification: library_policy
-    requirement: "Home and modal validation reject workflow_button in Section and Actions; the trigger url is not empty; parameter values are strings; received clicks stay UnknownAction because Slack documents no payload shape."
+    requirement: "Home and modal validation reject workflow_button in Section and Actions; the trigger url is not empty; parameter values are strings. Slack documents no click payload; WorkflowButtonAction assumes an echo of the outbound element, with every field after block_id nilable."
     source_url: https://docs.slack.dev/reference/block-kit/composition-objects/trigger-object/
     source_section: "Fields: url, customizable_input_parameters"
     reviewed_on: "2026-09-28"
@@ -1525,7 +1525,7 @@ rules:
     evidence_paths: [spec/ui/context_actions_spec.cr, spec/block_kit_consumers_spec.cr, spec/block_kit_diagnostics_spec.cr]
   - id: context_actions_policy
     classification: library_policy
-    requirement: "A context actions block needs one or more elements. icon_button text is limited to 75 characters like button text. A supplied visible_to_user_ids list needs one or more nonempty IDs; omit it to show the button to all users. Received feedback_buttons and icon_button actions stay UnknownAction, because Slack's block_actions reference does not document their shape."
+    requirement: "A context actions block needs one or more elements. icon_button text is limited to 75 characters like button text. A supplied visible_to_user_ids list needs one or more nonempty IDs; omit it to show the button to all users. Slack's block_actions reference does not document feedback_buttons or icon_button clicks; FeedbackButtonsAction and IconButtonAction follow the Bolt JS types (SDK-sourced, unverified against live Slack), with every field after block_id nilable."
     source_url: https://docs.slack.dev/reference/block-kit/block-elements/icon-button-element/
     source_section: "Fields: text and visible_to_user_ids"
     reviewed_on: "2026-09-28"

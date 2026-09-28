@@ -3,8 +3,9 @@ require "webmock"
 require "./webmock_transport"
 
 # Posts an answer with feedback buttons and a delete button for the asker,
-# then reads a signed feedback click. Slack does not document the received
-# action shape for these elements, so it decodes as `UnknownAction`.
+# then reads a signed feedback click and a signed delete click. Slack does not
+# document the received action shape for these elements; the typed actions
+# follow the Bolt JS types and are not verified against live Slack.
 module OfflineContextActionsExample
   alias UI = Slack::UI
 
@@ -25,7 +26,8 @@ module OfflineContextActionsExample
     Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic-answer", channel: "C-SYNTHETIC",
       message: message, transport: OfflineExample::WebMockTransport.new).call
 
-    output.puts "Feedback: #{read_feedback(signed_feedback_click)}"
+    output.puts read_click(signed_click(FEEDBACK_CLICK))
+    output.puts read_click(signed_click(DELETE_CLICK))
     body = posted
     raise "chat.postMessage was not called" unless body
     body
@@ -43,23 +45,30 @@ module OfflineContextActionsExample
     ] of UI::Blocks::ContextActions::Element
   end
 
-  # Returns the clicked feedback value, or raises for another interaction.
-  def self.read_feedback(request : HTTP::Request) : String
+  # Describes a feedback or delete click, or raises for another interaction.
+  def self.read_click(request : HTTP::Request) : String
     interaction = Slack.process_interaction(request)
     raise "Expected block action" unless interaction.is_a?(Slack::Interactions::BlockAction)
 
-    action = interaction.decoded_actions.first
-    unless action.is_a?(Slack::Interactions::UnknownAction) && action.type == "feedback_buttons"
-      raise "Expected feedback buttons action"
+    case action = interaction.decoded_actions.first
+    when Slack::Interactions::FeedbackButtonsAction
+      "Feedback: #{action.value || raise "Missing feedback value"}"
+    when Slack::Interactions::IconButtonAction
+      "Delete requested: #{action.action_id}"
+    else
+      raise "Expected a feedback or delete click"
     end
-    action.raw["value"]?.try(&.as_s?) || raise "Missing feedback value"
   end
 
-  # Simulated click. The action fields follow the Bolt JS FeedbackButtonsAction
-  # type, because Slack's reference does not show this payload.
-  def self.signed_feedback_click : HTTP::Request
-    payload = %({"type":"block_actions","team":null,"actions":[{"type":"feedback_buttons","block_id":"answer.actions",) +
-              %("action_id":"answer.feedback","action_ts":"1710000001.000100","value":"bad","text":{"type":"plain_text","text":"Bad"}}]})
+  # Simulated clicks. The action fields follow the Bolt JS FeedbackButtonsAction
+  # and IconButtonAction types, because Slack's reference does not show them.
+  FEEDBACK_CLICK = %({"type":"feedback_buttons","block_id":"answer.actions","action_id":"answer.feedback",) +
+                   %("action_ts":"1710000001.000100","value":"bad","text":{"type":"plain_text","text":"Bad"}})
+  DELETE_CLICK = %({"type":"icon_button","block_id":"answer.actions","action_id":"answer.delete",) +
+                 %("action_ts":"1710000001.000200","icon":"trash","value":"delete","text":{"type":"plain_text","text":"Delete"}})
+
+  def self.signed_click(action : String) : HTTP::Request
+    payload = %({"type":"block_actions","team":null,"actions":[#{action}]})
     body = URI::Params.encode({"payload" => payload})
     timestamp = Time.utc.to_unix.to_s
     headers = HTTP::Headers{

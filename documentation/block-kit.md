@@ -465,14 +465,7 @@ end
 
 Slack permits up to five elements. Feedback button text and `accessibility_label` are up to 75 characters, and values are up to 2000 characters. Icon buttons also accept `value`, `confirm`, and `accessibility_label`. Action IDs must be unique in the block. The library also requires at least one element, icon button text of up to 75 characters, and a nonempty `visible_to_user_ids` list with nonempty IDs. These checks are library policy. `Home`, `DisplayModal`, and `FormModal` reject `Blocks::ContextActions` at compile time, because Slack shows it only in messages.
 
-Slack does not document the `block_actions` action shape for these elements. `BlockAction#decoded_actions` returns an `UnknownAction` with `type` `"feedback_buttons"` or `"icon_button"`. Read other fields from `raw`:
-
-```crystal
-action = interaction.decoded_actions.first
-if action.is_a?(Slack::Interactions::UnknownAction) && action.type == "feedback_buttons"
-  value = action.raw["value"]?.try(&.as_s?)
-end
-```
+A click decodes as `FeedbackButtonsAction` or `IconButtonAction`. See [Read actions and state](#read-actions-and-state).
 
 See Slack's [context actions block](https://docs.slack.dev/reference/block-kit/blocks/context-actions-block/), [feedback buttons](https://docs.slack.dev/reference/block-kit/block-elements/feedback-buttons-element/), and [icon button](https://docs.slack.dev/reference/block-kit/block-elements/icon-button-element/) references and the offline [context actions example](../examples/block_kit_context_actions.cr).
 
@@ -757,7 +750,7 @@ section = UI::Blocks::Section.new(text: UI.mrkdwn("*INC-7* is resolved."), acces
 
 `text` (plain text, 75 characters), `workflow`, and `action_id` (255 characters) are required. `style` and `accessibility_label` (75 characters) are optional. The button has no `confirm`, `url`, or `value`. The trigger needs a `url`; an empty URL is rejected by library policy. Omit `customizable_input_parameters` to send no list. Slack checks that the URL belongs to a valid link trigger and that each parameter name and value match a customizable workflow input. End users can see parameter values, so do not send secrets. See Slack's [workflow button](https://docs.slack.dev/reference/block-kit/block-elements/workflow-button-element/) and [trigger object](https://docs.slack.dev/reference/block-kit/composition-objects/trigger-object/) references.
 
-Slack does not document a `block_actions` payload for a workflow button click. If Slack sends one, it decodes as `UnknownAction` with raw JSON. The [offline incident workflow](../examples/block_kit_workflow_button.cr) posts workflow buttons with trigger inputs and shows the Home rejection. It does not prove that the trigger is valid or that the workflow runs.
+Slack does not document a `block_actions` payload for a workflow button click. If Slack sends one, it decodes as `WorkflowButtonAction`. See [Read actions and state](#read-actions-and-state). The [offline incident workflow](../examples/block_kit_workflow_button.cr) posts workflow buttons with trigger inputs and shows the Home rejection. It does not prove that the trigger is valid or that the workflow runs.
 
 `Blocks::Section::Accessory` and `Blocks::Actions::Element` include `WorkflowButton`.
 
@@ -939,7 +932,20 @@ The [offline example](../examples/block_kit_modal_update.cr) verifies a signed s
 
 Pass the original signed HTTP request to `Slack.process_interaction`. It checks the signature and timestamp freshness before decoding. For JSON already verified by trusted code, use `Slack::Interaction.from_json`. Timestamp freshness is not duplicate suppression; applications own event deduplication and HTTP acknowledgments.
 
-`BlockAction#decoded_actions` gives typed ButtonAction, StaticSelectAction, MultiStaticSelectAction, ExternalSelectAction, MultiExternalSelectAction, OverflowAction, CheckboxesAction, RadioButtonsAction, UsersSelectAction, MultiUsersSelectAction, ChannelsSelectAction, MultiChannelsSelectAction, ConversationsSelectAction, MultiConversationsSelectAction, DatePickerAction, TimePickerAction, DatetimePickerAction, NumberInputAction, UrlInputAction, EmailInputAction, and RichTextInputAction values with block/action IDs, selections, and raw JSON. A dispatched `plain_text_input` action stays `UnknownAction`. So do `feedback_buttons` and `icon_button` actions, because Slack does not document their action shape; read its text through `state_map`. Unknown action and state families retain raw JSON for application inspection.
+`BlockAction#decoded_actions` gives typed ButtonAction, StaticSelectAction, MultiStaticSelectAction, ExternalSelectAction, MultiExternalSelectAction, OverflowAction, CheckboxesAction, RadioButtonsAction, UsersSelectAction, MultiUsersSelectAction, ChannelsSelectAction, MultiChannelsSelectAction, ConversationsSelectAction, MultiConversationsSelectAction, DatePickerAction, TimePickerAction, DatetimePickerAction, NumberInputAction, UrlInputAction, EmailInputAction, and RichTextInputAction values with block/action IDs, selections, and raw JSON. A dispatched `plain_text_input` action stays `UnknownAction`; read its text through `state_map`. Unknown action and state families retain raw JSON for application inspection.
+
+Clicks on `feedback_buttons`, `icon_button`, and `workflow_button` elements decode as `FeedbackButtonsAction`, `IconButtonAction`, and `WorkflowButtonAction`. Slack does not document these action shapes. The feedback and icon fields come from the Bolt JS `FeedbackButtonsAction` and `IconButtonAction` types (SDK-sourced, unverified against live Slack). No SDK defines a workflow button action, so `WorkflowButtonAction` assumes that the click echoes the element: `text` and the raw `workflow` object. `action_id` and `block_id` are required. All other fields are nilable, so a different live shape still decodes; `raw` keeps the complete action. A known field with the wrong JSON type, such as a number `value`, raises `TypeMismatch`.
+
+```crystal
+case action = interaction.decoded_actions.first
+when Slack::Interactions::FeedbackButtonsAction
+  record_feedback(action.action_id, action.value) # value of the pressed button: "good" or "bad"
+when Slack::Interactions::IconButtonAction
+  delete_answer if action.action_id == "answer.delete"
+when Slack::Interactions::WorkflowButtonAction
+  trigger_url = action.workflow.try(&.["trigger"]?).try(&.["url"]?).try(&.as_s?)
+end
+```
 
 ```crystal
 case interaction = Slack.process_interaction(request)

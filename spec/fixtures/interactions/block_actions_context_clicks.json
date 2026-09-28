@@ -1,0 +1,20 @@
+{
+  "type": "block_actions",
+  "team": {"id": "T-SYNTHETIC", "domain": "example"},
+  "user": {"id": "U-SYNTHETIC", "username": "asker", "team_id": "T-SYNTHETIC"},
+  "api_app_id": "A-SYNTHETIC",
+  "container": {"type": "message", "message_ts": "1710000000.000400", "channel_id": "C-SYNTHETIC", "is_ephemeral": false},
+  "trigger_id": "1234.5678.synthetic",
+  "channel": {"id": "C-SYNTHETIC", "name": "support"},
+  "actions": [
+    {"type": "feedback_buttons", "block_id": "answer.actions", "action_id": "answer.feedback", "action_ts": "1710000001.000100",
+     "value": "good", "text": {"type": "plain_text", "text": "Good", "emoji": true}},
+    {"type": "icon_button", "block_id": "answer.actions", "action_id": "answer.delete", "action_ts": "1710000001.000200",
+     "icon": "trash", "value": "delete", "text": {"type": "plain_text", "text": "Delete"}, "future_field": [1]},
+    {"type": "workflow_button", "block_id": "incident", "action_id": "postmortem.start", "action_ts": "1710000001.000300",
+     "text": {"type": "plain_text", "text": "Start postmortem"},
+     "workflow": {"trigger": {"url": "https://slack.com/shortcuts/Ft0SYNTHETIC/postmortem",
+                              "customizable_input_parameters": [{"name": "incident_id", "value": "INC-7"}]}}},
+    {"type": "future_click", "block_id": "answer.actions", "action_id": "answer.future", "value": 3}
+  ]
+}
