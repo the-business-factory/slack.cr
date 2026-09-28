@@ -28,6 +28,7 @@ require "../examples/support/rich_text_example"
 require "../examples/support/number_input_example"
 require "../examples/support/file_input_example"
 require "../examples/support/url_input_example"
+require "../examples/support/email_input_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -284,6 +285,17 @@ describe "documented Block Kit workflows" do
     rejected, accepted = acknowledgements
     rejected.headers["Content-Type"].should eq "application/json"
     JSON.parse(rejected.body).should eq JSON.parse(%({"response_action":"errors","errors":{"bug.link":"Enter an HTTPS link."}}))
+    accepted.status_code.should eq 200
+    accepted.body.should be_empty
+  end
+
+  it "invites a guest by email through a signed modal form" do
+    output = IO::Memory.new
+    rejected, accepted = OfflineEmailInputExample.run(output)
+    output.to_s.lines.should eq ["Email entered: lead@partner.example (acknowledged 200)", "Rejected email: lead@other.example", "Invited lead@partner.example"]
+    rejected.status_code.should eq 200
+    rejected.headers["Content-Type"].should eq "application/json"
+    JSON.parse(rejected.body).should eq JSON.parse(%({"response_action":"errors","errors":{"invite.email":"Enter a partner.example address."}}))
     accepted.status_code.should eq 200
     accepted.body.should be_empty
   end
