@@ -51,6 +51,7 @@ struct Slack::UI::Checked::Home
     BlockValidation.validate(@blocks, issues, "home.block_id.duplicate", "Block IDs must be unique within a view.")
     issues.concat(Slack::UI::Checked::ViewFocus.validate(@blocks, "home"))
     issues.concat(ChannelResponseUrl.non_modal_inputs(@blocks))
+    issues.concat(WorkflowButtonPlacement.validate(@blocks, "home"))
     datetime_picker_issues(issues)
     issues
   end

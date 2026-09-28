@@ -1,0 +1,16 @@
+{
+  "type": "workflow_button",
+  "text": {"type": "plain_text", "text": "Run Workflow", "emoji": false},
+  "action_id": "workflowbutton123",
+  "workflow": {
+    "trigger": {
+      "url": "https://slack.com/shortcuts/Ft0123ABC456/xyz...zyx",
+      "customizable_input_parameters": [
+        {"name": "input_parameter_a", "value": "Value for input param A"},
+        {"name": "input_parameter_b", "value": "Value for input param B"}
+      ]
+    }
+  },
+  "style": "primary",
+  "accessibility_label": "Run the intake workflow"
+}

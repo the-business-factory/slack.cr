@@ -32,6 +32,7 @@ require "../examples/support/email_input_example"
 require "../examples/support/table_example"
 require "../examples/support/rich_text_input_example"
 require "../examples/support/markdown_example"
+require "../examples/support/workflow_button_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -344,5 +345,13 @@ describe "documented Block Kit workflows" do
       "Mentioned: U-PAIR",
       "Skipped malformed standup at actions[0].rich_text_value.elements[0].type",
     ]
+  end
+
+  it "posts message workflow buttons with trigger inputs and rejects them on Home" do
+    output = IO::Memory.new
+    posted = OfflineWorkflowButtonExample.run(output)
+    output.to_s.lines.should eq ["Posted workflow buttons for INC-7 to C-SYNTHETIC/1710000000.000400",
+                                 "Rejected Home tab: home.workflow_button.unsupported_surface"]
+    posted.should eq JSON.parse(File.read("spec/fixtures/block_kit/workflow_button_chat_postMessage.json"))
   end
 end
