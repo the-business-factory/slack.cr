@@ -169,6 +169,7 @@ describe Slack do
           "team_id": "T017GL5AV5E",
           "token": "E6FV7uzAaZoqjhbU56ZKNnIk",
           "type": "event_callback",
+          "is_ext_shared_channel": false,
           "event_time": 1644729352
         }
         JSON

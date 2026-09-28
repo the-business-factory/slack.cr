@@ -38,6 +38,7 @@ require "../examples/support/rich_text_input_example"
 require "../examples/support/markdown_example"
 require "../examples/support/workflow_button_example"
 require "../examples/support/context_actions_example"
+require "../examples/support/event_delivery_example"
 require "../examples/support/alert_example"
 
 describe "documented Block Kit workflows" do
@@ -487,5 +488,13 @@ describe "documented Block Kit workflows" do
     output.to_s.lines.should eq ["Posted workflow buttons for INC-7 to C-SYNTHETIC/1710000000.000400",
                                  "Rejected Home tab: home.workflow_button.unsupported_surface"]
     posted.should eq JSON.parse(File.read("spec/fixtures/block_kit/workflow_button_chat_postMessage.json"))
+  end
+
+  it "acknowledges a signed retry of an event type the library does not map" do
+    output = IO::Memory.new
+    response = OfflineEventDeliveryExample.run(output)
+    response.status_code.should eq(200)
+    response.body.should be_empty
+    output.to_s.should eq("Skipped synthetic_future_event Ev-SYNTHETIC (retry 1: http_timeout)\n")
   end
 end

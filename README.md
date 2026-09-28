@@ -70,6 +70,26 @@ response = request.call
 
 The send requires a bot token with `chat:write` and a channel the app can post to. Use `message.to_pretty_json` to inspect the payload locally. See [Block Kit](documentation/block-kit.md) for supported blocks, messages, modals, Home, static choices, incoming actions, and validation.
 
+## Events API payloads
+
+`Slack.process_webhook` verifies the signed request and returns `Slack::UrlVerification` or `Slack::VerifiedEvent`. The inner `event` is a typed struct for mapped types. An event type that the library does not map decodes as `Slack::Events::Unknown`: `type` gives the event type and `raw` keeps the complete event JSON. Match `Unknown` explicitly. Do not log `raw`: it can hold credentials, for example `bot_access_token` in `function_executed`. A `message` event with a subtype that the library does not map still raises `JSON::SerializableError`.
+
+```crystal
+envelope = Slack.process_webhook(request)
+if envelope.is_a?(Slack::VerifiedEvent)
+  delivery = Slack::Events::Delivery.from_headers(request.headers)
+  case event = envelope.event
+  when Slack::Events::AppMentioned then reply(event)
+  when Slack::Events::Unknown      then log("Skipped #{event.type} #{envelope.event_id}")
+  end
+  # delivery.retry_num (1 to 3) and delivery.retry_reason ("http_timeout", ...) are nil on the first delivery.
+end
+```
+
+The envelope also gives `is_ext_shared_channel`, `context_team_id`, `context_enterprise_id`, and `event_context`. Each is nil when Slack omits it.
+
+Slack retries a delivery up to three times when the app does not return HTTP 2xx within three seconds. To stop retries for a failed delivery, add `Slack::Events::Delivery::NO_RETRY_HEADER` with `NO_RETRY_VALUE` (`X-Slack-No-Retry: 1`) to the non-2xx response. The library does not send responses or remove duplicate deliveries; use `event_id` for that. The offline specs do not prove Slack retry timing or behavior.
+
 ## Runnable examples
 
 From a repository checkout, run `shards install` first. The modal, Home, and static choice examples use the development dependency WebMock. They use synthetic credentials and stub HTTP requests; they do not contact Slack.
@@ -111,6 +131,7 @@ crystal run examples/block_kit_rich_text_input.cr
 crystal run examples/block_kit_markdown.cr
 crystal run examples/block_kit_workflow_button.cr
 crystal run examples/block_kit_alert.cr
+crystal run examples/event_delivery.cr
 ```
 
 The examples show checked message construction, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, and message workflow buttons. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).

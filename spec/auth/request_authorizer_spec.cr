@@ -226,6 +226,23 @@ describe Slack::Auth::RequestAuthorizer do
     transport.requests.should be_empty
   end
 
+  it "authorizes a signed event whose inner type the library does not model" do
+    clock = RequestAuthorizerSupport::Clock.new
+    store = RequestAuthorizerSupport::Store.new(clock)
+    transport = RequestAuthorizerSupport::Transport.new
+    RequestAuthorizerSupport.seed(store, RequestAuthorizerSupport.workspace_key("T_OWNER", "E1"))
+    body = File.read("spec/fixtures/events/unknown_event.json")
+
+    query = RequestAuthorizerSpec.authorizer(store, transport, clock)
+      .authorize_event(RequestAuthorizerSpec.request(body, clock), Slack::Auth::GrantKey.new(:bot)).query
+    query.owner.team_id.should eq("T_OWNER")
+    query.owner.enterprise_id.should eq("E1")
+    query.visible_team_id.should eq("T_VISIBLE")
+    query.actor_user_id.should be_nil
+    store.acquire_count.should eq(1)
+    transport.requests.should be_empty
+  end
+
   it "selects the requested grant exactly even when actor and installer differ" do
     clock = RequestAuthorizerSupport::Clock.new
     store = RequestAuthorizerSupport::Store.new(clock)
