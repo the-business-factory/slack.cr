@@ -18,6 +18,14 @@ private MENTION = <<-JSON
    "authorizations":[{"team_id":"T-INSTALLED","user_id":"U-BOT","is_bot":true,"is_enterprise_install":false}]}
   JSON
 
+# https://docs.slack.dev/reference/events/reaction_added
+private FILE_REACTION = <<-JSON
+  {"token":"synthetic-legacy-token","team_id":"T-INSTALLED","api_app_id":"A-SYNTHETIC",
+   "event":{"type":"reaction_added","user":"U-SYNTHETIC","reaction":"eyes","item_user":"U-UPLOADER",
+            "item":{"type":"file","file":"F-SYNTHETIC"},"event_ts":"1789232400.000300"},
+   "type":"event_callback","event_id":"Ev-REACTION","event_time":1789232400}
+  JSON
+
 # https://docs.slack.dev/reference/events/message
 private THREAD_MESSAGE = <<-JSON
   {"token":"synthetic-legacy-token","team_id":"T-INSTALLED","api_app_id":"A-SYNTHETIC",
@@ -233,6 +241,20 @@ describe "Slack::App say and respond" do
     end
 
     receive(app, AppSupport.interaction(MODAL_CLICK)).status.should eq 200
+
+    error = errors.receive
+    error.cause.should be_a(Slack::App::NoReplyTarget)
+    transport.requests.should be_empty
+  end
+
+  it "gives the error handler a missing reply target for a reaction on a file" do
+    transport = Slack::Testing::RecordingTransport.new
+    app = single_token_app(transport)
+    errors = Channel(Slack::App::ListenerError).new(2)
+    app.error { |error, _ctx| errors.send(error) }
+    app.event("reaction_added", &.say("unreachable"))
+
+    receive(app, AppSupport.json(FILE_REACTION)).status.should eq 200
 
     error = errors.receive
     error.cause.should be_a(Slack::App::NoReplyTarget)

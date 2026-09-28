@@ -21,8 +21,9 @@ struct Slack::App::EventContext < Slack::App::Context
          Slack::Events::MemberLeftChannel, Slack::Events::LinkShared, Slack::Events::Message,
          Slack::Events::MessageSubtype
       event.channel
-    when Slack::Events::ReactionAdded                       then event.item.channel
-    when Slack::Events::ReactionRemoved                     then event.item["channel"]?.try(&.as_s?)
+    when Slack::Events::ReactionAdded, Slack::Events::ReactionRemoved
+      item = event.item
+      item.channel if item.is_a?(Slack::EventData::ReactionItem::Message)
     when Slack::Events::PinAdded, Slack::Events::PinRemoved then event.channel_id
     end
   end

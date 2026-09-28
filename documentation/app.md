@@ -116,7 +116,7 @@ end
 
 | Context | `say` channel | `respond` URL |
 | --- | --- | --- |
-| `EventContext` | The event's channel: messages, `app_mention`, `app_home_opened`, `member_joined_channel`, `member_left_channel`, reactions, pins, `link_shared` | — |
+| `EventContext` | The event's channel: messages, `app_mention`, `app_home_opened`, `member_joined_channel`, `member_left_channel`, reactions on messages, pins, `link_shared` | — |
 | `MessageContext` | `message.channel` | — |
 | `CommandContext` | `command.channel_id` | `command.response_url` |
 | `ActionContext` | `payload.channel` (messages only) | `payload.response_url` (messages only) |

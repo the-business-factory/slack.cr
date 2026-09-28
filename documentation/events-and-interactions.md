@@ -88,6 +88,20 @@ These inner event types decode as typed structs in `Slack::Events`:
 
 User, user group, app request, and pinned item objects stay raw `JSON::Any`. Message metadata gives `event_type` and a raw `event_payload`. For `function_executed`, see [Workflow steps](workflows.md#read-the-event).
 
+### Mentions and reactions
+
+`Slack::Events::AppMentioned` gives the message that mentions the app: `channel`, `user`, `text`, `ts`, and `event_ts`. `thread_ts` is nil for a mention at the top level. `team` is nil when Slack omits it. `blocks` decodes the message blocks. To reply in the thread of the mention, use `thread_ts || ts`:
+
+```crystal
+app.event("app_mention") do |ctx|
+  mention = ctx.event
+  next unless mention.is_a?(Slack::Events::AppMentioned)
+  ctx.say("On it.", thread_ts: mention.thread_ts || mention.ts)
+end
+```
+
+The `item` of `reaction_added` and `reaction_removed` is a `Slack::EventData::ReactionItem`: `Message` (`channel`, `ts`, `channel_type`), `File` (`file`), `FileComment` (`file`, `file_comment`), or `Unknown` (`type`, `raw`) for another item type. Only a `Message` item has a channel, so `say` in a listener for a reaction on a file raises `Slack::App::NoReplyTarget`. `item_user` is nil for a message without a user author, such as an incoming webhook message.
+
 ### Message subtypes
 
 A `message` event selects a struct in `Slack::Events::Message` by `subtype`: `assistant_app_thread`, `bot_add`, `bot_message`, `channel_join`, `channel_leave`, `channel_name`, `channel_purpose`, `channel_topic`, `file_share`, `me_message`, `message_changed`, `message_deleted`, `message_replied`, `pinned_item`, `thread_broadcast`, and `unpinned_item`. A message without a subtype, or with a subtype that the library does not map, decodes as `Slack::Events::Message`; its `subtype` gives the name.

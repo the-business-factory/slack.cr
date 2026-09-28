@@ -1095,6 +1095,17 @@ entries:
     inbound_status: supported
     evidence_paths: [src/slack/events/event_types/app_installed.cr, src/slack/events/event_types/app_deleted.cr, src/slack/events/event_types/app_requested.cr, src/slack/events/event_types/app_mentioned.cr, spec/events/app_events_spec.cr, spec/fixtures/events/app_installed.json, spec/fixtures/events/app_mention_document.json]
 
+  - wire_type: app_mention and reaction events
+    kind: event
+    documentation_url: https://docs.slack.dev/reference/events/app_mention
+    fields_supported: [app_mention channel, app_mention user, app_mention text, app_mention ts, app_mention event_ts, app_mention thread_ts, app_mention team, app_mention blocks, reaction_added item, reaction_removed item, item_user]
+    parents: [events_api]
+    surfaces: []
+    restrictions: "Events::AppMentioned requires text, ts, and event_ts; thread_ts and team are nil when absent, and blocks decode as received blocks. A reply in the mention's thread uses thread_ts || ts. ReactionAdded and ReactionRemoved decode item by type as EventData::ReactionItem::Message (channel, ts, channel_type), File (file), FileComment (file, file_comment), or Unknown (type, raw); a known item with a missing field is rejected, and to_json writes the raw item. item_user is nil for a message without a user author. Scopes (app_mentions:read, reactions:read) are checked by Slack."
+    implementation_status: unsupported
+    inbound_status: supported
+    evidence_paths: [src/slack/events/event_types/app_mentioned.cr, src/slack/events/event_types/reaction_added.cr, src/slack/events/event_types/reaction_removed.cr, src/slack/events/event_data/reaction_item.cr, spec/events/mention_and_reaction_spec.cr, spec/fixtures/events/app_mention_thread.json, spec/fixtures/events/reaction_added_file_comment.json]
+
   - wire_type: channel and membership events
     kind: event
     documentation_url: https://docs.slack.dev/reference/events/member_joined_channel
