@@ -1,6 +1,6 @@
 schema_version: 2
 checked_on: "2026-09-27"
-scope: Checked Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, channel selects, date/time pickers, the datetime picker, video blocks, external selects with block_suggestion option responses, remote file blocks, rich text display blocks, table blocks, number inputs, file inputs, URL inputs, and email inputs, including Input in Messages, FormModal and Home and modal-only Input children in FormModal.
+scope: Checked Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, channel selects, date/time pickers, the datetime picker, video blocks, external selects with block_suggestion option responses, remote file blocks, rich text display blocks, table blocks, number inputs, file inputs, URL inputs, email inputs, and rich text inputs, including Input in Messages, FormModal and Home, modal-only Input children in FormModal, and view-only Input children in FormModal and Home.
 statuses:
   - unsupported
   - partial
@@ -54,7 +54,7 @@ entries:
     kind: composition object
     documentation_url: https://docs.slack.dev/reference/block-kit/composition-objects/text-object/
     fields_supported: [type, text, emoji, verbatim]
-    parents: [button, confirmation, section, input, plain_text_input, modal, header, context, image, video, option, overflow option, checkbox option, radio option, option_group, static_select, multi_static_select, users_select, multi_users_select, channels_select, multi_channels_select, conversations_select, multi_conversations_select, external_select, multi_external_select, datepicker, timepicker, number_input, url_text_input, email_text_input]
+    parents: [button, confirmation, section, input, plain_text_input, modal, header, context, image, video, option, overflow option, checkbox option, radio option, option_group, static_select, multi_static_select, users_select, multi_users_select, channels_select, multi_channels_select, conversations_select, multi_conversations_select, external_select, multi_external_select, datepicker, timepicker, number_input, url_text_input, email_text_input, rich_text_input]
     surfaces: [message, modal, home]
     restrictions: Immutable checked outbound values have fixed discriminators and format-specific options; legacy field-specific values remain mutable for compatibility.
     implementation_status: supported
@@ -76,12 +76,12 @@ entries:
     kind: composition object
     documentation_url: https://docs.slack.dev/reference/block-kit/composition-objects/dispatch-action-configuration-object/
     fields_supported: [trigger_actions_on]
-    parents: [plain_text_input, number_input, url_text_input, email_text_input]
+    parents: [plain_text_input, number_input, url_text_input, email_text_input, rich_text_input]
     surfaces: [message, modal, home]
     restrictions: Checked immutable dispatch configuration permits omission or one or both distinct typed triggers. Legacy configuration remains mutable.
     implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/checked/composition_objects/dispatch_action_config.cr, spec/ui/checked/input_spec.cr, spec/api/number_input_snapshot_spec.cr, spec/ui/checked/url_input_spec.cr, spec/ui/checked/email_input_spec.cr]
+    evidence_paths: [src/slack/ui/checked/composition_objects/dispatch_action_config.cr, spec/ui/checked/input_spec.cr, spec/api/number_input_snapshot_spec.cr, spec/ui/checked/url_input_spec.cr, spec/ui/checked/email_input_spec.cr, spec/api/rich_text_input_snapshot_spec.cr]
 
   - wire_type: button
     kind: block element
@@ -137,6 +137,17 @@ entries:
     implementation_status: supported
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/block_elements/email_input.cr, src/slack/ui/checked/blocks/modal_input.cr, src/slack/interactions/email_input_action.cr, src/slack/interactions/email_input_value.cr, spec/ui/checked/email_input_spec.cr, spec/interactions/email_input_spec.cr, examples/block_kit_email_input.cr]
+
+  - wire_type: rich_text_input
+    kind: block element
+    documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/rich-text-input-element/
+    fields_supported: [type, action_id, initial_value, dispatch_action_config, focus_on_load, placeholder, min_lines, max_lines]
+    parents: [input]
+    surfaces: [modal, home]
+    restrictions: Checked RichTextInput requires action_id, as Slack documents; a nonempty action_id is library policy. initial_value is a checked Blocks::RichText. min_lines and max_lines must each be from 1 to 100; Slack documents no rule between them. Only FormModal and Home accept it, through the view-only ViewInput block; Message and DisplayModal reject it at compile time. Slack also lists the Table block as a parent; that placement is not implemented. Typed RichTextInputAction and RichTextInputValue read rich_text_value with the received rich text parser and keep absent/null presence; malformed trees and wrong JSON types raise path-aware TypeMismatch.
+    implementation_status: supported
+    inbound_status: supported
+    evidence_paths: [src/slack/ui/checked/block_elements/rich_text_input.cr, src/slack/ui/checked/blocks/view_input.cr, src/slack/interactions/rich_text_input_action.cr, src/slack/interactions/rich_text_input_value.cr, spec/ui/checked/rich_text_input_spec.cr, spec/interactions/rich_text_input_spec.cr, spec/api/rich_text_input_snapshot_spec.cr, spec/block_kit_diagnostics_spec.cr, examples/block_kit_rich_text_input.cr]
 
   - wire_type: checkboxes
     kind: block element
@@ -419,10 +430,10 @@ entries:
     fields_supported: [type, label, element, dispatch_action, block_id, hint, optional]
     parents: [message, modal, home]
     surfaces: [message, modal, home]
-    restrictions: Checked Input accepts PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, and TimePicker in Message, FormModal and Home, and DatetimePicker in Message and FormModal; all Input fields are supported. Checked ModalInput has the same wire type, fields and limits for modal-only children (NumberInput, FileInput, UrlInput, EmailInput); only FormModal accepts it. ModalInput rejects dispatch_action true for FileInput. Other input element families remain deferred. Legacy Input retains its previous partial contract.
+    restrictions: Checked Input accepts PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, and TimePicker in Message, FormModal and Home, and DatetimePicker in Message and FormModal; all Input fields are supported. Checked ModalInput has the same wire type, fields and limits for modal-only children (NumberInput, FileInput, UrlInput, EmailInput); only FormModal accepts it. Checked ViewInput does the same for view-only children (RichTextInput); only FormModal and Home accept it. ModalInput rejects dispatch_action true for FileInput. Other input element families remain deferred. Legacy Input retains its previous partial contract.
     implementation_status: partial
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/blocks/input.cr, src/slack/ui/checked/blocks/modal_input.cr, spec/ui/checked/input_spec.cr, spec/ui/checked/number_input_spec.cr, spec/ui/checked/file_input_spec.cr, spec/ui/checked/url_input_spec.cr, spec/ui/checked/email_input_spec.cr, spec/interactions/block_kit_spec.cr]
+    evidence_paths: [src/slack/ui/checked/blocks/input.cr, src/slack/ui/checked/blocks/modal_input.cr, src/slack/ui/checked/blocks/view_input.cr, spec/ui/checked/input_spec.cr, spec/ui/checked/number_input_spec.cr, spec/ui/checked/file_input_spec.cr, spec/ui/checked/url_input_spec.cr, spec/ui/checked/email_input_spec.cr, spec/ui/checked/rich_text_input_spec.cr, spec/interactions/block_kit_spec.cr]
 
   - wire_type: section
     kind: block
@@ -496,7 +507,7 @@ entries:
     fields_supported: [type, title, submit, close, blocks, private_metadata, callback_id, external_id, clear_on_close, notify_on_close, submit_disabled]
     parents: [views.open, views.update, views.push, push response action, update response action]
     surfaces: [modal]
-    restrictions: Checked DisplayModal excludes Input; FormModal requires submit. The block catalog is limited to Section, Actions, Divider, Header, Context, Image, RichText, and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, user selects, channel selects, conversation selects, or date/time pickers; FormModal also accepts ModalInput containing NumberInput, FileInput, UrlInput, or EmailInput. submit_disabled is for Slack configuration modals only. Typed validation-error, clear, push, and update acknowledgments are listed separately. Legacy Modal keeps its previous contract.
+    restrictions: Checked DisplayModal excludes Input; FormModal requires submit. The block catalog is limited to Section, Actions, Divider, Header, Context, Image, RichText, and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, user selects, channel selects, conversation selects, or date/time pickers; FormModal also accepts ModalInput containing NumberInput, FileInput, UrlInput, or EmailInput and ViewInput containing RichTextInput. submit_disabled is for Slack configuration modals only. Typed validation-error, clear, push, and update acknowledgments are listed separately. Legacy Modal keeps its previous contract.
     implementation_status: partial
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/surfaces/form_modal.cr, src/slack/ui/checked/surfaces/display_modal.cr, spec/ui/checked/modal_spec.cr, examples/block_kit_modal.cr]
@@ -540,7 +551,7 @@ entries:
     fields_supported: [actions, state, view.state.values]
     parents: []
     surfaces: [message, modal, home]
-    restrictions: Typed button, static-select, external-select, overflow, checkbox, radio, user-select, channel-select, conversation-select, date/time-picker, datetime-picker, number-input, URL-input, and email-input actions, plus plain text, static-select, external-select, checkbox, radio, user-select, channel-select, conversation-select, date/time-picker, datetime-picker, number-input, file_input, URL-input, and email-input StateMap access through Interaction.from_json and process_interaction. BlockSuggestion is listed separately. Selection fields preserve absent/null/empty. Other known action metadata, view bodies, and dispatched text actions remain raw. UnknownAction and UnknownStateValue retain complete raw JSON. Other incoming families are deferred; outbound validation-error acknowledgments are listed separately.
+    restrictions: Typed button, static-select, external-select, overflow, checkbox, radio, user-select, channel-select, conversation-select, date/time-picker, datetime-picker, number-input, URL-input, email-input, and rich-text-input actions, plus plain text, static-select, external-select, checkbox, radio, user-select, channel-select, conversation-select, date/time-picker, datetime-picker, number-input, file_input, URL-input, email-input, and rich-text-input StateMap access through Interaction.from_json and process_interaction. BlockSuggestion is listed separately. Selection fields preserve absent/null/empty. Other known action metadata, view bodies, and dispatched text actions remain raw. UnknownAction and UnknownStateValue retain complete raw JSON. Other incoming families are deferred; outbound validation-error acknowledgments are listed separately.
     implementation_status: partial
     inbound_status: partial
     evidence_paths: [src/slack/interactions/action_decoder.cr, src/slack/interactions/state_map.cr, spec/interactions/block_kit_spec.cr, spec/interactions/static_select_spec.cr, examples/block_kit_modal.cr, examples/block_kit_static_select.cr]
@@ -606,7 +617,7 @@ entries:
     fields_supported: [type, blocks, private_metadata, callback_id, external_id]
     parents: [views.publish]
     surfaces: [home]
-    restrictions: Checked Home and HomeBuilder accept Section, Actions, Divider, Header, Context, Image, RichText, Table, and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, user selects, channel selects, conversation selects, or date/time pickers. At most 100 blocks, unique supplied block IDs, and one focused element per view across Section, Actions, and Input. Modal fields are unavailable. Other block and input families remain deferred. Inbound Home views retain raw JSON; button/static-select/overflow/checkbox/radio/user-select/channel-select/conversation-select/date-picker/time-picker actions and plain text/static-select/checkbox/radio/user-select/channel-select/conversation-select/date-picker/time-picker state have typed access.
+    restrictions: Checked Home and HomeBuilder accept Section, Actions, Divider, Header, Context, Image, RichText, Table, and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, user selects, channel selects, conversation selects, or date/time pickers, and ViewInput containing RichTextInput. At most 100 blocks, unique supplied block IDs, and one focused element per view across Section, Actions, and Input. Modal fields are unavailable. Other block and input families remain deferred. Inbound Home views retain raw JSON; button/static-select/overflow/checkbox/radio/user-select/channel-select/conversation-select/date-picker/time-picker actions and plain text/static-select/checkbox/radio/user-select/channel-select/conversation-select/date-picker/time-picker/rich-text-input state have typed access; rich-text-input actions are also typed.
     implementation_status: supported
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/surfaces/home.cr, src/slack/ui/checked/home_builder.cr, spec/ui/checked/home_spec.cr, spec/interactions/home_spec.cr, examples/block_kit_home.cr]
@@ -650,7 +661,7 @@ entries:
     fields_supported: [type, elements, block_id]
     parents: [message, modal, home]
     surfaces: [message, modal, home]
-    restrictions: Checked Blocks::RichText owns a copied list of one or more RichText Section, List, Preformatted, or Quote containers; the nonempty minimum is library policy. It is display content on all four checked surfaces, including DisplayModal. Slack::Interactions::RichText::Block reads received trees, for example from message event blocks, without outbound policy. Unknown node types stay as RichText::Unknown; unknown fields stay in raw. Known types in the wrong tree position raise path-aware TypeMismatch. rich_text_input is a separate element.
+    restrictions: Checked Blocks::RichText owns a copied list of one or more RichText Section, List, Preformatted, or Quote containers; the nonempty minimum is library policy. It is display content on all four checked surfaces, including DisplayModal. Slack::Interactions::RichText::Block reads received trees, for example from message event blocks, without outbound policy. Unknown node types stay as RichText::Unknown; unknown fields stay in raw. Known types in the wrong tree position raise path-aware TypeMismatch. rich_text_input is a separate element; its initial_value and received rich_text_value use these types.
     implementation_status: supported
     inbound_status: supported
     evidence_paths: [src/slack/ui/checked/blocks/rich_text.cr, src/slack/interactions/rich_text/block.cr, spec/ui/checked/rich_text_spec.cr, spec/interactions/rich_text_spec.cr, spec/api/rich_text_snapshot_spec.cr, examples/block_kit_rich_text.cr]
@@ -1298,3 +1309,10 @@ rules:
     source_section: "Fields: rows"
     reviewed_on: "2026-09-28"
     evidence_paths: [spec/ui/checked/table_block_spec.cr]
+  - id: rich_text_input_fields
+    classification: slack_requirement
+    requirement: "Required action_id (255); initial_value is a rich text block; dispatch_action_config; one focus target per view; plain placeholder 150; min_lines and max_lines from 1 to 100. Input block in modals and Home tabs only."
+    source_url: https://docs.slack.dev/reference/block-kit/block-elements/rich-text-input-element/
+    source_section: Fields, Example and Markdown placement metadata
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/ui/checked/rich_text_input_spec.cr, spec/api/rich_text_input_snapshot_spec.cr, spec/block_kit_diagnostics_spec.cr]

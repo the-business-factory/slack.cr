@@ -30,6 +30,7 @@ require "../examples/support/file_input_example"
 require "../examples/support/url_input_example"
 require "../examples/support/email_input_example"
 require "../examples/support/table_example"
+require "../examples/support/rich_text_input_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -320,5 +321,15 @@ describe "documented Block Kit workflows" do
     JSON.parse(rejected.body).should eq JSON.parse(%({"response_action":"errors","errors":{"invite.email":"Enter a partner.example address."}}))
     accepted.status_code.should eq 200
     accepted.body.should be_empty
+  end
+
+  it "reads a formatted standup from a signed Home rich text input action" do
+    output = IO::Memory.new
+    OfflineRichTextInputExample.run(output)
+    output.to_s.lines.should eq [
+      "Standup text: Yesterday: paired with @U-PAIR / - Ship the release",
+      "Mentioned: U-PAIR",
+      "Skipped malformed standup at actions[0].rich_text_value.elements[0].type",
+    ]
   end
 end
