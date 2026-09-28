@@ -30,6 +30,7 @@ require "../examples/support/file_input_example"
 require "../examples/support/url_input_example"
 require "../examples/support/email_input_example"
 require "../examples/support/table_example"
+require "../examples/support/data_table_example"
 require "../examples/support/rich_text_input_example"
 require "../examples/support/markdown_example"
 require "../examples/support/workflow_button_example"
@@ -318,6 +319,28 @@ describe "documented Block Kit workflows" do
            "confirm":{"title":{"type":"plain_text","text":"Delete answer?"},"text":{"type":"plain_text","text":"The answer is removed."},
                       "confirm":{"type":"plain_text","text":"Delete"},"deny":{"type":"plain_text","text":"Keep"},"style":"danger"},
            "visible_to_user_ids":["U-ASKER"]}]}]}
+      JSON
+  end
+
+  it "posts a paged data table of support tickets" do
+    output = IO::Memory.new
+    posted = OfflineDataTableExample.run(output)
+    output.to_s.should eq "Posted 3 tickets to C-SYNTHETIC/1710000000.000400\nRejected before sending: data_table.row.width_mismatch\n"
+    # Authored from Slack's data table block and chat.postMessage references, not from the serializer.
+    posted.should eq JSON.parse(<<-JSON)
+      {"channel":"C-SYNTHETIC","text":"Open support tickets","blocks":[
+        {"type":"data_table","block_id":"support.open","caption":"Open support tickets","page_size":2,
+         "rows":[
+           [{"type":"raw_text","text":"Ticket"},{"type":"raw_text","text":"Assignee"},{"type":"raw_text","text":"Age (days)"}],
+           [{"type":"raw_text","text":"SUP-101"},
+            {"type":"rich_text","elements":[{"type":"rich_text_section","elements":[{"type":"user","user_id":"U-ALEX"}]}]},
+            {"type":"raw_number","value":3,"text":"3"}],
+           [{"type":"raw_text","text":"SUP-102"},
+            {"type":"rich_text","elements":[{"type":"rich_text_section","elements":[{"type":"user","user_id":"U-SAM"}]}]},
+            {"type":"raw_number","value":12,"text":"12"}],
+           [{"type":"raw_text","text":"SUP-103"},
+            {"type":"rich_text","elements":[{"type":"rich_text_section","elements":[{"type":"user","user_id":"U-ALEX"}]}]},
+            {"type":"raw_number","value":1,"text":"1"}]]}]}
       JSON
   end
 

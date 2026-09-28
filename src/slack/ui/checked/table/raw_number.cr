@@ -1,4 +1,4 @@
-# A numeric table cell. Slack uses `value` as the number and shows `text`.
+# A numeric cell for `Blocks::Table` and `Blocks::DataTable`. Slack uses `value` as the number and shows `text`.
 # Integers stay integers on the wire. Nonempty text and a finite value are
 # library policy; JSON cannot encode NaN or infinity.
 struct Slack::UI::Checked::Table::RawNumber

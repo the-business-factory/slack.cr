@@ -1,6 +1,6 @@
 schema_version: 2
 checked_on: "2026-09-28"
-scope: Checked Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, channel selects, date/time pickers, the datetime picker, video blocks, external selects with block_suggestion option responses, remote file blocks, rich text display blocks, table blocks, alert blocks, markdown blocks, context actions blocks with feedback and icon buttons, number inputs, file inputs, URL inputs, email inputs, rich text inputs, and message workflow buttons, including Input in Messages, FormModal and Home, modal-only Input children in FormModal, and view-only Input children in FormModal and Home.
+scope: Checked Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, channel selects, date/time pickers, the datetime picker, video blocks, external selects with block_suggestion option responses, remote file blocks, rich text display blocks, table blocks, data table blocks, alert blocks, markdown blocks, context actions blocks with feedback and icon buttons, number inputs, file inputs, URL inputs, email inputs, rich text inputs, and message workflow buttons, including Input in Messages, FormModal and Home, modal-only Input children in FormModal, and view-only Input children in FormModal and Home.
 statuses:
   - unsupported
   - partial
@@ -474,7 +474,7 @@ entries:
     fields_supported: [text, blocks]
     parents: [chat.postMessage, chat.update]
     surfaces: [message]
-    restrictions: Supports explicit fallback text or the separately named Slack-generated fallback choice and a checked union of Section, Actions, Divider, Header, Context, Image, RichText, Table, Markdown, ContextActions, and Input. The text of all Markdown blocks in one message is at most 12,000 characters. The update adapter requires explicit fallback. Other block families remain unsupported until their slices ship.
+    restrictions: Supports explicit fallback text or the separately named Slack-generated fallback choice and a checked union of Section, Actions, Divider, Header, Context, Image, RichText, Table, DataTable, Markdown, ContextActions, and Input. The text of all Markdown blocks in one message is at most 12,000 characters. The update adapter requires explicit fallback. Other block families remain unsupported until their slices ship.
     implementation_status: supported
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/surfaces/message.cr, src/slack/ui/checked/message_builder.cr, spec/ui/checked/message_spec.cr, examples/block_kit_message.cr]
@@ -617,7 +617,7 @@ entries:
     fields_supported: [type, blocks, private_metadata, callback_id, external_id]
     parents: [views.publish]
     surfaces: [home]
-    restrictions: Checked Home and HomeBuilder accept Section, Actions, Divider, Header, Context, Image, RichText, Table, and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, user selects, channel selects, conversation selects, or date/time pickers, and ViewInput containing RichTextInput. At most 100 blocks, unique supplied block IDs, and one focused element per view across Section, Actions, and Input. Modal fields are unavailable. Other block and input families remain deferred. Inbound Home views retain raw JSON; button/static-select/overflow/checkbox/radio/user-select/channel-select/conversation-select/date-picker/time-picker actions and plain text/static-select/checkbox/radio/user-select/channel-select/conversation-select/date-picker/time-picker/rich-text-input state have typed access; rich-text-input actions are also typed.
+    restrictions: Checked Home and HomeBuilder accept Section, Actions, Divider, Header, Context, Image, RichText, Table, DataTable, and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, user selects, channel selects, conversation selects, or date/time pickers, and ViewInput containing RichTextInput. At most 100 blocks, unique supplied block IDs, and one focused element per view across Section, Actions, and Input. Modal fields are unavailable. Other block and input families remain deferred. Inbound Home views retain raw JSON; button/static-select/overflow/checkbox/radio/user-select/channel-select/conversation-select/date-picker/time-picker actions and plain text/static-select/checkbox/radio/user-select/channel-select/conversation-select/date-picker/time-picker/rich-text-input state have typed access; rich-text-input actions are also typed.
     implementation_status: supported
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/surfaces/home.cr, src/slack/ui/checked/home_builder.cr, spec/ui/checked/home_spec.cr, spec/interactions/home_spec.cr, examples/block_kit_home.cr]
@@ -703,7 +703,7 @@ entries:
     kind: table composition
     documentation_url: https://docs.slack.dev/reference/block-kit/blocks/table-block/
     fields_supported: [raw_text.text, raw_number.value, raw_number.text, align, is_wrapped]
-    parents: [table]
+    parents: [table, data_table]
     surfaces: [message, home]
     restrictions: "RawText needs nonempty text. RawNumber takes an integer or float value, sent as a JSON number, and nonempty display text; the value must be finite. These checks are library policy (the Slack SDKs require text of at least 1 character). ColumnSetting has optional align (ColumnAlignment Left, Center, Right) and is_wrapped; omission and explicit false stay distinct. The raw_number fields come from the Slack SDK type definitions because the table reference names the cell type without a schema."
     implementation_status: supported
@@ -786,6 +786,17 @@ entries:
     implementation_status: supported
     inbound_status: unsupported
     evidence_paths: [src/slack/ui/checked/blocks/alert.cr, src/slack/ui/checked/blocks/alert_level.cr, spec/ui/checked/alert_block_spec.cr, spec/fixtures/block_kit/alert_display_modal.json, spec/block_kit_diagnostics_spec.cr, examples/support/alert_example.cr, spec/block_kit_consumers_spec.cr]
+
+  - wire_type: data_table
+    kind: block
+    documentation_url: https://docs.slack.dev/reference/block-kit/blocks/data-table-block/
+    fields_supported: [type, rows, caption, page_size, row_header_column_index, block_id]
+    parents: [message, home]
+    surfaces: [message, home]
+    restrictions: "Checked Blocks::DataTable takes a caption, a header of Table::RawText or Table::RawNumber cells (Blocks::DataTable::HeaderCell), and data rows of Table::Cell values; it sends the header as the first entry of rows. Rich text header cells are rejected at compile time. 1 to 200 data rows, 1 to 20 columns, every data row as wide as the header, page_size 1 to 100, block_id 255. A nonempty caption and a row_header_column_index inside the header are library policy. Slack lists Messages and Home tabs only, so DisplayModal and FormModal reject it at compile time. Slack checks the 20,000-character limit per data table and per message remotely. Interactive cells (action_cell) have no documented schema and are not supported. Received message data tables are not decoded."
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/checked/blocks/data_table.cr, spec/ui/checked/data_table_block_spec.cr, spec/fixtures/block_kit/data_table_message.json, spec/block_kit_diagnostics_spec.cr, examples/support/data_table_example.cr, spec/block_kit_consumers_spec.cr]
 
 # Classification is independent of support status. Missing features are not invalid Slack payloads.
 review_policy:
@@ -1442,3 +1453,17 @@ rules:
     source_section: "Fields, Example, and available_in_surfaces metadata"
     reviewed_on: "2026-09-28"
     evidence_paths: [spec/ui/checked/alert_block_spec.cr, spec/block_kit_consumers_spec.cr, spec/block_kit_diagnostics_spec.cr]
+  - id: data_table_block
+    classification: slack_requirement
+    requirement: "type, rows, and caption are required. The first row is the header and cannot contain rich_text cells; 2 to 201 rows (1 to 200 data rows plus the header); 1 to 20 columns; all rows have the same number of cells. Cells are raw_text (text minLength 1), raw_number (number value, text minLength 1), or rich_text. page_size 1 to 100 (default 5); row_header_column_index is 0-based (default 0). Available in Messages and Home tabs. Slack limits a data table, and all table cells in one message, to 20,000 characters; Slack checks this remotely."
+    source_url: https://docs.slack.dev/reference/block-kit/blocks/data-table-block.md
+    source_section: "Fields, Usage info, Schema for raw_text and raw_number, and available_in_surfaces metadata"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/ui/checked/data_table_block_spec.cr, spec/block_kit_consumers_spec.cr, spec/block_kit_diagnostics_spec.cr]
+  - id: data_table_policy
+    classification: library_policy
+    requirement: "The caption is not empty, and row_header_column_index names a header column. Slack states no caption length and no index bound. block_id 255 follows the library-wide block rule."
+    source_url: https://docs.slack.dev/reference/block-kit/blocks/data-table-block/
+    source_section: "Fields: caption and row_header_column_index"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/ui/checked/data_table_block_spec.cr]
