@@ -1,4 +1,5 @@
 require "../../src/slack"
+require "../../src/slack/testing"
 require "webmock"
 require "./webmock_transport"
 
@@ -61,12 +62,8 @@ module OfflineCardCarouselExample
   def self.handle_click(output : IO) : Nil
     payload = %({"type":"block_actions","team":null,"actions":[{"type":"button","block_id":"department.wellness","action_id":"visit.request","value":"wellness","action_ts":"1710000001.000100"}]})
     body = URI::Params.encode({"payload" => payload})
-    timestamp = Time.utc.to_unix.to_s
-    headers = HTTP::Headers{
-      "X-Slack-Request-Timestamp" => timestamp,
-      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(SIGNING_SECRET, timestamp, body).compute,
-    }
-    interaction = Slack::Interactions.parse(VERIFIER.verify(HTTP::Request.new("POST", "/interactions", headers, body)).body)
+    request = Slack::Testing::SignedRequest.build(body, signing_secret: SIGNING_SECRET, path: "/interactions", content_type: "application/x-www-form-urlencoded")
+    interaction = Slack::Interactions.parse(VERIFIER.verify(request).body)
     raise "Expected block action" unless interaction.is_a?(Slack::Interactions::BlockAction)
     action = interaction.decoded_actions.first
     raise "Expected button action" unless action.is_a?(Slack::Interactions::ButtonAction)

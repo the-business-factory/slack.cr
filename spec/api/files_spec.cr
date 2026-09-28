@@ -1,5 +1,6 @@
 require "../spec_helper"
 require "../support/api/webmock_client"
+require "../../src/slack/testing"
 
 private UPLOAD_URL = "https://files.slack.com/upload/v1/CwABAAAAXAoAAZnKg"
 
@@ -20,12 +21,7 @@ end
 describe Slack::Api::FileUpload do
   it "gets an upload URL, posts the bytes without a token, and completes the upload" do
     stub_upload_url("filename=notes.txt&length=11&alt_txt=Release+notes")
-    WebMock.stub(:post, UPLOAD_URL).to_return do |request|
-      request.headers["Content-Type"].should eq "application/octet-stream"
-      request.headers["Authorization"]?.should be_nil
-      request.body.to_s.should eq "hello\x00world"
-      HTTP::Client::Response.new(200, body: "OK - 11")
-    end
+    upload_transport = Slack::Testing::RecordingTransport.new.respond("OK - 11")
     WebMock.stub(:post, "https://slack.com/api/files.completeUploadExternal")
       .with(headers: {"Authorization" => "Bearer xoxb-synthetic"})
       .to_return do |request|
@@ -46,7 +42,13 @@ describe Slack::Api::FileUpload do
     upload = Slack::Api::FileUpload.new("notes.txt", IO::Memory.new("hello\x00world"),
       title: "Release notes", alt_txt: "Release notes",
       share: Slack::Api::FileShare.new(channel_id: "C0123456789", initial_comment: "Notes for 1.2"))
-    files = upload.run(ApiSupport.client, AuthSupport::WebMockTransport.new)
+    files = upload.run(ApiSupport.client, upload_transport)
+
+    sent = upload_transport.requests.first
+    sent.uri.to_s.should eq UPLOAD_URL
+    sent.headers["Content-Type"].should eq "application/octet-stream"
+    sent.headers["Authorization"]?.should be_nil
+    sent.body.should eq "hello\x00world"
 
     file = files.first
     file.id.should eq "F0AB1CD2EF3"
@@ -59,7 +61,7 @@ describe Slack::Api::FileUpload do
 
   it "raises the HTTP status of a failed byte upload and does not complete it" do
     stub_upload_url("filename=report.csv&length=3")
-    WebMock.stub(:post, UPLOAD_URL).to_return(status: 500, body: "upload failed")
+    upload_transport = Slack::Testing::RecordingTransport.new.respond("upload failed", status: 500)
     completed = false
     WebMock.stub(:post, "https://slack.com/api/files.completeUploadExternal").to_return do
       completed = true
@@ -68,7 +70,7 @@ describe Slack::Api::FileUpload do
 
     error = expect_raises(Slack::Api::Error, "http_error") do
       Slack::Api::FileUpload.new("report.csv", "a,b".to_slice)
-        .run(ApiSupport.client, AuthSupport::WebMockTransport.new)
+        .run(ApiSupport.client, upload_transport)
     end
     error.http_status.should eq 500
     completed.should be_false
@@ -78,10 +80,12 @@ describe Slack::Api::FileUpload do
     WebMock.stub(:post, "https://slack.com/api/files.getUploadURLExternal")
       .to_return(body: %({"ok":true,"upload_url":"http://files.slack.com/upload","file_id":"F1"}))
 
+    upload_transport = Slack::Testing::RecordingTransport.new
     error = expect_raises(Slack::Api::Error, "invalid_response") do
-      Slack::Api::FileUpload.new("a.txt", "a".to_slice).run(ApiSupport.client, AuthSupport::WebMockTransport.new)
+      Slack::Api::FileUpload.new("a.txt", "a".to_slice).run(ApiSupport.client, upload_transport)
     end
     error.http_status.should eq 200
+    upload_transport.requests.should be_empty
   end
 
   it "validates the upload and its share before any request" do
@@ -89,9 +93,11 @@ describe Slack::Api::FileUpload do
     upload = Slack::Api::FileUpload.new("notes.txt", "x".to_slice, alt_txt: "a" * 1001,
       share: Slack::Api::FileShare.new(channel_id: "C1", initial_comment: "Notes", blocks: blocks))
 
+    upload_transport = Slack::Testing::RecordingTransport.new
     error = expect_raises(Slack::UI::ValidationError) do
-      upload.run(ApiSupport.client, AuthSupport::WebMockTransport.new)
+      upload.run(ApiSupport.client, upload_transport)
     end
+    upload_transport.requests.should be_empty
     error.issues.map(&.code).should eq %w[files_get_upload_url_external.alt_txt.too_long
       file_share.blocks.with_initial_comment]
   end

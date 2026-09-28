@@ -1,4 +1,5 @@
 require "../../src/slack"
+require "../../src/slack/testing"
 
 # Reads the blocks of the message where a signed button click happened.
 module OfflineReceivedBlocksExample
@@ -26,13 +27,7 @@ module OfflineReceivedBlocksExample
 
   def self.signed(payload : String) : HTTP::Request
     body = URI::Params.encode({"payload" => payload})
-    timestamp = Time.utc.to_unix.to_s
-    headers = HTTP::Headers{
-      "Content-Type"              => "application/x-www-form-urlencoded",
-      "X-Slack-Request-Timestamp" => timestamp,
-      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(SIGNING_SECRET, timestamp, body).compute,
-    }
-    HTTP::Request.new("POST", "/interactions", headers, body)
+    Slack::Testing::SignedRequest.build(body, signing_secret: SIGNING_SECRET, path: "/interactions", content_type: "application/x-www-form-urlencoded")
   end
 
   def self.run(output : IO = STDOUT) : Nil

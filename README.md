@@ -224,6 +224,32 @@ See [Workflow steps](documentation/workflows.md) for the manifest, inputs, and f
 
 `AssistantThreadsSetStatus`, `AssistantThreadsSetSuggestedPrompts`, and `AssistantThreadsSetTitle` show a status, suggested prompts, and a title in an app thread. `AgentsSessionsSetStatus` and `AgentsSessionsRename` change an agent session. See [AI apps](documentation/ai-apps.md#app-threads).
 
+## Testing your app
+
+Test handlers offline with `require "slack/testing"`. `require "slack"` does not load it.
+
+- `Slack::Testing::SignedRequest.build` makes a POST request with a valid `X-Slack-Signature` and `X-Slack-Request-Timestamp`. `Webhooks::Verifier` accepts it with the same signing secret.
+- `Slack::Testing::RecordingTransport` is a transport for `Slack::Api::Client`. It records each request and answers with the responses that you queue. A request without a response raises `Slack::Testing::UnstubbedRequest`.
+
+```crystal
+require "slack"
+require "slack/testing"
+
+secret = Slack::Auth::Secret.new("synthetic-signing-secret")
+request = Slack::Testing::SignedRequest.build(form_body, signing_secret: secret,
+  path: "/slack/commands", content_type: "application/x-www-form-urlencoded")
+
+transport = Slack::Testing::RecordingTransport.new
+transport.respond(%({"ok":true,"channel":"C123","ts":"1710000000.000100","message":{"type":"message","ts":"1710000000.000100"}}))
+client = Slack::Api::Client.new(token: "xoxb-synthetic", transport: transport)
+
+handler.handle(request) # your code verifies the request and calls client
+transport.requests.first.uri.path # => "/api/chat.postMessage"
+transport.requests.first.body     # => %({"channel":"C123","text":"..."})
+```
+
+Queued responses are used in order. To compute answers, give a block to `RecordingTransport.new`; the block answers when the queue is empty. Recorded requests contain the token, so use synthetic credentials. These tools do not prove that Slack accepts a request.
+
 ## Runnable examples
 
 From a repository checkout, run `shards install` first. The modal, Home, and static choice examples use the development dependency WebMock. They use synthetic credentials and stub HTTP requests; they do not contact Slack.
@@ -282,9 +308,10 @@ crystal run examples/interaction_context.cr
 crystal run examples/slash_command.cr
 crystal run examples/received_blocks.cr
 crystal run examples/workflow_step.cr
+crystal run examples/testing.cr
 ```
 
-The examples show Web API calls and error codes, channel history and thread replies across cursor pages, workspace members read into an on-call user group, a file upload, a remote file share, message construction, a message with a colored attachment and metadata, an ephemeral thread reply with a permalink and a scheduled reminder, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, message workflow buttons, typed blocks of a received message, routed app events and message subtypes, Socket Mode frames with their acknowledgments, a Socket Mode connection to a local server, a slash command response with a `response_url` reply, and a custom workflow step that completes or fails its execution. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
+The examples show Web API calls and error codes, channel history and thread replies across cursor pages, workspace members read into an on-call user group, a file upload, a remote file share, message construction, a message with a colored attachment and metadata, an ephemeral thread reply with a permalink and a scheduled reminder, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, message workflow buttons, typed blocks of a received message, routed app events and message subtypes, Socket Mode frames with their acknowledgments, a Socket Mode connection to a local server, a slash command response with a `response_url` reply, a custom workflow step that completes or fails its execution, and an offline test of a slash command handler. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
 
 ## Contributing
 

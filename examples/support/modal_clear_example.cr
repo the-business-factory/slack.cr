@@ -1,4 +1,5 @@
 require "../../src/slack"
+require "../../src/slack/testing"
 
 module OfflineModalClearExample
   SIGNING_SECRET = Slack::Auth::Secret.new("synthetic-signing-secret")
@@ -9,13 +10,8 @@ module OfflineModalClearExample
 
   def self.run(output : IO = STDOUT) : HTTP::Client::Response
     body = URI::Params.encode({"payload" => SUBMISSION})
-    timestamp = Time.utc.to_unix.to_s
-    headers = HTTP::Headers{
-      "Content-Type"              => "application/x-www-form-urlencoded",
-      "X-Slack-Request-Timestamp" => timestamp,
-      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(SIGNING_SECRET, timestamp, body).compute,
-    }
-    interaction = Slack::Interactions.parse(VERIFIER.verify(HTTP::Request.new("POST", "/interactions", headers, body)).body)
+    request = Slack::Testing::SignedRequest.build(body, signing_secret: SIGNING_SECRET, path: "/interactions", content_type: "application/x-www-form-urlencoded")
+    interaction = Slack::Interactions.parse(VERIFIER.verify(request).body)
     raise "Expected view submission" unless interaction.is_a?(Slack::Interactions::ViewSubmission)
     view = interaction.view
     raise "Unexpected form" unless view && view["callback_id"].as_s == "request.reason"

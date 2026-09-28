@@ -1,4 +1,5 @@
 require "../../src/slack"
+require "../../src/slack/testing"
 require "webmock"
 require "./webmock_transport"
 
@@ -28,12 +29,8 @@ module OfflineOverflowExample
     # Simulate an independently authored Slack URL-option click.
     payload = %({"type":"block_actions","team":null,"actions":[{"type":"overflow","block_id":"request","action_id":"request.more","selected_option":{"text":{"type":"plain_text","text":"Details"},"value":"details"}}]})
     body = URI::Params.encode({"payload" => payload})
-    timestamp = Time.utc.to_unix.to_s
-    headers = HTTP::Headers{
-      "X-Slack-Request-Timestamp" => timestamp,
-      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(SIGNING_SECRET, timestamp, body).compute,
-    }
-    case interaction = Slack::Interactions.parse(VERIFIER.verify(HTTP::Request.new("POST", "/interactions", headers, body)).body)
+    request = Slack::Testing::SignedRequest.build(body, signing_secret: SIGNING_SECRET, path: "/interactions", content_type: "application/x-www-form-urlencoded")
+    case interaction = Slack::Interactions.parse(VERIFIER.verify(request).body)
     when Slack::Interactions::BlockAction
       case action = interaction.decoded_actions.first
       when Slack::Interactions::OverflowAction

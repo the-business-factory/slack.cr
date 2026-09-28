@@ -1,4 +1,5 @@
 require "../../src/slack"
+require "../../src/slack/testing"
 require "webmock"
 require "./webmock_transport"
 
@@ -12,13 +13,7 @@ module OfflineExternalSelectExample
 
   def self.signed(payload : String, path : String) : HTTP::Request
     body = URI::Params.encode({"payload" => payload})
-    timestamp = Time.utc.to_unix.to_s
-    headers = HTTP::Headers{
-      "Content-Type"              => "application/x-www-form-urlencoded",
-      "X-Slack-Request-Timestamp" => timestamp,
-      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(SIGNING_SECRET, timestamp, body).compute,
-    }
-    HTTP::Request.new("POST", path, headers, body)
+    Slack::Testing::SignedRequest.build(body, signing_secret: SIGNING_SECRET, path: path, content_type: "application/x-www-form-urlencoded")
   end
 
   # Handles a request to the app's Options Load URL. The application sends

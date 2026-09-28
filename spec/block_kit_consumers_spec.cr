@@ -56,6 +56,7 @@ require "../examples/support/ephemeral_reply_example"
 require "../examples/support/socket_mode_client_example"
 require "../examples/support/assistant_thread_example"
 require "../examples/support/user_group_example"
+require "../examples/support/testing_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -83,6 +84,17 @@ describe "documented Block Kit workflows" do
     output = IO::Memory.new
     OfflineFileUploadExample.run(output)
     output.to_s.should eq "Uploaded F123 (Release notes) to C123\n"
+  end
+
+  it "tests a slash command handler with a signed request and a recording transport" do
+    output = IO::Memory.new
+    transport = OfflineTestingExample.run(output)
+
+    output.to_s.lines.should eq ["/api/chat.postMessage " + %({"channel":"C-TEAM","text":"<@U-SYNTHETIC> starts the standup: blockers first"}),
+                                 "Rejected a forged request; Slack calls: 1"]
+    posted = transport.requests.first
+    posted.headers["Authorization"].should eq "Bearer xoxb-synthetic-testing"
+    JSON.parse(posted.body.to_s).should eq JSON.parse(%({"channel":"C-TEAM","text":"<@U-SYNTHETIC> starts the standup: blockers first"}))
   end
 
   it "calls typed and generic Web API methods and reads a Slack error code" do

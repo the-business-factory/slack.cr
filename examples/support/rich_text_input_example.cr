@@ -1,4 +1,5 @@
 require "../../src/slack"
+require "../../src/slack/testing"
 require "webmock"
 require "./webmock_transport"
 
@@ -12,12 +13,8 @@ module OfflineRichTextInputExample
 
   def self.receive(payload : String) : Slack::Interaction
     body = URI::Params.encode({"payload" => payload})
-    timestamp = Time.utc.to_unix.to_s
-    headers = HTTP::Headers{
-      "X-Slack-Request-Timestamp" => timestamp,
-      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(SIGNING_SECRET, timestamp, body).compute,
-    }
-    Slack::Interactions.parse(VERIFIER.verify(HTTP::Request.new("POST", "/interactions", headers, body)).body)
+    request = Slack::Testing::SignedRequest.build(body, signing_secret: SIGNING_SECRET, path: "/interactions", content_type: "application/x-www-form-urlencoded")
+    Slack::Interactions.parse(VERIFIER.verify(request).body)
   end
 
   # Publishes a Home standup composer, then reads two dispatched updates.

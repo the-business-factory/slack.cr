@@ -1,4 +1,5 @@
 require "../../src/slack"
+require "../../src/slack/testing"
 require "webmock"
 require "./webmock_transport"
 
@@ -72,11 +73,6 @@ module OfflineContextActionsExample
   def self.signed_click(action : String) : HTTP::Request
     payload = %({"type":"block_actions","team":null,"actions":[#{action}]})
     body = URI::Params.encode({"payload" => payload})
-    timestamp = Time.utc.to_unix.to_s
-    headers = HTTP::Headers{
-      "X-Slack-Request-Timestamp" => timestamp,
-      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(SIGNING_SECRET, timestamp, body).compute,
-    }
-    HTTP::Request.new("POST", "/interactions", headers, body)
+    Slack::Testing::SignedRequest.build(body, signing_secret: SIGNING_SECRET, path: "/interactions", content_type: "application/x-www-form-urlencoded")
   end
 end

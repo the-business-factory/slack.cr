@@ -1,4 +1,5 @@
 require "../../src/slack"
+require "../../src/slack/testing"
 require "webmock"
 require "./webmock_transport"
 
@@ -97,12 +98,8 @@ module OfflineRichTextExample
   end
 
   private def self.receive(body : String) : Slack::VerifiedEvent
-    timestamp = Time.utc.to_unix.to_s
-    headers = HTTP::Headers{
-      "X-Slack-Request-Timestamp" => timestamp,
-      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(SIGNING_SECRET, timestamp, body).compute,
-    }
-    event = Slack::Events.parse(VERIFIER.verify(HTTP::Request.new("POST", "/events", headers, body)).body)
+    request = Slack::Testing::SignedRequest.build(body, signing_secret: SIGNING_SECRET, path: "/events")
+    event = Slack::Events.parse(VERIFIER.verify(request).body)
     event.as?(Slack::VerifiedEvent) || raise "Expected an event callback"
   end
 end
