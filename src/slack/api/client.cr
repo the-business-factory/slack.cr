@@ -5,6 +5,7 @@ require "../auth/errors"
 require "../auth/transport"
 require "../auth/http_transport_factory"
 require "./rate_limits"
+require "./retry_policy"
 require "./request"
 require "./response"
 require "./generic_request"
@@ -19,9 +20,11 @@ module Slack::Api
   # client.call(Slack::Api::ChatDelete.new(channel: "C123", ts: "1710000000.000100"))
   # ```
   #
-  # Each call waits for local per-method pacing, then makes exactly one transport
-  # attempt. The client does not retry. Transport errors (`Auth::ContractError`
-  # with `TransportFailure` or `UnknownRemoteOutcome`) pass through unchanged.
+  # Each call waits for local per-method pacing, then makes one transport
+  # attempt. Without *retry*, the client does not retry. With a `RetryPolicy`, it
+  # sends again after HTTP 429 or an unsent `TransportFailure`, and each attempt
+  # waits for local pacing. Transport errors (`Auth::ContractError` with
+  # `TransportFailure` or `UnknownRemoteOutcome`) that end the call pass through unchanged.
   # Without a token, the client sends no `Authorization` header, so a scoped
   # transport such as the one in `Auth::RequestContext` can add the credential.
   class Client
@@ -32,7 +35,8 @@ module Slack::Api
 
     def initialize(*, token : String | Auth::Secret?,
                    @configuration : Auth::APIConfiguration = Auth::APIConfiguration.default,
-                   @transport : Auth::Transport = Auth::HTTPTransportFactory.new.build(Auth::TransportOptions.new))
+                   @transport : Auth::Transport = Auth::HTTPTransportFactory.new.build(Auth::TransportOptions.new),
+                   @retry : RetryPolicy? = nil)
       @token = secret(token)
     end
 
@@ -52,8 +56,8 @@ module Slack::Api
     # end
     # ```
     #
-    # Each page is one `#call`: local pacing applies and errors, including
-    # `RateLimited`, raise from the loop. The client does not wait and retry.
+    # Each page is one `#call`: local pacing and the retry policy apply, and
+    # errors, including a final `RateLimited`, raise from the loop.
     def each_page(request : Paginated, &) : Nil
       loop do
         response = execute(request)
@@ -96,12 +100,35 @@ module Slack::Api
       request.validate!
       body = request.body
       uri = @configuration.endpoint(request.method_path)
+      policy = @retry
+      return send_once(request, uri, body) unless policy
+
+      attempt = 1
+      loop do
+        return send_once(request, uri, body)
+      rescue error : RateLimited | Auth::ContractError
+        delay = policy.delay(error, attempt)
+        raise error unless delay
+        log_retry(request.method_path, attempt, error)
+        policy.wait(delay)
+        attempt += 1
+      end
+    end
+
+    # One paced attempt. The body is a String, so every attempt sends the same bytes.
+    private def send_once(request : Request(M), uri : URI, body : String) : Response(M) forall M
       @rate_limits.wait(request.method_path, request.tier)
       transport_response = @transport.execute(
         Auth::TransportRequest.new("POST", uri, headers(request.content_type), body))
       response = Response(M).parse(transport_response)
       log_warnings(request.method_path, response.warnings)
       response
+    end
+
+    # The rescued union widens to `Exception`; the policy retries only these two kinds.
+    private def log_retry(method_path : String, attempt : Int32, error : Exception) : Nil
+      reason = error.is_a?(Auth::ContractError) ? error.code.to_s : "HTTP 429"
+      Log.info { "#{method_path} attempt #{attempt} failed (#{reason}); sending again" }
     end
 
     private def headers(content_type : String) : HTTP::Headers

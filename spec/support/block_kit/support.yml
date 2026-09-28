@@ -1282,6 +1282,17 @@ entries:
     inbound_status: unsupported
     evidence_paths: [src/slack/api/requests/emoji/list.cr, src/slack/models/emoji/emoji_list.cr, src/slack/api/requests/api/test.cr, src/slack/models/api/api_test.cr, spec/api/emoji_spec.cr, spec/api/api_test_spec.cr]
 
+  - wire_type: Web API HTTP 429 and transport retries
+    kind: envelope
+    documentation_url: https://docs.slack.dev/apis/web-api/rate-limits
+    fields_supported: [Retry-After]
+    parents: []
+    surfaces: [workspace]
+    restrictions: "Client.new(retry: RetryPolicy.new(max_attempts:, max_wait:)) sends the same request bytes again after HTTP 429 when Retry-After (seconds) is present and not longer than max_wait, after a wait in the calling fiber, and after Auth::ContractError TransportFailure (no bytes left) without a wait. Each attempt waits for local pacing. UnknownRemoteOutcome, HTTP 5xx, and Slack errors are never retried (library policy: Slack can already have applied the request). A missing, unusable, or too long Retry-After raises RateLimited at once; after max_attempts the last error raises. Without a policy the client makes one attempt. No idempotency keys or 5xx backoff."
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/api/retry_policy.cr, src/slack/api/client.cr, spec/api/retry_policy_spec.cr, examples/support/retry_policy_example.cr, README.md]
+
 # Classification is independent of support status. Missing features are not invalid Slack payloads.
 review_policy:
   cadence: Before each release and at least every 90 days.

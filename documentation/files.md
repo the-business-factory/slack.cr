@@ -35,7 +35,7 @@ Failures stop the flow:
 - An upload URL that is not an absolute HTTPS URL raises `Slack::Api::Error` with code `invalid_response`. The library sends no bytes.
 - A completion error does not prove that the file is unshared. After `Slack::Auth::ContractError` with `UnknownRemoteOutcome`, or Slack's `internal_error` or `fatal_error`, Slack can have completed or shared the file. Check the file (for example with `FilesInfo`) before you upload it again.
 
-Slack scans uploaded files for malware before it shows them. Large files can take longer to appear. The client does not retry.
+Slack scans uploaded files for malware before it shows them. Large files can take longer to appear. The byte upload makes one attempt. The two Web API calls follow the client's [retry policy](../README.md#retry-rate-limited-and-unsent-requests); without one, the client does not retry.
 
 ## Share options
 

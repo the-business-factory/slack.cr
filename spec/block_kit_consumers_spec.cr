@@ -46,6 +46,7 @@ require "../examples/support/socket_mode_example"
 require "../examples/support/slash_command_example"
 require "../examples/support/received_blocks_example"
 require "../examples/support/web_api_example"
+require "../examples/support/retry_policy_example"
 require "../examples/support/workflow_step_example"
 require "../examples/support/file_upload_example"
 require "../examples/support/thread_history_example"
@@ -108,6 +109,14 @@ describe "documented Block Kit workflows" do
     output = IO::Memory.new
     OfflineWebApiExample.run(output)
     output.to_s.should eq("Added :eyes: to C123\nCustom emoji: shipit\nDelete failed: message_not_found\n")
+  end
+
+  it "waits Retry-After after HTTP 429 and posts again, then stops at a wait above max_wait" do
+    output = IO::Memory.new
+    waits = [] of Time::Span
+    OfflineRetryPolicyExample.run(output, ->(span : Time::Span) { waits << span; nil })
+    output.to_s.lines.should eq ["Posted 1710000000.000200 to C123", "Rate limited; try again in 120 seconds"]
+    waits.should eq [2.seconds]
   end
 
   it "completes a workflow step with outputs and fails one without its input" do
