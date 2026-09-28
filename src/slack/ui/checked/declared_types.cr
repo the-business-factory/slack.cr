@@ -12,6 +12,9 @@ module Slack::UI::Checked::DeclaredTypes
       {% if T.union_types.any? { |member| member <= Slack::UI::Checked::Blocks::Markdown } %}
         {% raise "DisplayModal rejects Markdown blocks. Slack shows markdown blocks in messages only." %}
       {% end %}
+      {% if T.union_types.any? { |member| member <= Slack::UI::Checked::Blocks::ContextActions } %}
+        {% raise "DisplayModal rejects ContextActions blocks. Slack shows context actions blocks in messages only." %}
+      {% end %}
       {% raise "DisplayModal rejects its yielded block item type. For Input, use FormModal with submit." %}
     {% end %}
   end

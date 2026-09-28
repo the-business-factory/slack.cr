@@ -33,6 +33,7 @@ require "../examples/support/table_example"
 require "../examples/support/rich_text_input_example"
 require "../examples/support/markdown_example"
 require "../examples/support/workflow_button_example"
+require "../examples/support/context_actions_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -282,6 +283,25 @@ describe "documented Block Kit workflows" do
            [{"type":"raw_text","text":"APAC"},
             {"type":"rich_text","elements":[{"type":"rich_text_section","elements":[{"type":"user","user_id":"U-APAC"}]}]},
             {"type":"raw_number","value":7,"text":"7"},{"type":"raw_number","value":980000.5,"text":"$980000.50"}]]}]}
+      JSON
+  end
+
+  it "posts answer feedback and delete buttons and reads a signed feedback click" do
+    output = IO::Memory.new
+    posted = OfflineContextActionsExample.run(output)
+    output.to_s.should eq "Feedback: bad\n"
+    # Authored from Slack's context actions, feedback buttons, and icon button references, not from the serializer.
+    posted.should eq JSON.parse(<<-JSON)
+      {"channel":"C-SYNTHETIC","text":"Answer","blocks":[
+        {"type":"section","block_id":"answer","text":{"type":"plain_text","text":"Rotate the signing secret in the app settings."}},
+        {"type":"context_actions","block_id":"answer.actions","elements":[
+          {"type":"feedback_buttons","action_id":"answer.feedback",
+           "positive_button":{"text":{"type":"plain_text","text":"Good"},"value":"good","accessibility_label":"Mark this answer as good"},
+           "negative_button":{"text":{"type":"plain_text","text":"Bad"},"value":"bad","accessibility_label":"Mark this answer as bad"}},
+          {"type":"icon_button","icon":"trash","text":{"type":"plain_text","text":"Delete"},"action_id":"answer.delete","value":"delete",
+           "confirm":{"title":{"type":"plain_text","text":"Delete answer?"},"text":{"type":"plain_text","text":"The answer is removed."},
+                      "confirm":{"type":"plain_text","text":"Delete"},"deny":{"type":"plain_text","text":"Keep"},"style":"danger"},
+           "visible_to_user_ids":["U-ASKER"]}]}]}
       JSON
   end
 
