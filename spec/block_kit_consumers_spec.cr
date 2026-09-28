@@ -7,6 +7,7 @@ require "../examples/support/overflow_example"
 require "../examples/support/checkboxes_example"
 require "../examples/support/radio_buttons_example"
 require "../examples/support/message_update_example"
+require "../examples/support/view_update_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -84,5 +85,10 @@ describe "documented Block Kit workflows" do
     output = IO::Memory.new
     OfflineMessageUpdateExample.run(output)
     output.to_s.should eq("Updated C123/1710000000.000001: Request 42 approved.\n")
+  end
+  it "updates an opened form using its returned ID and hash with stable input IDs" do
+    output = IO::Memory.new
+    OfflineViewUpdateExample.run(output)
+    output.to_s.should eq("Updated modal V123 with stable reason/text input IDs (hash next-hash).\n")
   end
 end
