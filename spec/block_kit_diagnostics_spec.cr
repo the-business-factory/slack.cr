@@ -25,6 +25,7 @@ describe "Block Kit construction diagnostics" do
     "home_file"              => ["Home#append_block", "Blocks::File"],
     "display_file"           => ["DisplayModal rejects File blocks", "messages only"],
     "rich_text_list_item"    => ["RichText::List#append_element", "RichText::Section", "not Slack::UI::Checked::RichText::Text"],
+    "number_input_message"   => ["MessageBuilder#input", "argument 'element'", "NumberInput"],
   }.each do |name, fragments|
     it "explains #{name}" do
       result = CompileContracts.compile(root, "spec/fixtures/compile/fail/#{name}.cr")

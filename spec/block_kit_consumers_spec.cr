@@ -25,6 +25,7 @@ require "../examples/support/external_select_example"
 require "../examples/support/remote_file_example"
 
 require "../examples/support/rich_text_example"
+require "../examples/support/number_input_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -242,5 +243,17 @@ describe "documented Block Kit workflows" do
     output = IO::Memory.new
     OfflineRichTextExample.run(output)
     output.to_s.should eq "Mentioned users: U-AUTHOR\nFollow-up items: docs, changelog\n"
+  end
+
+  it "collects whole seats and a decimal budget through a signed modal form" do
+    output = IO::Memory.new
+    rejected, accepted = OfflineNumberInputExample.run(output)
+    output.to_s.lines.should eq ["Seats entered: 14 (acknowledged 200)", "Rejected seats: 14", "Booked 4 seats with 12.50 budget"]
+    rejected.status_code.should eq 200
+    rejected.headers["Content-Type"].should eq "application/json"
+    JSON.parse(rejected.body).should eq JSON.parse(%({"response_action":"errors","errors":{"booking.seats":"Enter from 1 to 12 seats."}}))
+    # Slack closes the submitted view only for an empty HTTP 200 acknowledgment.
+    accepted.status_code.should eq 200
+    accepted.body.should be_empty
   end
 end
