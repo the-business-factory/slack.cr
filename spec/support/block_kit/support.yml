@@ -2053,3 +2053,17 @@ rules:
     source_section: "Fields: tasks; task card block Fields: status, icon"
     reviewed_on: "2026-09-28"
     evidence_paths: [spec/ui/plan_task_card_spec.cr]
+  - id: app_acknowledgment_deadline
+    classification: slack_requirement
+    requirement: "Events API requests, interactions, options loads, and slash commands need an HTTP 2xx response within three seconds; Slack retries an unacknowledged event up to three times. A url_verification request is answered with its challenge value."
+    source_url: https://docs.slack.dev/apis/events-api/
+    source_section: "Responding to events; Handling URL verification"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [src/slack/app/http_receiver.cr, spec/app/http_receiver_spec.cr]
+  - id: app_acknowledgment_policy
+    classification: library_policy
+    requirement: "Slack::App sends an empty 200 and logs a warning when a listener neither acknowledges nor returns within ack_timeout (default 2.5 seconds); it acknowledges events before the listener runs; a listener that raises before acknowledging gives HTTP 500; a failed authorization gives HTTP 401; only the first matching listener runs; ack is single-use."
+    source_url: https://docs.slack.dev/interactivity/handling-user-interaction
+    source_section: "Acknowledgment response"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [src/slack/app/app.cr, spec/app/http_receiver_spec.cr, examples/support/app_example.cr]

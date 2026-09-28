@@ -119,6 +119,25 @@ response = client.call(Slack::Api::ChatPostMessage.new(
 
 The send requires a bot token with `chat:write` and a channel the app can post to. Use `message.to_pretty_json` to inspect the payload locally. See [Block Kit](documentation/block-kit.md) for supported blocks, messages, modals, Home, static choices, incoming actions, and validation.
 
+## App listeners
+
+`Slack::App` routes verified requests to typed listeners, as Bolt's `App` does. `Slack::App::HttpReceiver` is an `HTTP::Handler` that verifies, decodes, routes, and writes the acknowledgment.
+
+```crystal
+client = Slack::Api::Client.new(token: Slack::Auth::Secret.new(ENV["SLACK_BOT_TOKEN"]))
+app = Slack::App.new(authorizer: Slack::App::SingleTokenAuthorizer.new(client))
+
+app.command("/deploy") do |ctx|
+  ctx.ack(Slack::Commands::Response.new(text: "Deploying #{ctx.command.text}."))
+end
+app.action("deploy.approve") { |ctx| ctx.ack }
+
+verifier = Slack::Webhooks::Verifier.new(Slack::Auth::Secret.new(ENV["SLACK_SIGNING_SECRET"]))
+HTTP::Server.new([Slack::App::HttpReceiver.new(app, verifier)]).listen(3000)
+```
+
+The receiver answers when the listener calls `ack` or returns, or after 2.5 seconds. See [App listeners](documentation/app.md) for listeners, middleware, authorization, and responses.
+
 ## Events API payloads
 
 Verify the signed request with `Slack::Webhooks::Verifier`, then give the verified body to `Slack::Events.parse`. It returns `Slack::UrlVerification`, `Slack::AppRateLimited`, or `Slack::VerifiedEvent`. The inner `event` is a typed struct for mapped types. An event type that the library does not map decodes as `Slack::Events::Unknown`: `type` gives the event type and `raw` keeps the complete event JSON. Match `Unknown` explicitly. Do not log `raw`: it can hold credentials, such as a workflow `bot_access_token`.
@@ -309,9 +328,10 @@ crystal run examples/slash_command.cr
 crystal run examples/received_blocks.cr
 crystal run examples/workflow_step.cr
 crystal run examples/testing.cr
+crystal run examples/app.cr
 ```
 
-The examples show Web API calls and error codes, channel history and thread replies across cursor pages, workspace members read into an on-call user group, a file upload, a remote file share, message construction, a message with a colored attachment and metadata, an ephemeral thread reply with a permalink and a scheduled reminder, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, message workflow buttons, typed blocks of a received message, routed app events and message subtypes, Socket Mode frames with their acknowledgments, a Socket Mode connection to a local server, a slash command response with a `response_url` reply, a custom workflow step that completes or fails its execution, and an offline test of a slash command handler. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
+The examples show Web API calls and error codes, channel history and thread replies across cursor pages, workspace members read into an on-call user group, a file upload, a remote file share, message construction, a message with a colored attachment and metadata, an ephemeral thread reply with a permalink and a scheduled reminder, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, message workflow buttons, typed blocks of a received message, routed app events and message subtypes, Socket Mode frames with their acknowledgments, a Socket Mode connection to a local server, a slash command response with a `response_url` reply, a custom workflow step that completes or fails its execution, an app that answers a signed mention and a button click through its HTTP receiver, and an offline test of a slash command handler. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
 
 ## Contributing
 

@@ -57,6 +57,7 @@ require "../examples/support/socket_mode_client_example"
 require "../examples/support/assistant_thread_example"
 require "../examples/support/user_group_example"
 require "../examples/support/testing_example"
+require "../examples/support/app_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -694,5 +695,20 @@ describe "documented Block Kit workflows" do
                                  "  rich_text notes: 1 element(s)",
                                  "actions decision: approve, reject",
                                  "skipped synthetic_future_block"]
+  end
+
+  it "serves a signed mention and a button click through the app receiver" do
+    output = IO::Memory.new
+    result = OfflineAppExample.run(output)
+    output.to_s.lines.should eq ["Mention acknowledged: 200", "Click acknowledged: 200"]
+    result.mention.body.should be_empty
+    result.click.body.should be_empty
+    # Authored from the chat.postMessage and Block Kit button references, not from the serializer.
+    result.posts.should eq [JSON.parse(<<-JSON), JSON.parse(%({"channel":"C-DEPLOYS","text":"api approved by <@U-APPROVER>."}))]
+      {"channel":"C-DEPLOYS","text":"Approve the api deploy?",
+       "blocks":[{"type":"section","block_id":"deploy.summary","text":{"type":"mrkdwn","text":"Approve the *api* deploy?"}},
+                 {"type":"actions","block_id":"deploy.controls",
+                  "elements":[{"type":"button","text":{"type":"plain_text","text":"Approve"},"action_id":"deploy.approve","value":"api"}]}]}
+      JSON
   end
 end
