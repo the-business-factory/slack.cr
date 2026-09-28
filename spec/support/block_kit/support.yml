@@ -1106,6 +1106,61 @@ entries:
     inbound_status: unsupported
     evidence_paths: [src/slack/api/requests/functions/complete_error.cr, spec/api/functions_spec.cr, examples/support/workflow_step_example.cr, spec/block_kit_consumers_spec.cr]
 
+  - wire_type: assistant.threads.setStatus request
+    kind: endpoint
+    documentation_url: https://docs.slack.dev/reference/methods/assistant.threads.setStatus
+    fields_supported: [channel_id, thread_ts, status, loading_messages, icon_emoji, icon_url, username]
+    parents: []
+    surfaces: [message]
+    restrictions: "AssistantThreadsSetStatus needs a nonblank channel_id and a thread_ts with the ts shape. An empty status clears the status; Slack removes it after two minutes without a message. loading_messages has 1 to 10 messages and is copied. Icon is one UI::Icon::Emoji or UI::Icon::Url; username must be nonblank; both need chat:write.customize. Special rate limit (600 a minute per app and workspace); the client paces special methods at one call a second. Slack names agents.sessions.setStatus as the successor. Slack checks the thread, app type, and scopes."
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/api/requests/assistant/threads_set_status.cr, spec/api/assistant_spec.cr, examples/support/assistant_thread_example.cr, spec/block_kit_consumers_spec.cr]
+
+  - wire_type: assistant.threads.setSuggestedPrompts request
+    kind: endpoint
+    documentation_url: https://docs.slack.dev/reference/methods/assistant.threads.setSuggestedPrompts
+    fields_supported: [channel_id, thread_ts, title, prompts]
+    parents: []
+    surfaces: [message]
+    restrictions: "AssistantThreadsSetSuggestedPrompts sends 1 to 4 SuggestedPrompt values (title and message, both nonblank) and copies the list. title of the list is optional. thread_ts is optional and legacy only; Slack says a call with it fails silently for agent apps. Tier 4. Slack checks the thread, app type, and scopes."
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/api/requests/assistant/threads_set_suggested_prompts.cr, src/slack/api/requests/assistant/suggested_prompt.cr, spec/api/assistant_spec.cr, examples/support/assistant_thread_example.cr, spec/block_kit_consumers_spec.cr]
+
+  - wire_type: assistant.threads.setTitle request
+    kind: endpoint
+    documentation_url: https://docs.slack.dev/reference/methods/assistant.threads.setTitle
+    fields_supported: [channel_id, thread_ts, title]
+    parents: []
+    surfaces: [message]
+    restrictions: "AssistantThreadsSetTitle needs a nonblank channel_id, a thread_ts with the ts shape, and a nonblank title. Tier 4. Slack names agents.sessions.rename as the successor. Slack checks the thread and scopes."
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/api/requests/assistant/threads_set_title.cr, spec/api/assistant_spec.cr, examples/support/assistant_thread_example.cr, spec/block_kit_consumers_spec.cr]
+
+  - wire_type: agents.sessions.setStatus request
+    kind: endpoint
+    documentation_url: https://docs.slack.dev/reference/methods/agents.sessions.setStatus
+    fields_supported: [status, channel_id, thread_ts, title, initiator_user_id, icon_emoji, icon_url, username]
+    parents: []
+    surfaces: [message]
+    restrictions: "AgentsSessionsSetStatus sends a Streaming::SessionStatus (active, processing, suspended, closed). title and username are at most 200 characters; thread_ts, when given, has the ts shape. title and initiator_user_id apply only when Slack creates the session. Icon and username need chat:write.customize. Models::Agents::Session returns status, agent_status (strings), and an optional title. Tier 3. Slack checks when channel_id and thread_ts are required (thread_ts_required, thread_ts_not_allowed)."
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/api/requests/agents/sessions_set_status.cr, src/slack/models/agents/session.cr, spec/api/agents_spec.cr]
+
+  - wire_type: agents.sessions.rename request
+    kind: endpoint
+    documentation_url: https://docs.slack.dev/reference/methods/agents.sessions.rename
+    fields_supported: [title, channel_id, thread_ts]
+    parents: []
+    surfaces: [message]
+    restrictions: "AgentsSessionsRename sends a nonblank title of 1 to 200 characters; thread_ts, when given, has the ts shape. Models::Agents::SessionTitle returns the new title. For a session channel, Slack also renames the channel. Tier 3. Slack checks when channel_id and thread_ts are required and whether the name is available."
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/api/requests/agents/sessions_rename.cr, src/slack/models/agents/session_title.cr, spec/api/agents_spec.cr]
+
 # Classification is independent of support status. Missing features are not invalid Slack payloads.
 review_policy:
   cadence: Before each release and at least every 90 days.
@@ -1901,3 +1956,24 @@ rules:
     source_section: "Fields: text (cumulative payload limit); section block Fields: block_id (unique for each message)"
     reviewed_on: "2026-09-28"
     evidence_paths: [spec/api/chat_post_message_spec.cr]
+  - id: assistant_thread_limits
+    classification: slack_requirement
+    requirement: "assistant.threads.setStatus loading_messages has 1 to 10 messages; assistant.threads.setSuggestedPrompts sets up to four prompts, each with a title and a message."
+    source_url: https://docs.slack.dev/reference/methods/assistant.threads.setSuggestedPrompts
+    source_section: "Description (up to four suggested prompts); Arguments: prompts; assistant.threads.setStatus Arguments: loading_messages"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/api/assistant_spec.cr]
+  - id: assistant_thread_policy
+    classification: library_policy
+    requirement: "Channel IDs, prompt titles and messages, thread titles, and usernames are nonblank; the prompt list is not empty; thread_ts has the ts shape. An empty status is allowed because it clears the status."
+    source_url: https://docs.slack.dev/reference/methods/assistant.threads.setStatus
+    source_section: "Arguments: channel_id, thread_ts, status, username"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/api/assistant_spec.cr]
+  - id: agent_session_limits
+    classification: slack_requirement
+    requirement: "agents.sessions.setStatus status is active, processing, suspended, or closed; title and username are at most 200 characters. agents.sessions.rename title is 1 to 200 characters."
+    source_url: https://docs.slack.dev/reference/methods/agents.sessions.setStatus
+    source_section: "Arguments: status, title, username; agents.sessions.rename Arguments: title"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/api/agents_spec.cr]

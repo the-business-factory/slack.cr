@@ -80,3 +80,60 @@ Notes on the chunk schema:
 Slack failures raise `Slack::Api::Error` with the Slack code, for example `message_not_in_streaming_state`, `message_not_owned_by_app`, or `streaming_mode_mismatch`. Local validation runs before the request, so an invalid request never reaches Slack.
 
 Offline examples and specs do not prove that Slack accepts or shows a stream. Slack checks the channel, thread, permissions, and streaming state. See [examples/streaming.cr](../examples/streaming.cr).
+
+## App threads
+
+An app thread is the conversation between a user and the app in the app's split view. Three requests change what the user sees in the thread. Send each one with `Client#call`; each returns `Models::DefaultResponse`.
+
+```crystal
+client = Slack::Api::Client.new(token: ENV["SLACK_BOT_TOKEN"])
+
+client.call(Slack::Api::AssistantThreadsSetSuggestedPrompts.new(channel_id: "D123",
+  title: "Try one of these",
+  prompts: [Slack::Api::SuggestedPrompt.new(title: "Summarize", message: "Summarize this channel.")]))
+
+client.call(Slack::Api::AssistantThreadsSetTitle.new(channel_id: "D123",
+  thread_ts: "1724264405.531769", title: "Weekly summary"))
+
+client.call(Slack::Api::AssistantThreadsSetStatus.new(channel_id: "D123",
+  thread_ts: "1724264405.531769", status: "is thinking...",
+  loading_messages: ["Reading the channel", "Writing the summary"]))
+```
+
+| Request | Slack method | Scope | Rules |
+| --- | --- | --- | --- |
+| `AssistantThreadsSetStatus` | `assistant.threads.setStatus` | `assistant:write` or `chat:write` | `thread_ts` is required. `loading_messages` has 1 to 10 messages. `icon` (`UI::Icon::Emoji` or `UI::Icon::Url`) and `username` need `chat:write.customize`. |
+| `AssistantThreadsSetSuggestedPrompts` | `assistant.threads.setSuggestedPrompts` | `assistant:write` | 1 to 4 prompts. Each `SuggestedPrompt` has a `title` and a `message`, which must not be blank. `title` of the list is optional. |
+| `AssistantThreadsSetTitle` | `assistant.threads.setTitle` | `assistant:write` | `title` must not be blank. |
+
+Notes:
+
+- To clear the status, send an empty `status`. Slack also removes the status after two minutes if the app sends no message.
+- Omit `thread_ts` on `AssistantThreadsSetSuggestedPrompts` to set prompts for the latest message in the channel. Slack says `thread_ts` is for the legacy assistant experience. With an agent app, a call with `thread_ts` fails silently.
+- The library does not send a status, title, or prompts automatically. It does not start timers or fibers.
+
+See [examples/assistant_thread.cr](../examples/assistant_thread.cr).
+
+## Agent sessions
+
+Slack names `agents.sessions.setStatus` as the successor of `assistant.threads.setStatus`, and `agents.sessions.rename` as the successor of `assistant.threads.setTitle`. Both need the `chat:write` scope and a bot token.
+
+```crystal
+session = client.call(Slack::Api::AgentsSessionsSetStatus.new(
+  status: Slack::Api::Streaming::SessionStatus::Processing,
+  channel_id: "C123", thread_ts: "1234567890.123456", title: "Scuba diving research"))
+session.status       # => "processing" (status of the session for all agents)
+session.agent_status # => "processing" (status of this agent)
+
+renamed = client.call(Slack::Api::AgentsSessionsRename.new(title: "Bora Bora trip prep",
+  channel_id: "C123", thread_ts: "1234567890.123456"))
+renamed.title # => "Bora Bora trip prep"
+```
+
+- `status` is `Active`, `Processing`, `Suspended`, or `Closed`. It uses the same `Streaming::SessionStatus` enum as `chat.stopStream`. Set `Active` to clear a loading indicator.
+- Slack creates the session if necessary. `title` (up to 200 characters) and `initiator_user_id` apply only when Slack creates the session.
+- `AgentsSessionsRename` needs a `title` of 1 to 200 characters. For a session channel, Slack also renames the channel.
+- Slack requires `channel_id` for public channels and `thread_ts` for thread sessions in regular channels and DMs. Omit `thread_ts` for a session channel. Slack checks these rules; the library does not.
+- The response fields `status` and `agent_status` are strings, so a new Slack status value does not make a successful call fail.
+
+Offline specs do not prove that Slack accepts or shows a status, prompts, or a title. Slack checks the channel, thread, app type, and permissions.

@@ -52,6 +52,7 @@ require "../examples/support/thread_history_example"
 require "../examples/support/streaming_example"
 require "../examples/support/attachments_example"
 require "../examples/support/socket_mode_client_example"
+require "../examples/support/assistant_thread_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -110,6 +111,12 @@ describe "documented Block Kit workflows" do
         U3: All green
 
       TEXT
+  end
+
+  it "prepares an app thread with prompts, a title, and a status" do
+    output = IO::Memory.new
+    OfflineAssistantThreadExample.run(output)
+    output.to_s.should eq("Suggested 2 prompts\nTitled the thread\nShowing a status\nCleared the status\n")
   end
 
   it "streams a threaded answer with a plan and final feedback blocks" do

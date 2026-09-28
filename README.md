@@ -196,6 +196,10 @@ See [Workflow steps](documentation/workflows.md) for the manifest, inputs, and f
 
 `Client#start_stream` starts a streamed message; the returned `MessageStream` appends text or task chunks and stops it. See [AI apps](documentation/ai-apps.md).
 
+## App threads and agent sessions
+
+`AssistantThreadsSetStatus`, `AssistantThreadsSetSuggestedPrompts`, and `AssistantThreadsSetTitle` show a status, suggested prompts, and a title in an app thread. `AgentsSessionsSetStatus` and `AgentsSessionsRename` change an agent session. See [AI apps](documentation/ai-apps.md#app-threads).
+
 ## Runnable examples
 
 From a repository checkout, run `shards install` first. The modal, Home, and static choice examples use the development dependency WebMock. They use synthetic credentials and stub HTTP requests; they do not contact Slack.
@@ -241,6 +245,7 @@ crystal run examples/web_api.cr
 crystal run examples/file_upload.cr
 crystal run examples/thread_history.cr
 crystal run examples/streaming.cr
+crystal run examples/assistant_thread.cr
 crystal run examples/attachments.cr
 crystal run examples/event_delivery.cr
 crystal run examples/event_catalog.cr

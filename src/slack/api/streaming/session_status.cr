@@ -1,4 +1,5 @@
-# The session state that `chat.stopStream` records. Slack's default is `Active`.
+# The state of an agent session, for `chat.stopStream` and `agents.sessions.setStatus`.
+# Slack's default on `chat.stopStream` is `Active`.
 enum Slack::Api::Streaming::SessionStatus
   Active
   Processing
