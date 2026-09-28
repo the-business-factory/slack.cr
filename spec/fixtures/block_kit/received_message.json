@@ -1,0 +1,63 @@
+{
+  "type": "message",
+  "user": "U-BOT-SYNTHETIC",
+  "ts": "1789232400.000100",
+  "thread_ts": "1789232300.000001",
+  "bot_id": "B-SYNTHETIC",
+  "app_id": "A-SYNTHETIC",
+  "text": "Request 42 needs approval.",
+  "team": "T-SYNTHETIC",
+  "blocks": [
+    {
+      "type": "section",
+      "block_id": "request.summary",
+      "text": {"type": "mrkdwn", "text": "*Request 42* from <@U-SYNTHETIC>", "verbatim": false},
+      "fields": [
+        {"type": "mrkdwn", "text": "*Owner*\nMorgan", "verbatim": false},
+        {"type": "plain_text", "text": "Due Friday :calendar:", "emoji": true}
+      ],
+      "accessory": {"type": "overflow", "action_id": "request.more", "options": [{"text": {"type": "plain_text", "text": "Snooze"}, "value": "snooze"}]}
+    },
+    {"type": "divider", "block_id": "Yq2Rt"},
+    {
+      "type": "actions",
+      "block_id": "request.decision",
+      "elements": [
+        {"type": "button", "action_id": "request.approve", "text": {"type": "plain_text", "text": "Approve", "emoji": true}, "value": "42", "style": "primary"},
+        {"type": "static_select", "action_id": "request.priority", "placeholder": {"type": "plain_text", "text": "Priority"}, "options": [{"text": {"type": "plain_text", "text": "High"}, "value": "high"}]},
+        {"type": "workflow_button", "action_id": "request.escalate", "text": {"type": "plain_text", "text": "Escalate"}, "workflow": {"trigger": {"url": "https://slack.com/shortcuts/Ft0SYNTHETIC/abc"}}}
+      ]
+    },
+    {
+      "type": "context",
+      "block_id": "request.meta",
+      "elements": [
+        {"type": "image", "image_url": "https://example.com/avatar.png", "alt_text": "Morgan"},
+        {"type": "mrkdwn", "text": "Filed 2 hours ago", "verbatim": false}
+      ]
+    },
+    {
+      "type": "rich_text",
+      "block_id": "request.note",
+      "elements": [{"type": "rich_text_section", "elements": [{"type": "text", "text": "Please review "}, {"type": "user", "user_id": "U-REVIEWER"}]}]
+    },
+    {
+      "type": "container",
+      "block_id": "request.details",
+      "title": {"type": "plain_text", "text": "Details", "emoji": true},
+      "subtitle": {"type": "mrkdwn", "text": "Two *items*"},
+      "width": "wide",
+      "is_collapsible": true,
+      "default_collapsed": true,
+      "child_blocks": [
+        {"type": "header", "block_id": "details.heading", "text": {"type": "plain_text", "text": "Line items", "emoji": true}},
+        {"type": "table", "block_id": "details.items", "column_settings": [{"is_wrapped": true}, {"align": "right"}], "rows": [
+          [{"type": "raw_text", "text": "Item"}, {"type": "raw_text", "text": "Cost"}],
+          [{"type": "raw_text", "text": "Laptop"}, {"type": "raw_number", "value": 1299.5, "text": "$1,299.50"}],
+          [{"type": "rich_text", "elements": [{"type": "rich_text_section", "elements": [{"type": "text", "text": "Dock", "style": {"italic": true}}]}]}, {"type": "raw_number", "value": 180, "text": "$180"}]
+        ]}
+      ]
+    },
+    {"type": "synthetic_future_block", "block_id": "future.1", "payload": {"level": 3}}
+  ]
+}

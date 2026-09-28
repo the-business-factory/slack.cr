@@ -1,0 +1,26 @@
+{
+  "type": "message",
+  "ts": "1789232500.000200",
+  "text": "Weekly report",
+  "bot_id": "B-SYNTHETIC",
+  "blocks": [
+    {"type": "markdown", "block_id": "report.intro", "text": "## Weekly report\n\n- **3** deploys"},
+    {"type": "file", "block_id": "report.file", "external_id": "report-2026-w39", "source": "remote", "file_id": "F-SYNTHETIC"},
+    {"type": "video", "block_id": "report.demo", "alt_text": "Demo", "title": {"type": "plain_text", "text": "Demo", "emoji": true}, "title_url": "https://example.com/demo", "description": {"type": "plain_text", "text": "Two minutes"}, "video_url": "https://example.com/embed/demo", "thumbnail_url": "https://example.com/demo.png", "author_name": "Morgan", "provider_name": "ExampleTube", "provider_icon_url": "https://example.com/icon.png"},
+    {"type": "data_table", "block_id": "report.tickets", "caption": "Open tickets", "page_size": 10, "row_header_column_index": 0, "rows": [
+      [{"type": "raw_text", "text": "Ticket"}, {"type": "raw_text", "text": "Age"}],
+      [{"type": "raw_text", "text": "SUP-101"}, {"type": "raw_number", "value": 3, "text": "3 days"}]
+    ]},
+    {"type": "data_visualization", "block_id": "report.chart", "title": "Deploys by service", "chart": {"type": "pie", "segments": [{"label": "api", "value": 2}, {"label": "web", "value": 1}]}},
+    {"type": "carousel", "block_id": "report.teams", "elements": [
+      {"type": "card", "block_id": "team.api", "slack_icon": {"type": "icon", "name": "code"}, "title": {"type": "mrkdwn", "text": "*API*"}, "subtitle": {"type": "plain_text", "text": "Platform"}, "body": {"type": "plain_text", "text": "2 deploys"}, "subtext": {"type": "mrkdwn", "text": "On call: Morgan"}, "hero_image": {"type": "image", "image_url": "https://example.com/api.png", "alt_text": "API"},
+       "actions": [{"type": "button", "action_id": "team.open", "text": {"type": "plain_text", "text": "Open"}, "value": "api"}]}
+    ]},
+    {"type": "context_actions", "block_id": "report.feedback", "elements": [
+      {"type": "feedback_buttons", "action_id": "report.rate", "positive_button": {"text": {"type": "plain_text", "text": "Good"}, "value": "good"}, "negative_button": {"text": {"type": "plain_text", "text": "Bad"}, "value": "bad"}},
+      {"type": "icon_button", "action_id": "report.delete", "icon": "trash", "text": {"type": "plain_text", "text": "Delete"}}
+    ]},
+    {"type": "plan", "block_id": "report.plan", "title": "Next steps", "tasks": [{"task_id": "t1", "title": "Collect logs", "status": "complete"}]},
+    {"type": "task_card", "block_id": "report.task", "task_id": "t2", "title": "Summarize", "status": "in_progress", "details": {"type": "rich_text", "elements": [{"type": "rich_text_section", "elements": [{"type": "text", "text": "Reading 3 files"}]}]}, "sources": [{"type": "url", "url": "https://example.com/log", "text": "log"}]}
+  ]
+}

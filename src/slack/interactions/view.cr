@@ -116,9 +116,9 @@ struct Slack::Interactions::View
     PayloadAccess.bool?(@payload["notify_on_close"]?, "view.notify_on_close")
   end
 
-  # The view blocks. They stay raw JSON; typed received blocks are not decoded yet.
-  def blocks : JSON::Any?
-    @payload["blocks"]?
+  # Decodes the view blocks. Returns an empty array when the view has none.
+  def blocks : Array(ReceivedBlock)
+    ReceivedBlocks.decode(@payload["blocks"]?, "view.blocks")
   end
 
   def state_map : StateMap

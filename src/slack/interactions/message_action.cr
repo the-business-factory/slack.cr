@@ -10,9 +10,9 @@ struct Slack::Interactions::MessageAction < Slack::Interaction
   @[JSON::Field(emit_null: false)]
   getter message_ts : String?
 
-  # The source message. It stays raw JSON; typed received blocks are not decoded yet.
+  # The source message, with typed received blocks.
   @[JSON::Field(emit_null: false)]
-  getter message : JSON::Any?
+  getter message : ReceivedMessage?
 
   @[JSON::Field(emit_null: false)]
   property response_url : String?

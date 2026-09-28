@@ -1,0 +1,9 @@
+# A received `raw_text` table cell.
+struct Slack::Interactions::ReceivedBlocks::RawText
+  getter raw : JSON::Any
+  getter text : String
+
+  def initialize(@raw : JSON::Any, object : Hash(String, JSON::Any), path : String)
+    @text = Decoder.string(object, "text", path)
+  end
+end

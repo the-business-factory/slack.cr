@@ -387,14 +387,16 @@ RT::Section.new(elements: [
 
 The block and each container need at least one child. Required strings, such as text, URLs, IDs, and date formats, must not be empty. `border` is 0 or 1, and `indent` and `offset` are not negative. These checks are library policy. Other element types, such as `citation`, `tag`, and `message_mention`, are not supported for outbound values. See Slack's [rich text block](https://docs.slack.dev/reference/block-kit/blocks/rich-text-block/) reference and its linked element pages.
 
-Read a received block with `Slack::Interactions::RichText::Block.new(raw, path)`. For example, use a block from `Slack::Events::Message#blocks`. The received types have the same names in `Slack::Interactions::RichText`. They keep `style`, `range`, and numbers as sent, allow empty children, and keep all JSON in `raw`. Slack sets some fields only to describe a received node. Read them on the received types: link `from_llm`, `is_slack_url`, and `truncated`; user and channel `from_llm`; file and canvas `is_skill_invocation`; and workflow mention `channel_id` and `ts`. An unknown node type becomes `RichText::Unknown`. A missing required field, a wrong JSON type, or a known node in the wrong position raises a `TypeMismatch` with the JSON path.
+Received `rich_text` blocks decode as `Slack::Interactions::RichText::Block`, for example in `Slack::Events::Message#blocks` (see [Read blocks from messages and views](#read-blocks-from-messages-and-views)). To read one raw block, use `Slack::Interactions::RichText::Block.new(raw, path)`. The received types have the same names in `Slack::Interactions::RichText`. They keep `style`, `range`, and numbers as sent, allow empty children, and keep all JSON in `raw`. Slack sets some fields only to describe a received node. Read them on the received types: link `from_llm`, `is_slack_url`, and `truncated`; user and channel `from_llm`; file and canvas `is_skill_invocation`; and workflow mention `channel_id` and `ts`. An unknown node type becomes `RichText::Unknown`. A missing required field, a wrong JSON type, or a known node in the wrong position raises a `TypeMismatch` with the JSON path.
 
 ```crystal
-reply = Slack::Interactions::RichText::Block.new(event.blocks[0], "event.blocks[0]")
-reply.elements.each do |container|
-  next unless container.is_a?(Slack::Interactions::RichText::Section)
-  container.elements.each do |element|
-    puts element.user_id if element.is_a?(Slack::Interactions::RichText::User)
+event.blocks.each do |reply|
+  next unless reply.is_a?(Slack::Interactions::RichText::Block)
+  reply.elements.each do |container|
+    next unless container.is_a?(Slack::Interactions::RichText::Section)
+    container.elements.each do |element|
+      puts element.user_id if element.is_a?(Slack::Interactions::RichText::User)
+    end
   end
 end
 ```
@@ -969,7 +971,7 @@ Interactions tell the app where the user acted. Use these typed values to reply 
 - `ViewSubmission#response_urls` gives `ResponseUrl` values (`response_url`, `block_id`, `action_id`, `channel_id`) for conversation selects with `response_url_enabled`. Absent and null give an empty array.
 - `ViewClosed#is_cleared` is true when the user closed the whole view stack.
 - `View` has typed getters for `id`, `team_id`, `type`, `title`, `callback_id`, `private_metadata`, `external_id`, `root_view_id`, `previous_view_id`, `app_id`, `bot_id`, `clear_on_close`, and `notify_on_close`. `View#[]` and `View#payload` keep all other fields.
-- Received messages (`BlockAction#message`, `MessageAction#message`), `View#blocks`, and `interactivity` stay raw JSON.
+- `BlockAction#message` and `MessageAction#message` give a `ReceivedMessage` with `ts`, `thread_ts`, `text`, `user`, `blocks`, and the complete `payload`. `View#blocks` decodes the view blocks. See [Read blocks from messages and views](#read-blocks-from-messages-and-views). `interactivity` stays raw JSON.
 - `BlockAction#response_url` gives the reply webhook for a message click. Use it to reply to an ephemeral message, which `chat.update` cannot change. Slack deprecates `response_url` and `response_urls` only for apps created with the Deno Slack SDK.
 
 ```crystal
@@ -1023,6 +1025,49 @@ responder.post(Slack::Auth::HTTPTransport.new, reply)
 ```
 
 `post` makes one attempt. A non-2xx status raises `ResponseUrlError` with `http_status`, for example after the URL expires. A transport failure raises `Auth::ContractError` with `TransportFailure` or `UnknownRemoteOutcome`; after `UnknownRemoteOutcome`, Slack can have shown the message. The [offline example](../examples/slash_command.cr) answers a signed command and replaces the response through a stubbed `response_url`. It does not prove that Slack accepts or shows the message.
+
+## Read blocks from messages and views
+
+Slack sends the blocks of a message or view in events and interactions. These getters decode them as `Array(Slack::Interactions::ReceivedBlock)`:
+
+- `Slack::Events::Message#blocks`, `Message::FileShare#blocks`, and `EventData::MessageSubset#blocks` (the `message` and `previous_message` of `Message::MessageChanged` and `Message::MessageDeleted`).
+- `ReceivedMessage#blocks` from `BlockAction#message` and `MessageAction#message`.
+- `View#blocks` from `BlockAction#view`, `ViewSubmission#view`, and `ViewClosed#view`.
+
+`ReceivedBlock` is a union of one struct for each block type. The types are in `Slack::Interactions::ReceivedBlocks`: `Section`, `Actions`, `Context`, `ContextActions`, `Divider`, `Header`, `Image`, `Input`, `Markdown`, `File`, `Video`, `Table`, `DataTable`, `Container`, `Card`, `Carousel`, `Alert`, `DataVisualization`, `Plan`, `TaskCard`, and `UnknownBlock`. A `rich_text` block decodes as `Slack::Interactions::RichText::Block` (see [Show rich text](#show-rich-text)).
+
+- Each block has `raw`, the complete JSON, and each known block has `block_id`.
+- Text objects decode as `ReceivedText` with `type`, `text`, `emoji`, and `verbatim`.
+- Elements in `Actions`, `ContextActions`, a Section `accessory`, an Input `element`, and Card images and actions decode as `ElementSummary` with `type`, `action_id`, and `raw`. Read selected values from the action payload or `state_map`, not from the block.
+- `Context` elements are `ReceivedText` or `ElementSummary` (images).
+- `Table` and `DataTable` rows hold `RawText`, `RawNumber` (`value` is `Int64` or `Float64`), `RichText::Block`, or `UnknownBlock` cells.
+- `Container#child_blocks` and `Carousel#elements` decode like top-level blocks.
+- `DataVisualization#chart`, `Plan#tasks`, `Table#column_settings`, and `Image#slack_file` stay raw JSON. For other fields, such as a task card's `details`, read `raw`.
+- A block type that this library does not read decodes as `UnknownBlock` with `type` and `raw`.
+
+```crystal
+case interaction = Slack.process_interaction(request)
+when Slack::Interactions::BlockAction
+  if message = interaction.message
+    message.blocks.each do |block|
+      case block
+      when Slack::Interactions::ReceivedBlocks::Section
+        puts block.text.try(&.text)
+      when Slack::Interactions::ReceivedBlocks::Actions
+        puts block.elements.compact_map(&.action_id).join(", ")
+      when Slack::Interactions::ReceivedBlocks::UnknownBlock
+        puts "Skipped #{block.type}"
+      end
+    end
+  end
+end
+```
+
+The getters decode when called and return an empty array when blocks are absent or null. A missing required field or a wrong JSON type in a known block raises `TypeMismatch` with the JSON path, such as `event.blocks[2].text`. The event or interaction itself still decodes. Received blocks do not apply outbound rules, such as length limits or placement, because Slack can send blocks from other apps or other versions.
+
+Received blocks are read-only. They do not convert to `Slack::UI` values. To send a changed message, build a new message with `Slack::UI`. `conversations.history` messages keep raw blocks.
+
+The [offline example](../examples/received_blocks.cr) reads the blocks of a clicked message, including container children and an unknown block type.
 
 ## Validation, limits, and ownership
 
@@ -1086,6 +1131,7 @@ crystal run examples/block_kit_context_actions.cr
 crystal run examples/block_kit_alert.cr
 crystal run examples/interaction_context.cr
 crystal run examples/slash_command.cr
+crystal run examples/received_blocks.cr
 ```
 
-The message example builds and prints a request. The modal example posts a button, verifies a signed action, opens a form, and reads a signed submission. The Home example publishes through a stub and reads simulated state. The static choice example posts a single choice, reads a signed selection, opens a grouped multi-choice form, and reads its submission. The overflow example posts action and URL choices and acknowledges a signed URL selection. The checkbox example posts initial choices, reads a signed checkbox action, and reads a cleared selection from a signed submission. The radio example posts an initial choice, reads a signed selection, opens an optional override form, and reads an unselected submission. The message-update example replaces a posted approval button with the completed status and new fallback text. The user-select example assigns an owner and submits multiple reviewers. The video example posts a message with a video block and shows a local rejection of an HTTP video link. The external-select example answers a signed options-load request, then reads a signed selection and submission. The remote-file example prints the unfurls value for an application's own `chat.unfurl` request. The rich text example posts formatted release notes with a team mention and a canvas link, and reads mentions, list items, and a workflow mention from a signed message event. The file input example opens a receipt form and reads uploaded file IDs. The number and email input examples open modal-only forms from a signed button, read a dispatched value, and reject then accept a signed submission. The table example posts a revenue table built from application records and shows a local rejection of a row with too many cells. The rich text input example publishes a Home standup composer and reads a signed dispatched action. The markdown example posts an LLM answer as markdown and shows a local rejection of markdown text that is too long for one message. The workflow button example posts incident workflow buttons with trigger inputs and shows a local rejection on Home. The context actions example posts an answer with feedback and delete buttons and reads a signed feedback click as `UnknownAction`. The alert example opens a deploy status modal with one alert for each check and shows a local rejection of alert text that is too long. The data table example posts a paged ticket table and shows a local rejection of a row that is narrower than the header. The data visualization example posts deploy and latency charts built from application records and shows a local rejection of a series with a missing category. The card carousel example posts department cards, reads a signed card button click, and shows a local rejection of a card without main content. The container example posts a collapsible bulk update and reads a signed button click from inside the container. The slash command example answers a signed command in the channel and replaces that response through a stubbed `response_url`. Real handlers must acknowledge interactions within Slack's response window.
+The message example builds and prints a request. The modal example posts a button, verifies a signed action, opens a form, and reads a signed submission. The Home example publishes through a stub and reads simulated state. The static choice example posts a single choice, reads a signed selection, opens a grouped multi-choice form, and reads its submission. The overflow example posts action and URL choices and acknowledges a signed URL selection. The checkbox example posts initial choices, reads a signed checkbox action, and reads a cleared selection from a signed submission. The radio example posts an initial choice, reads a signed selection, opens an optional override form, and reads an unselected submission. The message-update example replaces a posted approval button with the completed status and new fallback text. The user-select example assigns an owner and submits multiple reviewers. The video example posts a message with a video block and shows a local rejection of an HTTP video link. The external-select example answers a signed options-load request, then reads a signed selection and submission. The remote-file example prints the unfurls value for an application's own `chat.unfurl` request. The rich text example posts formatted release notes with a team mention and a canvas link, and reads mentions, list items, and a workflow mention from a signed message event. The file input example opens a receipt form and reads uploaded file IDs. The number and email input examples open modal-only forms from a signed button, read a dispatched value, and reject then accept a signed submission. The table example posts a revenue table built from application records and shows a local rejection of a row with too many cells. The rich text input example publishes a Home standup composer and reads a signed dispatched action. The markdown example posts an LLM answer as markdown and shows a local rejection of markdown text that is too long for one message. The workflow button example posts incident workflow buttons with trigger inputs and shows a local rejection on Home. The context actions example posts an answer with feedback and delete buttons and reads a signed feedback click as `UnknownAction`. The alert example opens a deploy status modal with one alert for each check and shows a local rejection of alert text that is too long. The data table example posts a paged ticket table and shows a local rejection of a row that is narrower than the header. The data visualization example posts deploy and latency charts built from application records and shows a local rejection of a series with a missing category. The card carousel example posts department cards, reads a signed card button click, and shows a local rejection of a card without main content. The container example posts a collapsible bulk update and reads a signed button click from inside the container. The slash command example answers a signed command in the channel and replaces that response through a stubbed `response_url`. The received blocks example reads the typed blocks of a clicked message. Real handlers must acknowledge interactions within Slack's response window.

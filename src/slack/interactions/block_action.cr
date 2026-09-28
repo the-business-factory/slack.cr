@@ -12,9 +12,9 @@ struct Slack::Interactions::BlockAction < Slack::Interaction
   @[JSON::Field(key: "container", emit_null: false)]
   @container_raw : JSON::Any?
 
-  # The source message. It stays raw JSON; typed received blocks are not decoded yet.
+  # The source message, with typed received blocks.
   @[JSON::Field(emit_null: false)]
-  getter message : JSON::Any?
+  getter message : ReceivedMessage?
 
   # A short-lived webhook for replies, present when the action happened in a
   # message. Slack deprecates it only for apps created with the Deno Slack SDK.

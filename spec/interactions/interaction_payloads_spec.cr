@@ -13,7 +13,7 @@ private def block_action_with(fields : String) : Slack::Interactions::BlockActio
 end
 
 describe "Interaction payload context" do
-  it "reads a message container click with its channel, raw message, and deprecated response_url" do
+  it "reads a message container click with its channel, message, and deprecated response_url" do
     action = fixture_block_action("block_actions_message")
     container = action.container.should be_a(Slack::Interactions::Container::Message)
     container.message_ts.should eq "1710000000.000100"
@@ -22,7 +22,7 @@ describe "Interaction payload context" do
     channel = action.channel.should_not be_nil
     channel.id.should eq "C-SYNTHETIC"
     channel.name.should eq "releases"
-    action.message.should_not(be_nil)["text"].as_s.should eq "Approve release?"
+    action.message.should_not(be_nil).text.should eq "Approve release?"
     action.response_url.should eq "https://hooks.slack.com/actions/A-SYNTHETIC/1/synthetic"
     action.function_data.should be_nil
     action.bot_access_token.should be_nil
@@ -61,7 +61,7 @@ describe "Interaction payload context" do
     view.clear_on_close.should be_true
     view.notify_on_close.should be_false
     view.app_installed_team_id.should eq "T-SYNTHETIC"
-    view.blocks.should_not(be_nil)[0]["block_id"].as_s.should eq "decision"
+    view.blocks[0].should(be_a(Slack::Interactions::ReceivedBlocks::Actions)).block_id.should eq "decision"
   end
 
   it "redacts the workflow token from inspect, to_s, and re-serialized JSON" do
@@ -160,11 +160,11 @@ describe "Interaction payload context" do
     Slack::Interaction.from_json(%({"type":"view_closed"})).should(be_a(Slack::Interactions::ViewClosed)).is_cleared.should be_nil
   end
 
-  it "reads message shortcut channel, message_ts, and raw message" do
+  it "reads message shortcut channel, message_ts, and message" do
     shortcut = fixture_interaction("message_action").should be_a(Slack::Interactions::MessageAction)
     shortcut.channel.should_not(be_nil).name.should eq "support"
     shortcut.message_ts.should eq "1710000000.000300"
-    shortcut.message.should_not(be_nil)["text"].as_s.should eq "The export fails"
+    shortcut.message.should_not(be_nil).text.should eq "The export fails"
   end
 
   it "reads an optional channel on a shortcut" do

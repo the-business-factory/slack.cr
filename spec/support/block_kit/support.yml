@@ -1,6 +1,6 @@
 schema_version: 2
 checked_on: "2026-09-28"
-scope: Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, channel selects, date/time pickers, the datetime picker, video blocks, external selects with block_suggestion option responses, remote file blocks, rich text display blocks, table blocks, data table blocks, data visualization blocks, card and carousel blocks, container blocks, alert blocks, markdown blocks, context actions blocks with feedback and icon buttons, number inputs, file inputs, URL inputs, email inputs, rich text inputs, and message workflow buttons, including Input in Messages, FormModal and Home, modal-only Input children in FormModal, and view-only Input children in FormModal and Home.
+scope: Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, channel selects, date/time pickers, the datetime picker, video blocks, external selects with block_suggestion option responses, remote file blocks, rich text display blocks, table blocks, data table blocks, data visualization blocks, card and carousel blocks, container blocks, alert blocks, markdown blocks, context actions blocks with feedback and icon buttons, number inputs, file inputs, URL inputs, email inputs, rich text inputs, message workflow buttons, and typed received blocks in messages and views, including Input in Messages, FormModal and Home, modal-only Input children in FormModal, and view-only Input children in FormModal and Home.
 statuses:
   - unsupported
   - partial
@@ -56,10 +56,10 @@ entries:
     fields_supported: [type, text, emoji, verbatim]
     parents: [button, confirmation, section, input, plain_text_input, modal, header, context, image, video, option, overflow option, checkbox option, radio option, option_group, static_select, multi_static_select, users_select, multi_users_select, channels_select, multi_channels_select, conversations_select, multi_conversations_select, external_select, multi_external_select, datepicker, timepicker, number_input, url_text_input, email_text_input, rich_text_input, workflow_button]
     surfaces: [message, modal, home]
-    restrictions: Immutable outbound values have fixed discriminators and format-specific options.
+    restrictions: Immutable outbound values have fixed discriminators and format-specific options. Received text objects decode as ReceivedText with type, text, emoji, and verbatim, without outbound limits.
     implementation_status: supported
-    inbound_status: unsupported
-    evidence_paths: [src/slack/ui/composition_objects/plain_text.cr, src/slack/ui/composition_objects/mrkdwn.cr, spec/ui/composition_objects_spec.cr]
+    inbound_status: supported
+    evidence_paths: [src/slack/ui/composition_objects/plain_text.cr, src/slack/ui/composition_objects/mrkdwn.cr, spec/ui/composition_objects_spec.cr, src/slack/interactions/received_text.cr, spec/interactions/received_blocks_spec.cr]
 
   - wire_type: confirmation
     kind: composition object
@@ -419,10 +419,10 @@ entries:
     fields_supported: [type, block_id, elements]
     parents: [message, modal, home]
     surfaces: [message, modal, home]
-    restrictions: Actions accepts Button, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, and DatetimePicker (not Home); other Slack interactive elements are deferred. Collections are immutable snapshots and validate duplicate supplied action IDs.
+    restrictions: Actions accepts Button, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, and DatetimePicker (not Home); other Slack interactive elements are deferred. Collections are immutable snapshots and validate duplicate supplied action IDs. Received blocks decode as ReceivedBlocks::Actions with element summaries (type, action_id, raw).
     implementation_status: partial
     inbound_status: partial
-    evidence_paths: [src/slack/ui/blocks/actions.cr, spec/ui/blocks_spec.cr]
+    evidence_paths: [src/slack/ui/blocks/actions.cr, spec/ui/blocks_spec.cr, src/slack/interactions/received_blocks/actions.cr, spec/interactions/received_blocks_spec.cr]
 
   - wire_type: input
     kind: block
@@ -430,10 +430,10 @@ entries:
     fields_supported: [type, label, element, dispatch_action, block_id, hint, optional]
     parents: [message, modal, home]
     surfaces: [message, modal, home]
-    restrictions: Input accepts PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, and TimePicker in Message, FormModal and Home, and DatetimePicker in Message and FormModal; all Input fields are supported. ModalInput has the same wire type, fields and limits for modal-only children (NumberInput, FileInput, UrlInput, EmailInput); only FormModal accepts it. ViewInput does the same for view-only children (RichTextInput); only FormModal and Home accept it. ModalInput rejects dispatch_action true for FileInput. Other input element families remain deferred.
+    restrictions: Input accepts PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, and TimePicker in Message, FormModal and Home, and DatetimePicker in Message and FormModal; all Input fields are supported. ModalInput has the same wire type, fields and limits for modal-only children (NumberInput, FileInput, UrlInput, EmailInput); only FormModal accepts it. ViewInput does the same for view-only children (RichTextInput); only FormModal and Home accept it. ModalInput rejects dispatch_action true for FileInput. Other input element families remain deferred. Received blocks decode as ReceivedBlocks::Input with label, hint, optional, dispatch_action, and an element summary; values come from state.
     implementation_status: partial
     inbound_status: partial
-    evidence_paths: [src/slack/ui/blocks/input.cr, src/slack/ui/blocks/modal_input.cr, src/slack/ui/blocks/view_input.cr, spec/ui/input_spec.cr, spec/ui/number_input_spec.cr, spec/ui/file_input_spec.cr, spec/ui/url_input_spec.cr, spec/ui/email_input_spec.cr, spec/ui/rich_text_input_spec.cr, spec/interactions/block_kit_spec.cr]
+    evidence_paths: [src/slack/ui/blocks/input.cr, src/slack/ui/blocks/modal_input.cr, src/slack/ui/blocks/view_input.cr, spec/ui/input_spec.cr, spec/ui/number_input_spec.cr, spec/ui/file_input_spec.cr, spec/ui/url_input_spec.cr, spec/ui/email_input_spec.cr, spec/ui/rich_text_input_spec.cr, spec/interactions/block_kit_spec.cr, src/slack/interactions/received_blocks/input.cr, spec/interactions/received_blocks_spec.cr]
 
   - wire_type: section
     kind: block
@@ -441,10 +441,10 @@ entries:
     fields_supported: [type, text, fields, accessory, block_id, expand]
     parents: [message, modal, home]
     surfaces: [message, modal, home]
-    restrictions: Section supports text, fields, block_id, expand, and Button, Image, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, or TimePicker accessories. Other documented accessory element families are deferred.
+    restrictions: Section supports text, fields, block_id, expand, and Button, Image, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, or TimePicker accessories. Other documented accessory element families are deferred. Received blocks decode as ReceivedBlocks::Section with text, fields, expand, and an accessory summary.
     implementation_status: partial
     inbound_status: partial
-    evidence_paths: [src/slack/ui/blocks/section.cr, spec/ui/blocks_spec.cr]
+    evidence_paths: [src/slack/ui/blocks/section.cr, spec/ui/blocks_spec.cr, src/slack/interactions/received_blocks/section.cr, spec/interactions/received_blocks_spec.cr]
 
   - wire_type: divider
     kind: block
@@ -452,10 +452,10 @@ entries:
     fields_supported: [type, block_id]
     parents: [message, modal, home]
     surfaces: [message, modal, home]
-    restrictions: The Divider has the complete current outbound contract; the pre-existing short-name placeholder remains unsupported during coexistence.
+    restrictions: The Divider has the complete current outbound contract; the pre-existing short-name placeholder remains unsupported during coexistence. Received blocks decode as ReceivedBlocks::Divider.
     implementation_status: supported
-    inbound_status: unsupported
-    evidence_paths: [src/slack/ui/blocks/divider.cr, spec/ui/blocks_spec.cr, spec/ui/message_spec.cr]
+    inbound_status: supported
+    evidence_paths: [src/slack/ui/blocks/divider.cr, spec/ui/blocks_spec.cr, spec/ui/message_spec.cr, src/slack/interactions/received_blocks/divider.cr, spec/interactions/received_blocks_spec.cr]
 
   - wire_type: file block
     kind: block
@@ -463,10 +463,10 @@ entries:
     fields_supported: [type, external_id, source, block_id]
     parents: [message]
     surfaces: [message]
-    restrictions: File is a message-only block with a nonempty external_id, a fixed "remote" source, and an optional block_id of 255 characters. The nonempty external_id is library policy. Home and modal surfaces reject it at compile time. Slack does not let apps add the block to messages directly; apps share remote files with files.remote.share or place the block in their own chat.unfurl request. No remote-file or unfurl API and no received-message decoding. Slack checks that the remote file exists.
+    restrictions: File is a message-only block with a nonempty external_id, a fixed "remote" source, and an optional block_id of 255 characters. The nonempty external_id is library policy. Home and modal surfaces reject it at compile time. Slack does not let apps add the block to messages directly; apps share remote files with files.remote.share or place the block in their own chat.unfurl request. No remote-file or unfurl API. Received blocks decode as ReceivedBlocks::File with external_id and source. Slack checks that the remote file exists.
     implementation_status: supported
-    inbound_status: unsupported
-    evidence_paths: [src/slack/ui/blocks/file.cr, spec/ui/file_block_spec.cr, spec/block_kit_diagnostics_spec.cr, examples/support/remote_file_example.cr, spec/block_kit_consumers_spec.cr]
+    inbound_status: supported
+    evidence_paths: [src/slack/ui/blocks/file.cr, spec/ui/file_block_spec.cr, spec/block_kit_diagnostics_spec.cr, examples/support/remote_file_example.cr, spec/block_kit_consumers_spec.cr, src/slack/interactions/received_blocks/file.cr, spec/interactions/received_blocks_spec.cr]
 
   - wire_type: Block Kit message payload
     kind: surface
@@ -573,10 +573,10 @@ entries:
     fields_supported: [type, text, block_id, level]
     parents: [message, modal, home]
     surfaces: [message, modal, home]
-    restrictions: Plain-text heading supports 150 characters and optional Int32 level from 1 to 4.
+    restrictions: Plain-text heading supports 150 characters and optional Int32 level from 1 to 4. Received blocks decode as ReceivedBlocks::Header with text and level, without outbound limits.
     implementation_status: supported
-    inbound_status: unsupported
-    evidence_paths: [src/slack/ui/blocks/header.cr, spec/ui/display_spec.cr]
+    inbound_status: supported
+    evidence_paths: [src/slack/ui/blocks/header.cr, spec/ui/display_spec.cr, src/slack/interactions/received_blocks/header.cr, spec/interactions/received_blocks_spec.cr]
 
   - wire_type: context
     kind: block
@@ -584,10 +584,10 @@ entries:
     fields_supported: [type, elements, block_id]
     parents: [message, modal, home]
     surfaces: [message, modal, home]
-    restrictions: Context accepts text objects and image elements only; immutable copied collections contain one to ten elements. The nonempty minimum is library policy.
+    restrictions: Context accepts text objects and image elements only; immutable copied collections contain one to ten elements. The nonempty minimum is library policy. Received blocks decode as ReceivedBlocks::Context with ReceivedText or image element summaries.
     implementation_status: supported
-    inbound_status: unsupported
-    evidence_paths: [src/slack/ui/blocks/context.cr, spec/ui/display_spec.cr]
+    inbound_status: supported
+    evidence_paths: [src/slack/ui/blocks/context.cr, spec/ui/display_spec.cr, src/slack/interactions/received_blocks/context.cr, spec/interactions/received_blocks_spec.cr]
 
   - wire_type: image block
     kind: block
@@ -595,10 +595,10 @@ entries:
     fields_supported: [type, alt_text, image_url, slack_file, title, block_id]
     parents: [message, modal, home]
     surfaces: [message, modal, home]
-    restrictions: Image block accepts exactly one public URL or SlackFile source; nonempty plain alt text is library policy. Plain-text title and alt text allow 2000 characters; URL allows 3000. Media availability remains a remote check.
+    restrictions: Image block accepts exactly one public URL or SlackFile source; nonempty plain alt text is library policy. Plain-text title and alt text allow 2000 characters; URL allows 3000. Media availability remains a remote check. Received blocks decode as ReceivedBlocks::Image; slack_file stays raw JSON.
     implementation_status: supported
-    inbound_status: unsupported
-    evidence_paths: [src/slack/ui/blocks/image.cr, spec/ui/display_spec.cr]
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/blocks/image.cr, spec/ui/display_spec.cr, src/slack/interactions/received_blocks/image.cr, spec/interactions/received_blocks_spec.cr]
 
   - wire_type: video block
     kind: block
@@ -606,10 +606,10 @@ entries:
     fields_supported: [type, alt_text, title, title_url, description, thumbnail_url, video_url, author_name, provider_name, provider_icon_url, block_id]
     parents: [message, modal, home]
     surfaces: [message, modal, home]
-    restrictions: Display block needs alt_text, a plain-text title, thumbnail_url, and video_url. Title and description text must be fewer than 200 characters; author_name fewer than 50. video_url and title_url must be parseable absolute HTTPS URLs. Nonempty alt_text and thumbnail_url are library policy. The links.embed:write scope, unfurl domains, iframe compatibility, reachability, and the non-Slack domain rule are remote checks.
+    restrictions: Display block needs alt_text, a plain-text title, thumbnail_url, and video_url. Title and description text must be fewer than 200 characters; author_name fewer than 50. video_url and title_url must be parseable absolute HTTPS URLs. Nonempty alt_text and thumbnail_url are library policy. The links.embed:write scope, unfurl domains, iframe compatibility, reachability, and the non-Slack domain rule are remote checks. Received blocks decode as ReceivedBlocks::Video with all documented fields.
     implementation_status: supported
-    inbound_status: unsupported
-    evidence_paths: [src/slack/ui/blocks/video.cr, spec/ui/video_spec.cr, spec/fixtures/block_kit/video.json, examples/support/video_example.cr, spec/block_kit_consumers_spec.cr]
+    inbound_status: supported
+    evidence_paths: [src/slack/ui/blocks/video.cr, spec/ui/video_spec.cr, spec/fixtures/block_kit/video.json, examples/support/video_example.cr, spec/block_kit_consumers_spec.cr, src/slack/interactions/received_blocks/video.cr, spec/interactions/received_blocks_spec.cr]
 
   - wire_type: Home view
     kind: surface
@@ -694,10 +694,10 @@ entries:
     fields_supported: [type, rows, column_settings, block_id]
     parents: [message, home]
     surfaces: [message, home]
-    restrictions: Blocks::Table owns copied rows of Table::RawText, Table::RawNumber, or Blocks::RichText cells. At most 100 rows, 20 cells per row, and 20 column settings; block_id 255. One or more rows and one or more cells per row are library policy. A nil column setting sends null to keep that column's defaults. Slack lists Messages and Home tabs only, so DisplayModal and FormModal reject it at compile time. Slack checks the 10,000-character limit per table and per message remotely; rich text cells have no documented character count. Received message tables are not decoded.
+    restrictions: Blocks::Table owns copied rows of Table::RawText, Table::RawNumber, or Blocks::RichText cells. At most 100 rows, 20 cells per row, and 20 column settings; block_id 255. One or more rows and one or more cells per row are library policy. A nil column setting sends null to keep that column's defaults. Slack lists Messages and Home tabs only, so DisplayModal and FormModal reject it at compile time. Slack checks the 10,000-character limit per table and per message remotely; rich text cells have no documented character count. Received blocks decode as ReceivedBlocks::Table with typed cells; column_settings stays raw JSON.
     implementation_status: supported
-    inbound_status: unsupported
-    evidence_paths: [src/slack/ui/blocks/table.cr, spec/ui/table_block_spec.cr, spec/fixtures/block_kit/table_message.json, spec/block_kit_diagnostics_spec.cr, examples/support/table_example.cr, spec/block_kit_consumers_spec.cr]
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/blocks/table.cr, spec/ui/table_block_spec.cr, spec/fixtures/block_kit/table_message.json, spec/block_kit_diagnostics_spec.cr, examples/support/table_example.cr, spec/block_kit_consumers_spec.cr, src/slack/interactions/received_blocks/table.cr, src/slack/interactions/received_blocks/table_cell.cr, spec/interactions/received_blocks_spec.cr]
 
   - wire_type: raw_text, raw_number, table column_settings
     kind: table composition
@@ -705,10 +705,10 @@ entries:
     fields_supported: [raw_text.text, raw_number.value, raw_number.text, align, is_wrapped]
     parents: [table, data_table]
     surfaces: [message, home]
-    restrictions: "RawText needs nonempty text. RawNumber takes an integer or float value, sent as a JSON number, and nonempty display text; the value must be finite. These checks are library policy (the Slack SDKs require text of at least 1 character). ColumnSetting has optional align (ColumnAlignment Left, Center, Right) and is_wrapped; omission and explicit false stay distinct. The raw_number fields come from the Slack SDK type definitions because the table reference names the cell type without a schema."
+    restrictions: "RawText needs nonempty text. RawNumber takes an integer or float value, sent as a JSON number, and nonempty display text; the value must be finite. These checks are library policy (the Slack SDKs require text of at least 1 character). ColumnSetting has optional align (ColumnAlignment Left, Center, Right) and is_wrapped; omission and explicit false stay distinct. The raw_number fields come from the Slack SDK type definitions because the table reference names the cell type without a schema. Received cells decode as ReceivedBlocks::RawText and RawNumber (Int64 or Float64 value); received column_settings stay raw JSON."
     implementation_status: supported
-    inbound_status: unsupported
-    evidence_paths: [src/slack/ui/table/raw_text.cr, src/slack/ui/table/raw_number.cr, src/slack/ui/table/column_setting.cr, spec/ui/table_block_spec.cr]
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/table/raw_text.cr, src/slack/ui/table/raw_number.cr, src/slack/ui/table/column_setting.cr, spec/ui/table_block_spec.cr, src/slack/interactions/received_blocks/raw_text.cr, src/slack/interactions/received_blocks/raw_number.cr, spec/interactions/received_blocks_spec.cr]
 
   - wire_type: markdown
     kind: block
@@ -716,10 +716,10 @@ entries:
     fields_supported: [type, text]
     parents: [message]
     surfaces: [message]
-    restrictions: Blocks::Markdown sends standard markdown text; Slack translates it into one or more blocks. Text is at most 12,000 characters, and Message limits the total text of all its markdown blocks to 12,000 characters. Nonempty text is library policy. Slack ignores and does not keep block_id, so the block does not accept one and its block_id getter is always nil. Slack lists Messages only, so Home and modal surfaces reject it at compile time. Slack checks markdown rendering remotely. Received messages carry Slack's translated blocks, so received markdown blocks are not decoded.
+    restrictions: Blocks::Markdown sends standard markdown text; Slack translates it into one or more blocks. Text is at most 12,000 characters, and Message limits the total text of all its markdown blocks to 12,000 characters. Nonempty text is library policy. Slack ignores and does not keep block_id, so the block does not accept one and its block_id getter is always nil. Slack lists Messages only, so Home and modal surfaces reject it at compile time. Slack checks markdown rendering remotely. Received messages usually carry Slack's translated blocks; a received markdown block decodes as ReceivedBlocks::Markdown.
     implementation_status: supported
-    inbound_status: unsupported
-    evidence_paths: [src/slack/ui/blocks/markdown.cr, src/slack/ui/surfaces/message.cr, spec/ui/markdown_block_spec.cr, spec/fixtures/block_kit/markdown_message.json, examples/support/markdown_example.cr, spec/block_kit_consumers_spec.cr]
+    inbound_status: supported
+    evidence_paths: [src/slack/ui/blocks/markdown.cr, src/slack/ui/surfaces/message.cr, spec/ui/markdown_block_spec.cr, spec/fixtures/block_kit/markdown_message.json, examples/support/markdown_example.cr, spec/block_kit_consumers_spec.cr, src/slack/interactions/received_blocks/markdown.cr, spec/interactions/received_blocks_spec.cr]
 
   - wire_type: workflow_button
     kind: block element
@@ -749,10 +749,10 @@ entries:
     fields_supported: [type, elements, block_id]
     parents: [message]
     surfaces: [message]
-    restrictions: Blocks::ContextActions owns a copied list of one to five FeedbackButtons or IconButton elements; the nonempty minimum is library policy. block_id 255. Supplied action IDs must be unique within the block. Slack lists Messages as the only surface, so Home, DisplayModal, and FormModal reject it at compile time; DisplayModal names the messages-only rule. Received message blocks are not decoded.
+    restrictions: Blocks::ContextActions owns a copied list of one to five FeedbackButtons or IconButton elements; the nonempty minimum is library policy. block_id 255. Supplied action IDs must be unique within the block. Slack lists Messages as the only surface, so Home, DisplayModal, and FormModal reject it at compile time; DisplayModal names the messages-only rule. Received blocks decode as ReceivedBlocks::ContextActions with element summaries.
     implementation_status: supported
-    inbound_status: unsupported
-    evidence_paths: [src/slack/ui/blocks/context_actions.cr, spec/ui/context_actions_spec.cr, spec/fixtures/block_kit/context_actions_message.json, spec/block_kit_diagnostics_spec.cr, examples/support/context_actions_example.cr, spec/block_kit_consumers_spec.cr]
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/blocks/context_actions.cr, spec/ui/context_actions_spec.cr, spec/fixtures/block_kit/context_actions_message.json, spec/block_kit_diagnostics_spec.cr, examples/support/context_actions_example.cr, spec/block_kit_consumers_spec.cr, src/slack/interactions/received_blocks/context_actions.cr, spec/interactions/received_blocks_spec.cr]
 
   - wire_type: feedback_buttons
     kind: element
@@ -782,10 +782,10 @@ entries:
     fields_supported: [type, text, level, block_id]
     parents: [modal]
     surfaces: [modal]
-    restrictions: Blocks::Alert takes a plain_text or mrkdwn text object of at most 200 characters, an optional Blocks::AlertLevel (default, info, warning, error, success), and a block_id of at most 255 characters. A nil level omits the field, and Slack then uses default. Slack lists modals only, so DisplayModal and FormModal accept it; Message and Home reject it at compile time with a modals-only diagnostic. The reference table lists text as String and level as Array; its example and the Slack SDKs send a text object and a single string, and the library follows them. Alerts have no interaction payload.
+    restrictions: Blocks::Alert takes a plain_text or mrkdwn text object of at most 200 characters, an optional Blocks::AlertLevel (default, info, warning, error, success), and a block_id of at most 255 characters. A nil level omits the field, and Slack then uses default. Slack lists modals only, so DisplayModal and FormModal accept it; Message and Home reject it at compile time with a modals-only diagnostic. The reference table lists text as String and level as Array; its example and the Slack SDKs send a text object and a single string, and the library follows them. Alerts have no interaction payload. Received blocks decode as ReceivedBlocks::Alert with text and the level name.
     implementation_status: supported
-    inbound_status: unsupported
-    evidence_paths: [src/slack/ui/blocks/alert.cr, src/slack/ui/blocks/alert_level.cr, spec/ui/alert_block_spec.cr, spec/fixtures/block_kit/alert_display_modal.json, spec/block_kit_diagnostics_spec.cr, examples/support/alert_example.cr, spec/block_kit_consumers_spec.cr]
+    inbound_status: supported
+    evidence_paths: [src/slack/ui/blocks/alert.cr, src/slack/ui/blocks/alert_level.cr, spec/ui/alert_block_spec.cr, spec/fixtures/block_kit/alert_display_modal.json, spec/block_kit_diagnostics_spec.cr, examples/support/alert_example.cr, spec/block_kit_consumers_spec.cr, src/slack/interactions/received_blocks/alert.cr, spec/interactions/received_blocks_spec.cr]
 
   - wire_type: data_table
     kind: block
@@ -793,10 +793,10 @@ entries:
     fields_supported: [type, rows, caption, page_size, row_header_column_index, block_id]
     parents: [message, home]
     surfaces: [message, home]
-    restrictions: "Blocks::DataTable takes a caption, a header of Table::RawText or Table::RawNumber cells (Blocks::DataTable::HeaderCell), and data rows of Table::Cell values; it sends the header as the first entry of rows. Rich text header cells are rejected at compile time. 1 to 200 data rows, 1 to 20 columns, every data row as wide as the header, page_size 1 to 100, block_id 255. A nonempty caption and a row_header_column_index inside the header are library policy. Slack lists Messages and Home tabs only, so DisplayModal and FormModal reject it at compile time. Slack checks the 20,000-character limit per data table and per message remotely. Interactive cells (action_cell) have no documented schema and are not supported. Received message data tables are not decoded."
+    restrictions: "Blocks::DataTable takes a caption, a header of Table::RawText or Table::RawNumber cells (Blocks::DataTable::HeaderCell), and data rows of Table::Cell values; it sends the header as the first entry of rows. Rich text header cells are rejected at compile time. 1 to 200 data rows, 1 to 20 columns, every data row as wide as the header, page_size 1 to 100, block_id 255. A nonempty caption and a row_header_column_index inside the header are library policy. Slack lists Messages and Home tabs only, so DisplayModal and FormModal reject it at compile time. Slack checks the 20,000-character limit per data table and per message remotely. Interactive cells (action_cell) have no documented schema and are not supported. Received blocks decode as ReceivedBlocks::DataTable with caption, page_size, row_header_column_index, and typed cells."
     implementation_status: supported
-    inbound_status: unsupported
-    evidence_paths: [src/slack/ui/blocks/data_table.cr, spec/ui/data_table_block_spec.cr, spec/fixtures/block_kit/data_table_message.json, spec/block_kit_diagnostics_spec.cr, examples/support/data_table_example.cr, spec/block_kit_consumers_spec.cr]
+    inbound_status: supported
+    evidence_paths: [src/slack/ui/blocks/data_table.cr, spec/ui/data_table_block_spec.cr, spec/fixtures/block_kit/data_table_message.json, spec/block_kit_diagnostics_spec.cr, examples/support/data_table_example.cr, spec/block_kit_consumers_spec.cr, src/slack/interactions/received_blocks/data_table.cr, spec/interactions/received_blocks_spec.cr]
 
   - wire_type: data_visualization
     kind: block
@@ -804,10 +804,10 @@ entries:
     fields_supported: [type, title, chart, block_id]
     parents: [message, home]
     surfaces: [message, home]
-    restrictions: Blocks::DataVisualization has a title of 1 to 50 characters, one DataVisualization::Chart (PieChart, BarChart, AreaChart, or LineChart), and block_id 255. A nonempty title is library policy. Message allows at most two of these blocks, as Slack documents; Home does not check a count because Slack does not state one. Slack lists Messages and Home tabs only, so DisplayModal and FormModal reject it at compile time. Slack renders the chart; offline checks do not prove rendering. The block has no documented inbound payload, and received message blocks are not decoded.
+    restrictions: Blocks::DataVisualization has a title of 1 to 50 characters, one DataVisualization::Chart (PieChart, BarChart, AreaChart, or LineChart), and block_id 255. A nonempty title is library policy. Message allows at most two of these blocks, as Slack documents; Home does not check a count because Slack does not state one. Slack lists Messages and Home tabs only, so DisplayModal and FormModal reject it at compile time. Slack renders the chart; offline checks do not prove rendering. The block has no documented inbound payload. Received blocks decode as ReceivedBlocks::DataVisualization; the chart stays raw JSON.
     implementation_status: supported
-    inbound_status: unsupported
-    evidence_paths: [src/slack/ui/blocks/data_visualization.cr, src/slack/ui/surfaces/message.cr, spec/ui/data_visualization_block_spec.cr, spec/fixtures/block_kit/data_visualization_message.json, spec/block_kit_diagnostics_spec.cr, examples/support/data_visualization_example.cr, spec/block_kit_consumers_spec.cr]
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/blocks/data_visualization.cr, src/slack/ui/surfaces/message.cr, spec/ui/data_visualization_block_spec.cr, spec/fixtures/block_kit/data_visualization_message.json, spec/block_kit_diagnostics_spec.cr, examples/support/data_visualization_example.cr, spec/block_kit_consumers_spec.cr, src/slack/interactions/received_blocks/data_visualization.cr, spec/interactions/received_blocks_spec.cr]
 
   - wire_type: pie, bar, area, line charts; segment, data series, data point, axis_config
     kind: data visualization composition
@@ -826,10 +826,10 @@ entries:
     fields_supported: [type, block_id, hero_image, icon, slack_icon, title, subtitle, body, subtext, actions]
     parents: [message, modal, home, carousel]
     surfaces: [message, modal, home]
-    restrictions: Blocks::Card takes one Card::Icon value, an image element (sent as icon) or a SlackIcon (sent as slack_icon), so both cannot be sent. title and subtitle are text objects of at most 150 characters; body and subtext at most 200. hero_image and icon alt_text at most 2000. actions is a copied plain array of 1 to 3 Button elements with unique supplied action IDs; block_id 255. A card needs hero_image, title, actions, or body. The reference types actions as an Actions block, but every Slack example sends a plain button array; the library follows the examples. An empty actions array and duplicate action IDs are library policy. Buttons in a card send ordinary block_actions button payloads; Slack does not document which block_id they carry. Received message cards are not decoded.
+    restrictions: Blocks::Card takes one Card::Icon value, an image element (sent as icon) or a SlackIcon (sent as slack_icon), so both cannot be sent. title and subtitle are text objects of at most 150 characters; body and subtext at most 200. hero_image and icon alt_text at most 2000. actions is a copied plain array of 1 to 3 Button elements with unique supplied action IDs; block_id 255. A card needs hero_image, title, actions, or body. The reference types actions as an Actions block, but every Slack example sends a plain button array; the library follows the examples. An empty actions array and duplicate action IDs are library policy. Buttons in a card send ordinary block_actions button payloads; Slack does not document which block_id they carry. Received blocks decode as ReceivedBlocks::Card with text objects and image, icon, and button summaries.
     implementation_status: supported
-    inbound_status: unsupported
-    evidence_paths: [src/slack/ui/blocks/card.cr, spec/ui/card_carousel_spec.cr, spec/fixtures/block_kit/card_carousel_message.json, examples/support/card_carousel_example.cr, spec/block_kit_consumers_spec.cr]
+    inbound_status: supported
+    evidence_paths: [src/slack/ui/blocks/card.cr, spec/ui/card_carousel_spec.cr, spec/fixtures/block_kit/card_carousel_message.json, examples/support/card_carousel_example.cr, spec/block_kit_consumers_spec.cr, src/slack/interactions/received_blocks/card.cr, spec/interactions/received_blocks_spec.cr]
 
   - wire_type: carousel
     kind: block
@@ -837,10 +837,10 @@ entries:
     fields_supported: [type, elements, block_id]
     parents: [message, home]
     surfaces: [message, home]
-    restrictions: Blocks::Carousel owns a copied list of 1 to 10 Blocks::Card values; block_id 255. Card block IDs must be unique within the carousel (library policy); uniqueness against top-level block IDs is not checked because Slack does not document it. Slack lists Messages and Home tabs only, so DisplayModal and FormModal reject it at compile time. Received message carousels are not decoded.
+    restrictions: Blocks::Carousel owns a copied list of 1 to 10 Blocks::Card values; block_id 255. Card block IDs must be unique within the carousel (library policy); uniqueness against top-level block IDs is not checked because Slack does not document it. Slack lists Messages and Home tabs only, so DisplayModal and FormModal reject it at compile time. Received blocks decode as ReceivedBlocks::Carousel; its cards decode like top-level blocks.
     implementation_status: supported
-    inbound_status: unsupported
-    evidence_paths: [src/slack/ui/blocks/carousel.cr, spec/ui/card_carousel_spec.cr, spec/block_kit_diagnostics_spec.cr, examples/support/card_carousel_example.cr, spec/block_kit_consumers_spec.cr]
+    inbound_status: supported
+    evidence_paths: [src/slack/ui/blocks/carousel.cr, spec/ui/card_carousel_spec.cr, spec/block_kit_diagnostics_spec.cr, examples/support/card_carousel_example.cr, spec/block_kit_consumers_spec.cr, src/slack/interactions/received_blocks/carousel.cr, spec/interactions/received_blocks_spec.cr]
 
   - wire_type: slack icon
     kind: composition object
@@ -859,10 +859,10 @@ entries:
     fields_supported: [type, title, rich_text_title, subtitle, child_blocks, block_id, width, icon, is_collapsible, default_collapsed, has_header_divider]
     parents: [message, home]
     surfaces: [message, home]
-    restrictions: "Blocks::Container owns a copy of 1 to 10 child blocks of Section, Actions, Context, Divider, File, Header, Image, Input, RichText, Table, or Video; other children, including a nested Container, are compile errors. The constructors require title, rich_text_title, or both at compile time; Slack shows rich_text_title when both are sent. title and subtitle (plain_text or mrkdwn) 150 characters, icon alt_text 2000, block_id 255. width is Container::Width (narrow, standard, wide, full). is_collapsible, default_collapsed, and has_header_divider keep omission and explicit false distinct and are sent as given. One or more children is library policy. Home rejects a File child at runtime as library policy, because the File block is documented for messages only. Child block IDs share the surface's ID space; child focus_on_load, Home datetimepicker, Home workflow_button, and response_url_enabled checks apply as at the top level. DisplayModal and FormModal reject it at compile time. The container has no payload of its own; clicks in children decode as their usual actions. Input state keying inside a container is not documented. Received message containers are not decoded."
+    restrictions: "Blocks::Container owns a copy of 1 to 10 child blocks of Section, Actions, Context, Divider, File, Header, Image, Input, RichText, Table, or Video; other children, including a nested Container, are compile errors. The constructors require title, rich_text_title, or both at compile time; Slack shows rich_text_title when both are sent. title and subtitle (plain_text or mrkdwn) 150 characters, icon alt_text 2000, block_id 255. width is Container::Width (narrow, standard, wide, full). is_collapsible, default_collapsed, and has_header_divider keep omission and explicit false distinct and are sent as given. One or more children is library policy. Home rejects a File child at runtime as library policy, because the File block is documented for messages only. Child block IDs share the surface's ID space; child focus_on_load, Home datetimepicker, Home workflow_button, and response_url_enabled checks apply as at the top level. DisplayModal and FormModal reject it at compile time. The container has no payload of its own; clicks in children decode as their usual actions. Input state keying inside a container is not documented. Received blocks decode as ReceivedBlocks::Container; child_blocks decode like top-level blocks."
     implementation_status: supported
-    inbound_status: unsupported
-    evidence_paths: [src/slack/ui/blocks/container.cr, spec/ui/container_block_spec.cr, spec/fixtures/block_kit/container_message.json, spec/block_kit_diagnostics_spec.cr, examples/support/container_example.cr, spec/block_kit_consumers_spec.cr]
+    inbound_status: supported
+    evidence_paths: [src/slack/ui/blocks/container.cr, spec/ui/container_block_spec.cr, spec/fixtures/block_kit/container_message.json, spec/block_kit_diagnostics_spec.cr, examples/support/container_example.cr, spec/block_kit_consumers_spec.cr, src/slack/interactions/received_blocks/container.cr, spec/interactions/received_blocks_spec.cr]
 
   - wire_type: socket mode acknowledgment
     kind: socket mode frame
@@ -1624,8 +1624,15 @@ rules:
     evidence_paths: [spec/ui/container_block_spec.cr]
   - id: interaction_context
     classification: library_support
-    requirement: "block_actions container decodes message, view, and message_attachment types; other types stay Container::Unknown with raw JSON, and a non-object container raises TypeMismatch. channel, hash, function_data, and bot_access_token are typed; bot_access_token is a redacted Auth::Secret. view_submission response_urls are typed; view_closed is_cleared is typed. View getters read id, title, callback_id, private_metadata, external_id, hash, and related fields. Received message and view blocks and interactivity stay raw JSON."
+    requirement: "block_actions container decodes message, view, and message_attachment types; other types stay Container::Unknown with raw JSON, and a non-object container raises TypeMismatch. channel, hash, function_data, and bot_access_token are typed; bot_access_token is a redacted Auth::Secret. view_submission response_urls are typed; view_closed is_cleared is typed. View getters read id, title, callback_id, private_metadata, external_id, hash, and related fields. BlockAction and MessageAction message getters give ReceivedMessage; message and view blocks decode as ReceivedBlock values; interactivity stays raw JSON."
     source_url: https://docs.slack.dev/reference/interaction-payloads/block_actions-payload
     source_section: "Fields: container, channel, hash, response_url, function_data, interactivity, bot_access_token"
     reviewed_on: "2026-09-28"
     evidence_paths: [spec/interactions/interaction_payloads_spec.cr, spec/auth/request_authorizer_spec.cr, examples/support/interaction_context_example.cr, spec/block_kit_consumers_spec.cr]
+  - id: received_blocks
+    classification: library_support
+    requirement: "Message event, message subtype, block_actions message, message_action message, and view blocks decode as ReceivedBlock values when read. Known block types raise TypeMismatch with the JSON path for a missing required field or wrong JSON type; unknown block and table cell types stay UnknownBlock with raw JSON. Received blocks do not apply outbound limits or placement rules and do not convert to Slack::UI values."
+    source_url: https://docs.slack.dev/reference/interaction-payloads/block_actions-payload
+    source_section: "Fields: message, view"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [src/slack/interactions/received_blocks.cr, spec/interactions/received_blocks_spec.cr, examples/support/received_blocks_example.cr, spec/block_kit_consumers_spec.cr]

@@ -53,10 +53,9 @@ module OfflineRichTextExample
       JSON
     event = receive(body).event
     raise "Expected a message event" unless event.is_a?(Slack::Events::Message)
-    event.blocks.each_with_index do |raw, index|
-      next unless raw["type"]?.try(&.as_s?) == "rich_text"
-      # Malformed trees raise Slack::Interactions::TypeMismatch with this path.
-      reply = Received::Block.new(raw, "event.blocks[#{index}]")
+    # Malformed blocks raise Slack::Interactions::TypeMismatch with the JSON path.
+    event.blocks.each do |reply|
+      next unless reply.is_a?(Received::Block)
       output.puts "Mentioned users: #{mentioned_users(reply).join(", ")}"
       output.puts "Follow-up items: #{list_items(reply).join(", ")}"
       output.puts "Workflows offered: #{workflows(reply).join(", ")}"

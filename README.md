@@ -166,9 +166,10 @@ crystal run examples/event_delivery.cr
 crystal run examples/socket_mode_protocol.cr
 crystal run examples/interaction_context.cr
 crystal run examples/slash_command.cr
+crystal run examples/received_blocks.cr
 ```
 
-The examples show message construction, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, message workflow buttons, Socket Mode frames with their acknowledgments, and a slash command response with a `response_url` reply. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
+The examples show message construction, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, message workflow buttons, typed blocks of a received message, Socket Mode frames with their acknowledgments, and a slash command response with a `response_url` reply. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
 
 ## Contributing
 

@@ -1,0 +1,40 @@
+{
+  "id": "V-SYNTHETIC",
+  "team_id": "T-SYNTHETIC",
+  "type": "modal",
+  "title": {"type": "plain_text", "text": "Report a bug", "emoji": true},
+  "submit": {"type": "plain_text", "text": "Send", "emoji": true},
+  "callback_id": "bug_report",
+  "private_metadata": "",
+  "hash": "1789232400.SYNTHETIC",
+  "blocks": [
+    {"type": "header", "block_id": "bug.heading", "text": {"type": "plain_text", "text": "New bug", "emoji": true}, "level": 2},
+    {"type": "alert", "block_id": "bug.warning", "text": {"type": "mrkdwn", "text": "Do *not* paste secrets"}, "level": "warning"},
+    {
+      "type": "input",
+      "block_id": "bug.summary",
+      "label": {"type": "plain_text", "text": "Summary", "emoji": true},
+      "hint": {"type": "plain_text", "text": "One line", "emoji": true},
+      "optional": false,
+      "dispatch_action": true,
+      "element": {"type": "plain_text_input", "action_id": "summary", "dispatch_action_config": {"trigger_actions_on": ["on_enter_pressed"]}}
+    },
+    {
+      "type": "input",
+      "block_id": "bug.details",
+      "label": {"type": "plain_text", "text": "Details", "emoji": true},
+      "optional": true,
+      "dispatch_action": false,
+      "element": {"type": "rich_text_input", "action_id": "details"}
+    },
+    {"type": "image", "block_id": "bug.screenshot", "image_url": "https://example.com/screenshot.png", "alt_text": "Screenshot", "title": {"type": "plain_text", "text": "Last crash", "emoji": true}, "image_width": 640, "image_height": 480, "image_bytes": 51200}
+  ],
+  "state": {"values": {}},
+  "app_id": "A-SYNTHETIC",
+  "bot_id": "B-SYNTHETIC",
+  "clear_on_close": false,
+  "notify_on_close": false,
+  "previous_view_id": null,
+  "root_view_id": "V-SYNTHETIC",
+  "external_id": ""
+}

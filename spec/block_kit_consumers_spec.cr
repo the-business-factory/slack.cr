@@ -43,6 +43,7 @@ require "../examples/support/interaction_context_example"
 require "../examples/support/alert_example"
 require "../examples/support/socket_mode_example"
 require "../examples/support/slash_command_example"
+require "../examples/support/received_blocks_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -543,5 +544,17 @@ describe "documented Block Kit workflows" do
        "blocks":[{"type":"section","block_id":"deploy.status","text":{"type":"mrkdwn","text":"*Deploying api* build 42."}}]}
       JSON
     result.follow_up.should eq JSON.parse(%({"response_type":"in_channel","replace_original":true,"text":"Deployed api build 42."}))
+  end
+
+  it "reads the blocks of a clicked message, including container children and unknown types" do
+    output = IO::Memory.new
+    OfflineReceivedBlocksExample.run(output)
+    output.to_s.lines.should eq ["Message 1710000000.000100",
+                                 "header: Release 2.0",
+                                 "section summary: *3* services change [release.more]",
+                                 "container changes: Changes",
+                                 "  rich_text notes: 1 element(s)",
+                                 "actions decision: approve, reject",
+                                 "skipped synthetic_future_block"]
   end
 end
