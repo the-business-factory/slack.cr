@@ -15,6 +15,9 @@ module Slack::UI::Checked::DeclaredTypes
       {% if T.union_types.any? { |member| member <= Slack::UI::Checked::Blocks::ContextActions } %}
         {% raise "DisplayModal rejects ContextActions blocks. Slack shows context actions blocks in messages only." %}
       {% end %}
+      {% if T.union_types.any? { |member| member <= Slack::UI::Checked::Blocks::DataTable } %}
+        {% raise "DisplayModal rejects DataTable blocks. Slack shows data table blocks in messages and Home tabs only." %}
+      {% end %}
       {% raise "DisplayModal rejects its yielded block item type. For Input, use FormModal with submit." %}
     {% end %}
   end

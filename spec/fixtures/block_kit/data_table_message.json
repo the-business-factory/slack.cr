@@ -1,0 +1,53 @@
+{
+  "text": "Open deals",
+  "blocks": [
+    {
+      "type": "data_table",
+      "block_id": "deals",
+      "caption": "Open deals by stage",
+      "page_size": 10,
+      "row_header_column_index": 1,
+      "rows": [
+        [
+          {"type": "raw_text", "text": "Owner"},
+          {"type": "raw_text", "text": "Deal"},
+          {"type": "raw_number", "value": 2026, "text": "Value (2026)"}
+        ],
+        [
+          {
+            "type": "rich_text",
+            "elements": [
+              {
+                "type": "rich_text_section",
+                "elements": [{"type": "user", "user_id": "U-SYNTHETIC"}]
+              }
+            ]
+          },
+          {"type": "raw_text", "text": "Acme expansion"},
+          {"type": "raw_number", "value": 1200000, "text": "$1.2M"}
+        ],
+        [
+          {"type": "raw_text", "text": "Unassigned"},
+          {
+            "type": "rich_text",
+            "elements": [
+              {
+                "type": "rich_text_section",
+                "elements": [{"type": "text", "text": "Nimbus renewal", "style": {"bold": true}}]
+              }
+            ]
+          },
+          {"type": "raw_number", "value": 87500.5, "text": "$87,500.50"}
+        ]
+      ]
+    },
+    {
+      "type": "data_table",
+      "caption": "Totals",
+      "rows": [
+        [{"type": "raw_text", "text": "Deals"}],
+        [{"type": "raw_number", "value": 2, "text": "2"}]
+      ]
+    }
+  ]
+}

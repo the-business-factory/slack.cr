@@ -1,4 +1,5 @@
-# A plain text table cell. Nonempty text is library policy.
+# A plain text cell for `Blocks::Table` and `Blocks::DataTable`. Nonempty text
+# is library policy.
 struct Slack::UI::Checked::Table::RawText
   include Slack::UI::Checked::ValueValidation
 

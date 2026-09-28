@@ -7,6 +7,7 @@ alias Slack::UI::Checked::HomeBlock = Slack::UI::Checked::Blocks::Section |
                                       Slack::UI::Checked::Blocks::Video |
                                       Slack::UI::Checked::Blocks::RichText |
                                       Slack::UI::Checked::Blocks::Table |
+                                      Slack::UI::Checked::Blocks::DataTable |
                                       Slack::UI::Checked::Blocks::Input |
                                       Slack::UI::Checked::Blocks::ViewInput
 
