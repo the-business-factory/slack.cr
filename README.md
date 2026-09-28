@@ -218,7 +218,7 @@ See [Workflow steps](documentation/workflows.md) for the manifest, inputs, and f
 
 ## Streaming messages
 
-`Client#start_stream` starts a streamed message; the returned `MessageStream` appends text or task chunks and stops it. See [AI apps](documentation/ai-apps.md).
+`Client#start_stream` starts a streamed message; the returned `MessageStream` appends text or task chunks and stops it. `Blocks::Plan` and `Blocks::TaskCard` keep the finished tasks in the message. See [AI apps](documentation/ai-apps.md).
 
 ## App threads and agent sessions
 
@@ -271,6 +271,7 @@ crystal run examples/thread_history.cr
 crystal run examples/user_group.cr
 crystal run examples/streaming.cr
 crystal run examples/assistant_thread.cr
+crystal run examples/plan.cr
 crystal run examples/attachments.cr
 crystal run examples/ephemeral_reply.cr
 crystal run examples/event_delivery.cr

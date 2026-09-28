@@ -15,7 +15,9 @@ alias Slack::UI::MessageSourceBlock = Slack::UI::Blocks::Section |
                                       Slack::UI::Blocks::Card |
                                       Slack::UI::Blocks::Carousel |
                                       Slack::UI::Blocks::Container |
-                                      Slack::UI::Blocks::Input
+                                      Slack::UI::Blocks::Input |
+                                      Slack::UI::Blocks::Plan |
+                                      Slack::UI::Blocks::TaskCard
 
 alias Slack::UI::MessageBlock = Slack::UI::MessageSourceBlock
 

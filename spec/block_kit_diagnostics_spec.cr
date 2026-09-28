@@ -36,6 +36,8 @@ describe "Block Kit construction diagnostics" do
     "rich_text_list_item"        => ["RichText::List#append_element", "RichText::Section", "not Slack::UI::RichText::Text"],
     "number_input_message"       => ["MessageBuilder#input", "argument 'element'", "NumberInput"],
     "rich_text_in_message"       => ["MessageBuilder#input", "argument 'element'", "RichTextInput"],
+    "display_plan"               => ["DisplayModal rejects Plan blocks", "messages only"],
+    "home_task_card"             => ["Home#append_block", "Blocks::TaskCard"],
   }.each do |name, fragments|
     it "explains #{name}" do
       result = CompileContracts.compile(root, "spec/fixtures/compile/fail/#{name}.cr")

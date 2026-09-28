@@ -39,3 +39,5 @@ end
 UI.home do |builder|
   builder.input(label: label, element: UI::BlockElements::RichTextInput.new(action_id: "summary"))
 end
+task = UI::Blocks::TaskCard.new(task_id: "read", title: "Read the report", status: UI::TaskStatus::Complete)
+UI::Message.new(fallback_text: "Plan", blocks: [UI::Blocks::Plan.new(title: "Plan", tasks: {task}), task, section])

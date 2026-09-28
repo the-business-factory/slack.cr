@@ -1,6 +1,6 @@
 schema_version: 2
 checked_on: "2026-09-28"
-scope: Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, channel selects, date/time pickers, the datetime picker, video blocks, external selects with block_suggestion option responses, remote file blocks, rich text display blocks, table blocks, data table blocks, data visualization blocks, card and carousel blocks, container blocks, alert blocks, markdown blocks, context actions blocks with feedback and icon buttons, number inputs, file inputs, URL inputs, email inputs, rich text inputs, message workflow buttons, and typed received blocks in messages and views, including Input in Messages, FormModal and Home, modal-only Input children in FormModal, and view-only Input children in FormModal and Home.
+scope: Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, channel selects, date/time pickers, the datetime picker, video blocks, external selects with block_suggestion option responses, remote file blocks, rich text display blocks, table blocks, data table blocks, data visualization blocks, card and carousel blocks, container blocks, alert blocks, markdown blocks, context actions blocks with feedback and icon buttons, number inputs, file inputs, URL inputs, email inputs, rich text inputs, message workflow buttons, plan and task card blocks, and typed received blocks in messages and views, including Input in Messages, FormModal and Home, modal-only Input children in FormModal, and view-only Input children in FormModal and Home.
 statuses:
   - unsupported
   - partial
@@ -604,12 +604,34 @@ entries:
     kind: block element
     documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/url-source-element
     fields_supported: [type, url, text]
-    parents: [task_update]
+    parents: [task_update, task_card]
     surfaces: [message]
-    restrictions: "UrlSource requires nonempty url and text. Slack accepts it only in task cards and task updates and does not check that the URL resolves. The task card block is not supported yet."
+    restrictions: "UrlSource requires nonempty url and text. Slack accepts it only in task cards and task updates and does not check that the URL resolves."
     implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/block_elements/url_source.cr, spec/api/chat_stream_spec.cr, examples/support/streaming_example.cr]
+    evidence_paths: [src/slack/ui/block_elements/url_source.cr, spec/api/chat_stream_spec.cr, examples/support/streaming_example.cr, spec/ui/plan_task_card_spec.cr]
+
+  - wire_type: task_card
+    kind: block
+    documentation_url: https://docs.slack.dev/reference/block-kit/blocks/task-card-block
+    fields_supported: [type, task_id, title, status, details, output, sources, hide_title, block_id]
+    parents: [message, plan]
+    surfaces: [message]
+    restrictions: "Blocks::TaskCard requires a nonempty task_id and title (library policy) and a TaskStatus: in_progress, complete, error, or pending (SDK-sourced). details and output are one Blocks::RichText each; sources is a copied list of UrlSource values. block_id 255. Slack gives no length limits for task_id, title, or sources. The icon field has no schema and is not sent. Slack lists Messages only, so DisplayModal, FormModal, Home, and Container reject it at compile time. Received task cards decode as ReceivedBlocks::TaskCard with task_id, title, status (a string), and block_id; other fields stay in raw. Offline evidence does not prove live rendering outside a stream."
+    implementation_status: partial
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/blocks/task_card.cr, spec/ui/plan_task_card_spec.cr, spec/block_kit_diagnostics_spec.cr, examples/support/plan_example.cr, spec/block_kit_consumers_spec.cr, src/slack/interactions/received_blocks/task_card.cr, spec/interactions/received_blocks_spec.cr]
+
+  - wire_type: plan
+    kind: block
+    documentation_url: https://docs.slack.dev/reference/block-kit/blocks/plan-block
+    fields_supported: [type, title, tasks, block_id]
+    parents: [message]
+    surfaces: [message]
+    restrictions: "Blocks::Plan requires a nonempty title (library policy) and owns a copied list of 1 to 50 Blocks::TaskCard values with unique task_id values; block_id 255. Each task is sent with type task_card as the Slack SDK examples do (SDK-sourced); the reference calls tasks task-like objects without a type. Task card block IDs are not checked against other block IDs because Slack does not document it. MessageBuilder#plan adds one. Slack lists Messages only, so DisplayModal, FormModal, Home, and Container reject it at compile time. Received plans decode as ReceivedBlocks::Plan with title and block_id; the tasks stay raw JSON."
+    implementation_status: supported
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/blocks/plan.cr, spec/ui/plan_task_card_spec.cr, spec/block_kit_diagnostics_spec.cr, examples/support/plan_example.cr, spec/block_kit_consumers_spec.cr, src/slack/interactions/received_blocks/plan.cr, spec/interactions/received_blocks_spec.cr]
 
   - wire_type: modal view
     kind: surface
@@ -2024,3 +2046,10 @@ rules:
     source_section: "Arguments: metadata, post_at; chat.postEphemeral Arguments: metadata, parse"
     reviewed_on: "2026-09-28"
     evidence_paths: [spec/api/chat_schedule_spec.cr, spec/api/chat_post_ephemeral_spec.cr]
+  - id: plan_task_card_shape
+    classification: library_support
+    requirement: "Plan tasks are sent with type task_card, and TaskStatus pending is accepted, as in the Slack Python and Node SDK examples; the plan reference says tasks have no type and the task card reference lists only in_progress, complete, and error. The task card icon has no schema and is not sent. Empty task IDs and titles are rejected as library policy."
+    source_url: https://docs.slack.dev/reference/block-kit/blocks/plan-block
+    source_section: "Fields: tasks; task card block Fields: status, icon"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/ui/plan_task_card_spec.cr]

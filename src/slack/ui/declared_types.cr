@@ -27,6 +27,12 @@ module Slack::UI::DeclaredTypes
       {% if T.union_types.any? { |member| member <= Slack::UI::Blocks::Container } %}
         {% raise "DisplayModal rejects Container blocks. Slack shows container blocks in messages and Home tabs only." %}
       {% end %}
+      {% if T.union_types.any? { |member| member <= Slack::UI::Blocks::Plan } %}
+        {% raise "DisplayModal rejects Plan blocks. Slack shows plan blocks in messages only." %}
+      {% end %}
+      {% if T.union_types.any? { |member| member <= Slack::UI::Blocks::TaskCard } %}
+        {% raise "DisplayModal rejects TaskCard blocks. Slack shows task card blocks in messages only." %}
+      {% end %}
       {% raise "DisplayModal rejects its yielded block item type. For Input, use FormModal with submit." %}
     {% end %}
   end

@@ -50,6 +50,7 @@ require "../examples/support/workflow_step_example"
 require "../examples/support/file_upload_example"
 require "../examples/support/thread_history_example"
 require "../examples/support/streaming_example"
+require "../examples/support/plan_example"
 require "../examples/support/attachments_example"
 require "../examples/support/ephemeral_reply_example"
 require "../examples/support/socket_mode_client_example"
@@ -140,6 +141,12 @@ describe "documented Block Kit workflows" do
     output = IO::Memory.new
     OfflineStreamingExample.run(output)
     output.to_s.should eq("Started stream 1721609600.123456 in C123\nAppended the plan\nFinal text: Checking the report. Revenue grew 4%.\n")
+  end
+
+  it "streams task updates in plan mode and stops with a final plan block" do
+    output = IO::Memory.new
+    OfflinePlanExample.run(output)
+    output.to_s.should eq("Started plan 1721609700.000200\nUpdated 2 tasks\nFinal text: The deploy is healthy.\n")
   end
 
   it "posts a message with a colored attachment, metadata, and an emoji icon" do

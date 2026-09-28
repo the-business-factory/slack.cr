@@ -75,6 +75,45 @@ Notes on the chunk schema:
 
 `chat.stopStream` shows `blocks:` after the final message. They use the message block rules, at most 50 blocks, separate from any `BlocksChunk`. `session_status:` is `Active` (Slack's default), `Processing`, `Suspended`, or `Closed`.
 
+## Show a plan with task cards
+
+`Blocks::TaskCard` shows one task: its status, optional `details` and `output` as `Blocks::RichText`, and optional `sources`. `Blocks::Plan` shows a title and 1 to 50 task cards. Use them to keep the finished tasks in the message, for example as the `blocks:` of `MessageStream#stop` after a stream in plan mode:
+
+```crystal
+build_log = Slack::UI::BlockElements::UrlSource.new(url: "https://ci.example.com/builds/812", text: "Build 812")
+checks = Slack::UI::Blocks::RichText.new(elements: {
+  Slack::UI::RichText::Section.new(elements: {Slack::UI::RichText::Text.new("12 checks passed")}),
+})
+plan = Slack::UI::Blocks::Plan.new(title: "Check the deploy", block_id: "deploy.plan", tasks: {
+  Slack::UI::Blocks::TaskCard.new(task_id: "build", title: "Read the build log",
+    status: Slack::UI::TaskStatus::Complete, sources: [build_log]),
+  Slack::UI::Blocks::TaskCard.new(task_id: "smoke", title: "Run the smoke tests",
+    status: Slack::UI::TaskStatus::Complete, output: checks),
+})
+
+stream.stop(client, chunks: [Slack::Api::Streaming::MarkdownTextChunk.new("The deploy is healthy.")],
+  blocks: [plan], session_status: Slack::Api::Streaming::SessionStatus::Closed)
+# "blocks":[{"type":"plan","title":"Check the deploy","tasks":[
+#   {"type":"task_card","task_id":"build","title":"Read the build log","status":"complete",
+#    "sources":[{"type":"url","url":"https://ci.example.com/builds/812","text":"Build 812"}]},
+#   {"type":"task_card","task_id":"smoke",...,"output":{"type":"rich_text",...}}],"block_id":"deploy.plan"}]
+```
+
+`MessageBuilder#plan(title:, tasks:, block_id:)` adds a plan to a message. A task card can also be a direct message block. Rules:
+
+- Slack shows plans and task cards in messages only. `DisplayModal`, `FormModal`, `Home`, and `Blocks::Container` reject them at compile time.
+- `task_id` and `title` must not be empty. Task IDs must be unique in a plan. `block_id` has at most 255 characters. Slack asks for a new `block_id` each time you update the message.
+- Slack gives no length limit for `task_id`, `title`, or `sources`, so the library does not check one.
+- `hide_title: true` hides the title; `details` then shows first. Slack still requires the title.
+
+Differences between the Slack reference and the Slack SDKs:
+
+- The plan reference calls its tasks "task-like objects without a type". The Slack SDK examples send task card blocks, so the library sends each task with `"type": "task_card"`.
+- The task card `icon` field has no schema, so the library does not send it.
+- `UI::TaskStatus::Pending` comes from the Slack SDKs and from the plan reference example. The task card reference lists only `in_progress`, `complete`, and `error`.
+
+Received blocks decode as `Slack::Interactions::ReceivedBlocks::Plan` (`title`, `block_id`, and raw `tasks`) and `ReceivedBlocks::TaskCard` (`task_id`, `title`, `status` as a string, and `block_id`; read other fields from `raw`). See [Read blocks from messages and views](block-kit.md#read-blocks-from-messages-and-views). Offline examples do not prove that Slack shows these blocks outside a stream. See Slack's [plan block](https://docs.slack.dev/reference/block-kit/blocks/plan-block) and [task card block](https://docs.slack.dev/reference/block-kit/blocks/task-card-block) references and [examples/plan.cr](../examples/plan.cr).
+
 ## Errors
 
 Slack failures raise `Slack::Api::Error` with the Slack code, for example `message_not_in_streaming_state`, `message_not_owned_by_app`, or `streaming_mode_mismatch`. Local validation runs before the request, so an invalid request never reaches Slack.

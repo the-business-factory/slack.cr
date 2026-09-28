@@ -65,6 +65,12 @@ class Slack::UI::MessageBuilder
     add(Blocks::Carousel.new(elements: elements, block_id: block_id))
   end
 
+  # Adds a plan of task cards. Home and modal builders do not have this
+  # helper because Slack shows plans in messages only.
+  def plan(title : String, tasks : Enumerable(T), block_id : String? = nil) : Nil forall T
+    add(Blocks::Plan.new(title: title, tasks: tasks, block_id: block_id))
+  end
+
   def add_all(blocks : Enumerable(T)) : Nil forall T
     blocks.each { |block| add(block) }
   end
