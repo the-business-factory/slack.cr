@@ -212,7 +212,7 @@ Supply exactly one nonblank target: `view_id:` from Slack or the developer's `ex
 
 Keep each retained input's `block_id` and `action_id` identical to the old view so Slack can preserve entered values. The adapter does not have the old view and cannot validate those matches or migrate state. The [offline open/update workflow](../examples/block_kit_view_update.cr) checks transmitted IDs, not live state preservation. Slack's [modal update guide](https://docs.slack.dev/surfaces/modals/#updating-modal-views) explains input state and hash conflicts.
 
-The constructor owns a view snapshot. JSON serialization, `result`, and `call` validate local values before transport. `result` caches the HTTP response; `call` parses it as `Slack::Models::ViewsUpdate`, exposing `ok?` and raw `view` JSON, including returned IDs, hash, state, and unknown fields. The required String token and named `configuration`, `transport`, and `limiter` options use the existing dispatch path and are not JSON fields. Existing modal placement and submit rules apply. Pushing uses `CheckedViewsPush`; typed response actions remain unsupported.
+The constructor owns a view snapshot. JSON serialization, `result`, and `call` validate local values before transport. `result` caches the HTTP response; `call` parses it as `Slack::Models::ViewsUpdate`, exposing `ok?` and raw `view` JSON, including returned IDs, hash, state, and unknown fields. The required String token and named `configuration`, `transport`, and `limiter` options use the existing dispatch path and are not JSON fields. Existing modal placement and submit rules apply. Pushing uses `CheckedViewsPush`; typed error acknowledgments use `ModalErrors`.
 
 ## Push the next modal view
 
@@ -236,6 +236,37 @@ The constructor owns a modal snapshot and preserves the existing FormModal submi
 Slack permits three views in a stack, including the root view. Use the new interaction trigger promptly: triggers expire after three seconds and can be exchanged only once. Acknowledge the interaction separately within Slack's response window. The adapter does not track stack depth, verify trigger age or origin, or automatically retry. API failures such as `expired_trigger_id`, `exchanged_trigger_id`, and `push_limit_reached` raise `Slack::Errors::Api` through `call`. See the [method contract](https://docs.slack.dev/reference/methods/views.push/), [modal fields](https://docs.slack.dev/reference/views/modal-views/), and [modal lifecycle guide](https://docs.slack.dev/surfaces/modals/).
 
 The [offline push workflow](../examples/block_kit_view_push.cr) opens a modal, reads a synthetic button interaction from that view, and pushes a form with the fresh trigger. It demonstrates payloads and application flow, not live trigger viability, stack state, permissions, rendering, or handler timing.
+
+## Return modal validation errors
+
+Use `Slack::Interactions::ModalErrors` to acknowledge a `view_submission` with errors. Its `Hash(String, String)` maps Input **block IDs**, not action IDs, to plain-text messages. Slack keeps the view open so the user can correct the input and resubmit. See [Slack's error response guidance](https://docs.slack.dev/surfaces/modals/#display-errors-in-views).
+
+In an HTTP handler with `context : HTTP::Server::Context`, verify the original request before reading state. Route to the expected form by its callback ID, then apply the application's validation:
+
+```crystal
+case interaction = Slack.process_interaction(context.request)
+when Slack::Interactions::ViewSubmission
+  view = interaction.view
+  if view && view["callback_id"].as_s == "request.reason"
+    reason = interaction.plain_text?("request.reason", "reason")
+    context.response.status_code = 200
+    if reason.nil? || reason.strip.size < 10
+      errors = Slack::Interactions::ModalErrors.new({
+        "request.reason" => "Explain why you need this request (at least 10 characters).",
+      })
+      context.response.content_type = "application/json"
+      context.response.print(errors.to_json)
+    end
+    # For valid input, save it in the application and leave the HTTP 200 body empty.
+  end
+end
+```
+
+The route must configure the signing secret and handle other callbacks, interaction types, and verification failures. Return the acknowledgment within Slack's three-second window. An empty HTTP 200 acknowledgment closes the submitted view. The library does not send the acknowledgment or enforce its deadline.
+
+`ModalErrors` copies the supplied map; `errors` returns a copy. Construction rejects an empty map or blank messages with `Slack::UI::Checked::ValidationError`. These are library policies so the response contains useful feedback. `validate` and `validate!` use the existing checked validation conventions. No message length or block-ID format restriction is added. The application owns business rules and must ensure each key identifies an Input block in the submitted view; no original modal is required or checked.
+
+This outbound value needs no token and makes no API request. It is separate from `views.update` and API failure responses. Typed `update`, `push`, and `clear` response actions remain unsupported; the legacy `Slack::Helpers::Modal::CLOSE` constant is unchanged. The [offline example](../examples/block_kit_modal_errors.cr) verifies signed invalid and corrected submissions and prepares their HTTP responses. Ordinary consumer specs check the complete error body and JSON content type; they do not prove live rendering or handler timing.
 
 ## Read actions and state
 
@@ -275,7 +306,7 @@ Use a collection typed for the destination surface. An ordinary `Array(Slack::UI
 
 ## Offline examples
 
-From a repository checkout, run `shards install` to install development dependencies, including WebMock. All eleven commands use synthetic credentials and no Slack network call:
+From a repository checkout, run `shards install` to install development dependencies, including WebMock. All twelve commands use synthetic credentials and no Slack network call:
 
 ```sh
 crystal run examples/block_kit_message.cr
@@ -289,6 +320,7 @@ crystal run examples/block_kit_message_update.cr
 crystal run examples/block_kit_view_update.cr
 crystal run examples/block_kit_users_select.cr
 crystal run examples/block_kit_view_push.cr
+crystal run examples/block_kit_modal_errors.cr
 ```
 
 The message example builds and prints a request. The modal example posts a button, verifies a signed action, opens a form, and reads a signed submission. The Home example publishes through a stub and reads simulated state. The static choice example posts a single choice, reads a signed selection, opens a grouped multi-choice form, and reads its submission. The overflow example posts action and URL choices and acknowledges a signed URL selection. The checkbox example posts initial choices, reads a signed checkbox action, and reads a cleared selection from a signed submission. The radio example posts an initial choice, reads a signed selection, opens an optional override form, and reads an unselected submission. The message-update example replaces a posted approval button with the completed status and new fallback text. The user-select example assigns an owner and submits multiple reviewers. Real handlers must acknowledge interactions within Slack's response window.

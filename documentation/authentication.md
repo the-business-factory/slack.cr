@@ -42,6 +42,8 @@ For radio interactions, verify the same original signed request before reading `
 
 For user selects, verify the original signed request before reading `UsersSelectAction#selected_user`, `MultiUsersSelectAction#selected_users`, or the corresponding StateMap accessors. Presence distinguishes absent and null fields from a present empty multi-selection. See [user selection handling](block-kit.md#select-an-owner-and-reviewers) and `examples/block_kit_users_select.cr`.
 
+For modal business-validation failures, return `Slack::Interactions::ModalErrors#to_json` as the HTTP 200 JSON acknowledgment after verifying the signed submission. It needs no API token. The application owns validation and the three-second acknowledgment deadline. See [modal error handling](block-kit.md#return-modal-validation-errors).
+
 ## OAuth app installation
 
 `Slack::AuthHandler` installs an app; it does not authenticate a human login. Give it explicit configuration, state storage, and transport. Global `Slack.configure` client credentials or scopes do not configure this handler.

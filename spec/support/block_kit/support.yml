@@ -6,6 +6,17 @@ statuses:
   - partial
   - supported
 entries:
+  - wire_type: errors response action
+    kind: interaction acknowledgment
+    documentation_url: https://docs.slack.dev/surfaces/modals/#display-errors-in-views
+    fields_supported: [response_action, errors]
+    parents: [view_submission]
+    surfaces: [modal]
+    restrictions: ModalErrors owns a block-ID to plain-text message map and returns a copied accessor. Nonempty maps and nonblank messages are library policy. Callers verify Input block membership, apply business validation and return HTTP 200 JSON within three seconds. No API dispatch or typed update/push/clear actions.
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/interactions/modal_errors.cr, spec/interactions/modal_errors_spec.cr, examples/support/modal_errors_example.cr, spec/block_kit_consumers_spec.cr]
+
   - wire_type: plain_text and mrkdwn text objects
     kind: composition object
     documentation_url: https://docs.slack.dev/reference/block-kit/composition-objects/text-object/
@@ -298,7 +309,7 @@ entries:
     fields_supported: [type, title, submit, close, blocks, private_metadata, callback_id, external_id, clear_on_close, notify_on_close, submit_disabled]
     parents: [views.open, views.update, views.push]
     surfaces: [modal]
-    restrictions: Checked DisplayModal excludes Input; FormModal requires submit. The block catalog is limited to Section, Actions, Divider, Header, Context, Image, and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, or user selects. submit_disabled is for Slack configuration modals only. View lifecycle responses remain deferred. Legacy Modal keeps its previous contract.
+    restrictions: Checked DisplayModal excludes Input; FormModal requires submit. The block catalog is limited to Section, Actions, Divider, Header, Context, Image, and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, or user selects. submit_disabled is for Slack configuration modals only. Typed validation-error acknowledgments are listed separately; other view lifecycle responses remain deferred. Legacy Modal keeps its previous contract.
     implementation_status: partial
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/surfaces/form_modal.cr, src/slack/ui/checked/surfaces/display_modal.cr, spec/ui/checked/modal_spec.cr, examples/block_kit_modal.cr]
@@ -331,7 +342,7 @@ entries:
     fields_supported: [trigger_id, view]
     parents: []
     surfaces: [modal]
-    restrictions: CheckedViewsPush owns a FormModal or DisplayModal snapshot and requires a nonblank opaque trigger from an interaction inside the existing modal. Metadata stays inside view; no top-level view_id, external_id or hash. interactivity_pointer and typed response actions are unsupported. Slack checks trigger origin, expiry, single use and the three-view stack limit; no local stack tracking or automatic retry. result caches the HTTP response; call parses ViewsPush with ok and raw view JSON or raises the established API error. String token, configuration, transport and limiter are dispatch options, not JSON fields.
+    restrictions: CheckedViewsPush owns a FormModal or DisplayModal snapshot and requires a nonblank opaque trigger from an interaction inside the existing modal. Metadata stays inside view; no top-level view_id, external_id or hash. interactivity_pointer is unsupported; typed error acknowledgments use ModalErrors separately. Slack checks trigger origin, expiry, single use and the three-view stack limit; no local stack tracking or automatic retry. result caches the HTTP response; call parses ViewsPush with ok and raw view JSON or raises the established API error. String token, configuration, transport and limiter are dispatch options, not JSON fields.
     implementation_status: partial
     inbound_status: partial
     evidence_paths: [src/slack/api/endpoints/checked_views_push.cr, src/slack/models/views/views_push.cr, spec/api/checked_views_push_spec.cr, spec/api/transport_injection_spec.cr, examples/block_kit_view_push.cr, spec/block_kit_consumers_spec.cr]
@@ -342,7 +353,7 @@ entries:
     fields_supported: [actions, state, view.state.values]
     parents: []
     surfaces: [message, modal, home]
-    restrictions: Typed button, static-select, overflow, checkbox, radio, and user-select actions, plus plain text, static-select, checkbox, radio, and user-select StateMap access through Interaction.from_json and process_interaction. Selection fields preserve absent/null/empty. Other known action metadata, view bodies, and dispatched text actions remain raw. UnknownAction and UnknownStateValue retain complete raw JSON. Other families and response actions are deferred.
+    restrictions: Typed button, static-select, overflow, checkbox, radio, and user-select actions, plus plain text, static-select, checkbox, radio, and user-select StateMap access through Interaction.from_json and process_interaction. Selection fields preserve absent/null/empty. Other known action metadata, view bodies, and dispatched text actions remain raw. UnknownAction and UnknownStateValue retain complete raw JSON. Other incoming families are deferred; outbound validation-error acknowledgments are listed separately.
     implementation_status: partial
     inbound_status: partial
     evidence_paths: [src/slack/interactions/action_decoder.cr, src/slack/interactions/state_map.cr, spec/interactions/block_kit_spec.cr, spec/interactions/static_select_spec.cr, examples/block_kit_modal.cr, examples/block_kit_static_select.cr]
@@ -775,3 +786,18 @@ rules:
     source_section: "Arguments; trigger-only scope and nonblank check are library policy"
     reviewed_on: "2026-09-27"
     evidence_paths: ["spec/api/checked_views_push_spec.cr", "spec/api/transport_injection_spec.cr"]
+
+  - id: modal-errors-acknowledgment
+    classification: library_support
+    reviewed_on: "2026-09-27"
+    source_url: "https://docs.slack.dev/surfaces/modals/#display-errors-in-views"
+    source_section: "Display errors in views"
+    requirement: "Serialize response_action errors with Input block-ID keys and plain-text messages as an HTTP acknowledgment; applications own validation and response timing."
+    evidence_paths: ["spec/interactions/modal_errors_spec.cr", "spec/block_kit_consumers_spec.cr", "examples/support/modal_errors_example.cr"]
+  - id: modal-errors-useful-feedback
+    classification: library_policy
+    reviewed_on: "2026-09-27"
+    source_url: "https://docs.slack.dev/surfaces/modals/#display-errors-in-views"
+    source_section: "Display errors in views"
+    requirement: "Require at least one error and nonblank messages; own the supplied map and expose snapshots without imposing message lengths or block-ID formats."
+    evidence_paths: ["src/slack/interactions/modal_errors.cr", "spec/interactions/modal_errors_spec.cr"]
