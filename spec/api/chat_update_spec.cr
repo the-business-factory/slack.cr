@@ -108,4 +108,53 @@ describe Slack::Api::ChatUpdate do
     expect_raises(Slack::Api::Error) { client.call(request) }.code.should eq "cant_update_message"
     count.should eq 1
   end
+
+  it "updates text, attachments, metadata, files, and options" do
+    attachment = Slack::UI::Attachment.new(fallback: "Build 7", text: "All checks passed",
+      color: Slack::UI::Attachment::Color.hex("#2EB886"))
+    file_ids = ["F0REPORT1", "F0REPORT2"]
+    request = Slack::Api::ChatUpdate.new(channel: "C123", ts: "1710000000.000200",
+      text: "Build 7 passed", attachments: [attachment], file_ids: file_ids,
+      metadata: Slack::UI::MessageMetadata.new("build_finished", {"build" => JSON::Any.new("7")}),
+      parse: Slack::Api::ChatPostMessage::Parse::Full, link_names: true, reply_broadcast: true)
+    file_ids << "F0LATE"
+    expected = JSON.parse(<<-JSON)
+      {"channel":"C123","ts":"1710000000.000200","text":"Build 7 passed",
+       "attachments":[{"color":"#2EB886","fallback":"Build 7","text":"All checks passed"}],
+       "metadata":{"event_type":"build_finished","event_payload":{"build":"7"}},
+       "parse":"full","link_names":true,"reply_broadcast":true,"file_ids":["F0REPORT1","F0REPORT2"]}
+      JSON
+    WebMock.stub(:post, "https://slack.com/api/chat.update").to_return do |http_request|
+      JSON.parse(http_request.body || fail("Expected JSON body")).should eq expected
+      HTTP::Client::Response.new(200, body: %({"ok":true,"channel":"C123","ts":"1710000000.000200","text":"Build 7 passed"}))
+    end
+
+    ApiSupport.client.call(request).text.should eq "Build 7 passed"
+    request.file_ids.should eq ["F0REPORT1", "F0REPORT2"]
+  end
+
+  it "updates markdown_text and removes attachments with an empty list" do
+    request = Slack::Api::ChatUpdate.new(channel: "C123", ts: "1.1", markdown_text: "**Done**",
+      attachments: [] of Slack::UI::Attachment)
+
+    JSON.parse(request.to_json).should eq JSON.parse(
+      %({"channel":"C123","ts":"1.1","markdown_text":"**Done**","attachments":[]}))
+  end
+
+  it "rejects text over 4000 characters and empty markdown before transport" do
+    Slack::Api::ChatUpdate.new(channel: "C1", ts: "1.1", text: "a" * 4001).validate.map(&.code)
+      .should eq ["chat_update.text.too_long"]
+    Slack::Api::ChatUpdate.new(channel: "C1", ts: "1.1", markdown_text: "").validate.map(&.code)
+      .should eq ["chat_update.markdown_text.empty"]
+  end
+
+  {"message_not_found", "edit_window_closed", "streaming_state_conflict"}.each do |code|
+    it "raises #{code} as the error code" do
+      WebMock.stub(:post, "https://slack.com/api/chat.update")
+        .to_return(body: %({"ok":false,"error":"#{code}"}))
+      request = Slack::Api::ChatUpdate.new(channel: "C1", ts: "1.1", text: "Edited")
+
+      expect_raises(Slack::Api::Error) { ApiSupport.client.call(request) }.code.should eq code
+    end
+  end
 end

@@ -25,17 +25,19 @@ struct Slack::Api::MessageStream
     client.call(ChatAppendStream.new(channel: @channel, ts: @ts, chunks: chunks))
   end
 
-  # Finishes the message with optional markdown text, final *blocks*, and *session_status*.
+  # Finishes the message with optional markdown text, final *blocks*, *session_status*, and *metadata*.
   def stop(client : Client, *, markdown_text : String? = nil, blocks : Enumerable? = nil,
-           session_status : Streaming::SessionStatus? = nil) : Models::Chat::StreamMessage
+           session_status : Streaming::SessionStatus? = nil,
+           metadata : UI::MessageMetadata? = nil) : Models::Chat::StreamMessage
     client.call(ChatStopStream.new(channel: @channel, ts: @ts, markdown_text: markdown_text,
-      blocks: blocks, session_status: session_status))
+      blocks: blocks, session_status: session_status, metadata: metadata))
   end
 
-  # Finishes the message with chunks, optional final *blocks*, and *session_status*.
+  # Finishes the message with chunks, optional final *blocks*, *session_status*, and *metadata*.
   def stop(client : Client, *, chunks : Enumerable, blocks : Enumerable? = nil,
-           session_status : Streaming::SessionStatus? = nil) : Models::Chat::StreamMessage
+           session_status : Streaming::SessionStatus? = nil,
+           metadata : UI::MessageMetadata? = nil) : Models::Chat::StreamMessage
     client.call(ChatStopStream.new(channel: @channel, ts: @ts, chunks: chunks,
-      blocks: blocks, session_status: session_status))
+      blocks: blocks, session_status: session_status, metadata: metadata))
   end
 end

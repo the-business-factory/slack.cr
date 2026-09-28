@@ -33,7 +33,7 @@ Rules for `ChatStartStream`:
 - Omit `thread_ts` to stream a top-level message. Slack accepts this only in some channels and returns `invalid_thread_ts` in other channels. Slack's `"0"` has the same meaning; use `nil`.
 - `task_display_mode` is `Timeline` (Slack's default) or `Plan`.
 
-`icon_emoji`, `icon_url` (start) and `metadata` (stop) are not available yet. They will use the shared message icon and metadata types.
+`ChatStartStream` takes `icon:` (`UI::Icon::Emoji` or `UI::Icon::Url`) and `username:`. `ChatStopStream` and `MessageStream#stop` take `metadata:` (`UI::MessageMetadata`).
 
 ## Content: text or chunks
 

@@ -51,6 +51,7 @@ require "../examples/support/file_upload_example"
 require "../examples/support/thread_history_example"
 require "../examples/support/streaming_example"
 require "../examples/support/attachments_example"
+require "../examples/support/ephemeral_reply_example"
 require "../examples/support/socket_mode_client_example"
 require "../examples/support/assistant_thread_example"
 require "../examples/support/user_group_example"
@@ -153,6 +154,23 @@ describe "documented Block Kit workflows" do
        "icon_emoji":":rocket:"}
       JSON
     summary.should eq "Posted 1710000123.000200 with metadata deploy_finished"
+  end
+
+  it "links a saved message in an ephemeral thread reply and schedules a reminder" do
+    output = IO::Memory.new
+    OfflineEphemeralReplyExample.run(output)
+    ephemeral, scheduled, summary = output.to_s.lines
+    JSON.parse(ephemeral).should eq JSON.parse(<<-JSON)
+      {"channel":"C123","user":"U123","text":"Saved for later",
+       "blocks":[{"type":"section","text":{"type":"mrkdwn",
+         "text":"Saved <https://example.slack.com/archives/C123/p1710000000000100|this message>. I will remind you tomorrow."}}],
+       "thread_ts":"1710000000.000100"}
+      JSON
+    JSON.parse(scheduled).should eq JSON.parse(<<-JSON)
+      {"channel":"D123","post_at":1710086400,
+       "text":"Reminder: <https://example.slack.com/archives/C123/p1710000000000100|saved message>"}
+      JSON
+    summary.should eq "Ephemeral 1710000050.000200; reminder Q0REMIND1 at 1710086400"
   end
 
   it "posts a button, opens a modal, and reads its signed submission" do

@@ -1,7 +1,8 @@
 # Finishes a streamed message. See https://docs.slack.dev/reference/methods/chat.stopStream.
 #
 # Give `markdown_text` or `chunks`, or no content. Slack shows *blocks* (up to 50,
-# separate from blocks in chunks) after the final message.
+# separate from blocks in chunks) after the final message. *metadata* travels with
+# the finished message.
 struct Slack::Api::ChatStopStream < Slack::Api::Request(Slack::Models::Chat::StreamMessage)
   include Slack::Api::JsonBody
 
@@ -11,15 +12,18 @@ struct Slack::Api::ChatStopStream < Slack::Api::Request(Slack::Models::Chat::Str
   getter channel : String
   getter ts : String
   getter session_status : Streaming::SessionStatus?
+  getter metadata : Slack::UI::MessageMetadata?
 
   def initialize(*, @channel : String, @ts : String, markdown_text : String? = nil,
-                 blocks : Enumerable? = nil, @session_status : Streaming::SessionStatus? = nil)
+                 blocks : Enumerable? = nil, @session_status : Streaming::SessionStatus? = nil,
+                 @metadata : Slack::UI::MessageMetadata? = nil)
     @content = markdown_text ? Streaming::Content.new(markdown_text) : Streaming::Content.new
     @blocks = final_blocks(blocks)
   end
 
   def initialize(*, @channel : String, @ts : String, chunks : Enumerable(T),
-                 blocks : Enumerable? = nil, @session_status : Streaming::SessionStatus? = nil) forall T
+                 blocks : Enumerable? = nil, @session_status : Streaming::SessionStatus? = nil,
+                 @metadata : Slack::UI::MessageMetadata? = nil) forall T
     @content = Streaming::Content.new(chunks)
     @blocks = final_blocks(blocks)
   end
@@ -47,6 +51,7 @@ struct Slack::Api::ChatStopStream < Slack::Api::Request(Slack::Models::Chat::Str
       if status = @session_status
         json.field "session_status", status.wire_value
       end
+      json.field "metadata", @metadata if @metadata
     end
   end
 

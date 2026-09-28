@@ -11,10 +11,8 @@
 struct Slack::Api::ChatPostMessage < Slack::Api::Request(Slack::Models::Chat::PostMessage)
   include Slack::Api::JsonBody
 
-  # Slack's documented maximum for one request. The attachments guide advises
-  # at most 20.
-  ATTACHMENTS_MAX_SIZE   =    100
-  MARKDOWN_TEXT_MAX_SIZE = 12_000
+  ATTACHMENTS_MAX_SIZE   = Slack::Api::ChatContent::ATTACHMENTS_MAX_SIZE
+  MARKDOWN_TEXT_MAX_SIZE = Slack::Api::ChatContent::MARKDOWN_TEXT_MAX_SIZE
 
   # How Slack parses `text`: `full` links names and URLs, `none` does not.
   enum Parse
@@ -29,12 +27,9 @@ struct Slack::Api::ChatPostMessage < Slack::Api::Request(Slack::Models::Chat::Po
     end
   end
 
-  @message : Slack::UI::Message?
-  @attachments : Array(Slack::UI::Attachment)?
+  @content : Slack::Api::ChatContent
 
   getter channel : String
-  getter text : String?
-  getter markdown_text : String?
   getter thread_ts : String?
   getter reply_broadcast : Bool?
   getter metadata : Slack::UI::MessageMetadata?
@@ -67,15 +62,14 @@ struct Slack::Api::ChatPostMessage < Slack::Api::Request(Slack::Models::Chat::Po
     @icon : Slack::UI::Icon? = nil,
     @as_user : Bool? = nil,
   )
-    @message = message.snapshot
-    @attachments = attachments.try(&.map(&.itself))
+    @content = Slack::Api::ChatContent.new(message: message, attachments: attachments)
   end
 
   # Posts plain text. Slack formats it as `mrkdwn` unless `mrkdwn` is false.
   def initialize(
     *,
     @channel : String,
-    @text : String,
+    text : String,
     attachments : Enumerable(Slack::UI::Attachment)? = nil,
     @thread_ts : String? = nil,
     @reply_broadcast : Bool? = nil,
@@ -90,14 +84,14 @@ struct Slack::Api::ChatPostMessage < Slack::Api::Request(Slack::Models::Chat::Po
     @icon : Slack::UI::Icon? = nil,
     @as_user : Bool? = nil,
   )
-    @attachments = attachments.try(&.map(&.itself))
+    @content = Slack::Api::ChatContent.new(text: text, attachments: attachments)
   end
 
   # Posts standard Markdown, up to 12,000 characters, without `text` or `blocks`.
   def initialize(
     *,
     @channel : String,
-    @markdown_text : String,
+    markdown_text : String,
     attachments : Enumerable(Slack::UI::Attachment)? = nil,
     @thread_ts : String? = nil,
     @reply_broadcast : Bool? = nil,
@@ -112,19 +106,27 @@ struct Slack::Api::ChatPostMessage < Slack::Api::Request(Slack::Models::Chat::Po
     @icon : Slack::UI::Icon? = nil,
     @as_user : Bool? = nil,
   )
-    @attachments = attachments.try(&.map(&.itself))
+    @content = Slack::Api::ChatContent.new(markdown_text: markdown_text, attachments: attachments)
   end
 
   def message : Slack::UI::Message?
-    @message.try(&.snapshot)
+    @content.message
+  end
+
+  def text : String?
+    @content.text
+  end
+
+  def markdown_text : String?
+    @content.markdown_text
   end
 
   def attachments : Array(Slack::UI::Attachment)?
-    @attachments.try(&.dup)
+    @content.attachments
   end
 
   def validate : Array(Slack::UI::ValidationIssue)
-    issues = @message.try(&.validate) || [] of Slack::UI::ValidationIssue
+    issues = @content.validate("chat_post_message")
     if @channel.empty?
       issues << Slack::UI::ValidationIssue.new(
         code: "chat_post_message.channel.empty",
@@ -132,15 +134,9 @@ struct Slack::Api::ChatPostMessage < Slack::Api::Request(Slack::Models::Chat::Po
         message: "Channel must not be empty."
       )
     end
-    text_issues(issues)
-    thread_issues(issues)
-    attachment_issues(issues)
-    if username = @username
-      if username.blank?
-        issues << Slack::UI::ValidationIssue.new(
-          "chat_post_message.username.blank", "username", "Username must not be blank.")
-      end
-    end
+    Slack::Api::ChatChecks.timestamp_issue(issues, "chat_post_message", "thread_ts", @thread_ts)
+    Slack::Api::ChatChecks.broadcast_issue(issues, "chat_post_message", @reply_broadcast, @thread_ts)
+    Slack::Api::ChatChecks.blank_issue(issues, "chat_post_message", "username", @username, "Username")
     issues
   end
 
@@ -148,8 +144,7 @@ struct Slack::Api::ChatPostMessage < Slack::Api::Request(Slack::Models::Chat::Po
     validate!
     json.object do
       json.field "channel", @channel
-      content_to_json(json)
-      json.field "attachments", @attachments if @attachments
+      @content.fields(json)
       json.field "thread_ts", @thread_ts if @thread_ts
       json.field "reply_broadcast", @reply_broadcast unless @reply_broadcast.nil?
       json.field "metadata", @metadata if @metadata
@@ -164,15 +159,6 @@ struct Slack::Api::ChatPostMessage < Slack::Api::Request(Slack::Models::Chat::Po
 
   def tier : Slack::Api::RateLimitTier
     Slack::Api::RateLimitTier::Special
-  end
-
-  private def content_to_json(json : JSON::Builder) : Nil
-    if message = @message
-      json.field "text", message.fallback_text if message.fallback_text
-      json.field("blocks") { message.blocks_to_json(json) }
-    end
-    json.field "text", @text if @text
-    json.field "markdown_text", @markdown_text if @markdown_text
   end
 
   private def formatting_to_json(json : JSON::Builder) : Nil
@@ -192,111 +178,5 @@ struct Slack::Api::ChatPostMessage < Slack::Api::Request(Slack::Models::Chat::Po
       json.field icon.wire_field, icon.value
     end
     json.field "as_user", @as_user unless @as_user.nil?
-  end
-
-  private def text_issues(issues : Array(Slack::UI::ValidationIssue)) : Nil
-    if @text.try(&.empty?)
-      issues << Slack::UI::ValidationIssue.new(
-        "chat_post_message.text.empty", "text", "Text must not be empty.")
-    end
-    return unless markdown_text = @markdown_text
-
-    if markdown_text.empty?
-      issues << Slack::UI::ValidationIssue.new(
-        "chat_post_message.markdown_text.empty", "markdown_text", "Markdown text must not be empty.")
-    elsif markdown_text.size > MARKDOWN_TEXT_MAX_SIZE
-      issues << Slack::UI::ValidationIssue.new(
-        "chat_post_message.markdown_text.too_long", "markdown_text",
-        "Markdown text cannot exceed #{MARKDOWN_TEXT_MAX_SIZE} characters.")
-    end
-  end
-
-  private def thread_issues(issues : Array(Slack::UI::ValidationIssue)) : Nil
-    if timestamp = @thread_ts
-      # Slack ts values contain epoch seconds and a fraction. Check only their
-      # shape: fixed digit counts are not documented, and Float loses precision.
-      # https://docs.slack.dev/changelog/2016/05/31/more-events-timestamps-in-rtm-api/
-      unless /\A[0-9]+\.[0-9]+\z/.matches?(timestamp)
-        issues << Slack::UI::ValidationIssue.new(
-          code: "chat_post_message.thread_ts.invalid",
-          path: "thread_ts",
-          message: "Thread timestamp must contain digits, a decimal point, and fractional digits."
-        )
-      end
-    end
-    if @reply_broadcast && @thread_ts.nil?
-      issues << Slack::UI::ValidationIssue.new(
-        code: "chat_post_message.reply_broadcast.thread_required",
-        path: "reply_broadcast",
-        message: "Reply broadcast requires a thread timestamp."
-      )
-    end
-  end
-
-  private def attachment_issues(issues : Array(Slack::UI::ValidationIssue)) : Nil
-    return unless attachments = @attachments
-
-    if attachments.size > ATTACHMENTS_MAX_SIZE
-      issues << Slack::UI::ValidationIssue.new(
-        "chat_post_message.attachments.too_many", "attachments",
-        "A message cannot contain more than #{ATTACHMENTS_MAX_SIZE} attachments.")
-    end
-    attachments.each_with_index do |attachment, index|
-      issues.concat(attachment.validate.map(&.at("attachments[#{index}]")))
-    end
-    attached_block_issues(issues, attachments)
-  end
-
-  # Block IDs are unique in the whole message, and Slack limits the Markdown
-  # block text of the whole payload. Each Message and Attachment checks its own
-  # blocks; this checks what spans them, so no issue is reported twice.
-  private def attached_block_issues(issues : Array(Slack::UI::ValidationIssue),
-                                    attachments : Array(Slack::UI::Attachment)) : Nil
-    groups = [] of {String, Array(Slack::UI::MessageBlock)}
-    @message.try { |message| groups << {"", message.blocks} }
-    attachments.each_with_index do |attachment, index|
-      attachment.blocks.try { |blocks| groups << {"attachments[#{index}].", blocks} }
-    end
-    duplicate_block_id_issues(issues, groups)
-    combined_markdown_issue(issues, groups)
-  end
-
-  private def duplicate_block_id_issues(issues : Array(Slack::UI::ValidationIssue),
-                                        groups : Array({String, Array(Slack::UI::MessageBlock)})) : Nil
-    earlier = Set(String).new
-    groups.each do |prefix, blocks|
-      current = Set(String).new
-      block_ids(blocks, prefix) do |id, path|
-        if earlier.includes?(id)
-          issues << Slack::UI::ValidationIssue.new(
-            "chat_post_message.block_id.duplicate", path, "Block IDs must be unique within a message and its attachments.")
-        end
-        current << id
-      end
-      earlier.concat(current)
-    end
-  end
-
-  private def block_ids(blocks : Array(Slack::UI::MessageBlock), prefix : String, & : String, String ->) : Nil
-    blocks.each_with_index do |block, index|
-      block.block_id.try { |id| yield id, "#{prefix}blocks[#{index}].block_id" }
-      next unless block.is_a?(Slack::UI::Blocks::Container)
-
-      block.child_blocks.each_with_index do |child, position|
-        child.block_id.try { |id| yield id, "#{prefix}blocks[#{index}].child_blocks[#{position}].block_id" }
-      end
-    end
-  end
-
-  private def combined_markdown_issue(issues : Array(Slack::UI::ValidationIssue),
-                                      groups : Array({String, Array(Slack::UI::MessageBlock)})) : Nil
-    sizes = groups.map { |_, blocks| blocks.sum { |block| block.is_a?(Slack::UI::Blocks::Markdown) ? block.text.size : 0 } }
-    limit = Slack::UI::Blocks::Markdown::TEXT_MAX_SIZE
-    # A single group over the limit already has its own message issue.
-    return if sizes.sum <= limit || sizes.any? { |size| size > limit }
-
-    issues << Slack::UI::ValidationIssue.new(
-      "chat_post_message.markdown.too_long", "attachments",
-      "The markdown blocks in a message and its attachments cannot contain more than #{limit} characters in total.")
   end
 end

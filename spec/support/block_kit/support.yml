@@ -463,7 +463,7 @@ entries:
     fields_supported: [type, external_id, source, block_id]
     parents: [message]
     surfaces: [message]
-    restrictions: File is a message-only block with a nonempty external_id, a fixed "remote" source, and an optional block_id of 255 characters. The nonempty external_id is library policy. Home and modal surfaces reject it at compile time. Slack does not let apps add the block to messages directly; apps share remote files with files.remote.share or place the block in their own chat.unfurl request. FilesRemoteAdd and FilesRemoteShare cover the remote-file requests; there is no unfurl API. Received blocks decode as ReceivedBlocks::File with external_id and source. Slack checks that the remote file exists.
+    restrictions: File is a message-only block with a nonempty external_id, a fixed "remote" source, and an optional block_id of 255 characters. The nonempty external_id is library policy. Home and modal surfaces reject it at compile time. Slack does not let apps add the block to messages directly; apps share remote files with files.remote.share or place the block in their own chat.unfurl request. FilesRemoteAdd and FilesRemoteShare cover the remote-file requests; ChatUnfurl can carry the block in a UI::Unfurl. Received blocks decode as ReceivedBlocks::File with external_id and source. Slack checks that the remote file exists.
     implementation_status: supported
     inbound_status: supported
     evidence_paths: [src/slack/ui/blocks/file.cr, spec/ui/file_block_spec.cr, spec/block_kit_diagnostics_spec.cr, examples/support/remote_file_example.cr, spec/block_kit_consumers_spec.cr, src/slack/interactions/received_blocks/file.cr, spec/interactions/received_blocks_spec.cr]
@@ -472,7 +472,7 @@ entries:
     kind: surface
     documentation_url: https://docs.slack.dev/block-kit/
     fields_supported: [text, blocks]
-    parents: [chat.postMessage, chat.update]
+    parents: [chat.postMessage, chat.update, chat.postEphemeral, chat.scheduleMessage]
     surfaces: [message]
     restrictions: Supports explicit fallback text or the separately named Slack-generated fallback choice and a union of Section, Actions, Divider, Header, Context, Image, RichText, Table, DataTable, DataVisualization, Card, Carousel, Container, Markdown, ContextActions, and Input. At most two DataVisualization blocks per message. The text of all Markdown blocks in one message is at most 12,000 characters. The update adapter requires explicit fallback. Other block families remain unsupported until their slices ship.
     implementation_status: supported
@@ -494,7 +494,7 @@ entries:
     kind: message composition
     documentation_url: https://docs.slack.dev/legacy/legacy-messaging/legacy-secondary-message-attachments/
     fields_supported: [blocks, color, fallback, pretext, author_name, author_link, author_icon, title, title_link, text, fields, image_url, thumb_url, footer, footer_icon, ts, mrkdwn_in]
-    parents: [chat.postMessage]
+    parents: [chat.postMessage, chat.postEphemeral, chat.update, chat.scheduleMessage, chat.unfurl]
     surfaces: [message]
     restrictions: "UI::Attachment is immutable. Blocks follow the message block rules. Without blocks, fallback or text is required. author_link and author_icon require author_name; footer_icon requires footer; footer is at most 300 characters; image_url cannot go with thumb_url. Color is good, warning, danger, or #RRGGBB. Fields hold optional title, value and short. mrkdwn_in holds field names as strings because Slack does not list the allowed names. Interactive legacy fields callback_id and actions are not supported. Received attachments stay raw JSON."
     implementation_status: supported
@@ -505,7 +505,7 @@ entries:
     kind: message composition
     documentation_url: https://docs.slack.dev/messaging/message-metadata/
     fields_supported: [event_type, event_payload]
-    parents: [chat.postMessage]
+    parents: [chat.postMessage, chat.update, chat.stopStream]
     surfaces: [message]
     restrictions: "UI::MessageMetadata needs a nonblank event_type and a JSON object event_payload, and keeps a deep copy of the payload. Slack checks size and format remotely (metadata_too_large, invalid_metadata_format). Received metadata stays raw JSON."
     implementation_status: supported
@@ -515,22 +515,55 @@ entries:
   - wire_type: chat.update request
     kind: endpoint
     documentation_url: https://docs.slack.dev/reference/methods/chat.update/
-    fields_supported: [channel, ts, text, blocks, as_user]
+    fields_supported: [channel, ts, text, blocks, markdown_text, attachments, metadata, parse, link_names, reply_broadcast, file_ids, as_user]
     parents: []
     surfaces: [message]
-    restrictions: Replaces text and nonempty blocks from an owned Message. Explicit fallback of 1–4000 characters is required; generated fallback, partial patches, text-only updates and block clearing are unsupported. Channel must be nonblank; timestamp stays a decimal string without fixed digit counts. Optional as_user preserves false and omission. Attachments and metadata are omitted and retained; parse and link_names use Slack update defaults. Other method fields are unsupported. Send it with Slack::Api::Client#call. UpdateMessage exposes channel, ts, text and optional raw message. Slack checks ownership, permissions, non-ephemeral message state and rendering.
-    implementation_status: partial
+    restrictions: "Separate constructors take a Message (explicit fallback text and blocks), plain text, or markdown_text (1 to 12,000 characters), so markdown_text never goes with text or blocks. A Message with Slack-generated fallback is rejected because an update without text keeps the old fallback. Text is 1 to 4,000 characters. Attachments follow the chat.postMessage rules; an empty attachments list removes the old attachments. file_ids are copied. parse is none or full. Metadata replaces the old metadata; removing metadata with an empty object is not supported. unfurled_attachments is not supported. Channel must be nonblank; ts keeps the decimal string shape. UpdateMessage exposes channel, ts, text and optional raw message. Slack checks ownership, the edit window (edit_window_closed), streaming state (streaming_state_conflict), files, and rendering; the codes arrive as Api::Error#code."
+    implementation_status: supported
     inbound_status: partial
-    evidence_paths: [src/slack/api/requests/chat/update.cr, src/slack/models/chat/update_message.cr, spec/api/chat_update_spec.cr, spec/api/client_spec.cr, examples/block_kit_message_update.cr, spec/block_kit_consumers_spec.cr]
+    evidence_paths: [src/slack/api/requests/chat/update.cr, src/slack/api/requests/chat/content.cr, src/slack/models/chat/update_message.cr, spec/api/chat_update_spec.cr, spec/api/client_spec.cr, examples/block_kit_message_update.cr, spec/block_kit_consumers_spec.cr]
+
+  - wire_type: chat.postEphemeral request
+    kind: endpoint
+    documentation_url: https://docs.slack.dev/reference/methods/chat.postEphemeral
+    fields_supported: [channel, user, text, blocks, markdown_text, attachments, thread_ts, parse, link_names, username, icon_emoji, icon_url, as_user]
+    parents: []
+    surfaces: [message]
+    restrictions: "Constructors and content rules match chat.postMessage. Channel and user must be nonblank; thread_ts keeps the ts shape. parse is none or full; Slack also accepts mrkdwn and false, which are not offered. metadata is not supported: Slack disregards event metadata on ephemeral messages, and Work Object entity metadata is out of scope. The response gives message_ts, which chat.update cannot use. Tier 4. Slack checks membership, activity, and delivery (not guaranteed)."
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/api/requests/chat/post_ephemeral.cr, src/slack/models/chat/post_ephemeral.cr, spec/api/chat_post_ephemeral_spec.cr, examples/support/ephemeral_reply_example.cr, spec/block_kit_consumers_spec.cr]
+
+  - wire_type: chat.scheduleMessage request
+    kind: endpoint
+    documentation_url: https://docs.slack.dev/reference/methods/chat.scheduleMessage
+    fields_supported: [channel, post_at, text, blocks, markdown_text, attachments, thread_ts, reply_broadcast, parse, link_names, unfurl_links, unfurl_media, as_user]
+    parents: []
+    surfaces: [message]
+    restrictions: "Constructors and content rules match chat.postMessage. post_at is a Time sent as Unix seconds; the library does not read the clock, so Slack checks time_in_past, time_too_far (120 days), and 30 messages per channel in 5 minutes. metadata is not supported because Slack documents that a scheduled message with metadata does not post. reply_broadcast requires thread_ts. The response gives channel, scheduled_message_id, post_at (string or integer) and the raw delayed message. Tier 3."
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/api/requests/chat/schedule_message.cr, src/slack/models/chat/schedule_message.cr, spec/api/chat_schedule_spec.cr, examples/support/ephemeral_reply_example.cr, spec/block_kit_consumers_spec.cr]
+
+  - wire_type: chat.unfurl request
+    kind: endpoint
+    documentation_url: https://docs.slack.dev/reference/methods/chat.unfurl
+    fields_supported: [channel, ts, unfurl_id, source, unfurls, user_auth_required, user_auth_message, user_auth_url, user_auth_blocks]
+    parents: []
+    surfaces: [message]
+    restrictions: "One constructor takes channel and ts, the other unfurl_id and source (composer or conversations_history), so the pairs never mix. unfurls maps nonblank URLs to UI::Unfurl (1 to 50 message blocks and an optional composer preview with a plain_text title and icon_url) or UI::Attachment; the map is copied. user_auth_blocks follow the message block rules. hide_color for file unfurls is not supported. Tier 3. Slack checks the link, the message, and user authentication."
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/api/requests/chat/unfurl.cr, src/slack/ui/unfurl.cr, src/slack/ui/unfurl/preview.cr, spec/api/chat_unfurl_spec.cr]
 
   - wire_type: chat.startStream request
     kind: endpoint
     documentation_url: https://docs.slack.dev/reference/methods/chat.startStream
-    fields_supported: [channel, thread_ts, recipient_user_id, recipient_team_id, markdown_text, chunks, task_display_mode, username]
+    fields_supported: [channel, thread_ts, recipient_user_id, recipient_team_id, markdown_text, chunks, task_display_mode, username, icon_emoji, icon_url]
     parents: []
     surfaces: [message]
-    restrictions: "Constructors take markdown_text (1–12,000 characters) or a nonempty chunks list, or no content, so one request cannot send both. thread_ts is nil for a top-level stream (Slack's \"0\"); a given value must have the ts shape. The recipient user and team IDs are sent together or not at all; Slack requires them in channels. task_display_mode is timeline or plan. icon_emoji and icon_url are not sent yet; they arrive with the shared message icon type. Client#start_stream returns a MessageStream with the channel and ts. Tier 2. Slack checks the channel, thread, and streaming support."
-    implementation_status: partial
+    restrictions: "Constructors take markdown_text (1–12,000 characters) or a nonempty chunks list, or no content, so one request cannot send both. thread_ts is nil for a top-level stream (Slack's \"0\"); a given value must have the ts shape. The recipient user and team IDs are sent together or not at all; Slack requires them in channels. task_display_mode is timeline or plan. The icon is one UI::Icon::Emoji or UI::Icon::Url. Client#start_stream returns a MessageStream with the channel and ts. Tier 2. Slack checks the channel, thread, and streaming support."
+    implementation_status: supported
     inbound_status: unsupported
     evidence_paths: [src/slack/api/requests/chat/start_stream.cr, src/slack/api/message_stream.cr, src/slack/models/chat/stream_message.cr, spec/api/chat_stream_spec.cr, examples/support/streaming_example.cr, spec/block_kit_consumers_spec.cr]
 
@@ -548,11 +581,11 @@ entries:
   - wire_type: chat.stopStream request
     kind: endpoint
     documentation_url: https://docs.slack.dev/reference/methods/chat.stopStream
-    fields_supported: [channel, ts, markdown_text, chunks, blocks, session_status]
+    fields_supported: [channel, ts, markdown_text, chunks, blocks, session_status, metadata]
     parents: []
     surfaces: [message]
-    restrictions: "Constructors take markdown_text or a nonempty chunks list, or no content. blocks are copied and validated with the message block rules, at most 50, separate from blocks chunks. session_status is active, processing, suspended, or closed. metadata is not sent yet; it arrives with the shared message metadata type. The response gives channel, ts, and the raw message. Tier 2."
-    implementation_status: partial
+    restrictions: "Constructors take markdown_text or a nonempty chunks list, or no content. blocks are copied and validated with the message block rules, at most 50, separate from blocks chunks. session_status is active, processing, suspended, or closed. metadata is a UI::MessageMetadata. The response gives channel, ts, and the raw message. Tier 2."
+    implementation_status: supported
     inbound_status: unsupported
     evidence_paths: [src/slack/api/requests/chat/stop_stream.cr, src/slack/api/message_stream.cr, spec/api/chat_stream_spec.cr, examples/support/streaming_example.cr, spec/block_kit_consumers_spec.cr]
 
@@ -1454,14 +1487,14 @@ rules:
     evidence_paths: ["spec/interactions/radio_buttons_spec.cr", "spec/block_kit_consumers_spec.cr"]
   - id: chat_update_replacement
     classification: "library_policy"
-    requirement: "Always replace nonempty blocks and explicit fallback text; reject generated fallback instead of assuming update omission regenerates accessibility text. No partial patch or clearing API."
+    requirement: "A Message update always sends nonempty blocks and explicit fallback text; reject generated fallback instead of assuming update omission regenerates accessibility text. Text and markdown_text updates replace the content; an empty attachments list clears attachments. Metadata removal is not supported."
     source_url: "https://docs.slack.dev/reference/methods/chat.update/"
     source_section: "Usage info: text, blocks or attachments"
     reviewed_on: "2026-09-27"
     evidence_paths: ["spec/api/chat_update_spec.cr", "spec/block_kit_consumers_spec.cr"]
   - id: chat_update_fields
     classification: "slack_requirement"
-    requirement: "Channel and message timestamp select the target; text maximum is 4000 characters. Optional as_user applies to bot-owned updates."
+    requirement: "Channel and message timestamp select the target; text maximum is 4000 characters; markdown_text is at most 12,000 characters and not with text or blocks. Omitted blocks, text, attachments and metadata keep their previous values. Optional as_user applies to bot-owned updates."
     source_url: "https://docs.slack.dev/reference/methods/chat.update/"
     source_section: "Arguments, Valid message types, Errors: msg_too_long"
     reviewed_on: "2026-09-27"
@@ -1977,3 +2010,17 @@ rules:
     source_section: "Arguments: status, title, username; agents.sessions.rename Arguments: title"
     reviewed_on: "2026-09-28"
     evidence_paths: [spec/api/agents_spec.cr]
+  - id: chat_family_fields
+    classification: slack_requirement
+    requirement: "chat.postEphemeral needs channel and user; chat.scheduleMessage needs channel and post_at in Unix seconds; chat.deleteScheduledMessage needs channel and scheduled_message_id; chat.getPermalink needs channel and message_ts; chat.meMessage needs channel and text; chat.unfurl needs channel with ts, or unfurl_id with source composer or conversations_history."
+    source_url: https://docs.slack.dev/reference/methods/chat.unfurl
+    source_section: "Arguments of chat.postEphemeral, chat.scheduleMessage, chat.deleteScheduledMessage, chat.getPermalink, chat.meMessage, chat.unfurl"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/api/chat_post_ephemeral_spec.cr, spec/api/chat_schedule_spec.cr, spec/api/chat_get_permalink_spec.cr, spec/api/chat_me_message_spec.cr, spec/api/chat_unfurl_spec.cr]
+  - id: chat_family_omissions
+    classification: library_policy
+    requirement: "chat.postEphemeral and chat.scheduleMessage do not send metadata: Slack disregards event metadata on ephemeral messages, and a scheduled message with metadata does not post. parse offers none and full only. The library does not check scheduled times against the clock."
+    source_url: https://docs.slack.dev/reference/methods/chat.scheduleMessage
+    source_section: "Arguments: metadata, post_at; chat.postEphemeral Arguments: metadata, parse"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/api/chat_schedule_spec.cr, spec/api/chat_post_ephemeral_spec.cr]

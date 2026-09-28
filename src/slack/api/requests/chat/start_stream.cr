@@ -20,16 +20,19 @@ struct Slack::Api::ChatStartStream < Slack::Api::Request(Slack::Models::Chat::St
   getter recipient_team_id : String?
   getter task_display_mode : Streaming::TaskDisplayMode?
   getter username : String?
+  getter icon : Slack::UI::Icon?
 
   def initialize(*, @channel : String, markdown_text : String? = nil, @thread_ts : String? = nil,
                  @recipient_user_id : String? = nil, @recipient_team_id : String? = nil,
-                 @task_display_mode : Streaming::TaskDisplayMode? = nil, @username : String? = nil)
+                 @task_display_mode : Streaming::TaskDisplayMode? = nil, @username : String? = nil,
+                 @icon : Slack::UI::Icon? = nil)
     @content = markdown_text ? Streaming::Content.new(markdown_text) : Streaming::Content.new
   end
 
   def initialize(*, @channel : String, chunks : Enumerable(T), @thread_ts : String? = nil,
                  @recipient_user_id : String? = nil, @recipient_team_id : String? = nil,
-                 @task_display_mode : Streaming::TaskDisplayMode? = nil, @username : String? = nil) forall T
+                 @task_display_mode : Streaming::TaskDisplayMode? = nil, @username : String? = nil,
+                 @icon : Slack::UI::Icon? = nil) forall T
     @content = Streaming::Content.new(chunks)
   end
 
@@ -57,6 +60,9 @@ struct Slack::Api::ChatStartStream < Slack::Api::Request(Slack::Models::Chat::St
         json.field "task_display_mode", mode.wire_value
       end
       json.field "username", @username if @username
+      if icon = @icon
+        json.field icon.wire_field, icon.value
+      end
       @content.fields(json)
     end
   end

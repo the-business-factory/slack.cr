@@ -16,4 +16,19 @@ describe Slack::Api::ChatDelete do
 
     response.ts.should eq "1652805073.079609"
   end
+
+  it "deletes as the user when as_user is true" do
+    request = Slack::Api::ChatDelete.new(channel: "C1", ts: "1710000000.000100", as_user: true)
+
+    JSON.parse(request.to_json).should eq JSON.parse(%({"channel":"C1","ts":"1710000000.000100","as_user":true}))
+  end
+
+  it "raises message_not_found as the error code" do
+    WebMock.stub(:post, "https://slack.com/api/chat.delete")
+      .to_return(body: %({"ok":false,"error":"message_not_found"}))
+
+    expect_raises(Slack::Api::Error) do
+      ApiSupport.client.call(Slack::Api::ChatDelete.new(channel: "C1", ts: "1710000000.000100"))
+    end.code.should eq "message_not_found"
+  end
 end

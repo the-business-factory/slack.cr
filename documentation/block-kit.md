@@ -6,7 +6,7 @@ Use `require "slack"` and `Slack::UI` to construct validated, immutable outbound
 
 | Surface | Direct blocks | Input children | Send with |
 | --- | --- | --- | --- |
-| `Message` | Section, Actions, Divider, Header, Context, Image, Video, File, RichText, Table, DataTable, DataVisualization, Card, Carousel, Container, Markdown, ContextActions, Input | PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, DatetimePicker | `Slack::Api::ChatPostMessage`, `Slack::Api::ChatUpdate` |
+| `Message` | Section, Actions, Divider, Header, Context, Image, Video, File, RichText, Table, DataTable, DataVisualization, Card, Carousel, Container, Markdown, ContextActions, Input | PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, DatetimePicker | `Slack::Api::ChatPostMessage`, `Slack::Api::ChatUpdate`, `Slack::Api::ChatPostEphemeral`, `Slack::Api::ChatScheduleMessage`, `Slack::UI::Unfurl` in `Slack::Api::ChatUnfurl` |
 | `DisplayModal` | Section, Actions, Divider, Header, Context, Image, Video, RichText, Alert, Card | None, even if a submit label is supplied | `Slack::Api::ViewsOpen`, `Slack::Api::ViewsUpdate`, `Slack::Api::ViewsPush` |
 | `FormModal` | Section, Actions, Divider, Header, Context, Image, Video, RichText, Alert, Card, Input, ModalInput, ViewInput | PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, DatetimePicker; NumberInput, FileInput, UrlInput, and EmailInput through ModalInput; RichTextInput through ViewInput | `Slack::Api::ViewsOpen`, `Slack::Api::ViewsUpdate`, `Slack::Api::ViewsPush` |
 | `Home` | Section, Actions, Divider, Header, Context, Image, Video, RichText, Table, DataTable, DataVisualization, Card, Carousel, Container, Input, ViewInput | PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker; RichTextInput through ViewInput | `Slack::Api::ViewsPublish` |
@@ -128,7 +128,7 @@ Metadata needs a nonblank `event_type` and a JSON object `event_payload`. Slack 
 
 ## Build a remote file block
 
-A File block shows a remote file. Slack does not let apps add this block to messages directly. To share a remote file, the app adds it with `files.remote.add` and shares it with `files.remote.share`. To show it in a link preview, the app puts the block in its own `chat.unfurl` request. The [files guide](files.md) shows the remote file requests; this library does not wrap `chat.unfurl`. Slack shows File blocks in messages that contain remote files.
+A File block shows a remote file. Slack does not let apps add this block to messages directly. To share a remote file, the app adds it with `files.remote.add` and shares it with `files.remote.share`. To show it in a link preview, the app puts the block in a `UI::Unfurl` for `ChatUnfurl` (see [Unfurl links](#unfurl-links)). The [files guide](files.md) shows the remote file requests. Slack shows File blocks in messages that contain remote files.
 
 ```crystal
 file = UI::Blocks::File.new(external_id: "plan-2026-q4", block_id: "plan.file")
@@ -142,7 +142,7 @@ The block always sends `source: "remote"`. The `external_id` must not be empty, 
 
 ## Update a message
 
-Use `ChatUpdate` to replace the blocks and fallback text of an existing message. Pass the channel ID and exact timestamp string returned when posting. For a direct message, use its conversation ID, not a user ID.
+Use `ChatUpdate` to replace the content of an existing message. Pass the channel ID and exact timestamp string returned when posting. For a direct message, use its conversation ID, not a user ID.
 
 ```crystal
 updated_message = UI.message(fallback_text: "Request 42 approved.") do |builder|
@@ -155,13 +155,80 @@ updated = client.call(Slack::Api::ChatUpdate.new(
 puts updated.text
 ```
 
-The supported request fields are `channel`, `ts`, `text`, `blocks`, and optional `as_user`. The adapter always sends both text and nonempty blocks from an owned Message snapshot. It requires explicit fallback text of 1–4000 characters. A Message created with Slack-generated fallback is rejected: text omission on an update does not promise a new accessibility fallback. This is a library policy. Use fresh block IDs for each message version.
+Like `ChatPostMessage`, `ChatUpdate` has three constructors: `message:`, `text:`, or `markdown_text:`. A `message:` update sends the text and nonempty blocks of an owned Message snapshot. It requires explicit fallback text: an update without text keeps the old fallback, so a Message with Slack-generated fallback is rejected. This is a library policy. Text is 1 to 4000 characters. A `text:` update removes the old blocks. Use fresh block IDs for each message version.
 
-This is a content replacement operation, not a partial patch builder. It cannot retain old blocks by omission, clear all blocks, or send a text-only update. Attachments and metadata are omitted and retained by Slack. Parsing and name-linking options are omitted and use Slack's update defaults. Thread, broadcast, unfurl, file, and other method options are outside this adapter. Optional `as_user` preserves omission and explicit false; Slack documents `as_user: true` for updating a bot's own message.
+All constructors take these options:
+
+- `attachments`: the `chat.postMessage` attachment rules apply. Slack keeps the old attachments when you omit them; pass an empty list to remove them.
+- `metadata`: a `UI::MessageMetadata` that replaces the old metadata. Slack keeps the old metadata when you omit it. This library cannot remove metadata.
+- `file_ids`: IDs of files to share with the message.
+- `reply_broadcast`: shows an existing thread reply in the channel.
+- `parse` (`None` or `Full`; Slack's update default is `client`), `link_names`, and the legacy `as_user`.
+
+```crystal
+client.call(Slack::Api::ChatUpdate.new(channel: "C123", ts: "1710000000.000200",
+  text: "Build 7 passed", attachments: [] of Slack::UI::Attachment))
+# {"channel":"C123","ts":"1710000000.000200","text":"Build 7 passed","attachments":[]}
+```
 
 `channel` must not be blank. `ts` must contain digits, a decimal point, and fractional digits; it remains a string without fixed digit counts or rounding. `Client#call` and JSON serialization reject invalid local values before dispatch. `call` returns `Slack::Models::Chat::UpdateMessage`, with `channel`, `ts`, `text`, and optional raw `message` JSON. API failures raise `Slack::Api::Error`.
 
-The token needs `chat:write`, and only messages owned by the authenticated user or bot can be updated. Ephemeral messages are unsupported. Slack checks ownership, permissions, message state, and rendering. See the [chat.update reference](https://docs.slack.dev/reference/methods/chat.update/) and the offline [message-update example](../examples/block_kit_message_update.cr); stubs do not prove live acceptance.
+The token needs `chat:write`, and only messages owned by the authenticated user or bot can be updated. Ephemeral messages are unsupported. Slack checks ownership, permissions, message state, and rendering. Slack error codes such as `message_not_found`, `edit_window_closed` (the workspace edit window is closed), and `streaming_state_conflict` arrive as `Slack::Api::Error#code`. See the [chat.update reference](https://docs.slack.dev/reference/methods/chat.update/) and the offline [message-update example](../examples/block_kit_message_update.cr); stubs do not prove live acceptance.
+
+## Reply to one user
+
+`ChatPostEphemeral` shows a message that only `user` can see. It has the same three content constructors and content rules as `ChatPostMessage`, and takes `attachments`, `thread_ts`, `parse`, `link_names`, `username`, `icon`, and the legacy `as_user`.
+
+```crystal
+reply = client.call(Slack::Api::ChatPostEphemeral.new(
+  channel: "C123", user: "U123", text: "Only you can see this.", thread_ts: "1710000000.000100"))
+reply.message_ts # => "1710000050.000200"
+```
+
+The user must be active and a member of the channel; Slack does not guarantee delivery. You cannot update the message with `message_ts`. Slack disregards event metadata on ephemeral messages, so the request has no `metadata`.
+
+## Schedule a message
+
+`ChatScheduleMessage` posts a message later. It has the three content constructors and takes `attachments`, `thread_ts`, `reply_broadcast`, `parse`, `link_names`, `unfurl_links`, `unfurl_media`, and `as_user`. `post_at` is a `Time`; the request sends Unix seconds.
+
+```crystal
+scheduled = client.call(Slack::Api::ChatScheduleMessage.new(
+  channel: "C123", post_at: Time.utc + 1.day, text: "Standup in 5 minutes"))
+scheduled.scheduled_message_id # => "Q1298393284"
+
+client.each_page(Slack::Api::ChatScheduledMessagesList.new(channel: "C123")) do |page|
+  page.model.scheduled_messages.each { |item| puts "#{item.id} at #{item.post_at}" }
+end
+client.call(Slack::Api::ChatDeleteScheduledMessage.new(channel: "C123", scheduled_message_id: scheduled.scheduled_message_id))
+```
+
+Slack accepts times up to 120 days ahead and 30 scheduled messages per channel in 5 minutes. The library does not read the clock: Slack returns `time_in_past` or `time_too_far`. Slack documents that a scheduled message with metadata does not post, so the request has no `metadata`. `ChatScheduledMessagesList` takes optional `channel`, `oldest` and `latest` times, `team_id`, `cursor`, and `limit`.
+
+## Unfurl links
+
+`ChatUnfurl` adds previews to links in a message. Identify the message with `channel:` and `ts:`, or pass the `unfurl_id:` and `source:` of a `link_shared` event. `unfurls` maps each URL to a `UI::Unfurl` (message blocks and an optional composer preview) or a `UI::Attachment`.
+
+```crystal
+unfurl = UI::Unfurl.new(
+  blocks: [UI::Blocks::Section.new(text: UI.mrkdwn("*Issue 7*: Login fails"))],
+  preview: UI::Unfurl::Preview.new(title: "Issue 7", icon_url: "https://example.com/icon.png"))
+client.call(Slack::Api::ChatUnfurl.new(unfurl_id: "gryl3kb80b3wm49ihzoo35fyqoq08n2y",
+  source: Slack::Api::ChatUnfurl::Source::Composer, unfurls: {"https://example.com/issues/7" => unfurl}))
+# {"unfurl_id":"gryl3kb...","source":"composer","unfurls":{"https://example.com/issues/7":
+#   {"blocks":[...],"preview":{"title":{"type":"plain_text","text":"Issue 7"},"icon_url":"https://example.com/icon.png"}}}}
+```
+
+Unfurl blocks follow the message block rules. Slack shows the preview only in the message composer. To ask the user to connect an account first, pass `user_auth_required`, `user_auth_message`, `user_auth_url`, or `user_auth_blocks`. Slack checks the link and the message.
+
+## Other chat requests
+
+| Request | Sends | Returns |
+| --- | --- | --- |
+| `ChatDelete.new(channel:, ts:, as_user: nil)` | `chat.delete` | `channel`, `ts` |
+| `ChatGetPermalink.new(channel:, message_ts:)` | `chat.getPermalink` | `channel`, `permalink` |
+| `ChatMeMessage.new(channel:, text:)` | `chat.meMessage` | `channel`, `ts` |
+
+See the offline [ephemeral reply example](../examples/ephemeral_reply.cr). Offline tests do not prove that Slack accepts or shows a message.
 
 ## Add an overflow menu
 

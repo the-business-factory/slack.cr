@@ -165,4 +165,29 @@ describe "stream content limits" do
       .append(ApiSupport.client("xoxb-synthetic-stream"), chunks: chunks)
     count[0].should eq 1
   end
+
+  it "starts a stream with an emoji icon" do
+    expected = JSON.parse(%({"channel":"D123","markdown_text":"Thinking","username":"Helper","icon_emoji":":robot_face:"}))
+    count = stub_stream_method("chat.startStream", expected)
+    request = Slack::Api::ChatStartStream.new(channel: "D123", markdown_text: "Thinking", username: "Helper",
+      icon: Slack::UI::Icon::Emoji.new(":robot_face:"))
+
+    ApiSupport.client("xoxb-synthetic-stream").start_stream(request)
+
+    count[0].should eq 1
+  end
+
+  it "stops a stream with message metadata" do
+    expected = JSON.parse(<<-JSON)
+      {"channel":"C123","ts":"1721609600.123456","markdown_text":"Done.",
+       "metadata":{"event_type":"answer_finished","event_payload":{"sources":2}}}
+      JSON
+    count = stub_stream_method("chat.stopStream", expected)
+    metadata = Slack::UI::MessageMetadata.new("answer_finished", {"sources" => JSON::Any.new(2_i64)})
+
+    Slack::Api::MessageStream.new(channel: "C123", ts: "1721609600.123456")
+      .stop(ApiSupport.client("xoxb-synthetic-stream"), markdown_text: "Done.", metadata: metadata)
+
+    count[0].should eq 1
+  end
 end
