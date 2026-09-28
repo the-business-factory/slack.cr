@@ -1,232 +1,90 @@
 # slack.cr
 
-Crystal client for building Slack apps and tools using the Slack API.
-
-Requires Crystal 1.21.0 or later.
+Crystal client for Slack Web API calls, signed requests, OAuth app installation, and Block Kit. Requires Crystal 1.21.0 or later.
 
 ## Installation
 
-1. Add the dependency to your `shard.yml`:
+Add the shard to `shard.yml`:
 
-   ```yaml
-   dependencies:
-     slack:
-       github: the-business-factory/slack.cr
-   ```
+```yaml
+dependencies:
+  slack:
+    github: the-business-factory/slack.cr
+```
 
-2. Run `shards install`
+Run `shards install` and use the full library with `require "slack"`.
 
-## Usage
+## Web API quickstart
 
-## Demo App
-
-A demo app is published at https://github.com/the-business-factory/hirobot.app.
-
-### Configuration
+Supply a token with the scope required by the Slack method you call. For example, a bot token with `team:read` can request team information:
 
 ```crystal
 require "slack"
 
-Slack.configure do |config|
-  config.bot_scopes = ["incoming-webhook"] # Array(String)
-  config.client_id = ENV["SLACK_CLIENT_ID"] # String?
-  config.client_secret = ENV["SLACK_CLIENT_SECRET"] # String?
-  config.signing_secret = ENV["SLACK_SIGNING_SECRET"] # String?
-  config.signing_secret_version = "v0" # String
-  config.webhook_delivery_time_limit = 5.minutes # Time::Span
-end
-
+token : String = ENV["SLACK_BOT_TOKEN"]
+team = Slack::Api::TeamInfo.new(token: token).call
+puts team.name
 ```
 
-`require "slack"` loads the core and OAuth installation APIs. The compatibility
-entrypoint `require "slack/oauth"` loads the same APIs. Either require order is supported.
+Slack API error responses raise `Slack::Api::Error`. API calls use `https://slack.com/api/` by default. Endpoint constructors accept named `configuration` and `transport` options where supported; see [authentication and transport](documentation/authentication.md).
 
-### OAuth installation
+| Feature | Credentials and setup |
+| --- | --- |
+| Build or inspect checked Block Kit values | None. |
+| Direct Web API request | Token with the method's required scopes. |
+| Signed Events API, command, or interaction HTTP request | App signing secret for verification. A valid timestamp prevents stale requests; the application handles duplicate deliveries. |
+| OAuth app installation | Client ID, client secret, redirect URI, bot/user scopes, trusted session binding, state store, and application-owned installation store. Pass scopes to `AuthHandler`, not global settings. |
+| Stored credential dispatch and rotation | Installation store; rotating grants also need the OAuth token endpoint and client credentials. |
 
-`Slack::AuthHandler` handles app installation; it does not authenticate a login. Create it
-with an explicit `Slack::Auth::OAuthConfiguration`, `Slack::Auth::StateStore`, and
-`Slack::Auth::Transport`. Pass a trusted application session binding to both handler
-methods. The handler does not read that value from callback parameters or cookies.
+Global `Slack.configure` settings for webhook signing and API transport do not configure `AuthHandler`. Create it with an explicit `Slack::Auth::OAuthConfiguration`. [Authentication](documentation/authentication.md) covers installation, request authorization, rotation, revocation, storage, and transport.
 
-See [OAuth installation](documentation/oauth-installation.md) for setup, routing, storage,
-and migration examples. `Slack::Auth::MemoryStateStore` is for one process only. Use a
-shared application-owned adapter when callbacks can reach more than one process.
+Sign in with Slack is unavailable as a verified login. `Slack::SignInWithSlack` does not verify OIDC identity and raises `Slack::SignInResponse::VerificationUnavailable` on that path. Keep login separate from app installation.
 
-### Credential lifecycle
+## Checked Block Kit
 
-Pass a `Slack::Auth::RotationService` to `RequestAuthorizer` with the named
-`rotation:` option to refresh expiring bot or user credentials before creating a
-request context. Use the same installation store for both services. Existing
-contexts keep their original credential references and reject invalidated grants.
-See [request authorization](documentation/request-authorization.md) and
-[token rotation](documentation/token-rotation.md).
+Checked values validate supported fields and surface placement when built. Constructing them needs no credentials:
 
-Use `Slack::Auth::CredentialLifecycle` to verify and prepare uninstall or token
-revocation events, then apply cleanup with the captured installation version.
-Retain the prepared delivery when retrying queued cleanup. Applications own
-event deduplication and durable queue storage. See
-[credential cleanup](documentation/credential-lifecycle.md) for ownership,
-delivery ordering, and migration examples.
-
-### Sign in with Slack
-
-Sign in with Slack is unavailable until full OIDC identity verification is
-implemented. The class is `Slack::SignInWithSlack`. Configuration does not enable
-verified login. The identity path raises
-`Slack::SignInResponse::VerificationUnavailable`; do not use decoded claims as an
-authenticated identity. Keep login scopes and routes separate from app installation.
-No JWT dependency is required for this guard.
-
-### Processing Webhook Events
 ```crystal
 require "slack"
 
-def process_webhook(request : HTTP::Request)
-  event_payload = Slack.process_webhook(event)
-  case event_payload
-  when .is_a?(Slack::UrlVerification)
-    json(event_payload.response.to_json)
-  else
-    handle_event(event_payload.event)
-  end
+alias UI = Slack::UI::Checked
+message = UI.message(fallback_text: "Request 42 needs approval.") do |builder|
+  builder.section(UI.mrkdwn("*Request 42* needs approval"))
+  builder.actions(elements: [
+    UI::BlockElements::Button.new(
+      text: UI.plain("Approve"),
+      action_id: "request.approve",
+      value: "42",
+      accessibility_label: "Approve request 42"
+    ),
+  ])
 end
 
-# You can easily handle only the events you expect back, with type safety.
-def handle_event(event : Slack::Event::Message::MessageChanged)
-  pp event.message.text
-end
-
-# And of course sometimes, you just want to ignore things you don't expect.
-def handle_event(unhandled_event)
-end
+request = Slack::Api::CheckedChatPostMessage.new(
+  token: ENV["SLACK_BOT_TOKEN"],
+  channel: ENV["SLACK_CHANNEL_ID"],
+  message: message
+)
+response = request.call
 ```
 
-### Web API calls
+The send requires a bot token with `chat:write` and a channel the app can post to. Use `message.to_pretty_json` to inspect the payload locally. See [Block Kit](documentation/block-kit.md) for supported blocks, messages, modals, Home, static choices, incoming actions, and validation.
 
-When returning responses from the Slack API, error responses are raised, rather
-than returned as separate error objects. This provides strongly typed responses
-for the majority of API traffic; Slack::Api::Error errors can be rescued to
-allow customized error handling if needed.
+## Runnable examples
 
-API calls use `https://slack.com/api/` by default. You can set a different API
-host or path and connection options without changing OAuth configuration:
-
-```crystal
-Slack.configure do |config|
-  config.api_configuration = Slack::Auth::APIConfiguration.new(
-    URI.parse("https://api.slack-gov.com/api/")
-  )
-  config.api_transport_options = Slack::Auth::TransportOptions.new(
-    connect_timeout: 5.seconds,
-    read_timeout: 20.seconds,
-    write_timeout: 20.seconds,
-    ca_file: "/etc/ssl/certs/company-ca.pem"
-  )
-end
-```
-
-Each API wrapper also accepts named `configuration` and `transport` arguments.
-This supports request-local credentials and offline tests. See
-[authentication transport](documentation/auth-transport.md) for the endpoint,
-proxy, TLS, and failure rules.
-
-```crystal
-class ExampleSlackApiCall
-  def initialize(@token : String, @channel_id : String)
-  end
-
-  def run
-    # Guaranteed to be some sort of Slack::Model::Conversation object.
-    channel = Slack::Api::ConversationsInfo.new(token, channel_id).call
-
-    # Now you can with Slack's polymorphic API in uniform ways.
-    case channel
-    when Slack::Models::IMChat
-      Log.info { "IM Chat Latest Message Read: #{channel.latest}" }
-    when Slack::Models::PublicChannel
-      Log.info { "Public Team Channel Name: #{channel.name}" }
-    end
-  rescue exc : Slack::Api::Error
-    # exc.message will typically have the JSON Error Results from Slack's API.
-    Log.info { "Error Raised: #{exc.message}" }
-  end
-end
-```
-
-### Slack UI Tools
-```crystal
-# Users can easily define custom UI components to help build out "app specific"
-# "UI Kits" fairly easily, focusing on the UX and business logic rather than
-# the stupid internals of Slack's API.
-struct ButtonSection < Slack::UI::CustomComponent
-  include Slack::UI::BaseComponents
-
-  def self.render(action_id : String)
-    buttons = %w(Submit Cancel).map do |text|
-      style = text == "Submit" ? ButtonStyles::Primary : ButtonStyles::Danger
-      ButtonElement.render(
-        action_id: "#{action_id}_#{text.downcase}",
-        button_text: text,
-        style: style
-      )
-    end
-
-    Slack::UI::Blocks::Actions.new elements: buttons
-  end
-end
-
-class SlackLinkPage < WebhookAction
-  include Slack::UI::BaseComponents
-
-  post "/slack/links" do
-    command = Slack.process_command(request)
-    text = command.text.presence || "nothing"
-
-    text_section = TextSection.render(
-      text: "processed #{command.command} with #{text} as text."
-    )
-
-    input_element = InputElement.render(
-      action_id: "compensation",
-      placeholder_text: "e.g. $120,000-$190,000",
-      label_text: "Compensation",
-      initial_value: ""
-    )
-
-    button_section = ButtonSection.render(
-      action_id: "button_group_#{Random::Secure.hex}"
-    )
-
-    json({blocks: [text_section, input_element, button_section]})
-  end
-end
-```
-
-## Development
+From a repository checkout, run `shards install` first. The modal, Home, and static choice examples use the development dependency WebMock. They use synthetic credentials and stub HTTP requests; they do not contact Slack.
 
 ```sh
-shards install
-crystal spec
-crystal tool format --check
-crystal run lib/ameba/src/cli.cr
+crystal run examples/block_kit_message.cr
+crystal run examples/block_kit_modal.cr
+crystal run examples/block_kit_home.cr
+crystal run examples/block_kit_static_select.cr
 ```
 
-The full suite runs offline using `.env.test`, [WebMock](https://github.com/manastech/webmock.cr)
-request stubs, and committed response fixtures. WebMock rejects unstubbed external
-requests, including streaming requests. Bounded transport specs use only local loopback
-sockets with synthetic TLS credentials. Local `.env` files are not loaded. The response
-bodies come from the repository's existing API fixtures; the manifest response uses the
-dummy app ID from `.env.test`.
+The examples show checked message construction, a signed button and form submission, Home publishing and state, and static selections. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
 
 ## Contributing
 
-1. Fork it (<https://github.com/the-business-factory/slack.cr/fork>)
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create a new Pull Request
+Run `shards install`, `crystal spec`, `crystal tool format --check`, and `crystal run lib/ameba/src/cli.cr --no-color` before a pull request. Tests run offline with synthetic credentials. See [test instructions](spec/support/README.md) for the few checks that start child processes.
 
-## Contributors
-
-- [Rob Cole](https://github.com/robcole) - creator and maintainer
-- [Alex Piechowski](https://github.com/grepsedawk) - maintainer
+Contributors: [Rob Cole](https://github.com/robcole) and [Alex Piechowski](https://github.com/grepsedawk).
