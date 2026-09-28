@@ -56,6 +56,7 @@ require "../examples/support/ephemeral_reply_example"
 require "../examples/support/socket_mode_client_example"
 require "../examples/support/assistant_thread_example"
 require "../examples/support/user_group_example"
+require "../examples/support/incident_channel_example"
 require "../examples/support/testing_example"
 require "../examples/support/app_example"
 require "../examples/support/assistant_events_example"
@@ -188,6 +189,24 @@ describe "documented Block Kit workflows" do
     JSON.parse(sent[2][1]["manifest"])["oauth_config"].should eq JSON.parse(
       %({"scopes":{"bot":["app_mentions:read","chat:write"]}}))
     sent[3][1].should eq URI::Params.parse("app_id=A0DEPLOY01")
+  end
+
+  it "sets up and archives an incident channel after a taken name" do
+    output = IO::Memory.new
+    transport = OfflineIncidentChannelExample.run(output)
+    output.to_s.lines.should eq ["incident-42 is taken; created incident-42-1 (C42)",
+                                 "Invited 3 responders",
+                                 "Topic: Checkout errors. Updates every 30 min.",
+                                 "Lead DM: D-LEAD",
+                                 "Archived C42"]
+    transport.requests.map { |request| {request.uri.path, JSON.parse(request.body.to_s)} }.should eq [
+      {"/api/conversations.create", JSON.parse(%({"name":"incident-42"}))},
+      {"/api/conversations.create", JSON.parse(%({"name":"incident-42-1"}))},
+      {"/api/conversations.invite", JSON.parse(%({"channel":"C42","users":"U-LEAD,U-ONCALL,U-GONE","force":true}))},
+      {"/api/conversations.setTopic", JSON.parse(%({"channel":"C42","topic":"Checkout errors. Updates every 30 min."}))},
+      {"/api/conversations.open", JSON.parse(%({"users":"U-LEAD"}))},
+      {"/api/conversations.archive", JSON.parse(%({"channel":"C42"}))},
+    ]
   end
 
   it "streams a threaded answer with a plan and final feedback blocks" do

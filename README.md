@@ -116,6 +116,28 @@ client.call(Slack::Api::BookmarksEdit.new("C123", bookmark.id, title: "Queue run
 
 The client rejects an empty reaction name, an empty bookmark title or link, and an edit without changes before it sends. Slack checks emoji names, links, scopes, and pin and bookmark limits.
 
+
+### Manage conversations
+
+Create, rename, archive, and restore channels with `ConversationsCreate`, `ConversationsRename`, `ConversationsArchive`, and `ConversationsUnarchive`. A name has at most 80 characters; Slack checks the allowed characters. Change membership with `ConversationsJoin`, `ConversationsLeave`, `ConversationsInvite` (1 to 1000 user IDs), and `ConversationsKick` (one user). `ConversationsSetTopic` and `ConversationsSetPurpose` accept at most 250 characters, and `ConversationsMark` moves the read cursor. Requests that change a channel return its `Slack::Models::Conversation`:
+
+```crystal
+channel = client.call(Slack::Api::ConversationsCreate.new("incident-42", is_private: true))
+client.call(Slack::Api::ConversationsInvite.new(channel.id, ["U1", "U2"], force: true))
+client.call(Slack::Api::ConversationsSetTopic.new(channel.id, "Checkout errors"))
+```
+
+Slack errors raise `Slack::Api::Error`. For example, `name_taken` means the name exists, `not_in_channel` means the caller is not a member, and `channel_not_found` means the ID is wrong or not visible to the token. When one invited user is not valid, Slack invites nobody and raises the first error; `force: true` invites the valid users.
+
+`ConversationsOpen` opens a direct message with one user or a group direct message with two to eight users. It can also resume a conversation by `channel:`. `channel_id` returns the conversation ID. With `return_im: true`, `channel` is the full conversation: an `IMChat`, or a `PrivateChannel` for a group direct message:
+
+```crystal
+dm = client.call(Slack::Api::ConversationsOpen.new(users: ["U1"]))
+client.call(Slack::Api::ChatPostMessage.new(channel: dm.channel_id, text: "You lead this incident."))
+```
+
+Shared channel invitations (`conversations.inviteShared` and related methods) use the generic call.
+
 ## Block Kit
 
 Block Kit values validate supported fields and surface placement when built. Constructing them needs no credentials:
@@ -371,6 +393,7 @@ crystal run examples/file_upload.cr
 crystal run examples/thread_history.cr
 crystal run examples/user_group.cr
 crystal run examples/incident_triage.cr
+crystal run examples/incident_channel.cr
 crystal run examples/streaming.cr
 crystal run examples/assistant_thread.cr
 crystal run examples/plan.cr
@@ -390,7 +413,7 @@ crystal run examples/app.cr
 crystal run examples/app_manifest.cr
 ```
 
-The examples show Web API calls and error codes, channel history and thread replies across cursor pages, workspace members read into an on-call user group, an incident message acknowledged with a reaction, a pin, and a runbook bookmark, a file upload, a remote file share, message construction, a message with a colored attachment and metadata, an ephemeral thread reply with a permalink and a scheduled reminder, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, message workflow buttons, typed blocks of a received message, routed app events and message subtypes, routed assistant thread and agent session events, Socket Mode frames with their acknowledgments, a Socket Mode connection to a local server, a slash command response with a `response_url` reply, a custom workflow step that completes or fails its execution, an app that answers a signed mention and a button click through its HTTP receiver, an offline test of a slash command handler, and an app manifest that is validated, fixed, created, and exported. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
+The examples show Web API calls and error codes, channel history and thread replies across cursor pages, workspace members read into an on-call user group, an incident channel created, staffed, and archived, an incident message acknowledged with a reaction, a pin, and a runbook bookmark, a file upload, a remote file share, message construction, a message with a colored attachment and metadata, an ephemeral thread reply with a permalink and a scheduled reminder, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, message workflow buttons, typed blocks of a received message, routed app events and message subtypes, routed assistant thread and agent session events, Socket Mode frames with their acknowledgments, a Socket Mode connection to a local server, a slash command response with a `response_url` reply, a custom workflow step that completes or fails its execution, an app that answers a signed mention and a button click through its HTTP receiver, an offline test of a slash command handler, and an app manifest that is validated, fixed, created, and exported. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
 
 ## Contributing
 
