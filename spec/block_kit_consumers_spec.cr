@@ -59,6 +59,7 @@ require "../examples/support/user_group_example"
 require "../examples/support/testing_example"
 require "../examples/support/app_example"
 require "../examples/support/assistant_events_example"
+require "../examples/support/incident_triage_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -148,6 +149,22 @@ describe "documented Block Kit workflows" do
     sent.should eq [
       URI::Params.parse("name=On-call&description=Led+by+Ana+Ruiz&handle=oncall"),
       URI::Params.parse("usergroup=S1&users=U1%2CU3&include_count=true"),
+    ]
+  end
+
+  it "acknowledges, pins, and bookmarks an incident, then reads its reactions and pins" do
+    output = IO::Memory.new
+    sent = OfflineIncidentTriageExample.run(output)
+    output.to_s.should eq(<<-TEXT)
+      Already watching
+      Bookmarked Queue runbook (Bk01)
+      Reactions: eyes x1, rotating_light x2
+      Pinned: Queue is stuck
+
+      TEXT
+    sent.should eq [
+      URI::Params.parse("channel=C123&timestamp=1710000000.000100"),
+      URI::Params.parse("channel_id=C123&title=Queue+runbook&type=link&link=https%3A%2F%2Frunbooks.example.test%2Fqueue&emoji=%3Abooks%3A"),
     ]
   end
 

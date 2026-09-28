@@ -62,7 +62,7 @@ client.each_page(request) do |page|
 end
 ```
 
-Paginated requests are `ConversationsList`, `ConversationsHistory`, `ConversationsReplies`, `ConversationsMembers`, `UsersList`, `UsersConversations`, and `AuthTeamsList`. Each accepts `cursor:` and `limit:`. The client rejects a `limit` outside 1 to 1000 before it sends the request; Slack checks lower method maximums. Slack recommends 100 to 200 items per page. `ConversationsInfo` reads one conversation, with optional `include_locale:` and `include_num_members:`. Conversations read as `PublicChannel`, `PrivateChannel` (also group direct messages), or `IMChat`.
+Paginated requests are `ConversationsList`, `ConversationsHistory`, `ConversationsReplies`, `ConversationsMembers`, `UsersList`, `UsersConversations`, `AuthTeamsList`, and `ReactionsList`. Each accepts `cursor:` and `limit:`. The client rejects a `limit` outside 1 to 1000 before it sends the request; Slack checks lower method maximums. Slack recommends 100 to 200 items per page. `ConversationsInfo` reads one conversation, with optional `include_locale:` and `include_num_members:`. Conversations read as `PublicChannel`, `PrivateChannel` (also group direct messages), or `IMChat`.
 
 Each page is one call: local pacing applies, and an error such as `RateLimited` raises from the loop. The client does not wait and retry. Since 2025-05-29, Slack limits `conversations.history` and `conversations.replies` to one request per minute and 15 items per page for new apps distributed outside the Slack Marketplace. The client does not enforce this limit. See [pagination](https://docs.slack.dev/apis/web-api/pagination) and [rate limits](https://docs.slack.dev/apis/web-api/rate-limits).
 
@@ -89,6 +89,32 @@ client.call(Slack::Api::UsergroupsUsersUpdate.new(group.id, ["U1", "U3"]))
 ```
 
 `TeamInfo` reads the token's workspace, or another workspace with `team:` or `domain:`. Slack checks name and handle uniqueness, scopes, and admin permissions.
+
+### Reactions, pins, and bookmarks
+
+`ReactionsAdd` and `ReactionsRemove` add and remove an emoji reaction. `ReactionsGet` reads the reactions of one message or file, and `ReactionsList` reads the items that a user reacted to, page by page. Give a message with `channel:` and `timestamp:`, or a file with `file:`. Slack answers `already_reacted` or `no_reaction` when the reaction is already there or is missing:
+
+```crystal
+begin
+  client.call(Slack::Api::ReactionsAdd.new(channel: "C123", name: "eyes", timestamp: ts))
+rescue error : Slack::Api::Error
+  raise error unless error.code == "already_reacted"
+end
+item = client.call(Slack::Api::ReactionsGet.new(channel: "C123", timestamp: ts, full: true))
+(item.message.try(&.reactions) || [] of Slack::Models::Reaction).each do |reaction|
+  puts "#{reaction.name} #{reaction.count}"
+end
+```
+
+`PinsAdd`, `PinsRemove`, and `PinsList` pin, unpin, and list the messages of a channel. Slack answers `already_pinned` for a message that is already pinned. `BookmarksAdd`, `BookmarksEdit`, `BookmarksList`, and `BookmarksRemove` manage the link bookmarks of a channel. `BookmarksEdit` sends only the fields that you give:
+
+```crystal
+client.call(Slack::Api::PinsAdd.new("C123", ts))
+bookmark = client.call(Slack::Api::BookmarksAdd.new("C123", "Runbook", "https://example.com/runbook", emoji: ":books:")).bookmark
+client.call(Slack::Api::BookmarksEdit.new("C123", bookmark.id, title: "Queue runbook"))
+```
+
+The client rejects an empty reaction name, an empty bookmark title or link, and an edit without changes before it sends. Slack checks emoji names, links, scopes, and pin and bookmark limits.
 
 ## Block Kit
 
@@ -344,6 +370,7 @@ crystal run examples/web_api.cr
 crystal run examples/file_upload.cr
 crystal run examples/thread_history.cr
 crystal run examples/user_group.cr
+crystal run examples/incident_triage.cr
 crystal run examples/streaming.cr
 crystal run examples/assistant_thread.cr
 crystal run examples/plan.cr
@@ -362,7 +389,7 @@ crystal run examples/testing.cr
 crystal run examples/app.cr
 ```
 
-The examples show Web API calls and error codes, channel history and thread replies across cursor pages, workspace members read into an on-call user group, a file upload, a remote file share, message construction, a message with a colored attachment and metadata, an ephemeral thread reply with a permalink and a scheduled reminder, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, message workflow buttons, typed blocks of a received message, routed app events and message subtypes, routed assistant thread and agent session events, Socket Mode frames with their acknowledgments, a Socket Mode connection to a local server, a slash command response with a `response_url` reply, a custom workflow step that completes or fails its execution, an app that answers a signed mention and a button click through its HTTP receiver, and an offline test of a slash command handler. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
+The examples show Web API calls and error codes, channel history and thread replies across cursor pages, workspace members read into an on-call user group, an incident message acknowledged with a reaction, a pin, and a runbook bookmark, a file upload, a remote file share, message construction, a message with a colored attachment and metadata, an ephemeral thread reply with a permalink and a scheduled reminder, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, message workflow buttons, typed blocks of a received message, routed app events and message subtypes, routed assistant thread and agent session events, Socket Mode frames with their acknowledgments, a Socket Mode connection to a local server, a slash command response with a `response_url` reply, a custom workflow step that completes or fails its execution, an app that answers a signed mention and a button click through its HTTP receiver, and an offline test of a slash command handler. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
 
 ## Contributing
 

@@ -19,5 +19,6 @@ module Slack::Models
     getter user : String?
     getter created : Int64?
     getter shares : JSON::Any?
+    getter reactions : Array(Slack::Models::Reaction)?
   end
 end
