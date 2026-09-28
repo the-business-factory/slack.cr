@@ -21,6 +21,8 @@ UI::Blocks::Actions.new(elements: {datetime})
 UI::Blocks::Input.new(label: label, element: datetime)
 UI.home(&.table({ {UI::Table::RawText.new("Open")} }))
 UI::Message.new(fallback_text: "File", blocks: [UI::Blocks::File.new(external_id: "ABCD1"), section])
+trash = UI::BlockElements::IconButton.new(UI::BlockElements::IconButtonIcon::Trash, text: UI.plain("Delete"))
+UI::Message.new(fallback_text: "Answer", blocks: [UI::Blocks::ContextActions.new(elements: {trash}), section])
 item = UI::RichText::Section.new(elements: {UI::RichText::Text.new("Item")})
 UI::Blocks::RichText.new(elements: {UI::RichText::List.new(UI::RichText::ListStyle::Bullet, elements: {item})})
 UI.form_modal(title: label, submit: UI.plain("Save")) do |builder|

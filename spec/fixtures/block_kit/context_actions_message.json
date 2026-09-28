@@ -1,0 +1,56 @@
+{
+  "text": "Draft answer",
+  "blocks": [
+    {
+      "type": "context_actions",
+      "block_id": "answer.actions",
+      "elements": [
+        {
+          "type": "feedback_buttons",
+          "action_id": "answer.feedback",
+          "positive_button": {
+            "text": {"type": "plain_text", "text": "Good"},
+            "value": "positive_feedback",
+            "accessibility_label": "Mark this response as good"
+          },
+          "negative_button": {
+            "text": {"type": "plain_text", "text": "Bad"},
+            "value": "negative_feedback",
+            "accessibility_label": "Mark this response as bad"
+          }
+        },
+        {
+          "type": "icon_button",
+          "icon": "trash",
+          "text": {"type": "plain_text", "text": "Delete"},
+          "action_id": "answer.delete",
+          "value": "delete_item",
+          "confirm": {
+            "title": {"type": "plain_text", "text": "Delete answer?"},
+            "text": {"type": "plain_text", "text": "The answer is removed for everyone."},
+            "confirm": {"type": "plain_text", "text": "Delete"},
+            "deny": {"type": "plain_text", "text": "Keep"},
+            "style": "danger"
+          },
+          "accessibility_label": "Delete this answer",
+          "visible_to_user_ids": ["U-ASKER", "U-ADMIN"]
+        }
+      ]
+    },
+    {
+      "type": "context_actions",
+      "elements": [
+        {
+          "type": "feedback_buttons",
+          "positive_button": {"text": {"type": "plain_text", "text": "👍"}, "value": "up"},
+          "negative_button": {"text": {"type": "plain_text", "text": "👎"}, "value": "down"}
+        },
+        {
+          "type": "icon_button",
+          "icon": "trash",
+          "text": {"type": "plain_text", "text": "Remove"}
+        }
+      ]
+    }
+  ]
+}

@@ -73,7 +73,7 @@ module SurfaceConsumer
     case block
     in UI::Blocks::Input
       "input"
-    in UI::Blocks::File, UI::Blocks::Markdown
+    in UI::Blocks::File, UI::Blocks::Markdown, UI::Blocks::ContextActions
       "message-only"
     in UI::Blocks::Table
       "table"
@@ -94,7 +94,7 @@ module SurfaceConsumer
     block.text
   end
 
-  def self.caption(block : UI::DisplayModalBlock | UI::Blocks::Table) : String
+  def self.caption(block : UI::DisplayModalBlock | UI::Blocks::Table | UI::Blocks::ContextActions) : String
     block.type
   end
 end
@@ -109,10 +109,12 @@ describe "typed surface consumers" do
     file = Slack::UI::Checked::Blocks::File.new(external_id: "ABCD1")
     table = Slack::UI::Checked::Blocks::Table.new(rows: { {Slack::UI::Checked::Table::RawText.new("Open")} })
     markdown = Slack::UI::Checked::Blocks::Markdown.new("**Open**")
-    message_blocks = [display_blocks.first, input, file, table, markdown] of Slack::UI::Checked::MessageBlock
+    trash = Slack::UI::Checked::BlockElements::IconButton.new(Slack::UI::Checked::BlockElements::IconButtonIcon::Trash, text: Slack::UI::Checked.plain("Delete"))
+    context_actions = Slack::UI::Checked::Blocks::ContextActions.new(elements: {trash})
+    message_blocks = [display_blocks.first, input, file, table, markdown, context_actions] of Slack::UI::Checked::MessageBlock
     consumer_message = Slack::UI::Checked::Message.new(fallback_text: "Note", blocks: message_blocks)
     Slack::UI::Checked::DisplayModal.new(title: Slack::UI::Checked.plain("Display"), blocks: display_blocks)
-    consumer_message.blocks.map { |block| SurfaceConsumer.kind(block) }.should eq(["display", "input", "message-only", "table", "message-only"])
-    consumer_message.blocks.map { |block| SurfaceConsumer.caption(block) }.should eq(["divider", "Note", "ABCD1", "table", "**Open**"])
+    consumer_message.blocks.map { |block| SurfaceConsumer.kind(block) }.should eq(["display", "input", "message-only", "table", "message-only", "message-only"])
+    consumer_message.blocks.map { |block| SurfaceConsumer.caption(block) }.should eq(["divider", "Note", "ABCD1", "table", "**Open**", "context_actions"])
   end
 end

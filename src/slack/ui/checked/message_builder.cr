@@ -39,6 +39,12 @@ class Slack::UI::Checked::MessageBuilder
     add(Blocks::Markdown.new(text))
   end
 
+  # Adds a context actions block. Home and modal builders do not have this
+  # helper because Slack shows context actions in messages only.
+  def context_actions(elements : Enumerable(T), block_id : String? = nil) : Nil forall T
+    add(Blocks::ContextActions.new(elements: elements, block_id: block_id))
+  end
+
   def add_all(blocks : Enumerable(T)) : Nil forall T
     blocks.each { |block| add(block) }
   end
