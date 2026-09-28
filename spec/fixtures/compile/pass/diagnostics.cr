@@ -22,3 +22,6 @@ UI::Blocks::Input.new(label: label, element: datetime)
 UI::Message.new(fallback_text: "File", blocks: [UI::Blocks::File.new(external_id: "ABCD1"), section])
 item = UI::RichText::Section.new(elements: {UI::RichText::Text.new("Item")})
 UI::Blocks::RichText.new(elements: {UI::RichText::List.new(UI::RichText::ListStyle::Bullet, elements: {item})})
+UI.form_modal(title: label, submit: UI.plain("Save")) do |builder|
+  builder.input(label: label, element: UI::BlockElements::NumberInput.new(is_decimal_allowed: false))
+end

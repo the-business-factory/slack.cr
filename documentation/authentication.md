@@ -60,6 +60,8 @@ For external selects, pass the Options Load URL request to `Slack.process_intera
 
 For received rich text, verify the signed event or interaction request before reading `Slack::Interactions::RichText::Block`. Mentions in a received tree are text content; they do not prove membership or permission. See [rich text](block-kit.md#show-rich-text) and `examples/block_kit_rich_text.cr`.
 
+For number inputs, verify the original signed request before reading `NumberInputAction#value` or `StateMap#number_input_value?`. The received number remains a string; parse and check it in the application. See [number input handling](block-kit.md#enter-a-number) and `examples/block_kit_number_input.cr`.
+
 ## OAuth app installation
 
 `Slack::AuthHandler` installs an app; it does not authenticate a human login. Give it explicit configuration, state storage, and transport. Global `Slack.configure` client credentials or scopes do not configure this handler.

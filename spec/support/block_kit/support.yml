@@ -1,6 +1,6 @@
 schema_version: 2
 checked_on: "2026-09-27"
-scope: Checked Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, channel selects, date/time pickers, the datetime picker, video blocks, external selects with block_suggestion option responses, remote file blocks, and rich text display blocks, including Input in Messages, FormModal and Home.
+scope: Checked Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, channel selects, date/time pickers, the datetime picker, video blocks, external selects with block_suggestion option responses, remote file blocks, rich text display blocks, and number inputs, including Input in Messages, FormModal and Home and modal-only Input children in FormModal.
 statuses:
   - unsupported
   - partial
@@ -54,7 +54,7 @@ entries:
     kind: composition object
     documentation_url: https://docs.slack.dev/reference/block-kit/composition-objects/text-object/
     fields_supported: [type, text, emoji, verbatim]
-    parents: [button, confirmation, section, input, plain_text_input, modal, header, context, image, video, option, overflow option, checkbox option, radio option, option_group, static_select, multi_static_select, users_select, multi_users_select, channels_select, multi_channels_select, conversations_select, multi_conversations_select, external_select, multi_external_select, datepicker, timepicker]
+    parents: [button, confirmation, section, input, plain_text_input, modal, header, context, image, video, option, overflow option, checkbox option, radio option, option_group, static_select, multi_static_select, users_select, multi_users_select, channels_select, multi_channels_select, conversations_select, multi_conversations_select, external_select, multi_external_select, datepicker, timepicker, number_input]
     surfaces: [message, modal, home]
     restrictions: Immutable checked outbound values have fixed discriminators and format-specific options; legacy field-specific values remain mutable for compatibility.
     implementation_status: supported
@@ -76,12 +76,12 @@ entries:
     kind: composition object
     documentation_url: https://docs.slack.dev/reference/block-kit/composition-objects/dispatch-action-configuration-object/
     fields_supported: [trigger_actions_on]
-    parents: [plain_text_input]
+    parents: [plain_text_input, number_input]
     surfaces: [message, modal, home]
     restrictions: Checked immutable dispatch configuration permits omission or one or both distinct typed triggers. Legacy configuration remains mutable.
     implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/checked/composition_objects/dispatch_action_config.cr, spec/ui/checked/input_spec.cr]
+    evidence_paths: [src/slack/ui/checked/composition_objects/dispatch_action_config.cr, spec/ui/checked/input_spec.cr, spec/api/number_input_snapshot_spec.cr]
 
   - wire_type: button
     kind: block element
@@ -104,6 +104,17 @@ entries:
     implementation_status: supported
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/block_elements/plain_text_input.cr, spec/ui/checked/input_spec.cr, spec/interactions/block_kit_spec.cr, examples/block_kit_modal.cr]
+
+  - wire_type: number_input
+    kind: block element
+    documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/number-input-element/
+    fields_supported: [type, is_decimal_allowed, action_id, initial_value, min_value, max_value, dispatch_action_config, focus_on_load, placeholder]
+    parents: [input]
+    surfaces: [modal]
+    restrictions: Checked NumberInput requires is_decimal_allowed and sends numbers as strings unchanged. Slack requires min_value <= max_value; the library compares exact decimal strings. Library policy requires plain decimal strings (optional minus, digits, optional fraction) and whole numbers when decimals are not allowed. An initial value outside the range is not checked locally. Only FormModal accepts it, through the modal-only ModalInput block; Message, Home and DisplayModal reject it at compile time. Typed NumberInputAction and NumberInputValue keep value strings with absent/null/empty presence and without numeric parsing; wrong JSON types raise TypeMismatch.
+    implementation_status: supported
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/checked/block_elements/number_input.cr, src/slack/ui/checked/blocks/modal_input.cr, src/slack/interactions/number_input_action.cr, src/slack/interactions/number_input_value.cr, spec/ui/checked/number_input_spec.cr, spec/interactions/number_input_spec.cr, spec/api/number_input_snapshot_spec.cr, spec/block_kit_diagnostics_spec.cr, examples/block_kit_number_input.cr]
 
   - wire_type: checkboxes
     kind: block element
@@ -375,10 +386,10 @@ entries:
     fields_supported: [type, label, element, dispatch_action, block_id, hint, optional]
     parents: [message, modal, home]
     surfaces: [message, modal, home]
-    restrictions: Checked Input accepts PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, and TimePicker in Message, FormModal and Home, and DatetimePicker in Message and FormModal; all Input fields are supported. Other input element families remain deferred. Legacy Input retains its previous partial contract.
+    restrictions: Checked Input accepts PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, and TimePicker in Message, FormModal and Home, and DatetimePicker in Message and FormModal; all Input fields are supported. Checked ModalInput has the same wire type, fields and limits for modal-only children (NumberInput); only FormModal accepts it. Other input element families remain deferred. Legacy Input retains its previous partial contract.
     implementation_status: partial
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/blocks/input.cr, spec/ui/checked/input_spec.cr, spec/interactions/block_kit_spec.cr]
+    evidence_paths: [src/slack/ui/checked/blocks/input.cr, src/slack/ui/checked/blocks/modal_input.cr, spec/ui/checked/input_spec.cr, spec/ui/checked/number_input_spec.cr, spec/interactions/block_kit_spec.cr]
 
   - wire_type: section
     kind: block
@@ -452,7 +463,7 @@ entries:
     fields_supported: [type, title, submit, close, blocks, private_metadata, callback_id, external_id, clear_on_close, notify_on_close, submit_disabled]
     parents: [views.open, views.update, views.push, push response action, update response action]
     surfaces: [modal]
-    restrictions: Checked DisplayModal excludes Input; FormModal requires submit. The block catalog is limited to Section, Actions, Divider, Header, Context, Image, RichText, and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, user selects, channel selects, conversation selects, or date/time pickers. submit_disabled is for Slack configuration modals only. Typed validation-error, clear, push, and update acknowledgments are listed separately. Legacy Modal keeps its previous contract.
+    restrictions: Checked DisplayModal excludes Input; FormModal requires submit. The block catalog is limited to Section, Actions, Divider, Header, Context, Image, RichText, and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, user selects, channel selects, conversation selects, or date/time pickers; FormModal also accepts ModalInput containing NumberInput. submit_disabled is for Slack configuration modals only. Typed validation-error, clear, push, and update acknowledgments are listed separately. Legacy Modal keeps its previous contract.
     implementation_status: partial
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/surfaces/form_modal.cr, src/slack/ui/checked/surfaces/display_modal.cr, spec/ui/checked/modal_spec.cr, examples/block_kit_modal.cr]
@@ -496,7 +507,7 @@ entries:
     fields_supported: [actions, state, view.state.values]
     parents: []
     surfaces: [message, modal, home]
-    restrictions: Typed button, static-select, external-select, overflow, checkbox, radio, user-select, channel-select, conversation-select, date/time-picker, and datetime-picker actions, plus plain text, static-select, external-select, checkbox, radio, user-select, channel-select, conversation-select, date/time-picker, and datetime-picker StateMap access through Interaction.from_json and process_interaction. BlockSuggestion is listed separately. Selection fields preserve absent/null/empty. Other known action metadata, view bodies, and dispatched text actions remain raw. UnknownAction and UnknownStateValue retain complete raw JSON. Other incoming families are deferred; outbound validation-error acknowledgments are listed separately.
+    restrictions: Typed button, static-select, external-select, overflow, checkbox, radio, user-select, channel-select, conversation-select, date/time-picker, datetime-picker, and number-input actions, plus plain text, static-select, external-select, checkbox, radio, user-select, channel-select, conversation-select, date/time-picker, datetime-picker, and number-input StateMap access through Interaction.from_json and process_interaction. BlockSuggestion is listed separately. Selection fields preserve absent/null/empty. Other known action metadata, view bodies, and dispatched text actions remain raw. UnknownAction and UnknownStateValue retain complete raw JSON. Other incoming families are deferred; outbound validation-error acknowledgments are listed separately.
     implementation_status: partial
     inbound_status: partial
     evidence_paths: [src/slack/interactions/action_decoder.cr, src/slack/interactions/state_map.cr, spec/interactions/block_kit_spec.cr, spec/interactions/static_select_spec.cr, examples/block_kit_modal.cr, examples/block_kit_static_select.cr]
@@ -1162,3 +1173,17 @@ rules:
     source_section: "Fields: elements, indent, offset, border"
     reviewed_on: "2026-09-28"
     evidence_paths: [spec/ui/checked/rich_text_spec.cr, spec/interactions/rich_text_spec.cr]
+  - id: number_input_fields
+    classification: slack_requirement
+    requirement: "Required is_decimal_allowed; string initial_value, min_value and max_value with min_value <= max_value; action_id 255; plain placeholder 150; dispatch_action_config; one focus target per view. Input block in modals only."
+    source_url: https://docs.slack.dev/reference/block-kit/block-elements/number-input-element/
+    source_section: Fields, Usage info, Example and Markdown placement metadata
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/ui/checked/number_input_spec.cr, spec/api/number_input_snapshot_spec.cr, spec/block_kit_diagnostics_spec.cr]
+  - id: number_input_format_policy
+    classification: library_policy
+    requirement: "Supplied numbers must be plain decimal strings (-10, 0, 5.5); no exponent, plus sign, separators or bare decimal point. When is_decimal_allowed is false, supplied numbers must be whole. Initial value range membership and received strings are not checked locally."
+    source_url: https://docs.slack.dev/reference/block-kit/block-elements/number-input-element/
+    source_section: "Usage info: whole and decimal numbers"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/ui/checked/number_input_spec.cr, spec/interactions/number_input_spec.cr]

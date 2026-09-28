@@ -14,11 +14,13 @@ module Slack::UI::Checked::ViewFocus
     issues
   end
 
-  private def self.paths(block : HomeBlock) : Array(String)
+  private def self.paths(block : HomeBlock | Blocks::ModalInput) : Array(String)
     paths = [] of String
     case block
     when Blocks::Input
       paths << "element.focus_on_load" if block.element.focus_on_load
+    when Blocks::ModalInput
+      paths << "element.focus_on_load" if focused?(block.element)
     when Blocks::Section
       if focused?(block.accessory)
         paths << "accessory.focus_on_load"
@@ -31,9 +33,9 @@ module Slack::UI::Checked::ViewFocus
     paths
   end
 
-  private def self.focused?(element : (Blocks::Section::Accessory | Blocks::Actions::Element)?) : Bool
+  private def self.focused?(element : (Blocks::Section::Accessory | Blocks::Actions::Element | Blocks::ModalInputElement)?) : Bool
     case element
-    when BlockElements::DatePicker, BlockElements::TimePicker, BlockElements::DatetimePicker, BlockElements::StaticSelect, BlockElements::MultiStaticSelect, BlockElements::ExternalSelect, BlockElements::MultiExternalSelect, BlockElements::Checkboxes, BlockElements::RadioButtons, BlockElements::UsersSelect, BlockElements::MultiUsersSelect, BlockElements::ConversationsSelect, BlockElements::MultiConversationsSelect, BlockElements::ChannelsSelect, BlockElements::MultiChannelsSelect
+    when BlockElements::NumberInput, BlockElements::DatePicker, BlockElements::TimePicker, BlockElements::DatetimePicker, BlockElements::StaticSelect, BlockElements::MultiStaticSelect, BlockElements::ExternalSelect, BlockElements::MultiExternalSelect, BlockElements::Checkboxes, BlockElements::RadioButtons, BlockElements::UsersSelect, BlockElements::MultiUsersSelect, BlockElements::ConversationsSelect, BlockElements::MultiConversationsSelect, BlockElements::ChannelsSelect, BlockElements::MultiChannelsSelect
       element.focus_on_load == true
     else
       false
