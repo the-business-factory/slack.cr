@@ -234,6 +234,6 @@ A separate demo app is at [hirobot.app](https://github.com/the-business-factory/
 
 ## Contributing
 
-Run `shards install`, `crystal spec`, `crystal tool format --check`, and `crystal run lib/ameba/src/cli.cr --no-color` before a pull request. Tests run offline with synthetic credentials. See [test instructions](spec/support/README.md) for the few checks that start child processes.
+Run `shards install`, `scripts/spec`, `crystal tool format --check`, and `crystal run lib/ameba/src/cli.cr --no-color` before a pull request. `scripts/spec` runs `crystal spec` with a compiler cache inside the checkout, so parallel work in other checkouts does not disturb it. Tests run offline with synthetic credentials. See [test instructions](spec/support/README.md) for the few checks that start child processes.
 
 Contributors: [Rob Cole](https://github.com/robcole) and [Alex Piechowski](https://github.com/grepsedawk).

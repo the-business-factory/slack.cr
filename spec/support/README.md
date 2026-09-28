@@ -9,4 +9,12 @@ Use `Slack::Testing` (`require "../../src/slack/testing"`) when a spec checks th
 
 Use `ApiSupport.client` (`spec/support/api/webmock_client.cr`) when a spec needs WebMock URL or header matching. It uses the one WebMock transport, `OfflineExample::WebMockTransport` in `examples/support/webmock_transport.cr`. The `examples/*.cr` workflows run in the ordinary spec executable and can also be run directly from a checkout with development dependencies installed.
 
-A few checks use child processes: compiler diagnostics, clean full-library startup defaults, native loopback HTTP behavior, and durable storage or rotation crash tests. Native HTTP uses local sockets and synthetic TLS credentials. Give concurrent Crystal runs separate `CRYSTAL_CACHE_DIR` directories; shared temporary executables can interfere. See [storage test support](storage/README.md) when implementing an installation adapter.
+Run the suite through `scripts/spec`, or export `CRYSTAL_CACHE_DIR=$PWD/.crystal-cache` first. The compiler writes every `crystal spec` executable to one file name inside its cache directory, so the shared user cache breaks when two checkouts run specs at the same time. Child compiles started by the suite use the same directory through `SpecSupport::CrystalCache` (`spec/support/crystal_cache.cr`). Do not start two full compiles at once in one checkout.
+
+Three checks start child processes:
+
+- Compiler diagnostics (`spec/block_kit_diagnostics_spec.cr`): one `crystal build --no-codegen` per contract fixture under `spec/fixtures/compile/fail/`, plus the positive control under `pass/`. Add a fixture only for a new structural rule; surface placement is one rule and is covered once per diagnostic wording.
+- Consumer startup (`spec/entrypoints_spec.cr`): type-checks `spec/support/entrypoints/startup.cr`, a program that reaches the library only through `require "slack"` on `CRYSTAL_PATH`.
+- Durable storage and rotation across processes (`spec/auth/durable_storage_spec.cr`, `spec/auth/rotation_process_spec.cr`): `spec/support/processes/probe.cr` is built once per run and started as separate processes for lock, crash, and restart behavior.
+
+Native HTTP transport specs run in this executable against loopback sockets with synthetic TLS credentials; WebMock does not intercept the transport. See [storage test support](storage/README.md) when implementing an installation adapter.

@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Runs the spec suite with a compiler cache that belongs to this checkout.
+# The compiler writes every `crystal spec` executable to the same file name in
+# its cache directory, so the shared user cache breaks when two checkouts run
+# specs at the same time. Pass any `crystal spec` arguments through.
+set -euo pipefail
+cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.."
+export CRYSTAL_CACHE_DIR="${CRYSTAL_CACHE_DIR:-$PWD/.crystal-cache}"
+exec crystal spec "$@"

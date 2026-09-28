@@ -34,7 +34,7 @@ Use the Crystal 1.21 [coding style](https://crystal-lang.org/reference/1.21/conv
 - Run `crystal tool format` on changed Crystal files and verify formatting with `crystal tool format --check`.
 - After a refactor, run the relevant specs and Ameba in addition to formatting checks.
 - When changing public types or accessors, compile representative existing consumer code. Document intentional breaking changes and migration steps.
-- Give concurrent Crystal test runs separate `CRYSTAL_CACHE_DIR` directories. Shared temporary executables can be replaced or removed by another run. Delete only cache directories owned by that run.
+- Use one persistent compiler cache per checkout: `CRYSTAL_CACHE_DIR=$PWD/.crystal-cache` (gitignored), or run `scripts/spec`. The compiler writes every `crystal spec` executable to the same file name inside its cache directory, so the shared user cache breaks when two checkouts compile at the same time, and a fresh temporary cache per run recompiles everything. Spec child compiles read the same directory through `SpecSupport::CrystalCache`. Do not run two full compiles at once in one checkout.
 
 ## Concurrency
 

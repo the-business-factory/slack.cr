@@ -1,3 +1,5 @@
+require "../processes/probe_binary"
+
 module StorageSupport
   def self.await_file(path : String) : Nil
     deadline = Time.instant + 10.seconds
@@ -20,13 +22,15 @@ module StorageSupport
     process.wait
   end
 
+  # Starts one probe process per identity (see spec/support/processes/probe.cr).
   # The caller owns these children until every result is joined or cleanup runs.
-  def self.with_probes(binary : String, directory : String, action : String,
+  def self.with_probes(directory : String, suite : String, action : String,
                        identities : Array(String), & : Array(Process) ->) : Nil
+    binary = SpecSupport::ProbeBinary.path
     processes = [] of Process
     begin
       identities.each do |identity|
-        processes << Process.new(binary, [directory, action, identity],
+        processes << Process.new(binary, [directory, suite, action, identity],
           output: Process::Redirect::Inherit, error: Process::Redirect::Inherit)
       end
       identities.each { |identity| await_file(File.join(directory, "ready-#{identity}")) }

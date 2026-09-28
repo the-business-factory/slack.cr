@@ -7,6 +7,10 @@ on:
 permissions:
   contents: read
 
+env:
+  # One compiler cache per checkout; the spec suite's child compiles use it too.
+  CRYSTAL_CACHE_DIR: ${{ github.workspace }}/.crystal-cache
+
 jobs:
   Ameba:
     runs-on: ubuntu-latest

@@ -1,3 +1,5 @@
+require "./crystal_cache"
+
 module CompileContracts
   record Result,
     fixture : String,
@@ -7,7 +9,11 @@ module CompileContracts
 
   TIMEOUT = 30.seconds
 
-  def self.compile(root : String, fixture : String) : Result
+  def self.compile(
+    root : String,
+    fixture : String,
+    env : Hash(String, String?) = Hash(String, String?).new,
+  ) : Result
     output_path = File.tempname("block-kit-compile-output")
     output = IO::Memory.new
     started_at = Time.instant
@@ -15,6 +21,7 @@ module CompileContracts
       "crystal",
       ["build", "--no-codegen", "--error-trace", "-o", output_path, fixture],
       chdir: root,
+      env: SpecSupport::CrystalCache.env.merge(env),
       output: output,
       error: output
     )
@@ -29,32 +36,6 @@ module CompileContracts
         terminate(process)
       end
       File.delete?(output_path)
-    end
-  end
-
-  def self.execute(
-    root : String,
-    fixture : String,
-    env : Hash(String, String?),
-  ) : Result
-    output = IO::Memory.new
-    started_at = Time.instant
-    process = Process.new(
-      "crystal",
-      ["run", fixture],
-      chdir: root,
-      env: env,
-      output: output,
-      error: output
-    )
-    joined = false
-
-    begin
-      status = join(process, TIMEOUT)
-      joined = true
-      Result.new(fixture, status, output.to_s, Time.instant - started_at)
-    ensure
-      terminate(process) unless joined
     end
   end
 

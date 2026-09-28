@@ -5,20 +5,8 @@ require "../support/storage/durable_store"
 require "../support/storage/process_helpers"
 
 describe "rotation across processes" do
-  binary = File.tempname("rotation-probe")
   directory = ""
   clock = StorageSupport::Clock.new
-
-  before_all do
-    output = IO::Memory.new
-    status = Process.run("crystal", ["build", "spec/support/rotation/process_probe.cr", "-o", binary], output: output, error: output)
-    raise output.to_s unless status.success?
-  end
-
-  after_all do
-    File.delete(binary) if File.exists?(binary)
-    File.delete("#{binary}.dwarf") if File.exists?("#{binary}.dwarf")
-  end
 
   before_each do
     directory = File.tempname("rotation-process")
@@ -31,7 +19,7 @@ describe "rotation across processes" do
   after_each { FileUtils.rm_rf(directory) }
 
   it "performs one effective refresh and reads the replacement in a restarted process" do
-    StorageSupport.with_probes(binary, directory, "rotate", ["one", "two"]) do |processes|
+    StorageSupport.with_probes(directory, "rotation", "rotate", ["one", "two"]) do |processes|
       # The winner waits inside its offline transport until the loser has returned.
       deadline = Time.instant + 10.seconds
       until File.exists?(File.join(directory, "result-one")) || File.exists?(File.join(directory, "result-two"))
@@ -44,7 +32,7 @@ describe "rotation across processes" do
       results.sort.should eq(["RefreshBusy", "synthetic-next-bot"])
       Dir.glob(File.join(directory, "sent-*")).size.should eq(1)
     end
-    StorageSupport.with_probes(binary, directory, "read", ["restart"]) do |processes|
+    StorageSupport.with_probes(directory, "rotation", "read", ["restart"]) do |processes|
       StorageSupport.join(processes.first).success?.should be_true
       File.read(File.join(directory, "result-restart")).should eq("synthetic-next-bot")
     end
@@ -56,14 +44,14 @@ describe "rotation across processes" do
   end
 
   it "never resends a possibly consumed token after the owner dies and restarts" do
-    StorageSupport.with_probes(binary, directory, "rotate", ["crash"]) do |processes|
+    StorageSupport.with_probes(directory, "rotation", "rotate", ["crash"]) do |processes|
       StorageSupport.await_file(File.join(directory, "sent-crash"))
       processes.first.signal(Signal::KILL)
       processes.first.wait.success?.should be_false
     end
     clock.now += 2.minutes
     File.write(File.join(directory, "clock"), clock.now.to_unix.to_s)
-    StorageSupport.with_probes(binary, directory, "rotate", ["restart"]) do |processes|
+    StorageSupport.with_probes(directory, "rotation", "rotate", ["restart"]) do |processes|
       StorageSupport.join(processes.first).success?.should be_true
       File.read(File.join(directory, "result-restart")).should eq("UnknownRemoteOutcome")
     end
@@ -75,7 +63,7 @@ describe "rotation across processes" do
     lease = store.claim_refresh(store.acquire(RotationSupport.query), 2.minutes)
     clock.now = lease.expires_at
     File.write(File.join(directory, "clock"), clock.now.to_unix.to_s)
-    StorageSupport.with_probes(binary, directory, "rotate", ["new-owner"]) do |processes|
+    StorageSupport.with_probes(directory, "rotation", "rotate", ["new-owner"]) do |processes|
       StorageSupport.await_file(File.join(directory, "sent-new-owner"))
       current = store.refresh_status(RotationSupport.query).should_not(be_nil)
       current.lease.fence.should be > lease.fence

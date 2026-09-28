@@ -13,3 +13,6 @@
 
 # Local modernization audit and issue drafts
 /plans
+
+# Per-checkout Crystal compiler cache (see AGENTS.md, Testing)
+/.crystal-cache/

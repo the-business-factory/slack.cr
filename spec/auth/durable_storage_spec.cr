@@ -6,34 +6,11 @@ require "../support/storage/process_helpers"
 describe StorageSupport::DurableStore do
   directory = ""
   clock = StorageSupport::Clock.new
-  binary = File.tempname("storage-probe")
   unused_directory = File.tempname("unused-storage")
   store = StorageSupport::DurableStore.new(unused_directory)
 
-  before_all do
-    owned_cache : String? = nil
-    cache = ENV["CRYSTAL_CACHE_DIR"]?
-    unless cache
-      cache = File.tempname("storage-probe-cache")
-      Dir.mkdir(cache, 0o700)
-      owned_cache = cache
-    end
-
-    begin
-      output = IO::Memory.new
-      status = Process.run("crystal", ["build", "spec/support/storage/process_probe.cr", "-o", binary],
-        env: {"CRYSTAL_CACHE_DIR" => cache}, output: output, error: output)
-      raise output.to_s unless status.success?
-    ensure
-      # The cache is needed only during compilation. Never remove a caller's cache.
-      owned_cache.try { |path| FileUtils.rm_rf(path) }
-    end
-  end
-
   after_all do
     FileUtils.rm_rf(unused_directory)
-    File.delete(binary) if File.exists?(binary)
-    File.delete("#{binary}.dwarf") if File.exists?("#{binary}.dwarf")
   end
 
   before_each do
@@ -56,7 +33,7 @@ describe StorageSupport::DurableStore do
     completed = restarted.complete_refresh(lease, StorageSupport.grant("B1", "persisted"))
     again = StorageSupport::DurableStore.new(directory, clock)
     again.credential_for_dispatch(again.acquire(StorageSupport.query)).value.should eq("persisted")
-    StorageSupport.with_probes(binary, directory, "read", ["restart"]) do |processes|
+    StorageSupport.with_probes(directory, "storage", "read", ["restart"]) do |processes|
       StorageSupport.join(processes.first).success?.should be_true
       File.read(File.join(directory, "result-restart")).should eq("persisted")
     end
@@ -93,7 +70,7 @@ describe StorageSupport::DurableStore do
   end
 
   it "admits exactly one owner across two simultaneously released processes" do
-    StorageSupport.with_probes(binary, directory, "claim", ["one", "two"]) do |processes|
+    StorageSupport.with_probes(directory, "storage", "claim", ["one", "two"]) do |processes|
       processes.each { |process| StorageSupport.join(process).success?.should be_true }
       results = ["one", "two"].map { |identity| File.read(File.join(directory, "result-#{identity}")) }
       results.sort.should eq(["RefreshBusy", "acquired"])
@@ -110,7 +87,7 @@ describe StorageSupport::DurableStore do
     store.credential_for_dispatch(other_user).value.should eq("user2-access")
     File.write(File.join(directory, "expected.json"), before.version.to_json)
     identities = ["store-one", "store-two"]
-    StorageSupport.with_probes(binary, directory, "mutate", identities) do |processes|
+    StorageSupport.with_probes(directory, "storage", "mutate", identities) do |processes|
       processes.each { |process| StorageSupport.join(process).success?.should be_true }
       results = identities.map { |identity| File.read(File.join(directory, "result-#{identity}")) }
       results.count("Conflict").should eq(1)
@@ -145,7 +122,7 @@ describe StorageSupport::DurableStore do
       store.mark_refresh_dispatched(lease)
       File.write(File.join(directory, "expected.json"), before.version.to_json)
       File.write(File.join(directory, "completion.json"), lease.to_json)
-      StorageSupport.with_probes(binary, directory, "mutate", ["complete", revocation]) do |processes|
+      StorageSupport.with_probes(directory, "storage", "mutate", ["complete", revocation]) do |processes|
         processes.each { |process| StorageSupport.join(process).success?.should be_true }
         completion_result = File.read(File.join(directory, "result-complete"))
         revocation_result = File.read(File.join(directory, "result-#{revocation}"))
@@ -194,7 +171,7 @@ describe StorageSupport::DurableStore do
 
   ["acquired", "dispatched"].each do |phase|
     it "recovers conservatively after killing a process with #{phase} ownership" do
-      StorageSupport.with_probes(binary, directory, phase, ["crash"]) do |processes|
+      StorageSupport.with_probes(directory, "storage", phase, ["crash"]) do |processes|
         process = processes.first
         StorageSupport.await_file(File.join(directory, "result-crash"))
         File.read(File.join(directory, "result-crash")).should eq("acquired")
