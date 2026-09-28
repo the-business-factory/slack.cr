@@ -1,4 +1,4 @@
-alias Slack::Interactions::StateValue = Slack::Interactions::PlainTextValue | Slack::Interactions::StaticSelectValue | Slack::Interactions::MultiStaticSelectValue | Slack::Interactions::CheckboxesValue | Slack::Interactions::RadioButtonsValue | Slack::Interactions::UsersSelectValue | Slack::Interactions::MultiUsersSelectValue | Slack::Interactions::ChannelsSelectValue | Slack::Interactions::MultiChannelsSelectValue | Slack::Interactions::UnknownStateValue
+alias Slack::Interactions::StateValue = Slack::Interactions::PlainTextValue | Slack::Interactions::StaticSelectValue | Slack::Interactions::MultiStaticSelectValue | Slack::Interactions::CheckboxesValue | Slack::Interactions::RadioButtonsValue | Slack::Interactions::UsersSelectValue | Slack::Interactions::MultiUsersSelectValue | Slack::Interactions::ConversationsSelectValue | Slack::Interactions::MultiConversationsSelectValue | Slack::Interactions::ChannelsSelectValue | Slack::Interactions::MultiChannelsSelectValue | Slack::Interactions::UnknownStateValue
 
 # Reads state.values by stable block and action IDs without imposing outbound rules.
 struct Slack::Interactions::StateMap
@@ -15,6 +15,8 @@ struct Slack::Interactions::StateMap
     ValuePresence.of(values_raw)
   end
 
+  # Keep explicit family dispatch together rather than split the discriminator mapping.
+  # ameba:disable Metrics/CyclomaticComplexity
   def []?(block_id : String, action_id : String) : StateValue?
     values = PayloadAccess.object?(values_raw, "#{@path}.values")
     block = PayloadAccess.object?(values.try(&.[block_id]?), "#{@path}.values[#{block_id.inspect}]")
@@ -28,6 +30,10 @@ struct Slack::Interactions::StateMap
       ChannelsSelectValue.new(item, path)
     when "multi_channels_select"
       MultiChannelsSelectValue.new(item, path)
+    when "conversations_select"
+      ConversationsSelectValue.new(item, path)
+    when "multi_conversations_select"
+      MultiConversationsSelectValue.new(item, path)
     when "users_select"
       UsersSelectValue.new(item, path)
     when "multi_users_select"
@@ -124,6 +130,26 @@ struct Slack::Interactions::StateMap
     when MultiChannelsSelectValue then entry
     else
       raise TypeMismatch.new(entry_path(block_id, action_id), "multi_channels_select", entry.type || "null or untyped state value")
+    end
+  end
+
+  def conversations_select_value?(block_id : String, action_id : String) : ConversationsSelectValue?
+    entry = self[block_id, action_id]?
+    case entry
+    when Nil                      then nil
+    when ConversationsSelectValue then entry
+    else
+      raise TypeMismatch.new(entry_path(block_id, action_id), "conversations_select", entry.type || "null or untyped state value")
+    end
+  end
+
+  def multi_conversations_select_value?(block_id : String, action_id : String) : MultiConversationsSelectValue?
+    entry = self[block_id, action_id]?
+    case entry
+    when Nil                           then nil
+    when MultiConversationsSelectValue then entry
+    else
+      raise TypeMismatch.new(entry_path(block_id, action_id), "multi_conversations_select", entry.type || "null or untyped state value")
     end
   end
 

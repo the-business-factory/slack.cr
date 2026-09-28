@@ -50,6 +50,8 @@ For channel selects, verify the original signed request before reading `Channels
 
 For the next step after a modal submission, return `Slack::Interactions::ModalPush#to_json` as HTTP 200 JSON after verifying the original signed request. No API token or trigger is needed; the application owns the three-second deadline. See [submission push acknowledgments](block-kit.md#push-a-view-in-a-submission-acknowledgment).
 
+For conversation selects, verify the original signed request before reading `ConversationsSelectAction#selected_conversation`, `MultiConversationsSelectAction#selected_conversations`, or their StateMap accessors. See [conversation selection handling](block-kit.md#select-conversations) and `examples/block_kit_conversations_select.cr`. Filters control the displayed list; a selected ID does not prove access or permission to post.
+
 ## OAuth app installation
 
 `Slack::AuthHandler` installs an app; it does not authenticate a human login. Give it explicit configuration, state storage, and transport. Global `Slack.configure` client credentials or scopes do not configure this handler.

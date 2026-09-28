@@ -7,6 +7,10 @@ module Slack::UI::Checked::ChannelResponseUrl
       issues << ValidationIssue.new("channels_select.response_url_enabled.unsupported_placement", path,
         "response_url_enabled must be omitted outside an Input block in a modal.")
     end
+    if element.is_a?(BlockElements::ConversationsSelect) && !element.response_url_enabled.nil?
+      issues << ValidationIssue.new("conversations_select.response_url_enabled.unsupported_placement", path,
+        "response_url_enabled must be omitted outside an Input block in a modal.")
+    end
     issues
   end
 
