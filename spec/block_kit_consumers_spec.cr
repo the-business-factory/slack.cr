@@ -9,6 +9,7 @@ require "../examples/support/radio_buttons_example"
 require "../examples/support/message_update_example"
 require "../examples/support/view_update_example"
 require "../examples/support/users_select_example"
+require "../examples/support/view_push_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -96,5 +97,10 @@ describe "documented Block Kit workflows" do
     output = IO::Memory.new
     OfflineUsersSelectExample.run(output)
     output.to_s.should eq "Assigned owner: U-OWNER (acknowledged 200)\nSaved reviewers: U-ONE, W-TWO (acknowledged 200)\n"
+  end
+  it "pushes the next screen using a fresh interaction from an existing modal" do
+    output = IO::Memory.new
+    OfflineViewPushExample.run(output)
+    output.to_s.should eq("Pushed details V2 onto modal V1 (acknowledged 200).\n")
   end
 end

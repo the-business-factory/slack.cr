@@ -30,7 +30,7 @@ private class OrderingTransport < Slack::Auth::Transport
 end
 
 describe "API transport injection" do
-  {"chat.postMessage", "chat.update", "views.open", "views.publish", "views.update"}.each do |method_path|
+  {"chat.postMessage", "chat.update", "views.open", "views.publish", "views.update", "views.push"}.each do |method_path|
     it "preserves checked #{method_path} envelopes with injected dispatch settings" do
       transport = AuthSupport::RecordingTransport.new
       transport.enqueue(Slack::Auth::TransportResponse.new(200, HTTP::Headers.new, %({"ok":true})))
@@ -51,6 +51,12 @@ describe "API transport injection" do
                 elsif method_path == "views.open"
                   view = Slack::UI::Checked.display_modal(title: Slack::UI::Checked.plain("Details")) { |builder| builder.divider }
                   Slack::Api::CheckedViewsOpen.new(
+                    token: "synthetic-checked-dispatch", trigger_id: "trigger", view: view,
+                    configuration: configuration, transport: transport, limiter: limiter
+                  )
+                elsif method_path == "views.push"
+                  view = Slack::UI::Checked.display_modal(title: Slack::UI::Checked.plain("Details"), &.divider)
+                  Slack::Api::CheckedViewsPush.new(
                     token: "synthetic-checked-dispatch", trigger_id: "trigger", view: view,
                     configuration: configuration, transport: transport, limiter: limiter
                   )
