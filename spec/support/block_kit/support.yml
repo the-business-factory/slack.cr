@@ -1,6 +1,6 @@
 schema_version: 2
 checked_on: "2026-09-27"
-scope: Checked Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, channel selects, date/time pickers, and the datetime picker, including Input in Messages, FormModal and Home.
+scope: Checked Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, channel selects, date/time pickers, the datetime picker, and video blocks, including Input in Messages, FormModal and Home.
 statuses:
   - unsupported
   - partial
@@ -54,7 +54,7 @@ entries:
     kind: composition object
     documentation_url: https://docs.slack.dev/reference/block-kit/composition-objects/text-object/
     fields_supported: [type, text, emoji, verbatim]
-    parents: [button, confirmation, section, input, plain_text_input, modal, header, context, image, option, overflow option, checkbox option, radio option, option_group, static_select, multi_static_select, users_select, multi_users_select, channels_select, multi_channels_select, conversations_select, multi_conversations_select, datepicker, timepicker]
+    parents: [button, confirmation, section, input, plain_text_input, modal, header, context, image, video, option, overflow option, checkbox option, radio option, option_group, static_select, multi_static_select, users_select, multi_users_select, channels_select, multi_channels_select, conversations_select, multi_conversations_select, datepicker, timepicker]
     surfaces: [message, modal, home]
     restrictions: Immutable checked outbound values have fixed discriminators and format-specific options; legacy field-specific values remain mutable for compatibility.
     implementation_status: supported
@@ -501,6 +501,17 @@ entries:
     inbound_status: unsupported
     evidence_paths: [src/slack/ui/checked/blocks/image.cr, spec/ui/checked/display_spec.cr]
 
+  - wire_type: video block
+    kind: block
+    documentation_url: https://docs.slack.dev/reference/block-kit/blocks/video-block/
+    fields_supported: [type, alt_text, title, title_url, description, thumbnail_url, video_url, author_name, provider_name, provider_icon_url, block_id]
+    parents: [message, modal, home]
+    surfaces: [message, modal, home]
+    restrictions: Checked display block needs alt_text, a plain-text title, thumbnail_url, and video_url. Title and description text must be fewer than 200 characters; author_name fewer than 50. video_url and title_url must be parseable absolute HTTPS URLs. Nonempty alt_text and thumbnail_url are library policy. The links.embed:write scope, unfurl domains, iframe compatibility, reachability, and the non-Slack domain rule are remote checks.
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/checked/blocks/video.cr, spec/ui/checked/video_spec.cr, spec/fixtures/block_kit/video.json, examples/support/video_example.cr, spec/block_kit_consumers_spec.cr]
+
   - wire_type: Home view
     kind: surface
     documentation_url: https://docs.slack.dev/reference/views/home-tab-views/
@@ -696,6 +707,13 @@ rules:
     source_section: "Fields: image_url, slack_file, alt_text, title"
     reviewed_on: "2026-09-27"
     evidence_paths: ["spec/ui/checked/display_spec.cr"]
+  - id: video
+    classification: "slack_requirement"
+    requirement: "Required alt_text, plain-text title, thumbnail_url, and video_url; title and description under 200; author_name under 50; HTTPS video_url and title_url."
+    source_url: "https://docs.slack.dev/reference/block-kit/blocks/video-block/"
+    source_section: "Fields and usage info"
+    reviewed_on: "2026-09-28"
+    evidence_paths: ["spec/ui/checked/video_spec.cr"]
   - id: slack_file
     classification: "slack_requirement"
     requirement: "Exactly one id or url source; remote access and image format cannot be validated offline."

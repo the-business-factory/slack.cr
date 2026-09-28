@@ -1,0 +1,13 @@
+{
+  "type": "video",
+  "alt_text": "Release 4.2 walkthrough",
+  "title": {"type": "plain_text", "text": "Release 4.2 walkthrough", "emoji": true},
+  "title_url": "https://videos.example.test/watch/release-4-2",
+  "description": {"type": "plain_text", "text": "What changed in release 4.2."},
+  "thumbnail_url": "https://videos.example.test/thumbs/release-4-2.jpg",
+  "video_url": "https://videos.example.test/embed/release-4-2?autoplay=1",
+  "author_name": "Release team",
+  "provider_name": "Example Video",
+  "provider_icon_url": "https://videos.example.test/icon.png",
+  "block_id": "release.video"
+}
