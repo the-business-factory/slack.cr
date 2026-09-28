@@ -16,6 +16,7 @@ require "../examples/support/channels_select_example"
 require "../examples/support/modal_push_example"
 
 require "../examples/support/modal_update_example"
+require "../examples/support/conversations_select_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -183,5 +184,11 @@ describe "documented Block Kit workflows" do
     wire = JSON.parse(response.body)
     wire["response_action"].as_s.should eq("update")
     wire["view"]["blocks"][0]["text"]["text"].as_s.should eq("Choose an owner for: #{"界" * 200}…")
+  end
+
+  it "chooses a filtered conversation and submits conversation destinations" do
+    output = IO::Memory.new
+    OfflineConversationsSelectExample.run(output)
+    output.to_s.should eq "Selected notification conversation: D-NOTIFY (acknowledged 200)\nSaved destinations: C-ONE, G-TWO (acknowledged 200)\n"
   end
 end

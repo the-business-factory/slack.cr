@@ -1,4 +1,4 @@
-alias Slack::Interactions::Action = Slack::Interactions::ButtonAction | Slack::Interactions::StaticSelectAction | Slack::Interactions::MultiStaticSelectAction | Slack::Interactions::OverflowAction | Slack::Interactions::CheckboxesAction | Slack::Interactions::RadioButtonsAction | Slack::Interactions::UsersSelectAction | Slack::Interactions::MultiUsersSelectAction | Slack::Interactions::ChannelsSelectAction | Slack::Interactions::MultiChannelsSelectAction | Slack::Interactions::UnknownAction
+alias Slack::Interactions::Action = Slack::Interactions::ButtonAction | Slack::Interactions::StaticSelectAction | Slack::Interactions::MultiStaticSelectAction | Slack::Interactions::OverflowAction | Slack::Interactions::CheckboxesAction | Slack::Interactions::RadioButtonsAction | Slack::Interactions::UsersSelectAction | Slack::Interactions::MultiUsersSelectAction | Slack::Interactions::ConversationsSelectAction | Slack::Interactions::MultiConversationsSelectAction | Slack::Interactions::ChannelsSelectAction | Slack::Interactions::MultiChannelsSelectAction | Slack::Interactions::UnknownAction
 
 module Slack::Interactions::ActionDecoder
   def self.decode(raw : JSON::Any?) : Array(Action)
@@ -12,6 +12,8 @@ module Slack::Interactions::ActionDecoder
     actions
   end
 
+  # Keep explicit family dispatch together rather than split the discriminator mapping.
+  # ameba:disable Metrics/CyclomaticComplexity
   private def self.decode_item(item : JSON::Any, path : String) : Action
     object = PayloadAccess.object?(item, path)
     type = PayloadAccess.string?(object.try(&.["type"]?), "#{path}.type")
@@ -20,6 +22,10 @@ module Slack::Interactions::ActionDecoder
       ChannelsSelectAction.new(item, path)
     when "multi_channels_select"
       MultiChannelsSelectAction.new(item, path)
+    when "conversations_select"
+      ConversationsSelectAction.new(item, path)
+    when "multi_conversations_select"
+      MultiConversationsSelectAction.new(item, path)
     when "users_select"
       UsersSelectAction.new(item, path)
     when "multi_users_select"

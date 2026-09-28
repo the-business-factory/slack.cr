@@ -6,25 +6,25 @@ Use `require "slack"` and `Slack::UI::Checked` to construct validated, immutable
 
 | Checked surface | Direct blocks | Input children | Send with |
 | --- | --- | --- | --- |
-| `Message` | Section, Actions, Divider, Header, Context, Image, Input | PlainTextInput, StaticSelect, MultiStaticSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect | `Slack::Api::CheckedChatPostMessage`, `Slack::Api::CheckedChatUpdate` |
+| `Message` | Section, Actions, Divider, Header, Context, Image, Input | PlainTextInput, StaticSelect, MultiStaticSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect | `Slack::Api::CheckedChatPostMessage`, `Slack::Api::CheckedChatUpdate` |
 | `DisplayModal` | Section, Actions, Divider, Header, Context, Image | None, even if a submit label is supplied | `Slack::Api::CheckedViewsOpen`, `Slack::Api::CheckedViewsUpdate`, `Slack::Api::CheckedViewsPush` |
-| `FormModal` | Section, Actions, Divider, Header, Context, Image, Input | PlainTextInput, StaticSelect, MultiStaticSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect | `Slack::Api::CheckedViewsOpen`, `Slack::Api::CheckedViewsUpdate`, `Slack::Api::CheckedViewsPush` |
-| `Home` | Section, Actions, Divider, Header, Context, Image, Input | PlainTextInput, StaticSelect, MultiStaticSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect | `Slack::Api::CheckedViewsPublish` |
+| `FormModal` | Section, Actions, Divider, Header, Context, Image, Input | PlainTextInput, StaticSelect, MultiStaticSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect | `Slack::Api::CheckedViewsOpen`, `Slack::Api::CheckedViewsUpdate`, `Slack::Api::CheckedViewsPush` |
+| `Home` | Section, Actions, Divider, Header, Context, Image, Input | PlainTextInput, StaticSelect, MultiStaticSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect | `Slack::Api::CheckedViewsPublish` |
 
 `FormModal` always needs a plain-text `submit` label, including forms without Input. `DisplayModal` cannot contain Input. Message and Home need no submit label. A Message can contain Input even though older phase notes excluded it. [Slack's Input reference](https://docs.slack.dev/reference/block-kit/blocks/input-block.md) lists Messages, Modals, and Home.
 
 | Parent | Supported children |
 | --- | --- |
-| Section accessory | Button, Image element, StaticSelect, MultiStaticSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect |
-| Actions elements | Button, StaticSelect, MultiStaticSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect |
+| Section accessory | Button, Image element, StaticSelect, MultiStaticSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect |
+| Actions elements | Button, StaticSelect, MultiStaticSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect |
 | Context elements | PlainText, Mrkdwn, Image element |
-| Input element | PlainTextInput, StaticSelect, MultiStaticSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect |
+| Input element | PlainTextInput, StaticSelect, MultiStaticSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect |
 
 Checked Header, Context, and Image blocks are display content on all four surfaces. An Image block or element needs alt text and exactly one public `image_url` or `SlackFile` source. `SlackFile` takes an ID or URL. Remote image availability and file access are checked by Slack. Section supports text, fields, and the listed accessory; Actions checks duplicate supplied action IDs within that block.
 
-Static choices use plain-text `Option` values, optional `OptionGroup` values, and exactly one `options:` or `option_groups:` source. `StaticSelect` has one `initial_option`; `MultiStaticSelect` has `initial_options` and optional `max_selected_items`. Choice values must be unique within a menu, and initial selections must match offered options. Each group can contain up to 100 options. These two types use a **static** source. User and channel selects use Slack-provided lists; external option sources remain unsupported.
+Static choices use plain-text `Option` values, optional `OptionGroup` values, and exactly one `options:` or `option_groups:` source. `StaticSelect` has one `initial_option`; `MultiStaticSelect` has `initial_options` and optional `max_selected_items`. Choice values must be unique within a menu, and initial selections must match offered options. Each group can contain up to 100 options. These two types use a **static** source. User, channel, and conversation selects use Slack-provided lists; external option sources remain unsupported.
 
-Date/time pickers and conversation select families are not checked implementations. Placeholder or mutable types elsewhere in the library do not extend the checked placement matrix. The checked endpoints cover only their documented request fields; they are not complete wrappers for every Slack method field or view lifecycle action.
+Date/time pickers are not checked implementations. Placeholder or mutable types elsewhere in the library do not extend the checked placement matrix. The checked endpoints cover only their documented request fields; they are not complete wrappers for every Slack method field or view lifecycle action.
 
 The machine-readable [support manifest](../spec/support/block_kit/support.yml) records detailed wire fields, upstream references, and repository evidence. Evidence paths in it are relative to the repository root.
 
@@ -182,6 +182,38 @@ Only `ChannelsSelect` accepts `response_url_enabled`. Slack documents it for Inp
 Read `ChannelsSelectAction#selected_channel` (`String?`) and `MultiChannelsSelectAction#selected_channels` (`Array(String)?`), or use `state_map.channels_select_value?` and `state_map.multi_channels_select_value?`. Their `selected_channel_presence` and `selected_channels_presence` distinguish Absent, Null, and Present. A cleared single selection is null; a cleared multi-selection is a present empty array. Missing state entries return nil. Received IDs have no outbound limits; malformed known fields raise path-aware `TypeMismatch`. Raw unknown fields are retained, and selected-array getters return copies. Input can set `dispatch_action: true` for selection changes.
 
 Channel interactions now decode as `ChannelsSelectAction`/`MultiChannelsSelectAction` and `ChannelsSelectValue`/`MultiChannelsSelectValue` instead of unknown types. Move raw channel handlers to these typed branches and extend exhaustive matches on `Interactions::Action`, `StateValue`, and checked placement unions. The [offline workflow](../examples/block_kit_channels_select.cr) selects a notification channel, opens a destination form, and reads signed submission state.
+
+## Select conversations
+
+Use `BlockElements::ConversationsSelect` for one conversation and `MultiConversationsSelect` for several. Slack supplies public and private channels, direct messages, and group direct messages visible to the user. Both controls work in Section and Actions on all checked surfaces, and in Input on Message, FormModal, and Home.
+
+```crystal
+filter = UI::CompositionObjects::ConversationFilter.new(
+  include: {"public", "private", "im"}, exclude_bot_users: true
+)
+destination = UI::BlockElements::ConversationsSelect.new(
+  action_id: "destination", default_to_current_conversation: true,
+  filter: filter, placeholder: UI.plain("Choose conversation")
+)
+copies = UI::BlockElements::MultiConversationsSelect.new(
+  action_id: "copies", initial_conversations: {"C123", "D456"},
+  max_selected_items: 3, filter: filter
+)
+```
+
+Both accept optional `action_id` (255 characters), plain-text `placeholder` (150 characters), `confirm`, `focus_on_load`, `filter`, and `default_to_current_conversation`. Only one element per view can request focus. Single selection uses `initial_conversation`; multiple selection uses a nonempty `initial_conversations` and optional `max_selected_items` of at least one. Omit initial choices for no explicit selection.
+
+Slack documents different default precedence: single `initial_conversation` takes precedence over `default_to_current_conversation`; the multi-select reference says that when the default field is also supplied, `initial_conversations` is ignored. The library preserves both fields unchanged, including explicit false, and leaves the choice to Slack. See the [single-select](https://docs.slack.dev/reference/block-kit/block-elements/select-menu-element/) and [multi-select](https://docs.slack.dev/reference/block-kit/block-elements/multi-select-menu-element/) references.
+
+A `ConversationFilter` needs at least one supplied field; an explicit false flag counts. Optional `include:` accepts a nonempty collection of `"im"`, `"mpim"`, `"private"`, and `"public"`. Optional `exclude_external_shared_channels` and `exclude_bot_users` preserve omission and false. The external-shared flag excludes channels, not users from shared channels. Filters are exclusive to conversation controls. See the [filter reference](https://docs.slack.dev/reference/block-kit/composition-objects/conversation-filter-object/).
+
+Initial IDs and filter includes are copied in one pass; getters return copies. Empty IDs, repeated initial IDs, and an initial count above a supplied maximum are rejected as library policy. The library does not impose ID prefixes or lengths, check remote membership, or check an initial ID against a filter.
+
+Only the single control accepts `response_url_enabled`. It is allowed only in modal Input blocks; rejecting a supplied false outside that placement is library policy, matching ChannelsSelect. Omit it elsewhere. Submission `response_urls` stay available as raw data; this adds no response-URL transport.
+
+Read `ConversationsSelectAction#selected_conversation` (`String?`) and `MultiConversationsSelectAction#selected_conversations` (`Array(String)?`), or use `state_map.conversations_select_value?` and `state_map.multi_conversations_select_value?` with block/action IDs. Presence accessors distinguish Absent, Null, and Present. A cleared single selection is null; a cleared multi-selection is an empty array. Missing entries return nil, malformed known values raise path-aware `TypeMismatch`, and unknown fields stay in raw JSON. Received IDs have no outbound limits; selected-array getters return copies. Input can use `dispatch_action: true` for changes; submissions also carry state.
+
+Migration: these controls now decode as `ConversationsSelectAction`/`MultiConversationsSelectAction` and `ConversationsSelectValue`/`MultiConversationsSelectValue`, instead of unknown types. Move raw handlers to these branches and extend exhaustive matches on `Interactions::Action`, `StateValue`, and checked placement unions. The [offline workflow](../examples/block_kit_conversations_select.cr) posts a filtered conversation menu, reads a signed action, opens a destination form, and reads its signed submission. It does not prove live permissions, rendering, default precedence, remote acceptance, or acknowledgment timing.
 
 ## Build modals and Home
 
@@ -361,7 +393,7 @@ The [offline example](../examples/block_kit_modal_update.cr) verifies a signed s
 
 Pass the original signed HTTP request to `Slack.process_interaction`. It checks the signature and timestamp freshness before decoding. For JSON already verified by trusted code, use `Slack::Interaction.from_json`. Timestamp freshness is not duplicate suppression; applications own event deduplication and HTTP acknowledgments.
 
-`BlockAction#decoded_actions` gives typed ButtonAction, StaticSelectAction, MultiStaticSelectAction, OverflowAction, CheckboxesAction, RadioButtonsAction, UsersSelectAction, MultiUsersSelectAction, ChannelsSelectAction, and MultiChannelsSelectAction values with block/action IDs, selections, and raw JSON. A dispatched `plain_text_input` action stays `UnknownAction`; read its text through `state_map`. Unknown action and state families retain raw JSON for application inspection.
+`BlockAction#decoded_actions` gives typed ButtonAction, StaticSelectAction, MultiStaticSelectAction, OverflowAction, CheckboxesAction, RadioButtonsAction, UsersSelectAction, MultiUsersSelectAction, ChannelsSelectAction, MultiChannelsSelectAction, ConversationsSelectAction, and MultiConversationsSelectAction values with block/action IDs, selections, and raw JSON. A dispatched `plain_text_input` action stays `UnknownAction`; read its text through `state_map`. Unknown action and state families retain raw JSON for application inspection.
 
 ```crystal
 case interaction = Slack.process_interaction(request)
@@ -373,7 +405,7 @@ when Slack::Interactions::ViewSubmission
 end
 ```
 
-`StateMap#plain_text?`, `#static_select_value?`, `#multi_static_select_value?`, `#checkboxes_value?`, `#radio_buttons_value?`, `#users_select_value?`, `#multi_users_select_value?`, `#channels_select_value?`, and `#multi_channels_select_value?` work on supported BlockAction, View, and ViewSubmission state. A missing block/action key returns nil. For an existing selection entry, the matching `selected_option_presence`, `selected_options_presence`, `selected_user_presence`, `selected_users_presence`, `selected_channel_presence`, or `selected_channels_presence` distinguishes Absent, Null, and Present. A cleared single choice can be null; a cleared multi choice can be a present empty array. `selected_options`, `selected_users`, and `selected_channels` can also be nil if absent or null. Asking for the wrong typed family raises `TypeMismatch`, as do malformed known values; it does not silently return nil. Complete raw JSON remains available for unmodeled fields. This library does not implement a full view lifecycle, response-action framework, or external suggestion responses.
+`StateMap#plain_text?`, `#static_select_value?`, `#multi_static_select_value?`, `#checkboxes_value?`, `#radio_buttons_value?`, `#users_select_value?`, `#multi_users_select_value?`, `#channels_select_value?`, `#multi_channels_select_value?`, `#conversations_select_value?`, and `#multi_conversations_select_value?` work on supported BlockAction, View, and ViewSubmission state. A missing block/action key returns nil. For an existing selection entry, the matching `selected_option_presence`, `selected_options_presence`, `selected_user_presence`, `selected_users_presence`, `selected_channel_presence`, `selected_channels_presence`, `selected_conversation_presence`, or `selected_conversations_presence` distinguishes Absent, Null, and Present. A cleared single choice can be null; a cleared multi choice can be a present empty array. `selected_options`, `selected_users`, `selected_channels`, and `selected_conversations` can also be nil if absent or null. Asking for the wrong typed family raises `TypeMismatch`, as do malformed known values; it does not silently return nil. Complete raw JSON remains available for unmodeled fields. This library does not implement a full view lifecycle, response-action framework, or external suggestion responses.
 
 ## Validation, limits, and ownership
 
@@ -414,6 +446,7 @@ crystal run examples/block_kit_modal_clear.cr
 crystal run examples/block_kit_channels_select.cr
 crystal run examples/block_kit_modal_push.cr
 crystal run examples/block_kit_modal_update.cr
+crystal run examples/block_kit_conversations_select.cr
 ```
 
 The message example builds and prints a request. The modal example posts a button, verifies a signed action, opens a form, and reads a signed submission. The Home example publishes through a stub and reads simulated state. The static choice example posts a single choice, reads a signed selection, opens a grouped multi-choice form, and reads its submission. The overflow example posts action and URL choices and acknowledges a signed URL selection. The checkbox example posts initial choices, reads a signed checkbox action, and reads a cleared selection from a signed submission. The radio example posts an initial choice, reads a signed selection, opens an optional override form, and reads an unselected submission. The message-update example replaces a posted approval button with the completed status and new fallback text. The user-select example assigns an owner and submits multiple reviewers. Real handlers must acknowledge interactions within Slack's response window.
