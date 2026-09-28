@@ -6,25 +6,25 @@ Use `require "slack"` and `Slack::UI::Checked` to construct validated, immutable
 
 | Checked surface | Direct blocks | Input children | Send with |
 | --- | --- | --- | --- |
-| `Message` | Section, Actions, Divider, Header, Context, Image, Input | PlainTextInput, StaticSelect, MultiStaticSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect | `Slack::Api::CheckedChatPostMessage`, `Slack::Api::CheckedChatUpdate` |
+| `Message` | Section, Actions, Divider, Header, Context, Image, Input | PlainTextInput, StaticSelect, MultiStaticSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker | `Slack::Api::CheckedChatPostMessage`, `Slack::Api::CheckedChatUpdate` |
 | `DisplayModal` | Section, Actions, Divider, Header, Context, Image | None, even if a submit label is supplied | `Slack::Api::CheckedViewsOpen`, `Slack::Api::CheckedViewsUpdate`, `Slack::Api::CheckedViewsPush` |
-| `FormModal` | Section, Actions, Divider, Header, Context, Image, Input | PlainTextInput, StaticSelect, MultiStaticSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect | `Slack::Api::CheckedViewsOpen`, `Slack::Api::CheckedViewsUpdate`, `Slack::Api::CheckedViewsPush` |
-| `Home` | Section, Actions, Divider, Header, Context, Image, Input | PlainTextInput, StaticSelect, MultiStaticSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect | `Slack::Api::CheckedViewsPublish` |
+| `FormModal` | Section, Actions, Divider, Header, Context, Image, Input | PlainTextInput, StaticSelect, MultiStaticSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker | `Slack::Api::CheckedViewsOpen`, `Slack::Api::CheckedViewsUpdate`, `Slack::Api::CheckedViewsPush` |
+| `Home` | Section, Actions, Divider, Header, Context, Image, Input | PlainTextInput, StaticSelect, MultiStaticSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker | `Slack::Api::CheckedViewsPublish` |
 
 `FormModal` always needs a plain-text `submit` label, including forms without Input. `DisplayModal` cannot contain Input. Message and Home need no submit label. A Message can contain Input even though older phase notes excluded it. [Slack's Input reference](https://docs.slack.dev/reference/block-kit/blocks/input-block.md) lists Messages, Modals, and Home.
 
 | Parent | Supported children |
 | --- | --- |
-| Section accessory | Button, Image element, StaticSelect, MultiStaticSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect |
-| Actions elements | Button, StaticSelect, MultiStaticSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect |
+| Section accessory | Button, Image element, StaticSelect, MultiStaticSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker |
+| Actions elements | Button, StaticSelect, MultiStaticSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker |
 | Context elements | PlainText, Mrkdwn, Image element |
-| Input element | PlainTextInput, StaticSelect, MultiStaticSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect |
+| Input element | PlainTextInput, StaticSelect, MultiStaticSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker |
 
 Checked Header, Context, and Image blocks are display content on all four surfaces. An Image block or element needs alt text and exactly one public `image_url` or `SlackFile` source. `SlackFile` takes an ID or URL. Remote image availability and file access are checked by Slack. Section supports text, fields, and the listed accessory; Actions checks duplicate supplied action IDs within that block.
 
 Static choices use plain-text `Option` values, optional `OptionGroup` values, and exactly one `options:` or `option_groups:` source. `StaticSelect` has one `initial_option`; `MultiStaticSelect` has `initial_options` and optional `max_selected_items`. Choice values must be unique within a menu, and initial selections must match offered options. Each group can contain up to 100 options. These two types use a **static** source. User, channel, and conversation selects use Slack-provided lists; external option sources remain unsupported.
 
-Date/time pickers are not checked implementations. Placeholder or mutable types elsewhere in the library do not extend the checked placement matrix. The checked endpoints cover only their documented request fields; they are not complete wrappers for every Slack method field or view lifecycle action.
+The datetime picker is not a checked implementation. Placeholder or mutable types elsewhere in the library do not extend the checked placement matrix. The checked endpoints cover only their documented request fields; they are not complete wrappers for every Slack method field or view lifecycle action.
 
 The machine-readable [support manifest](../spec/support/block_kit/support.yml) records detailed wire fields, upstream references, and repository evidence. Evidence paths in it are relative to the repository root.
 
@@ -215,6 +215,29 @@ Read `ConversationsSelectAction#selected_conversation` (`String?`) and `MultiCon
 
 Migration: these controls now decode as `ConversationsSelectAction`/`MultiConversationsSelectAction` and `ConversationsSelectValue`/`MultiConversationsSelectValue`, instead of unknown types. Move raw handlers to these branches and extend exhaustive matches on `Interactions::Action`, `StateValue`, and checked placement unions. The [offline workflow](../examples/block_kit_conversations_select.cr) posts a filtered conversation menu, reads a signed action, opens a destination form, and reads its signed submission. It does not prove live permissions, rendering, default precedence, remote acceptance, or acknowledgment timing.
 
+## Choose a date and time
+
+Use separate `BlockElements::DatePicker` and `TimePicker` controls in Section or Actions on all checked surfaces, or in Input on Message, FormModal, and Home. These are calendar and clock choices; they do not represent an instant or create a scheduled job.
+
+```crystal
+date = UI::BlockElements::DatePicker.new(
+  action_id: "date", initial_date: "2028-02-29",
+  placeholder: UI.plain("Choose date")
+)
+time = UI::BlockElements::TimePicker.new(
+  action_id: "time", initial_time: "09:30", timezone: "America/Chicago",
+  focus_on_load: true
+)
+```
+
+Both support optional `action_id` (255 characters), plain-text `placeholder` (150 characters), `confirm`, and `focus_on_load`. Omitted fields and explicit false stay distinct. One element per view can request focus. `initial_date` uses exact `YYYY-MM-DD`; local calendar validation requires a real Gregorian date in years 0001–9999, including leap-year rules. This year range is library policy, not a remote scheduling window. `initial_time` uses exact `HH:mm`, from `00:00` through `23:59`. See Slack's [date picker](https://docs.slack.dev/reference/block-kit/block-elements/date-picker-element/) and [time picker](https://docs.slack.dev/reference/block-kit/block-elements/time-picker-element/) fields and placement metadata.
+
+Only TimePicker accepts `timezone`, an IANA timezone hint such as `America/Chicago`. The library sends it unchanged and does not consult the host timezone database or validate remote timezone support. Slack can return it on certain interactions, including submissions. The application owns timezone resolution, daylight-saving ambiguity, and any scheduling rules. The separate `datetimepicker` element remains unsupported.
+
+Read `DatePickerAction#selected_date` and `TimePickerAction#selected_time`, or `state_map.date_picker_value?` and `state_map.time_picker_value?` with block/action IDs. Selections remain `String?`. Their `selected_date_presence` and `selected_time_presence` distinguish Absent, Null (cleared), and Present. TimePickerAction/TimePickerValue also expose optional `timezone` and `timezone_presence`. Missing state entries return nil. Empty or malformed-format strings remain present without outbound calendar/clock validation; wrong JSON types raise path-aware `TypeMismatch`. Unknown fields remain in `raw`. Input can set `dispatch_action: true` to receive changes.
+
+Picker interactions now decode as `DatePickerAction`/`TimePickerAction` and `DatePickerValue`/`TimePickerValue` instead of unknown types. Move raw picker handlers to these typed branches and extend exhaustive matches on `Interactions::Action`, `StateValue`, `Blocks::Section::Accessory`, `Blocks::Actions::Element`, and `Blocks::InputElement`. Legacy placeholder types are unchanged. The [offline scheduling-choice workflow](../examples/block_kit_date_time_pickers.cr) posts a date choice, opens a form, and reads the final date, time, and timezone from a signed submission.
+
 ## Build modals and Home
 
 Use `form_modal` for input and `display_modal` for display content. Both have a plain-text title; a form has a required plain-text submit label. A modal can have at most 100 blocks. For a form:
@@ -393,7 +416,7 @@ The [offline example](../examples/block_kit_modal_update.cr) verifies a signed s
 
 Pass the original signed HTTP request to `Slack.process_interaction`. It checks the signature and timestamp freshness before decoding. For JSON already verified by trusted code, use `Slack::Interaction.from_json`. Timestamp freshness is not duplicate suppression; applications own event deduplication and HTTP acknowledgments.
 
-`BlockAction#decoded_actions` gives typed ButtonAction, StaticSelectAction, MultiStaticSelectAction, OverflowAction, CheckboxesAction, RadioButtonsAction, UsersSelectAction, MultiUsersSelectAction, ChannelsSelectAction, MultiChannelsSelectAction, ConversationsSelectAction, and MultiConversationsSelectAction values with block/action IDs, selections, and raw JSON. A dispatched `plain_text_input` action stays `UnknownAction`; read its text through `state_map`. Unknown action and state families retain raw JSON for application inspection.
+`BlockAction#decoded_actions` gives typed ButtonAction, StaticSelectAction, MultiStaticSelectAction, OverflowAction, CheckboxesAction, RadioButtonsAction, UsersSelectAction, MultiUsersSelectAction, ChannelsSelectAction, MultiChannelsSelectAction, ConversationsSelectAction, MultiConversationsSelectAction, DatePickerAction, and TimePickerAction values with block/action IDs, selections, and raw JSON. A dispatched `plain_text_input` action stays `UnknownAction`; read its text through `state_map`. Unknown action and state families retain raw JSON for application inspection.
 
 ```crystal
 case interaction = Slack.process_interaction(request)
@@ -447,6 +470,7 @@ crystal run examples/block_kit_channels_select.cr
 crystal run examples/block_kit_modal_push.cr
 crystal run examples/block_kit_modal_update.cr
 crystal run examples/block_kit_conversations_select.cr
+crystal run examples/block_kit_date_time_pickers.cr
 ```
 
 The message example builds and prints a request. The modal example posts a button, verifies a signed action, opens a form, and reads a signed submission. The Home example publishes through a stub and reads simulated state. The static choice example posts a single choice, reads a signed selection, opens a grouped multi-choice form, and reads its submission. The overflow example posts action and URL choices and acknowledges a signed URL selection. The checkbox example posts initial choices, reads a signed checkbox action, and reads a cleared selection from a signed submission. The radio example posts an initial choice, reads a signed selection, opens an optional override form, and reads an unselected submission. The message-update example replaces a posted approval button with the completed status and new fallback text. The user-select example assigns an owner and submits multiple reviewers. Real handlers must acknowledge interactions within Slack's response window.

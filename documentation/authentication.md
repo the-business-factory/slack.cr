@@ -52,6 +52,8 @@ For the next step after a modal submission, return `Slack::Interactions::ModalPu
 
 For conversation selects, verify the original signed request before reading `ConversationsSelectAction#selected_conversation`, `MultiConversationsSelectAction#selected_conversations`, or their StateMap accessors. See [conversation selection handling](block-kit.md#select-conversations) and `examples/block_kit_conversations_select.cr`. Filters control the displayed list; a selected ID does not prove access or permission to post.
 
+For date/time pickers, verify the original signed request before reading `DatePickerAction`, `TimePickerAction`, or the corresponding StateMap accessors. The received date, time, and optional timezone remain strings. See [picker handling](block-kit.md#choose-a-date-and-time) and `examples/block_kit_date_time_pickers.cr`.
+
 ## OAuth app installation
 
 `Slack::AuthHandler` installs an app; it does not authenticate a human login. Give it explicit configuration, state storage, and transport. Global `Slack.configure` client credentials or scopes do not configure this handler.
