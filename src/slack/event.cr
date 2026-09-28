@@ -26,14 +26,15 @@ abstract struct Slack::Event
     json = raw.to_json
 
     case type
-    when "app_home_opened"  then Slack::Events::AppHomeOpened.from_json(json)
-    when "app_mention"      then Slack::Events::AppMentioned.from_json(json)
-    when "app_uninstalled"  then Slack::Events::AppUninstalled.from_json(json)
-    when "message"          then Slack::Events::MessageFactory.from_json(json)
-    when "reaction_added"   then Slack::Events::ReactionAdded.from_json(json)
-    when "reaction_removed" then Slack::Events::ReactionRemoved.from_json(json)
-    when "tokens_revoked"   then Slack::Events::TokensRevoked.from_json(json)
-    else                         Slack::Events::Unknown.new(type, raw)
+    when "app_home_opened"   then Slack::Events::AppHomeOpened.from_json(json)
+    when "app_mention"       then Slack::Events::AppMentioned.from_json(json)
+    when "app_uninstalled"   then Slack::Events::AppUninstalled.from_json(json)
+    when "function_executed" then Slack::Events::FunctionExecuted.from_json(json)
+    when "message"           then Slack::Events::MessageFactory.from_json(json)
+    when "reaction_added"    then Slack::Events::ReactionAdded.from_json(json)
+    when "reaction_removed"  then Slack::Events::ReactionRemoved.from_json(json)
+    when "tokens_revoked"    then Slack::Events::TokensRevoked.from_json(json)
+    else                          Slack::Events::Unknown.new(type, raw)
     end
   end
 

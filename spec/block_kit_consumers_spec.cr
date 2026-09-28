@@ -45,6 +45,7 @@ require "../examples/support/socket_mode_example"
 require "../examples/support/slash_command_example"
 require "../examples/support/received_blocks_example"
 require "../examples/support/web_api_example"
+require "../examples/support/workflow_step_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -85,6 +86,17 @@ describe "documented Block Kit workflows" do
     output = IO::Memory.new
     OfflineWebApiExample.run(output)
     output.to_s.should eq("Added :eyes: to C123\nCustom emoji: shipit\nDelete failed: message_not_found\n")
+  end
+
+  it "completes a workflow step with outputs and fails one without its input" do
+    output = IO::Memory.new
+    sent = OfflineWorkflowStepExample.run(output)
+    output.to_s.lines.should eq ["Completed assign_reviewer Fx-STEP-1: U-REVIEWER",
+                                 "Failed assign_reviewer Fx-STEP-2: no reviewer"]
+    sent.should eq [
+      JSON.parse(%({"function_execution_id":"Fx-STEP-1","outputs":{"reviewer_id":"U-REVIEWER"}})),
+      JSON.parse(%({"function_execution_id":"Fx-STEP-2","error":"Choose a reviewer."})),
+    ]
   end
 
   it "posts a button, opens a modal, and reads its signed submission" do

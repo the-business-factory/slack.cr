@@ -80,7 +80,7 @@ The send requires a bot token with `chat:write` and a channel the app can post t
 
 ## Events API payloads
 
-`Slack.process_webhook` verifies the signed request and returns `Slack::UrlVerification` or `Slack::VerifiedEvent`. The inner `event` is a typed struct for mapped types. An event type that the library does not map decodes as `Slack::Events::Unknown`: `type` gives the event type and `raw` keeps the complete event JSON. Match `Unknown` explicitly. Do not log `raw`: it can hold credentials, for example `bot_access_token` in `function_executed`. A `message` event with a subtype that the library does not map still raises `JSON::SerializableError`.
+`Slack.process_webhook` verifies the signed request and returns `Slack::UrlVerification` or `Slack::VerifiedEvent`. The inner `event` is a typed struct for mapped types. An event type that the library does not map decodes as `Slack::Events::Unknown`: `type` gives the event type and `raw` keeps the complete event JSON. Match `Unknown` explicitly. Do not log `raw`: it can hold credentials, such as a workflow `bot_access_token`. A `message` event with a subtype that the library does not map still raises `JSON::SerializableError`.
 
 ```crystal
 envelope = Slack.process_webhook(request)
@@ -129,6 +129,21 @@ Slack::Interactions::ResponseUrlResponder.new(command.response_url).post(Slack::
 
 A `response_url` accepts five posts within 30 minutes. See [Respond to a slash command](documentation/block-kit.md#respond-to-a-slash-command).
 
+## Workflow steps
+
+A custom function in the app manifest is a workflow step. When a workflow runs the step, Slack sends a `function_executed` event. Read the inputs, then complete or fail the execution with the event's `bot_access_token`:
+
+```crystal
+if (event = envelope.event).is_a?(Slack::Events::FunctionExecuted)
+  client = Slack::Api::Client.new(token: event.bot_access_token)
+  client.call(Slack::Api::FunctionsCompleteSuccess.new(
+    function_execution_id: event.function_execution_id,
+    outputs: {user_id: event.inputs["user_id"].as_s}))
+end
+```
+
+See [Workflow steps](documentation/workflows.md) for the manifest, inputs, and failures.
+
 ## Runnable examples
 
 From a repository checkout, run `shards install` first. The modal, Home, and static choice examples use the development dependency WebMock. They use synthetic credentials and stub HTTP requests; they do not contact Slack.
@@ -176,9 +191,10 @@ crystal run examples/socket_mode_protocol.cr
 crystal run examples/interaction_context.cr
 crystal run examples/slash_command.cr
 crystal run examples/received_blocks.cr
+crystal run examples/workflow_step.cr
 ```
 
-The examples show Web API calls and error codes, message construction, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, message workflow buttons, typed blocks of a received message, Socket Mode frames with their acknowledgments, and a slash command response with a `response_url` reply. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
+The examples show Web API calls and error codes, message construction, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, message workflow buttons, typed blocks of a received message, Socket Mode frames with their acknowledgments, a slash command response with a `response_url` reply, and a custom workflow step that completes or fails its execution. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
 
 ## Contributing
 

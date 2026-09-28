@@ -1,8 +1,8 @@
 # Retains an inner event whose `type` this library does not map.
 #
 # `raw` holds the complete event object, and `to_json` emits it unchanged.
-# `raw` can hold credentials, for example `bot_access_token` in
-# `function_executed`, so do not log it.
+# `raw` can hold credentials, such as a workflow `bot_access_token`, so do not
+# log it.
 # The shared `Slack::Event` getters read string values from `raw`; a value of
 # another JSON type reads as nil because the event schema is not known.
 struct Slack::Events::Unknown < Slack::Event

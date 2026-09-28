@@ -897,6 +897,39 @@ entries:
     inbound_status: unsupported
     evidence_paths: [src/slack/interactions/response_url_message.cr, src/slack/interactions/response_url_responder.cr, src/slack/interactions/response_url_error.cr, spec/interactions/response_url_message_spec.cr, spec/interactions/response_url_responder_spec.cr, examples/support/slash_command_example.cr, spec/block_kit_consumers_spec.cr]
 
+  - wire_type: function_executed event
+    kind: event
+    documentation_url: https://docs.slack.dev/reference/events/function_executed
+    fields_supported: [type, function, inputs, function_execution_id, workflow_execution_id, event_ts, bot_access_token]
+    parents: [events_api]
+    surfaces: []
+    restrictions: "Events::FunctionExecuted decodes through Slack::Event with a typed FunctionDefinition (id, callback_id, title, description, type, app_id, input and output FunctionParameter lists, date_created, date_updated, and date_deleted, which is nil for 0). inputs stay raw JSON; the library does not convert them by Slack type. bot_access_token is a required, non-empty Auth::Secret that inspect and to_s redact and to_json omits. Manifest functions stay application JSON. No listener routing or automatic completion."
+    implementation_status: unsupported
+    inbound_status: supported
+    evidence_paths: [src/slack/events/event_types/function_executed.cr, src/slack/events/event_data/function_definition.cr, src/slack/events/event_data/function_parameter.cr, spec/events/function_executed_spec.cr, spec/fixtures/events/function_executed.json, examples/support/workflow_step_example.cr, spec/block_kit_consumers_spec.cr]
+
+  - wire_type: functions.completeSuccess request
+    kind: endpoint
+    documentation_url: https://docs.slack.dev/reference/methods/functions.completeSuccess
+    fields_supported: [function_execution_id, outputs]
+    parents: []
+    surfaces: []
+    restrictions: "FunctionsCompleteSuccess sends function_execution_id and an outputs object copied from a NamedTuple or Hash as JSON. Send it with Slack::Api::Client#call and the event's bot_access_token as the client token. Tier 3. Slack checks outputs against the manifest (parameter_validation_failed) and the execution state (execution_not_in_running_state); the library does not."
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/api/requests/functions/complete_success.cr, spec/api/functions_spec.cr, examples/support/workflow_step_example.cr, spec/block_kit_consumers_spec.cr]
+
+  - wire_type: functions.completeError request
+    kind: endpoint
+    documentation_url: https://docs.slack.dev/reference/methods/functions.completeError
+    fields_supported: [function_execution_id, error]
+    parents: []
+    surfaces: []
+    restrictions: "FunctionsCompleteError sends function_execution_id and an error message. Send it with Slack::Api::Client#call and the event's bot_access_token as the client token. Tier 3. Slack checks the execution state (execution_not_in_running_state); the library does not."
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/api/requests/functions/complete_error.cr, spec/api/functions_spec.cr, examples/support/workflow_step_example.cr, spec/block_kit_consumers_spec.cr]
+
 # Classification is independent of support status. Missing features are not invalid Slack payloads.
 review_policy:
   cadence: Before each release and at least every 90 days.
