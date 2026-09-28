@@ -1,0 +1,17 @@
+{
+  "type": "block_actions",
+  "team": null,
+  "trigger_id": "synthetic-trigger",
+  "container": {"type": "message", "channel_id": "C-SYNTHETIC", "message_ts": "1710000000.000000"},
+  "actions": [
+    {
+      "type": "overflow", "block_id": "request", "action_id": "request.more", "action_ts": "1710000000.000001",
+      "selected_option": {
+        "text": {"type": "plain_text", "text": "Details", "future_text": "kept"},
+        "value": "details", "url": "https://example.com/requests/42", "future_option": false
+      },
+      "future_action": []
+    },
+    {"type": "future_overflow", "value": null}
+  ]
+}

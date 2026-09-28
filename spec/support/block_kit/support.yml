@@ -1,6 +1,6 @@
 schema_version: 2
 checked_on: "2026-09-27"
-scope: Checked Block Kit values, surface builders and static selections, including Input in Messages, FormModal and Home.
+scope: Checked Block Kit values, surface builders, static selections and overflow menus, including Input in Messages, FormModal and Home.
 statuses:
   - unsupported
   - partial
@@ -10,7 +10,7 @@ entries:
     kind: composition object
     documentation_url: https://docs.slack.dev/reference/block-kit/composition-objects/text-object/
     fields_supported: [type, text, emoji, verbatim]
-    parents: [button, confirmation, section, input, plain_text_input, modal, header, context, image, option, option_group, static_select, multi_static_select]
+    parents: [button, confirmation, section, input, plain_text_input, modal, header, context, image, option, overflow option, option_group, static_select, multi_static_select]
     surfaces: [message, modal, home]
     restrictions: Immutable checked outbound values have fixed discriminators and format-specific options; legacy field-specific values remain mutable for compatibility.
     implementation_status: supported
@@ -21,7 +21,7 @@ entries:
     kind: composition object
     documentation_url: https://docs.slack.dev/reference/block-kit/composition-objects/confirmation-dialog-object/
     fields_supported: [title, text, confirm, deny, style]
-    parents: [button, static_select, multi_static_select]
+    parents: [button, static_select, multi_static_select, overflow]
     surfaces: [message, modal, home]
     restrictions: Checked outbound values are immutable and validated; the confirmation body accepts plain_text or mrkdwn as used by Slack's official examples. Legacy confirmation values remain mutable.
     implementation_status: supported
@@ -108,13 +108,24 @@ entries:
   - wire_type: overflow
     kind: block element
     documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/overflow-menu-element/
-    fields_supported: [type]
-    parents: []
-    surfaces: []
-    restrictions: Discriminator-only placeholder; no option contract.
-    implementation_status: unsupported
-    inbound_status: unsupported
-    evidence_paths: [src/slack/ui/block_elements/overflow_menu.cr]
+    fields_supported: [type, options, action_id, confirm]
+    parents: [section, actions]
+    surfaces: [message, modal, home]
+    restrictions: Checked Overflow accepts one to five OverflowOption values with unique values. No Input placement. Optional action_id and confirm. Received OverflowAction requires selected_option and exposes IDs and optional action_ts; unmodeled fields remain raw. No typed Overflow state. Legacy placeholder remains unsupported.
+    implementation_status: supported
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/checked/block_elements/overflow.cr, src/slack/interactions/overflow_action.cr, spec/ui/checked/overflow_spec.cr, spec/interactions/overflow_spec.cr, spec/api/overflow_snapshot_spec.cr, examples/block_kit_overflow.cr]
+
+  - wire_type: overflow option
+    kind: composition object
+    documentation_url: https://docs.slack.dev/reference/block-kit/composition-objects/option-object/
+    fields_supported: [text, value, description, url]
+    parents: [overflow]
+    surfaces: [message, modal, home]
+    restrictions: Plain-text labels and descriptions only. Required value, optional URL. Separate OverflowOption cannot be passed to static selects. Received SelectedOption exposes value and text and retains URL and other fields in raw JSON without outbound validation.
+    implementation_status: supported
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/checked/composition_objects/overflow_option.cr, spec/ui/checked/overflow_spec.cr, spec/block_kit_diagnostics_spec.cr, spec/interactions/overflow_spec.cr]
 
   - wire_type: radio_buttons
     kind: block element
@@ -155,7 +166,7 @@ entries:
     fields_supported: [type, block_id, elements]
     parents: [message, modal, home]
     surfaces: [message, modal, home]
-    restrictions: Checked Actions accepts Button, StaticSelect, and MultiStaticSelect; other Slack interactive elements are deferred. Legacy Actions still accepts only Button. Checked collections are immutable snapshots and validate duplicate supplied action IDs.
+    restrictions: Checked Actions accepts Button, StaticSelect, MultiStaticSelect, and Overflow; other Slack interactive elements are deferred. Legacy Actions still accepts only Button. Checked collections are immutable snapshots and validate duplicate supplied action IDs.
     implementation_status: partial
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/blocks/actions.cr, spec/ui/checked/blocks_spec.cr, src/slack/ui/blocks/actions.cr]
@@ -177,7 +188,7 @@ entries:
     fields_supported: [type, text, fields, accessory, block_id, expand]
     parents: [message, modal, home]
     surfaces: [message, modal, home]
-    restrictions: Checked Section supports text, fields, block_id, expand, and Button, Image, StaticSelect, or MultiStaticSelect accessories. Other documented accessory element families are deferred and the legacy type still accepts broad mutable children.
+    restrictions: Checked Section supports text, fields, block_id, expand, and Button, Image, StaticSelect, MultiStaticSelect, or Overflow accessories. Other documented accessory element families are deferred and the legacy type still accepts broad mutable children.
     implementation_status: partial
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/blocks/section.cr, spec/ui/checked/blocks_spec.cr, src/slack/ui/blocks/section.cr]
@@ -309,7 +320,7 @@ entries:
     fields_supported: [type, blocks, private_metadata, callback_id, external_id]
     parents: [views.publish]
     surfaces: [home]
-    restrictions: Checked Home and HomeBuilder accept Section, Actions, Divider, Header, Context, Image, and Input containing PlainTextInput or static selects. At most 100 blocks, unique supplied block IDs, and one focused element per view across Section, Actions, and Input. Modal fields are unavailable. Other block and input families remain deferred. Inbound Home views retain raw JSON; button/static-select actions and plain text/static-select state have typed access.
+    restrictions: Checked Home and HomeBuilder accept Section, Actions, Divider, Header, Context, Image, and Input containing PlainTextInput or static selects. At most 100 blocks, unique supplied block IDs, and one focused element per view across Section, Actions, and Input. Modal fields are unavailable. Other block and input families remain deferred. Inbound Home views retain raw JSON; button/static-select/overflow actions and plain text/static-select state have typed access.
     implementation_status: supported
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/surfaces/home.cr, src/slack/ui/checked/home_builder.cr, spec/ui/checked/home_spec.cr, spec/interactions/home_spec.cr, examples/block_kit_home.cr]
@@ -538,3 +549,31 @@ rules:
     source_section: "Local construction policy, not a Slack schema restriction"
     reviewed_on: "2026-09-27"
     evidence_paths: ["spec/ui/checked/yielded_collections_spec.cr", "spec/ui/checked/message_composition_spec.cr", "spec/ui/checked/modal_composition_spec.cr", "spec/ui/checked/display_composition_spec.cr", "spec/ui/checked/select_composition_spec.cr"]
+  - id: overflow_fields
+    classification: "slack_requirement"
+    requirement: "Overflow supports up to five options, optional action_id up to 255 characters, and optional confirm. Only Section and Actions placement."
+    source_url: "https://docs.slack.dev/reference/block-kit/block-elements/overflow-menu-element/"
+    source_section: "Fields and Example placement"
+    reviewed_on: "2026-09-27"
+    evidence_paths: ["spec/ui/checked/overflow_spec.cr", "spec/block_kit_diagnostics_spec.cr"]
+  - id: overflow_option_fields
+    classification: "slack_requirement"
+    requirement: "Plain-text label and description up to 75 characters, required unique value up to 150, optional URL up to 3000. URL choices still require interaction acknowledgment."
+    source_url: "https://docs.slack.dev/reference/block-kit/composition-objects/option-object/"
+    source_section: "Fields: text, value, description, url"
+    reviewed_on: "2026-09-27"
+    evidence_paths: ["spec/ui/checked/overflow_spec.cr", "spec/block_kit_consumers_spec.cr"]
+  - id: overflow_collection_policy
+    classification: "library_policy"
+    requirement: "Overflow requires a nonempty option list and takes one owned snapshot of supported yielded values. Getter snapshots cannot change a built request."
+    source_url: "https://docs.slack.dev/reference/block-kit/block-elements/overflow-menu-element/"
+    source_section: "Local minimum and ownership policy beyond the documented maximum"
+    reviewed_on: "2026-09-27"
+    evidence_paths: ["spec/ui/checked/overflow_spec.cr", "spec/api/overflow_snapshot_spec.cr"]
+  - id: overflow_received_action
+    classification: "library_support"
+    requirement: "Typed OverflowAction requires selected_option and IDs, permits optional action_ts, preserves raw fields, and reports malformed known data without outbound validation."
+    source_url: "https://docs.slack.dev/tools/bolt-js/reference/interfaces/OverflowAction/"
+    source_section: "OverflowAction selected_option, action_id, block_id and action_ts"
+    reviewed_on: "2026-09-27"
+    evidence_paths: ["spec/interactions/overflow_spec.cr", "spec/block_kit_consumers_spec.cr"]

@@ -1,6 +1,6 @@
 # Checked Block Kit
 
-Use `require "slack"` and `Slack::UI::Checked` to construct validated, immutable outbound values. Construction and JSON inspection need no Slack credentials. Sending needs a token with the relevant Slack API scope, and signed interaction handling needs the app signing secret. The [README](../README.md) has a complete message example and commands for four offline workflows.
+Use `require "slack"` and `Slack::UI::Checked` to construct validated, immutable outbound values. Construction and JSON inspection need no Slack credentials. Sending needs a token with the relevant Slack API scope, and signed interaction handling needs the app signing secret. The [README](../README.md) has a complete message example and commands for offline workflows.
 
 ## Supported surfaces and placement
 
@@ -15,8 +15,8 @@ Use `require "slack"` and `Slack::UI::Checked` to construct validated, immutable
 
 | Parent | Supported children |
 | --- | --- |
-| Section accessory | Button, Image element, StaticSelect, MultiStaticSelect |
-| Actions elements | Button, StaticSelect, MultiStaticSelect |
+| Section accessory | Button, Image element, StaticSelect, MultiStaticSelect, Overflow |
+| Actions elements | Button, StaticSelect, MultiStaticSelect, Overflow |
 | Context elements | PlainText, Mrkdwn, Image element |
 | Input element | PlainTextInput, StaticSelect, MultiStaticSelect |
 
@@ -24,7 +24,7 @@ Checked Header, Context, and Image blocks are display content on all four surfac
 
 Static choices use plain-text `Option` values, optional `OptionGroup` values, and exactly one `options:` or `option_groups:` source. `StaticSelect` has one `initial_option`; `MultiStaticSelect` has `initial_options` and optional `max_selected_items`. Choice values must be unique within a menu, and initial selections must match offered options. Each group can contain up to 100 options. The supported menu is a **static** source; external or dynamic sources are outside this checked API.
 
-Checkboxes, radio buttons, overflow, date/time pickers, and user, channel, or conversation select families are not checked implementations. Placeholder or mutable types elsewhere in the library do not extend the checked placement matrix. The checked endpoints cover only their documented request fields; they are not complete wrappers for every Slack method field or view lifecycle action.
+Checkboxes, radio buttons, date/time pickers, and user, channel, or conversation select families are not checked implementations. Placeholder or mutable types elsewhere in the library do not extend the checked placement matrix. The checked endpoints cover only their documented request fields; they are not complete wrappers for every Slack method field or view lifecycle action.
 
 The machine-readable [support manifest](../spec/support/block_kit/support.yml) records detailed wire fields, upstream references, and repository evidence. Evidence paths in it are relative to the repository root.
 
@@ -53,6 +53,23 @@ response = request.call
 ```
 
 `CheckedChatPostMessage` accepts `channel`, checked `text`/`blocks`, `thread_ts`, `reply_broadcast`, `unfurl_links`, and `unfurl_media`. It copies and validates the message before dispatch and requires a `String` token. `result` and `call` share the same validation boundary. Named `configuration`, `transport`, and `limiter` options can customize dispatch; they are not JSON fields. The wrapper sends through the existing API client and raises `Slack::Api::Error` for API failures. It does not support every `chat.postMessage` field.
+
+## Add an overflow menu
+
+Use `BlockElements::Overflow` in a Section accessory or Actions block on any checked surface. It accepts one to five `CompositionObjects::OverflowOption` values, optional `action_id`, and optional `confirm`. Overflow cannot be an Input element.
+
+```crystal
+menu = UI::BlockElements::Overflow.new(action_id: "request.more", options: {
+  UI::CompositionObjects::OverflowOption.new(text: UI.plain("Archive"), value: "archive"),
+  UI::CompositionObjects::OverflowOption.new(text: UI.plain("Details"), value: "details",
+    description: UI.plain("Open request"), url: "https://example.com/requests/42"),
+})
+section = UI::Blocks::Section.new(text: UI.plain("Request 42"), accessory: menu)
+```
+
+Option labels and optional descriptions use plain text, up to 75 characters. Values are required, unique within the menu, and limited to 150 characters. URLs allow up to 3000 characters; action IDs allow 255. A nonempty option list is library policy. `OverflowOption` is separate from static-select `Option`, so URL options cannot be passed to static selects. See Slack's [Overflow](https://docs.slack.dev/reference/block-kit/block-elements/overflow-menu-element/) and [Option](https://docs.slack.dev/reference/block-kit/composition-objects/option-object/) references.
+
+On receipt, `OverflowAction#selected_option` exposes the selected value and text through the received `SelectedOption` type. It requires a selection and keeps all received option fields in `raw`; outbound size rules do not apply to received data. Overflow now decodes as `OverflowAction` instead of `UnknownAction`. Move any existing raw Overflow handler to that branch; exhaustive matches on `Interactions::Action` must include the new type. Overflow has no typed state-map entry. URL choices also send an interaction: acknowledge it within three seconds, even when the browser opens the URL.
 
 ## Build modals and Home
 
@@ -90,7 +107,7 @@ Enable the Home tab and install the app with the permissions required for publis
 
 Pass the original signed HTTP request to `Slack.process_interaction`. It checks the signature and timestamp freshness before decoding. For JSON already verified by trusted code, use `Slack::Interaction.from_json`. Timestamp freshness is not duplicate suppression; applications own event deduplication and HTTP acknowledgments.
 
-`BlockAction#decoded_actions` gives typed ButtonAction, StaticSelectAction, and MultiStaticSelectAction values with block/action IDs, selections, and raw JSON. A dispatched `plain_text_input` action stays `UnknownAction`; read its text through `state_map`. Unknown action and state families retain raw JSON for application inspection.
+`BlockAction#decoded_actions` gives typed ButtonAction, StaticSelectAction, MultiStaticSelectAction, and OverflowAction values with block/action IDs, selections, and raw JSON. A dispatched `plain_text_input` action stays `UnknownAction`; read its text through `state_map`. Unknown action and state families retain raw JSON for application inspection.
 
 ```crystal
 case interaction = Slack.process_interaction(request)
@@ -124,13 +141,14 @@ Use a collection typed for the destination surface. An ordinary `Array(Slack::UI
 
 ## Offline examples
 
-From a repository checkout, run `shards install` to install development dependencies, including WebMock. All four commands use synthetic credentials and no Slack network call:
+From a repository checkout, run `shards install` to install development dependencies, including WebMock. All five commands use synthetic credentials and no Slack network call:
 
 ```sh
 crystal run examples/block_kit_message.cr
 crystal run examples/block_kit_modal.cr
 crystal run examples/block_kit_home.cr
 crystal run examples/block_kit_static_select.cr
+crystal run examples/block_kit_overflow.cr
 ```
 
-The message example builds and prints a request. The modal example posts a button, verifies a signed action, opens a form, and reads a signed submission. The Home example publishes through a stub and reads simulated state. The static choice example posts a single choice, reads a signed selection, opens a grouped multi-choice form, and reads its submission. Real handlers must acknowledge interactions within Slack's response window.
+The message example builds and prints a request. The modal example posts a button, verifies a signed action, opens a form, and reads a signed submission. The Home example publishes through a stub and reads simulated state. The static choice example posts a single choice, reads a signed selection, opens a grouped multi-choice form, and reads its submission. The overflow example posts action and URL choices and acknowledges a signed URL selection. Real handlers must acknowledge interactions within Slack's response window.

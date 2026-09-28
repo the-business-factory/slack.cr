@@ -14,11 +14,13 @@ describe "Block Kit construction diagnostics" do
   end
 
   {
-    "input_label"     => ["Input.new", "argument 'label'", "PlainText", "Mrkdwn"],
-    "section_content" => ["Section.new", "text :", "fields :"],
-    "form_submit"     => ["FormModal.new", "missing argument: submit", "submit :"],
-    "display_input"   => ["DisplayModal", "Input", "FormModal with submit"],
-    "select_sources"  => ["StaticSelect.new", "options :", "option_groups :"],
+    "overflow_static_option" => ["OverflowOption", "CompositionObjects::Option"],
+    "overflow_input"         => ["Input.new", "argument 'element'", "Overflow"],
+    "input_label"            => ["Input.new", "argument 'label'", "PlainText", "Mrkdwn"],
+    "section_content"        => ["Section.new", "text :", "fields :"],
+    "form_submit"            => ["FormModal.new", "missing argument: submit", "submit :"],
+    "display_input"          => ["DisplayModal", "Input", "FormModal with submit"],
+    "select_sources"         => ["StaticSelect.new", "options :", "option_groups :"],
   }.each do |name, fragments|
     it "explains #{name}" do
       result = CompileContracts.compile(root, "spec/fixtures/compile/fail/#{name}.cr")
