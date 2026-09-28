@@ -27,6 +27,9 @@ Use the Crystal 1.21 [coding style](https://crystal-lang.org/reference/1.21/conv
 
 - Keep test support small and specific. Separate reusable helpers from executable subprocess fixtures.
 - Test observable behavior, regressions, and important failure modes. Avoid tests that repeat implementation details or only exercise trivial wiring.
+- Test application behavior with independently written expected Slack JSON payloads. Cover meaningful limits, ownership, and important failure modes; avoid assertions that merely repeat the implementation.
+- Run offline examples as ordinary specs in the shared spec executable. Do not compile each example separately or repeat import, constructor, and placement permutations already covered.
+- Use compiler subprocesses only for structural contracts or useful diagnostics, with a shared positive control and focused negative cases. Keep one fresh-startup check; reserve other child processes for behavior that needs isolation, such as native HTTP or durable storage.
 - Prefer ecosystem tools over custom test infrastructure. Keep tests offline by default and use synthetic credentials.
 - Run `crystal tool format` on changed Crystal files and verify formatting with `crystal tool format --check`.
 - After a refactor, run the relevant specs and Ameba in addition to formatting checks.
