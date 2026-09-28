@@ -5,6 +5,9 @@ require "./webmock_transport"
 module OfflineExternalSelectExample
   alias UI = Slack::UI
 
+  SIGNING_SECRET = Slack::Auth::Secret.new("synthetic-signing-secret")
+  VERIFIER       = Slack::Webhooks::Verifier.new(SIGNING_SECRET)
+
   PROJECTS = {"apollo" => "Apollo", "artemis" => "Artemis", "gemini" => "Gemini"}
 
   def self.signed(payload : String, path : String) : HTTP::Request
@@ -13,7 +16,7 @@ module OfflineExternalSelectExample
     headers = HTTP::Headers{
       "Content-Type"              => "application/x-www-form-urlencoded",
       "X-Slack-Request-Timestamp" => timestamp,
-      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(timestamp, body).compute,
+      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(SIGNING_SECRET, timestamp, body).compute,
     }
     HTTP::Request.new("POST", path, headers, body)
   end
@@ -21,7 +24,7 @@ module OfflineExternalSelectExample
   # Handles a request to the app's Options Load URL. The application sends
   # this HTTP 200 JSON response to Slack within three seconds.
   def self.suggest(request : HTTP::Request) : HTTP::Client::Response
-    suggestion = Slack.process_interaction(request)
+    suggestion = Slack::Interactions.parse(VERIFIER.verify(request).body)
     raise "Expected block suggestion" unless suggestion.is_a?(Slack::Interactions::BlockSuggestion)
     raise "Unexpected menu" unless suggestion.block_id == "assignment" && suggestion.action_id == "project"
     query = suggestion.value.downcase
@@ -34,7 +37,6 @@ module OfflineExternalSelectExample
 
   # Returns the prepared suggestion response for inspection.
   def self.run(output : IO = STDOUT) : HTTP::Client::Response
-    Slack.configure { |settings| settings.signing_secret = "synthetic-signing-secret" }
     install_transport
     message = UI.message(fallback_text: "Assign a project") do |builder|
       builder.section(UI.plain("Project"), block_id: "assignment",
@@ -50,7 +52,7 @@ module OfflineExternalSelectExample
     output.puts "Suggested #{JSON.parse(response.body)["options"].as_a.size} projects (HTTP #{response.status_code})"
 
     selection = %({"type":"block_actions","team":{"id":"T-SYNTHETIC"},"trigger_id":"synthetic-trigger","actions":[{"type":"external_select","block_id":"assignment","action_id":"project","selected_option":{"text":{"type":"plain_text","text":"Artemis","emoji":true},"value":"artemis"},"action_ts":"1710000001.000001"}]})
-    case interaction = Slack.process_interaction(signed(selection, "/interactions"))
+    case interaction = Slack::Interactions.parse(VERIFIER.verify(signed(selection, "/interactions")).body)
     when Slack::Interactions::BlockAction
       action = interaction.decoded_actions.first
       raise "Expected project selection" unless action.is_a?(Slack::Interactions::ExternalSelectAction)
@@ -64,7 +66,7 @@ module OfflineExternalSelectExample
     end
 
     submission = %({"type":"view_submission","team":{"id":"T-SYNTHETIC"},"view":{"callback_id":"project.related","state":{"values":{"related":{"projects":{"type":"multi_external_select","selected_options":[{"text":{"type":"plain_text","text":"Artemis"},"value":"artemis"},{"text":{"type":"plain_text","text":"Gemini"},"value":"gemini"}]}}}}}})
-    case interaction = Slack.process_interaction(signed(submission, "/interactions"))
+    case interaction = Slack::Interactions.parse(VERIFIER.verify(signed(submission, "/interactions")).body)
     when Slack::Interactions::ViewSubmission
       state = interaction.state_map.multi_external_select_value?("related", "projects") || raise "Missing related state"
       related = state.selected_options || raise "Absent or null related projects"

@@ -4,6 +4,9 @@ require "../../src/slack"
 module OfflineReceivedBlocksExample
   alias Blocks = Slack::Interactions::ReceivedBlocks
 
+  SIGNING_SECRET = Slack::Auth::Secret.new("synthetic-signing-secret")
+  VERIFIER       = Slack::Webhooks::Verifier.new(SIGNING_SECRET)
+
   # Independently authored Slack payload, not derived from outbound values.
   CLICK = <<-JSON
     {"type":"block_actions","team":{"id":"T-SYNTHETIC"},"user":{"id":"U-REVIEWER"},"api_app_id":"A-SYNTHETIC",
@@ -27,23 +30,17 @@ module OfflineReceivedBlocksExample
     headers = HTTP::Headers{
       "Content-Type"              => "application/x-www-form-urlencoded",
       "X-Slack-Request-Timestamp" => timestamp,
-      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(timestamp, body).compute,
+      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(SIGNING_SECRET, timestamp, body).compute,
     }
     HTTP::Request.new("POST", "/interactions", headers, body)
   end
 
   def self.run(output : IO = STDOUT) : Nil
-    signing_secret = Slack.settings.signing_secret
-    begin
-      Slack.configure { |settings| settings.signing_secret = "synthetic-signing-secret" }
-      interaction = Slack.process_interaction(signed(CLICK))
-      raise "Expected block action" unless interaction.is_a?(Slack::Interactions::BlockAction)
-      message = interaction.message || raise "Missing source message"
-      output.puts "Message #{message.ts}"
-      message.blocks.each { |block| describe(block, output, "") }
-    ensure
-      Slack.configure(&.signing_secret=(signing_secret))
-    end
+    interaction = Slack::Interactions.parse(VERIFIER.verify(signed(CLICK)).body)
+    raise "Expected block action" unless interaction.is_a?(Slack::Interactions::BlockAction)
+    message = interaction.message || raise "Missing source message"
+    output.puts "Message #{message.ts}"
+    message.blocks.each { |block| describe(block, output, "") }
   end
 
   private def self.describe(block : Slack::Interactions::ReceivedBlock, output : IO, indent : String) : Nil

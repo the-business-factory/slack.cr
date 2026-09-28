@@ -27,7 +27,7 @@ module OfflineViewPushExample
     opened = client.call(Slack::Api::ViewsOpen.new(trigger_id: "opening-trigger", view: original))
 
     # Synthetic, trusted fixture: a new interaction inside the opened modal.
-    # Real HTTP handlers must verify the original request with process_interaction.
+    # Real HTTP handlers must verify the original request with Slack::Webhooks::Verifier.
     interaction = Slack::Interaction.from_json(<<-JSON)
       {"type":"block_actions","trigger_id":"fresh-modal-trigger","team":{"id":"T1"},"user":{"id":"U1"},
         "api_app_id":"A1","container":{"type":"view","view_id":"V1"},"view":{"id":"V1","type":"modal"},

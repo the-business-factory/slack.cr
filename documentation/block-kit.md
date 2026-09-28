@@ -378,12 +378,12 @@ related = UI::BlockElements::MultiExternalSelect.new(
 
 Both accept optional `action_id` (255 characters), plain-text `placeholder` (150 characters), `min_query_length`, `confirm`, and `focus_on_load`. Only one element per view can request focus. Single selection uses `initial_option`; multiple selection uses `initial_options` and optional `max_selected_items` of at least one. The library cannot compare initial options with remote results, so it checks only the option values. A negative `min_query_length`, empty `initial_options`, repeated initial values, and more initial options than `max_selected_items` are rejected as library policy. Initial options are copied in one pass; getters return copies. See Slack's [single-select](https://docs.slack.dev/reference/block-kit/block-elements/select-menu-element/#external_select) and [multi-select](https://docs.slack.dev/reference/block-kit/block-elements/multi-select-menu-element/#external_multi_select) references.
 
-Pass the signed options-load request to `Slack.process_interaction`. It verifies the signature and timestamp before it parses the payload, and returns a `Slack::Interactions::BlockSuggestion`. Read `action_id`, `block_id`, and `value` (the typed query; it can be an empty string). `user`, `team`, `enterprise`, `api_app_id`, `token`, and `view` are typed as in other interactions; `container`, `channel`, and `message` stay raw JSON. A payload without a string `action_id`, `block_id`, or `value` raises `JSON::SerializableError`.
+Verify the signed options-load request with a `Slack::Webhooks::Verifier` ([signed requests](authentication.md#direct-tokens-and-signed-requests)), then pass the verified body to `Slack::Interactions.parse`. It returns a `Slack::Interactions::BlockSuggestion`. Read `action_id`, `block_id`, and `value` (the typed query; it can be an empty string). `user`, `team`, `enterprise`, `api_app_id`, `token`, and `view` are typed as in other interactions; `container`, `channel`, and `message` stay raw JSON. A payload without a string `action_id`, `block_id`, or `value` raises `JSON::SerializableError`.
 
 Answer with a `BlockSuggestionResponse` as HTTP 200 `application/json` within three seconds:
 
 ```crystal
-case suggestion = Slack.process_interaction(request)
+case suggestion = Slack::Interactions.parse(verifier.verify(request).body)
 when Slack::Interactions::BlockSuggestion
   options = find_projects(suggestion.value).first(100).map do |item|
     UI::CompositionObjects::Option.new(text: UI.plain(item.name), value: item.id)
@@ -872,7 +872,7 @@ The constructor owns a view snapshot. JSON serialization and `Client#call` valid
 Use `ViewsPush` with a `FormModal` or `DisplayModal` and a fresh `trigger_id` from an interaction **inside the existing modal**. The supported JSON fields are exactly `trigger_id` and `view`; `external_id`, callback ID, private metadata, and modal flags stay inside `view`. There is no top-level view selector or hash. The alternate `interactivity_pointer` mechanism is unsupported.
 
 ```crystal
-# interaction is a BlockAction received through Slack.process_interaction.
+# interaction is a BlockAction from Slack::Interactions.parse after verification.
 trigger = interaction.trigger_id || raise "Missing modal trigger"
 next_view = UI.form_modal(title: UI.plain("Details"), submit: UI.plain("Save"),
   close: UI.plain("Back"), private_metadata: "42") do |builder|
@@ -895,7 +895,7 @@ Use `Slack::Interactions::ModalErrors` to acknowledge a `view_submission` with e
 In an HTTP handler with `context : HTTP::Server::Context`, verify the original request before reading state. Route to the expected form by its callback ID, then apply the application's validation:
 
 ```crystal
-case interaction = Slack.process_interaction(context.request)
+case interaction = Slack::Interactions.parse(verifier.verify(context.request).body)
 when Slack::Interactions::ViewSubmission
   view = interaction.view
   if view && view["callback_id"].as_s == "request.reason"
@@ -913,7 +913,7 @@ when Slack::Interactions::ViewSubmission
 end
 ```
 
-The route must configure the signing secret and handle other callbacks, interaction types, and verification failures. Return the acknowledgment within Slack's three-second window. An empty HTTP 200 acknowledgment closes the submitted view. The library does not send the acknowledgment or enforce its deadline.
+The route must verify the request with a `Slack::Webhooks::Verifier` and handle other callbacks, interaction types, and verification failures. Return the acknowledgment within Slack's three-second window. An empty HTTP 200 acknowledgment closes the submitted view. The library does not send the acknowledgment or enforce its deadline.
 
 `ModalErrors` copies the supplied map; `errors` returns a copy. Construction rejects an empty map or blank messages with `Slack::UI::ValidationError`. These are library policies so the response contains useful feedback. `validate` and `validate!` use the existing validation conventions. No message length or block-ID format restriction is added. The application owns business rules and must ensure each key identifies an Input block in the submitted view; no original modal is required or checked.
 
@@ -979,13 +979,13 @@ context.response.print(acknowledgment.to_json)
 
 The JSON contains only `response_action: "update"` and `view`. Modal metadata, including `external_id`, stays inside `view`. This acknowledgment needs no token, target selector, trigger, or hash and performs no API call. `ViewsUpdate` is the separate Web API operation for updating a selected view.
 
-Verify the original signed request with `Slack.process_interaction`, route the expected `ViewSubmission` callback, and return HTTP 200 JSON within three seconds. The application owns response delivery, timing, and handling later submissions. Keep retained input `block_id` and `action_id` values stable. No previous modal is required, so the library cannot check ID matches or preserve remote input state itself. See [Slack's update acknowledgment guidance](https://docs.slack.dev/surfaces/modals/#update-a-view-via-response_action) and [modal fields](https://docs.slack.dev/reference/views/modal-views/).
+Verify the original signed request with `Slack::Webhooks::Verifier`, parse it with `Slack::Interactions.parse`, route the expected `ViewSubmission` callback, and return HTTP 200 JSON within three seconds. The application owns response delivery, timing, and handling later submissions. Keep retained input `block_id` and `action_id` values stable. No previous modal is required, so the library cannot check ID matches or preserve remote input state itself. See [Slack's update acknowledgment guidance](https://docs.slack.dev/surfaces/modals/#update-a-view-via-response_action) and [modal fields](https://docs.slack.dev/reference/views/modal-views/).
 
 The [offline example](../examples/block_kit_modal_update.cr) verifies a signed submission, reads its reason, and prepares an updated form with the same reason input IDs and a new owner select. Its consumer spec checks the complete HTTP 200 JSON response; it does not prove live Slack acceptance, rendering, state preservation, or timing.
 
 ## Read actions and state
 
-Pass the original signed HTTP request to `Slack.process_interaction`. It checks the signature and timestamp freshness before decoding. For JSON already verified by trusted code, use `Slack::Interaction.from_json`. Timestamp freshness is not duplicate suppression; applications own event deduplication and HTTP acknowledgments.
+Give the original signed HTTP request to `Slack::Webhooks::Verifier#verify`, then pass the verified body to `Slack::Interactions.parse`. The verifier checks the signature and timestamp freshness before decoding. For JSON already verified by trusted code, use `Slack::Interaction.from_json`. Timestamp freshness is not duplicate suppression; applications own event deduplication and HTTP acknowledgments.
 
 `BlockAction#decoded_actions` gives typed ButtonAction, StaticSelectAction, MultiStaticSelectAction, ExternalSelectAction, MultiExternalSelectAction, OverflowAction, CheckboxesAction, RadioButtonsAction, UsersSelectAction, MultiUsersSelectAction, ChannelsSelectAction, MultiChannelsSelectAction, ConversationsSelectAction, MultiConversationsSelectAction, DatePickerAction, TimePickerAction, DatetimePickerAction, NumberInputAction, UrlInputAction, EmailInputAction, and RichTextInputAction values with block/action IDs, selections, and raw JSON. A dispatched `plain_text_input` action stays `UnknownAction`; read its text through `state_map`. Unknown action and state families retain raw JSON for application inspection.
 
@@ -1003,7 +1003,7 @@ end
 ```
 
 ```crystal
-case interaction = Slack.process_interaction(request)
+case interaction = Slack::Interactions.parse(verifier.verify(request).body)
 when Slack::Interactions::ViewSubmission
   reason : String? = interaction.plain_text?("reason", "text")
   if color = interaction.state_map.static_select_value?("preferences", "color")
@@ -1028,7 +1028,7 @@ Interactions tell the app where the user acted. Use these typed values to reply 
 - `BlockAction#response_url` gives the reply webhook for a message click. Use it to reply to an ephemeral message, which `chat.update` cannot change. Slack deprecates `response_url` and `response_urls` only for apps created with the Deno Slack SDK.
 
 ```crystal
-case interaction = Slack.process_interaction(request)
+case interaction = Slack::Interactions.parse(verifier.verify(request).body)
 when Slack::Interactions::BlockAction
   case container = interaction.container
   when Slack::Interactions::Container::Message
@@ -1048,10 +1048,10 @@ The [offline example](../examples/interaction_context.cr) updates the clicked me
 
 ## Respond to a slash command
 
-`Slack.process_command` verifies the signed request and returns `Slack::Command`. Return `Slack::Commands::Response` as the HTTP 200 `application/json` body within three seconds. It holds `text` or a `UI::Message`. The response is ephemeral by default: only the user who ran the command sees it. With `:in_channel`, everyone in the conversation sees the response and the command. To acknowledge without a message, return an empty HTTP 200.
+`Slack::Commands.parse` decodes the verified request body and returns `Slack::Command`. Return `Slack::Commands::Response` as the HTTP 200 `application/json` body within three seconds. It holds `text` or a `UI::Message`. The response is ephemeral by default: only the user who ran the command sees it. With `:in_channel`, everyone in the conversation sees the response and the command. To acknowledge without a message, return an empty HTTP 200.
 
 ```crystal
-command = Slack.process_command(request)
+command = Slack::Commands.parse(verifier.verify(request).body)
 message = Slack::UI.message(fallback_text: "Deploying api.") do |builder|
   builder.section(Slack::UI.mrkdwn("*Deploying api*"))
 end
@@ -1099,7 +1099,7 @@ Slack sends the blocks of a message or view in events and interactions. These ge
 - A block type that this library does not read decodes as `UnknownBlock` with `type` and `raw`.
 
 ```crystal
-case interaction = Slack.process_interaction(request)
+case interaction = Slack::Interactions.parse(verifier.verify(request).body)
 when Slack::Interactions::BlockAction
   if message = interaction.message
     message.blocks.each do |block|

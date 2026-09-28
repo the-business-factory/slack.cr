@@ -26,7 +26,7 @@ module OfflineWorkflowStepExample
     end
 
     {COMPLETE_BODY, FAIL_BODY}.each do |body|
-      envelope = Slack.from_json(body)
+      envelope = Slack::Events.parse(body)
       raise "Expected an event callback" unless envelope.is_a?(Slack::VerifiedEvent)
       event = envelope.event
       handle(event, output) if event.is_a?(Slack::Events::FunctionExecuted)

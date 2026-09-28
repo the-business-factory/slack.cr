@@ -7,9 +7,11 @@ module OfflineRichTextExample
   alias RT = UI::RichText
   alias Received = Slack::Interactions::RichText
 
+  SIGNING_SECRET = Slack::Auth::Secret.new("synthetic-signing-secret")
+  VERIFIER       = Slack::Webhooks::Verifier.new(SIGNING_SECRET)
+
   # Returns the JSON body that the stubbed chat.postMessage endpoint received.
   def self.run(output : IO = STDOUT) : JSON::Any
-    Slack.configure { |settings| settings.signing_secret = "synthetic-signing-secret" }
     posted : JSON::Any? = nil
     WebMock.allow_net_connect = false
     WebMock.stub(:post, "https://slack.com/api/chat.postMessage").to_return do |request|
@@ -98,9 +100,9 @@ module OfflineRichTextExample
     timestamp = Time.utc.to_unix.to_s
     headers = HTTP::Headers{
       "X-Slack-Request-Timestamp" => timestamp,
-      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(timestamp, body).compute,
+      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(SIGNING_SECRET, timestamp, body).compute,
     }
-    event = Slack.process_webhook(HTTP::Request.new("POST", "/events", headers, body))
+    event = Slack::Events.parse(VERIFIER.verify(HTTP::Request.new("POST", "/events", headers, body)).body)
     event.as?(Slack::VerifiedEvent) || raise "Expected an event callback"
   end
 end

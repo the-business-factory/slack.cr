@@ -78,7 +78,7 @@ describe "authentication lifecycle integration" do
 
     expect_raises(Slack::Auth::ContractError) do
       Slack::Auth::RequestAuthorizer.new("AAPP", store, api,
-        LifecycleSupport::API_CONFIGURATION, rotation: rotation)
+        LifecycleSupport::API_CONFIGURATION, LifecycleSupport.verifier(clock), rotation: rotation)
     end.code.should eq(Slack::Auth::ErrorCode::InvalidConfiguration)
     oauth.requests.should be_empty
     api.requests.should be_empty
@@ -109,7 +109,7 @@ describe "authentication lifecycle integration" do
     authorizer = LifecycleSupport.authorizer(store, oauth, api, clock)
     bot = authorizer.authorize_command(LifecycleSupport.command(clock), Slack::Auth::GrantKey.new(:bot))
     user = authorizer.authorize_command(LifecycleSupport.command(clock), Slack::Auth::GrantKey.new(:user, "UUSER"))
-    lifecycle = Slack::Auth::CredentialLifecycle.new("AAPP", store, -> { clock.now })
+    lifecycle = Slack::Auth::CredentialLifecycle.new("AAPP", store, LifecycleSupport.verifier(clock))
     revoke = lifecycle.prepare(LifecycleSupport.lifecycle_request(clock), installed.key)
     uninstall = lifecycle.prepare(LifecycleSupport.lifecycle_request(clock, uninstall: true), installed.key)
 
@@ -135,7 +135,7 @@ describe "authentication lifecycle integration" do
     oauth = LifecycleSupport::Transport.new
     api = OAuthStateSupport::RecordingTransport.new
     installed = LifecycleSupport.install(store, oauth, clock)
-    lifecycle = Slack::Auth::CredentialLifecycle.new("AAPP", store, -> { clock.now })
+    lifecycle = Slack::Auth::CredentialLifecycle.new("AAPP", store, LifecycleSupport.verifier(clock))
     uninstall = lifecycle.prepare(LifecycleSupport.lifecycle_request(clock, uninstall: true), installed.key)
     authorizer = LifecycleSupport.authorizer(store, oauth, api, clock)
     clock.now += 1.hour
@@ -164,7 +164,7 @@ describe "authentication lifecycle integration" do
     oauth = OAuthStateSupport::RecordingTransport.new
     api = OAuthStateSupport::RecordingTransport.new
     installed = LifecycleSupport.install(store, oauth, clock)
-    lifecycle = Slack::Auth::CredentialLifecycle.new("AAPP", store, -> { clock.now })
+    lifecycle = Slack::Auth::CredentialLifecycle.new("AAPP", store, LifecycleSupport.verifier(clock))
     uninstall = lifecycle.prepare(LifecycleSupport.lifecycle_request(clock, uninstall: true), installed.key)
     clock.now += 1.hour
     oauth.enqueue(LifecycleSupport.response("refresh_bot"))
@@ -184,7 +184,7 @@ describe "authentication lifecycle integration" do
     oauth = LifecycleSupport::Transport.new
     api = OAuthStateSupport::RecordingTransport.new
     installed = LifecycleSupport.install(store, oauth, clock)
-    lifecycle = Slack::Auth::CredentialLifecycle.new("AAPP", store, -> { clock.now })
+    lifecycle = Slack::Auth::CredentialLifecycle.new("AAPP", store, LifecycleSupport.verifier(clock))
     revoke = lifecycle.prepare(LifecycleSupport.lifecycle_request(clock), installed.key)
     authorizer = LifecycleSupport.authorizer(store, oauth, api, clock)
     bot = authorizer.authorize_command(LifecycleSupport.command(clock), Slack::Auth::GrantKey.new(:bot))

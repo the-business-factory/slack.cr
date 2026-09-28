@@ -12,8 +12,8 @@ module Slack::Auth
     @targets : Hash(GrantKey, Int64)
 
     def initialize(request : HTTP::Request, expected_app_id : String, @store : InstallationStore,
-                   selected_owner : InstallationKey? = nil, clock : Proc(Time) = -> { Time.utc })
-      verified = VerifiedLifecycleEvent.new(request, expected_app_id, selected_owner, clock)
+                   verifier : Slack::Webhooks::Verifier, selected_owner : InstallationKey? = nil)
+      verified = VerifiedLifecycleEvent.new(request, expected_app_id, verifier, selected_owner)
       @event_id = verified.event_id
       @uninstall = verified.uninstall?
       @owner = verified.owner

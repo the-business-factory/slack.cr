@@ -7,7 +7,6 @@ module Slack::Auth
   # Feature-specific configs have no global environment reads or cross-feature requirements.
   record OAuthConfiguration, authorization_uri : URI, token_uri : URI,
     client_id : String, client_secret : Secret, redirect_uri : URI
-  record OIDCConfiguration, discovery_uri : URI, issuer : String, client_id : String
   record TransportOptions, connect_timeout : Time::Span = 10.seconds,
     read_timeout : Time::Span = 30.seconds, write_timeout : Time::Span = 30.seconds,
     proxy_uri : URI? = nil, ca_file : String? = nil

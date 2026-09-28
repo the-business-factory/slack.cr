@@ -43,7 +43,7 @@ struct Slack::SocketMode::Envelope
   # for another kind.
   def event : Slack::VerifiedEvent | Slack::UrlVerification
     require_kind(Kind::EventsApi, "events_api")
-    Slack.from_json(@payload_json)
+    Slack::Events.parse(@payload_json)
   end
 
   # Decodes an `interactive` payload. Raises `Slack::Interactions::TypeMismatch`

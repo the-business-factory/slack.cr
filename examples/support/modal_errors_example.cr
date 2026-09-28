@@ -1,6 +1,9 @@
 require "../../src/slack"
 
 module OfflineModalErrorsExample
+  SIGNING_SECRET = Slack::Auth::Secret.new("synthetic-signing-secret")
+  VERIFIER       = Slack::Webhooks::Verifier.new(SIGNING_SECRET)
+
   # Independently authored incoming state, not derived from an outbound modal.
   INVALID_SUBMISSION = %q({"type":"view_submission","api_app_id":"A-SYNTHETIC","team":{"id":"T-SYNTHETIC"},"user":{"id":"U-SYNTHETIC"},"view":{"type":"modal","callback_id":"request.reason","state":{"values":{"request.reason":{"reason":{"type":"plain_text_input","value":"test"}}}}}})
   VALID_SUBMISSION   = %q({"type":"view_submission","api_app_id":"A-SYNTHETIC","team":{"id":"T-SYNTHETIC"},"user":{"id":"U-SYNTHETIC"},"view":{"type":"modal","callback_id":"request.reason","state":{"values":{"request.reason":{"reason":{"type":"plain_text_input","value":"Need a test environment."}}}}}})
@@ -8,7 +11,7 @@ module OfflineModalErrorsExample
   # An application route can copy this prepared status, headers and body to its
   # HTTP response. Verification precedes business validation.
   def self.handle(request : HTTP::Request) : HTTP::Client::Response
-    interaction = Slack.process_interaction(request)
+    interaction = Slack::Interactions.parse(VERIFIER.verify(request).body)
     unless interaction.is_a?(Slack::Interactions::ViewSubmission)
       raise "Expected view submission"
     end
@@ -34,21 +37,15 @@ module OfflineModalErrorsExample
     headers = HTTP::Headers{
       "Content-Type"              => "application/x-www-form-urlencoded",
       "X-Slack-Request-Timestamp" => timestamp,
-      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(timestamp, body).compute,
+      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(SIGNING_SECRET, timestamp, body).compute,
     }
     HTTP::Request.new("POST", "/interactions", headers, body)
   end
 
   def self.run(output : IO = STDOUT) : Tuple(HTTP::Client::Response, HTTP::Client::Response)
-    signing_secret = Slack.settings.signing_secret
-    begin
-      Slack.configure { |settings| settings.signing_secret = "synthetic-signing-secret" }
-      rejected = handle(signed_request(INVALID_SUBMISSION))
-      accepted = handle(signed_request(VALID_SUBMISSION))
-      output.puts "Rejected short reason; accepted corrected reason (HTTP 200)."
-      {rejected, accepted}
-    ensure
-      Slack.configure(&.signing_secret=(signing_secret))
-    end
+    rejected = handle(signed_request(INVALID_SUBMISSION))
+    accepted = handle(signed_request(VALID_SUBMISSION))
+    output.puts "Rejected short reason; accepted corrected reason (HTTP 200)."
+    {rejected, accepted}
   end
 end

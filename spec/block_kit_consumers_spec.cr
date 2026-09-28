@@ -54,23 +54,10 @@ require "../examples/support/socket_mode_client_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
-    client_id = Slack.settings.client_id
-    client_secret = Slack.settings.client_secret
-    signing_secret = Slack.settings.signing_secret
     allow_net_connect = WebMock.allows_net_connect?
     begin
-      Slack.configure do |settings|
-        settings.client_id = nil
-        settings.client_secret = nil
-        settings.signing_secret = nil
-      end
       example.run
     ensure
-      Slack.configure do |settings|
-        settings.client_id = client_id
-        settings.client_secret = client_secret
-        settings.signing_secret = signing_secret
-      end
       WebMock.reset
       WebMock.allow_net_connect = allow_net_connect
     end
@@ -268,14 +255,13 @@ describe "documented Block Kit workflows" do
     output.to_s.should eq("Prepared updated form with retained request.reason/reason IDs (HTTP 200).\n")
   end
   it "acknowledges a long submitted reason with a bounded display preview" do
-    Slack.configure { |settings| settings.signing_secret = "synthetic-signing-secret" }
     payload = %({"type":"view_submission","view":{"type":"modal","callback_id":"request.reason","private_metadata":"42","state":{"values":{"request.reason":{"reason":{"type":"plain_text_input","value":"#{"界" * 3000}"}}}}}})
     body = URI::Params.encode({"payload" => payload})
     timestamp = Time.utc.to_unix.to_s
     headers = HTTP::Headers{
       "Content-Type"              => "application/x-www-form-urlencoded",
       "X-Slack-Request-Timestamp" => timestamp,
-      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(timestamp, body).compute,
+      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(Slack::Auth::Secret.new("synthetic-signing-secret"), timestamp, body).compute,
     }
     response = OfflineModalUpdateExample.handle(HTTP::Request.new("POST", "/interactions", headers, body))
     response.status_code.should eq(200)

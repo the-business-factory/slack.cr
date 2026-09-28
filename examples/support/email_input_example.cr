@@ -5,6 +5,9 @@ require "./webmock_transport"
 module OfflineEmailInputExample
   alias UI = Slack::UI
 
+  SIGNING_SECRET = Slack::Auth::Secret.new("synthetic-signing-secret")
+  VERIFIER       = Slack::Webhooks::Verifier.new(SIGNING_SECRET)
+
   # Authored from Slack's email input, Input block, and views.open contracts, not from the serializer.
   EXPECTED_VIEW = <<-JSON
     {"type":"modal","title":{"type":"plain_text","text":"Invite a guest"},"submit":{"type":"plain_text","text":"Invite"},
@@ -20,15 +23,14 @@ module OfflineEmailInputExample
     timestamp = Time.utc.to_unix.to_s
     headers = HTTP::Headers{
       "X-Slack-Request-Timestamp" => timestamp,
-      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(timestamp, body).compute,
+      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(SIGNING_SECRET, timestamp, body).compute,
     }
-    Slack.process_interaction(HTTP::Request.new("POST", "/interactions", headers, body))
+    Slack::Interactions.parse(VERIFIER.verify(HTTP::Request.new("POST", "/interactions", headers, body)).body)
   end
 
   # Email input is modal-only in Slack, so the form opens from a button action.
   # Returns the submission acknowledgments in the order they were received.
   def self.run(output : IO = STDOUT) : Array(HTTP::Client::Response)
-    Slack.configure { |settings| settings.signing_secret = "synthetic-signing-secret" }
     install_transport
 
     # Independent incoming payloads, not derived from the outbound form.

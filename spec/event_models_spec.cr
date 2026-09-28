@@ -50,7 +50,7 @@ end
 describe "Event envelope decoding" do
   it "keeps an unmapped event type as Unknown with its raw JSON" do
     body = File.read("spec/fixtures/events/unknown_event.json")
-    envelope = Slack.from_json(body).should be_a(Slack::VerifiedEvent)
+    envelope = Slack::Events.parse(body).should be_a(Slack::VerifiedEvent)
     event = envelope.event.should be_a(Slack::Events::Unknown)
 
     event.type.should eq("synthetic_future_event")
@@ -63,10 +63,10 @@ describe "Event envelope decoding" do
   end
 
   it "still decodes mapped event types and URL verification through the same entry" do
-    envelope = Slack.from_json(File.read("spec/fixtures/events/app_uninstalled.json")).should be_a(Slack::VerifiedEvent)
+    envelope = Slack::Events.parse(File.read("spec/fixtures/events/app_uninstalled.json")).should be_a(Slack::VerifiedEvent)
     envelope.event.should be_a(Slack::Events::AppUninstalled)
 
-    challenge = Slack.from_json(File.read("spec/fixtures/events/url_verification.json")).should be_a(Slack::UrlVerification)
+    challenge = Slack::Events.parse(File.read("spec/fixtures/events/url_verification.json")).should be_a(Slack::UrlVerification)
     challenge.challenge.empty?.should be_false
   end
 

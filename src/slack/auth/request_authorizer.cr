@@ -2,17 +2,17 @@ require "../../slack"
 require "http"
 require "json"
 require "uri"
-require "../commands/parser"
+require "../commands/parse"
 require "../events/verified_event"
 require "../interaction"
 require "../interactions/**"
-require "../webhooks/verified_request"
+require "../webhooks/verifier"
 require "./query_extractor"
 require "./request_context"
 require "./rotation_service"
 
 module Slack::Auth
-  # Verifies signed HTTP bytes before decoding ownership or touching the store.
+  # Verifies signed HTTP bytes with *verifier* before decoding ownership or touching the store.
   class RequestAuthorizer
     getter extractor : QueryExtractor
 
@@ -20,7 +20,7 @@ module Slack::Auth
 
     def initialize(expected_app_id : String, @store : InstallationStore,
                    @transport : Transport, configuration : APIConfiguration,
-                   @clock : Proc(Time) = -> { Time.utc }, *, @rotation : RotationService? = nil)
+                   @verifier : Slack::Webhooks::Verifier, *, @rotation : RotationService? = nil)
       if rotation = @rotation
         unless rotation.store.same?(@store)
           raise ContractError.new(:invalid_configuration)
@@ -64,7 +64,7 @@ module Slack::Auth
     end
 
     private def verify(request : HTTP::Request) : String
-      Slack::Webhooks::VerifiedRequest.new(request, @clock).verify!.body
+      @verifier.verify(request).body
     end
 
     private def parse_event(body : String) : Slack::VerifiedEvent
@@ -74,15 +74,13 @@ module Slack::Auth
     end
 
     private def parse_command(body : String) : Slack::Command
-      Slack::Commands::Parser.parse(body)
+      Slack::Commands.parse(body)
     rescue JSON::ParseException | JSON::SerializableError
       invalid_payload
     end
 
     private def parse_interaction(body : String) : Slack::Interaction
-      values = URI::Params.parse(body).fetch_all("payload")
-      invalid_payload unless values.size == 1
-      Slack::Interaction.from_json(values.first)
+      Slack::Interactions.parse(body)
     rescue JSON::ParseException | JSON::SerializableError
       invalid_payload
     end

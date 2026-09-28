@@ -10,8 +10,8 @@ module Slack::Auth
     getter event : Slack::Event
 
     def initialize(request : HTTP::Request, expected_app_id : String,
-                   selected_owner : InstallationKey? = nil, clock : Proc(Time) = -> { Time.utc })
-      body = Slack::Webhooks::VerifiedRequest.new(request, clock).verify!.body
+                   verifier : Slack::Webhooks::Verifier, selected_owner : InstallationKey? = nil)
+      body = verifier.verify(request).body
       envelope = parse(body)
       @event = validate_event(envelope, expected_app_id)
       @event_id = envelope.event_id

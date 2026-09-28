@@ -8,13 +8,15 @@ require "./webmock_transport"
 module OfflineContainerExample
   alias UI = Slack::UI
 
+  SIGNING_SECRET = Slack::Auth::Secret.new("synthetic-signing-secret")
+  VERIFIER       = Slack::Webhooks::Verifier.new(SIGNING_SECRET)
+
   record Change, key : String, from : String, to : String
 
   CHANGES = [Change.new("DCW-1024", "Open", "Closed"), Change.new("DCW-1025", "In Progress", "Closed")]
 
   # Returns the JSON body that the stubbed chat.postMessage endpoint received.
   def self.run(output : IO = STDOUT) : JSON::Any
-    Slack.configure(&.signing_secret=("synthetic-signing-secret"))
     posted : JSON::Any? = nil
     WebMock.allow_net_connect = false
     WebMock.stub(:post, "https://slack.com/api/chat.postMessage").to_return do |request|
@@ -67,8 +69,8 @@ module OfflineContainerExample
     timestamp = Time.utc.to_unix.to_s
     headers = HTTP::Headers{
       "X-Slack-Request-Timestamp" => timestamp,
-      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(timestamp, body).compute,
+      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(SIGNING_SECRET, timestamp, body).compute,
     }
-    Slack.process_interaction(HTTP::Request.new("POST", "/interactions", headers, body))
+    Slack::Interactions.parse(VERIFIER.verify(HTTP::Request.new("POST", "/interactions", headers, body)).body)
   end
 end

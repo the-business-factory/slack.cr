@@ -164,11 +164,13 @@ describe "Typed Block Kit interaction access" do
   it "preserves unknown actions and state through the signed public HTTP entrypoint" do
     body = URI::Params.encode({"payload" => %({"type":"block_actions","team":null,"actions":[{"type":"future_action","extra":[]}],"state":{"values":{"b":{"a":{"type":"future_value","selected_ids":[]}}}}})})
     timestamp = Time.utc.to_unix.to_s
+    secret = Slack::Auth::Secret.new("synthetic-signing-secret")
     headers = HTTP::Headers{
       "X-Slack-Request-Timestamp" => timestamp,
-      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(timestamp, body).compute,
+      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(secret, timestamp, body).compute,
     }
-    interaction = Slack.process_interaction(HTTP::Request.new("POST", "/interactions", headers, body))
+    verified = Slack::Webhooks::Verifier.new(secret).verify(HTTP::Request.new("POST", "/interactions", headers, body))
+    interaction = Slack::Interactions.parse(verified.body)
     case interaction
     when Slack::Interactions::BlockAction
       interaction.decoded_actions.first.should be_a Slack::Interactions::UnknownAction

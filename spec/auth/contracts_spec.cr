@@ -205,7 +205,6 @@ describe "authentication contracts" do
     Slack::Auth::APIConfiguration.new(URI.parse("https://example.test/api/")).base_uri.host.should eq("example.test")
     Slack::Auth::OAuthConfiguration.new(URI.parse("https://example.test/authorize"), URI.parse("https://example.test/token"),
       "A1", secret, URI.parse("https://example.test/callback")).client_id.should eq("A1")
-    Slack::Auth::OIDCConfiguration.new(URI.parse("https://example.test/discovery"), "issuer", "A1").issuer.should eq("issuer")
     Slack::Auth::TransportOptions.new.read_timeout.should eq(30.seconds)
   end
 end

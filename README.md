@@ -43,13 +43,11 @@ To upload a file or share a remote file, see [files](documentation/files.md). `S
 | --- | --- |
 | Build or inspect Block Kit values | None. |
 | Direct Web API request | Token with the method's required scopes. |
-| Signed Events API, command, or interaction HTTP request | App signing secret for verification. A valid timestamp prevents stale requests; the application handles duplicate deliveries. |
-| OAuth app installation | Client ID, client secret, redirect URI, bot/user scopes, trusted session binding, state store, and application-owned installation store. Pass scopes to `AuthHandler`, not global settings. |
+| Signed Events API, command, or interaction HTTP request | App signing secret in a `Slack::Webhooks::Verifier`. A valid timestamp prevents stale requests; the application handles duplicate deliveries. |
+| OAuth app installation | Client ID, client secret, redirect URI, bot/user scopes, trusted session binding, state store, and application-owned installation store. Pass scopes to `AuthHandler`. |
 | Stored credential dispatch and rotation | Installation store; rotating grants also need the OAuth token endpoint and client credentials. |
 
-Global `Slack.configure` settings for webhook signing and API transport do not configure `AuthHandler`. Create it with an explicit `Slack::Auth::OAuthConfiguration`. [Authentication](documentation/authentication.md) covers installation, request authorization, rotation, revocation, storage, and transport.
-
-Sign in with Slack is unavailable as a verified login. `Slack::SignInWithSlack` does not verify OIDC identity and raises `Slack::SignInResponse::VerificationUnavailable` on that path. Keep login separate from app installation.
+The library has no global settings and reads no environment variables. Give each credential to the object that uses it: the signing secret to `Slack::Webhooks::Verifier`, a token to `Slack::Api::Client`, and a `Slack::Auth::OAuthConfiguration` to `AuthHandler`. [Authentication](documentation/authentication.md) covers installation, request authorization, rotation, revocation, storage, and transport.
 
 ### Read all pages
 
@@ -99,10 +97,11 @@ The send requires a bot token with `chat:write` and a channel the app can post t
 
 ## Events API payloads
 
-`Slack.process_webhook` verifies the signed request and returns `Slack::UrlVerification` or `Slack::VerifiedEvent`. The inner `event` is a typed struct for mapped types. An event type that the library does not map decodes as `Slack::Events::Unknown`: `type` gives the event type and `raw` keeps the complete event JSON. Match `Unknown` explicitly. Do not log `raw`: it can hold credentials, such as a workflow `bot_access_token`. A `message` event with a subtype that the library does not map still raises `JSON::SerializableError`.
+Verify the signed request with `Slack::Webhooks::Verifier`, then give the verified body to `Slack::Events.parse`. It returns `Slack::UrlVerification` or `Slack::VerifiedEvent`. The inner `event` is a typed struct for mapped types. An event type that the library does not map decodes as `Slack::Events::Unknown`: `type` gives the event type and `raw` keeps the complete event JSON. Match `Unknown` explicitly. Do not log `raw`: it can hold credentials, such as a workflow `bot_access_token`. A `message` event with a subtype that the library does not map still raises `JSON::SerializableError`.
 
 ```crystal
-envelope = Slack.process_webhook(request)
+verifier = Slack::Webhooks::Verifier.new(Slack::Auth::Secret.new(signing_secret))
+envelope = Slack::Events.parse(verifier.verify(request).body)
 if envelope.is_a?(Slack::VerifiedEvent)
   delivery = Slack::Events::Delivery.from_headers(request.headers)
   case event = envelope.event
@@ -138,7 +137,7 @@ To decode frames without a connection, use `Slack::SocketMode::Frame.parse` and 
 Verify a slash command, then answer it in the HTTP 200 body. Post later replies to its `response_url`.
 
 ```crystal
-command = Slack.process_command(request)
+command = Slack::Commands.parse(verifier.verify(request).body)
 body = Slack::Commands::Response.new(text: "Deploy started.").to_json
 # {"response_type":"ephemeral","text":"Deploy started."}
 

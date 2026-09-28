@@ -1,12 +1,6 @@
 require "slack"
 
-# No spec helper, dotenv, credentials, or feature configuration at startup.
-Habitat.raise_if_missing_settings!
-raise "Unexpected client ID" unless Slack.settings.client_id.nil?
-raise "Unexpected client secret" unless Slack.settings.client_secret.nil?
-raise "Unexpected signing secret" unless Slack.settings.signing_secret.nil?
-raise "Unexpected login redirect" unless Slack::SignInWithSlack.settings.sign_in_redirect_url.nil?
-
+# No spec helper, environment variables, credentials, or global configuration at startup.
 message = Slack::UI.message(fallback_text: "No credentials required") do |builder|
   builder.section(Slack::UI.plain("Ready"))
 end

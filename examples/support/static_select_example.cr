@@ -5,14 +5,17 @@ require "./webmock_transport"
 module OfflineStaticSelectExample
   alias UI = Slack::UI
 
+  SIGNING_SECRET = Slack::Auth::Secret.new("synthetic-signing-secret")
+  VERIFIER       = Slack::Webhooks::Verifier.new(SIGNING_SECRET)
+
   def self.receive(payload : String) : Slack::Interaction
     body = URI::Params.encode({"payload" => payload})
     timestamp = Time.utc.to_unix.to_s
     headers = HTTP::Headers{
       "X-Slack-Request-Timestamp" => timestamp,
-      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(timestamp, body).compute,
+      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(SIGNING_SECRET, timestamp, body).compute,
     }
-    Slack.process_interaction(HTTP::Request.new("POST", "/interactions", headers, body))
+    Slack::Interactions.parse(VERIFIER.verify(HTTP::Request.new("POST", "/interactions", headers, body)).body)
   end
 
   def self.install_transport : Nil
@@ -30,11 +33,6 @@ module OfflineStaticSelectExample
   end
 
   def self.run(output : IO = STDOUT) : Nil
-    Slack.configure do |settings|
-      settings.client_id = "synthetic-client"
-      settings.client_secret = "synthetic-client-secret"
-      settings.signing_secret = "synthetic-signing-secret"
-    end
     install_transport
     red = UI::CompositionObjects::Option.new(text: UI.plain("Red"), value: "red")
     blue = UI::CompositionObjects::Option.new(text: UI.plain("Blue"), value: "blue")

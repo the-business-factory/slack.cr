@@ -7,6 +7,9 @@ require "./webmock_transport"
 module OfflineCardCarouselExample
   alias UI = Slack::UI
 
+  SIGNING_SECRET = Slack::Auth::Secret.new("synthetic-signing-secret")
+  VERIFIER       = Slack::Webhooks::Verifier.new(SIGNING_SECRET)
+
   record Department, id : String, name : String, summary : String, icon : UI::CompositionObjects::SlackIconName
 
   DEPARTMENTS = [
@@ -17,7 +20,6 @@ module OfflineCardCarouselExample
   # Returns the JSON body that the stubbed chat.postMessage endpoint received.
   def self.run(output : IO = STDOUT) : JSON::Any
     posted : JSON::Any? = nil
-    Slack.configure { |settings| settings.signing_secret = "synthetic-signing-secret" }
     WebMock.allow_net_connect = false
     WebMock.stub(:post, "https://slack.com/api/chat.postMessage").to_return do |request|
       posted = JSON.parse(request.body || raise "Missing posted message")
@@ -62,9 +64,9 @@ module OfflineCardCarouselExample
     timestamp = Time.utc.to_unix.to_s
     headers = HTTP::Headers{
       "X-Slack-Request-Timestamp" => timestamp,
-      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(timestamp, body).compute,
+      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(SIGNING_SECRET, timestamp, body).compute,
     }
-    interaction = Slack.process_interaction(HTTP::Request.new("POST", "/interactions", headers, body))
+    interaction = Slack::Interactions.parse(VERIFIER.verify(HTTP::Request.new("POST", "/interactions", headers, body)).body)
     raise "Expected block action" unless interaction.is_a?(Slack::Interactions::BlockAction)
     action = interaction.decoded_actions.first
     raise "Expected button action" unless action.is_a?(Slack::Interactions::ButtonAction)

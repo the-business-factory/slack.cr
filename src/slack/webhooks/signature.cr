@@ -1,22 +1,29 @@
+require "openssl/hmac"
+require "../auth/errors"
+
+# Computes the `X-Slack-Signature` value for a request timestamp and its exact body.
+#
+# ```
+# secret = Slack::Auth::Secret.new("synthetic-signing-secret")
+# Slack::Webhooks::Signature.new(secret, "1700000000", body).compute # => "v0=..."
+# ```
 struct Slack::Webhooks::Signature
-  delegate signing_secret, to: Slack.settings
-  delegate signing_secret_version, to: Slack.settings
+  # Slack documents only this signature version.
+  VERSION = "v0"
 
-  def initialize(@slack_timestamp : String, @body : String)
+  def initialize(@signing_secret : Auth::Secret, @timestamp : String, @body : String)
   end
 
-  def basestring : String
-    [signing_secret_version, @slack_timestamp, @body].join(":")
+  def compute : String
+    basestring = "#{VERSION}:#{@timestamp}:#{@body}"
+    "#{VERSION}=#{OpenSSL::HMAC.hexdigest(:sha256, @signing_secret.value, basestring)}"
   end
 
-  def compute
-    hex_hash = OpenSSL::HMAC.hexdigest(:sha256, required_signing_secret, basestring)
-    [signing_secret_version, hex_hash].join("=")
+  def inspect(io : IO) : Nil
+    io << "Slack::Webhooks::Signature([REDACTED])"
   end
 
-  private def required_signing_secret : String
-    value = signing_secret
-    raise Slack::Auth::ContractError.new(Slack::Auth::ErrorCode::InvalidConfiguration) if value.nil? || value.blank?
-    value
+  def to_s(io : IO) : Nil
+    inspect(io)
   end
 end

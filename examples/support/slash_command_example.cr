@@ -7,6 +7,9 @@ require "./webmock_transport"
 module OfflineSlashCommandExample
   alias UI = Slack::UI
 
+  SIGNING_SECRET = Slack::Auth::Secret.new("synthetic-signing-secret")
+  VERIFIER       = Slack::Webhooks::Verifier.new(SIGNING_SECRET)
+
   RESPONSE_URL = "https://hooks.slack.com/commands/T-SYNTHETIC/1234/synthetic"
 
   # Independently authored form body, as Slack sends it.
@@ -32,16 +35,15 @@ module OfflineSlashCommandExample
     headers = HTTP::Headers{
       "Content-Type"              => "application/x-www-form-urlencoded",
       "X-Slack-Request-Timestamp" => timestamp,
-      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(timestamp, BODY).compute,
+      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(SIGNING_SECRET, timestamp, BODY).compute,
     }
     HTTP::Request.new("POST", "/slack/commands", headers, BODY)
   end
 
   def self.run(output : IO = STDOUT) : Result
-    Slack.configure { |settings| settings.signing_secret = "synthetic-signing-secret" }
     follow_ups = install_transport
 
-    command = Slack.process_command(signed)
+    command = Slack::Commands.parse(VERIFIER.verify(signed).body)
     service, build = command.text.split(' ', 2)
     output.puts "#{command.command} #{service} #{build} from #{command.user_id}"
 

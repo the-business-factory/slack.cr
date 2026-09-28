@@ -5,8 +5,10 @@ require "./webmock_transport"
 module OfflineOverflowExample
   alias UI = Slack::UI
 
+  SIGNING_SECRET = Slack::Auth::Secret.new("synthetic-signing-secret")
+  VERIFIER       = Slack::Webhooks::Verifier.new(SIGNING_SECRET)
+
   def self.run(output : IO = STDOUT) : Nil
-    Slack.configure { |settings| settings.signing_secret = "synthetic-signing-secret" }
     WebMock.allow_net_connect = false
     WebMock.stub(:post, "https://slack.com/api/chat.postMessage").to_return do |request|
       wire = JSON.parse(request.body || raise "Missing message")
@@ -29,9 +31,9 @@ module OfflineOverflowExample
     timestamp = Time.utc.to_unix.to_s
     headers = HTTP::Headers{
       "X-Slack-Request-Timestamp" => timestamp,
-      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(timestamp, body).compute,
+      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(SIGNING_SECRET, timestamp, body).compute,
     }
-    case interaction = Slack.process_interaction(HTTP::Request.new("POST", "/interactions", headers, body))
+    case interaction = Slack::Interactions.parse(VERIFIER.verify(HTTP::Request.new("POST", "/interactions", headers, body)).body)
     when Slack::Interactions::BlockAction
       case action = interaction.decoded_actions.first
       when Slack::Interactions::OverflowAction

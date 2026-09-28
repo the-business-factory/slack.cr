@@ -27,7 +27,7 @@ module OfflineHomeExample
     published = client.call(Slack::Api::ViewsPublish.new(user_id: "U123", view: home))
     output.puts "Published Home #{published.view["id"]} offline."
 
-    # Simulated, already verified JSON. HTTP handlers use Slack.process_interaction.
+    # Simulated, already verified JSON. HTTP handlers verify with Slack::Webhooks::Verifier first.
     payload = {type: "block_actions", user: {id: "U123"}, container: {type: "view", view_id: "V123"},
                view: {id: "V123", type: "home", callback_id: "projects", hash: "synthetic-hash"},
                actions: [{type: "plain_text_input", block_id: "note", action_id: "text", value: "Ready to review"}],

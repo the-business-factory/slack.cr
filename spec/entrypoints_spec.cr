@@ -4,7 +4,7 @@ require "file/tempfile"
 
 # Startup environment defaults cannot be reset by an ordinary in-process spec.
 describe "full-library startup" do
-  it "loads slack and constructs UI without credentials or redirect settings" do
+  it "loads slack and constructs UI without credentials or environment variables" do
     root = File.expand_path("..", __DIR__)
     crystal_path = IO::Memory.new
     Process.run("crystal", ["env", "CRYSTAL_PATH"], output: crystal_path).success?.should be_true
@@ -16,7 +16,7 @@ describe "full-library startup" do
         "CRYSTAL_PATH" => "#{library_dir}:#{crystal_path.to_s.strip}",
         "SLACK_CLIENT_ID" => nil, "SLACK_CLIENT_SECRET" => nil,
         "SLACK_SIGNING_SECRET" => nil, "SLACK_TEAM_AUTH_TOKEN" => nil,
-        "OAUTH_REDIRECT_URL" => nil, "SIGN_IN_REDIRECT_URL" => nil,
+        "OAUTH_REDIRECT_URL" => nil,
       })
       CompileContracts.assert_pass(result)
     ensure

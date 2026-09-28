@@ -173,3 +173,12 @@ describe "Interaction payload context" do
     Slack::Interaction.from_json(%({"type":"shortcut"})).should(be_a(Slack::Interactions::Shortcut)).channel.should be_nil
   end
 end
+
+describe "Slack::Interactions.parse" do
+  it "requires exactly one payload field in a verified form body" do
+    ["", "other=1", "payload=%7B%7D&payload=%7B%7D"].each do |body|
+      error = expect_raises(Slack::Auth::RequestAuthorizationError) { Slack::Interactions.parse(body) }
+      error.reason.should eq :invalid_payload
+    end
+  end
+end

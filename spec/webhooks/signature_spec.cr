@@ -2,7 +2,7 @@ require "../spec_helper"
 
 module SignedRequestSpec
   NOW    = Time.unix(1_700_000_000)
-  SECRET = "synthetic-signing-secret"
+  SECRET = Slack::Auth::Secret.new("synthetic-signing-secret")
   BODY   = "{ \"challenge\": \"snowman \\u2603\" }\n"
   # Synthetic vector independently calculated with Python stdlib hmac/sha256:
   # hmac.new(b'synthetic-signing-secret',
@@ -12,42 +12,35 @@ module SignedRequestSpec
   def self.request(body : String? = BODY, timestamp = NOW.to_unix.to_s, signature : String? = nil)
     headers = HTTP::Headers{
       "X-Slack-Request-Timestamp" => timestamp,
-      "X-Slack-Signature"         => signature || Slack::Webhooks::Signature.new(timestamp, body || "").compute,
+      "X-Slack-Signature"         => signature || Slack::Webhooks::Signature.new(SECRET, timestamp, body || "").compute,
     }
     HTTP::Request.new("POST", "/signed", headers, body)
   end
 
-  def self.verify(request)
-    Slack::Webhooks::VerifiedRequest.new(request, clock: -> { NOW }).verify!
-  end
-end
+  class FixedClock < Slack::Auth::Clock
+    def initialize(@now : Time)
+    end
 
-describe Slack::Webhooks::VerifiedRequest do
-  around_each do |example|
-    secret = Slack.settings.signing_secret
-    version = Slack.settings.signing_secret_version
-    limit = Slack.settings.webhook_delivery_time_limit
-    begin
-      Slack.configure do |settings|
-        settings.signing_secret = SignedRequestSpec::SECRET
-        settings.signing_secret_version = "v0"
-        settings.webhook_delivery_time_limit = 5.minutes
-      end
-      example.run
-    ensure
-      Slack.configure do |settings|
-        settings.signing_secret = secret
-        settings.signing_secret_version = version
-        settings.webhook_delivery_time_limit = limit
-      end
+    def now : Time
+      @now
     end
   end
 
+  def self.verifier(limit : Time::Span = 5.minutes) : Slack::Webhooks::Verifier
+    Slack::Webhooks::Verifier.new(SECRET, delivery_time_limit: limit, clock: FixedClock.new(NOW))
+  end
+
+  def self.verify(request : HTTP::Request) : Slack::Webhooks::VerifiedRequest
+    verifier.verify(request)
+  end
+end
+
+describe Slack::Webhooks::Verifier do
   it "matches an independent fixed HMAC vector and retains exact bytes" do
-    Slack::Webhooks::Signature.new("1700000000", SignedRequestSpec::BODY).compute.should eq SignedRequestSpec::SIGNATURE
+    Slack::Webhooks::Signature.new(SignedRequestSpec::SECRET, "1700000000", SignedRequestSpec::BODY).compute.should eq SignedRequestSpec::SIGNATURE
     verified = SignedRequestSpec.verify(SignedRequestSpec.request(signature: SignedRequestSpec::SIGNATURE))
     verified.body.to_slice.should eq SignedRequestSpec::BODY.to_slice
-    verified.verify!.body.should eq SignedRequestSpec::BODY
+    verified.timestamp.should eq SignedRequestSpec::NOW
   end
 
   it "rejects changed body content and whitespace" do
@@ -80,15 +73,38 @@ describe Slack::Webhooks::VerifiedRequest do
   end
 
   it "honors a custom symmetric delivery limit" do
-    Slack.configure(&.webhook_delivery_time_limit = 10.seconds)
+    verifier = SignedRequestSpec.verifier(10.seconds)
     [-10, 10].each do |offset|
-      SignedRequestSpec.verify(SignedRequestSpec.request(timestamp: (SignedRequestSpec::NOW.to_unix + offset).to_s))
+      verifier.verify(SignedRequestSpec.request(timestamp: (SignedRequestSpec::NOW.to_unix + offset).to_s))
     end
     [-11, 11].each do |offset|
       expect_raises(Slack::Errors::ReplayAttack) do
-        SignedRequestSpec.verify(SignedRequestSpec.request(timestamp: (SignedRequestSpec::NOW.to_unix + offset).to_s))
+        verifier.verify(SignedRequestSpec.request(timestamp: (SignedRequestSpec::NOW.to_unix + offset).to_s))
       end
     end
+  end
+
+  it "rejects a blank signing secret and a negative delivery limit" do
+    error = expect_raises(Slack::Auth::ContractError) { SignedRequestSpec.verifier(-1.second) }
+    error.code.should eq Slack::Auth::ErrorCode::InvalidConfiguration
+    error = expect_raises(Slack::Auth::ContractError) do
+      Slack::Webhooks::Verifier.new(Slack::Auth::Secret.new(" \t"))
+    end
+    error.code.should eq Slack::Auth::ErrorCode::InvalidConfiguration
+  end
+
+  it "rejects a request signed with another secret" do
+    other = Slack::Auth::Secret.new("another-synthetic-secret")
+    timestamp = SignedRequestSpec::NOW.to_unix.to_s
+    signature = Slack::Webhooks::Signature.new(other, timestamp, SignedRequestSpec::BODY).compute
+    expect_raises(Slack::Errors::SignatureMismatch) do
+      SignedRequestSpec.verify(SignedRequestSpec.request(signature: signature))
+    end
+  end
+
+  it "redacts the signing secret when inspected" do
+    SignedRequestSpec.verifier.inspect.should_not contain("synthetic-signing-secret")
+    Slack::Webhooks::Signature.new(SignedRequestSpec::SECRET, "1", "body").inspect.should_not contain("synthetic-signing-secret")
   end
 
   ["", "abc", "1700000000junk", "1700000000.0", " 1700000000", "+1700000000", "-1", "99999999999999999999999", Int64::MAX.to_s].each do |timestamp|
@@ -130,54 +146,31 @@ describe Slack::Webhooks::VerifiedRequest do
     expect_raises(Slack::Errors::InvalidWebhookRequest) { SignedRequestSpec.verify(request) }.reason.should eq :empty_body
   end
 
-  it "does not enable another protocol through the legacy version setting" do
-    Slack.configure(&.signing_secret_version = "v1")
-    expect_raises(Slack::Errors::InvalidWebhookRequest) { SignedRequestSpec.verify(SignedRequestSpec.request) }
-  end
-
   it "rejects validly shaped incorrect digests" do
     expect_raises(Slack::Errors::SignatureMismatch, "Slack webhook signature mismatch") do
       SignedRequestSpec.verify(SignedRequestSpec.request(signature: "v0=#{"0" * 64}"))
     end
   end
 
-  it "verifies raw JSON and form bytes through every process entry point" do
-    timestamp = Time.utc.to_unix.to_s
-    Slack.process_webhook(SignedRequestSpec.request(File.read("spec/fixtures/events/url_verification.json"), timestamp)).should be_a Slack::UrlVerification
-    form = File.read("spec/fixtures/commands/encoded_names.txt")
-    Slack.process_command(SignedRequestSpec.request(form, timestamp)).should be_a Slack::Command
-    interaction = "payload=%7B%20%22type%22%3A%20%22shortcut%22%20%7D"
-    Slack.process_interaction(SignedRequestSpec.request(interaction, timestamp)).should be_a Slack::Interactions::Shortcut
-  end
-
-  it "verifies before parsing through every process entry point" do
-    timestamp = Time.utc.to_unix.to_s
-    expect_raises(Slack::Errors::SignatureMismatch) { Slack.process_webhook(SignedRequestSpec.request("invalid json", timestamp, "v0=#{"0" * 64}")) }
-    expect_raises(Slack::Errors::SignatureMismatch) { Slack.process_command(SignedRequestSpec.request("invalid form", timestamp, "v0=#{"0" * 64}")) }
-    expect_raises(Slack::Errors::SignatureMismatch) { Slack.process_interaction(SignedRequestSpec.request("no payload", timestamp, "v0=#{"0" * 64}")) }
-  end
-  it "rejects whitespace and equivalent form re-encoding through the process entry points" do
-    timestamp = Time.utc.to_unix.to_s
+  it "parses verified JSON and form bytes with each payload parser" do
     json = File.read("spec/fixtures/events/url_verification.json")
-    request = SignedRequestSpec.request(json, timestamp)
-    request.body = IO::Memory.new(json + " ")
-    expect_raises(Slack::Errors::SignatureMismatch) { Slack.process_webhook(request) }
+    verified = SignedRequestSpec.verify(SignedRequestSpec.request(json))
+    Slack::Events.parse(verified.body).should be_a Slack::UrlVerification
 
     form = File.read("spec/fixtures/commands/encoded_names.txt")
-    request = SignedRequestSpec.request(form, timestamp)
-    request.body = IO::Memory.new(form + "&")
-    expect_raises(Slack::Errors::SignatureMismatch) { Slack.process_command(request) }
+    verified = SignedRequestSpec.verify(SignedRequestSpec.request(form))
+    Slack::Commands.parse(verified.body).should be_a Slack::Command
 
-    form = "payload=%7B%22type%22%3A%22shortcut%22%7D"
-    request = SignedRequestSpec.request(form, timestamp)
-    request.body = IO::Memory.new(form.sub("%7B", "%7b"))
-    expect_raises(Slack::Errors::SignatureMismatch) { Slack.process_interaction(request) }
+    interaction = "payload=%7B%20%22type%22%3A%20%22shortcut%22%20%7D"
+    verified = SignedRequestSpec.verify(SignedRequestSpec.request(interaction))
+    Slack::Interactions.parse(verified.body).should be_a Slack::Interactions::Shortcut
   end
 
-  it "normalizes missing inputs through every process entry point" do
-    expect_raises(Slack::Errors::InvalidWebhookRequest) { Slack.process_webhook(HTTP::Request.new("POST", "/")) }
-    expect_raises(Slack::Errors::InvalidWebhookRequest) { Slack.process_command(HTTP::Request.new("POST", "/")) }
-    expect_raises(Slack::Errors::InvalidWebhookRequest) { Slack.process_interaction(HTTP::Request.new("POST", "/")) }
+  it "rejects equivalent form re-encoding" do
+    form = "payload=%7B%22type%22%3A%22shortcut%22%7D"
+    request = SignedRequestSpec.request(form)
+    request.body = IO::Memory.new(form.sub("%7B", "%7b"))
+    expect_raises(Slack::Errors::SignatureMismatch) { SignedRequestSpec.verify(request) }
   end
 
   it "normalizes IO failures without exposing their messages" do

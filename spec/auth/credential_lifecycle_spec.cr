@@ -3,13 +3,19 @@ require "../../src/slack/auth/credential_lifecycle"
 require "../support/credential_lifecycle/store"
 
 module CredentialLifecycleSpec
+  SIGNING_SECRET = Slack::Auth::Secret.new("synthetic-lifecycle-signing-secret")
+
+  def self.verifier(clock : Slack::Auth::Clock) : Slack::Webhooks::Verifier
+    Slack::Webhooks::Verifier.new(SIGNING_SECRET, clock: clock)
+  end
+
   def self.body(name : String = "tokens_revoked") : String
     File.read("spec/fixtures/credential_lifecycle/#{name}.json")
   end
 
   def self.request(body : String, now : Time) : HTTP::Request
     timestamp = now.to_unix.to_s
-    signature = Slack::Webhooks::Signature.new(timestamp, body).compute
+    signature = Slack::Webhooks::Signature.new(SIGNING_SECRET, timestamp, body).compute
     HTTP::Request.new("POST", "/events", HTTP::Headers{
       "X-Slack-Request-Timestamp" => timestamp,
       "X-Slack-Signature"         => signature,
@@ -35,16 +41,6 @@ module CredentialLifecycleSpec
 end
 
 describe Slack::Auth::CredentialLifecycle do
-  around_each do |example|
-    secret = Slack.settings.signing_secret
-    begin
-      Slack.settings.signing_secret = "synthetic-lifecycle-signing-secret"
-      example.run
-    ensure
-      Slack.settings.signing_secret = secret
-    end
-  end
-
   it "parses documented user ID lists without requiring event_ts or both token kinds" do
     event = Slack::VerifiedEvent.from_json(CredentialLifecycleSpec.body("bot_revoked")).event
       .should be_a(Slack::Events::TokensRevoked)
@@ -65,7 +61,7 @@ describe Slack::Auth::CredentialLifecycle do
     user = CredentialLifecycleSpec.context(store, transport, Slack::Auth::GrantKey.new(:user, "U_ACTOR"))
     bot = CredentialLifecycleSpec.context(store, transport, Slack::Auth::GrantKey.new(:bot))
     other = CredentialLifecycleSpec.context(store, transport, Slack::Auth::GrantKey.new(:user, "U_INSTALLER"))
-    service = Slack::Auth::CredentialLifecycle.new("A1", store, -> { clock.now })
+    service = Slack::Auth::CredentialLifecycle.new("A1", store, CredentialLifecycleSpec.verifier(clock))
     delivery = CredentialLifecycleSpec.prepare(service, clock)
 
     service.apply(delivery).applied?.should be_true
@@ -82,7 +78,7 @@ describe Slack::Auth::CredentialLifecycle do
     store = CredentialLifecycleSupport::Store.new(clock)
     key = RequestAuthorizerSupport.workspace_key
     RequestAuthorizerSupport.seed(store, key)
-    service = Slack::Auth::CredentialLifecycle.new("A1", store, -> { clock.now })
+    service = Slack::Auth::CredentialLifecycle.new("A1", store, CredentialLifecycleSpec.verifier(clock))
     wrong_bot = CredentialLifecycleSpec.body("bot_revoked").gsub("U_BOT", "U_ACTOR")
     service.process(CredentialLifecycleSpec.request(wrong_bot, clock.now), key).already_absent?.should be_true
     store.mutation_count.should eq(0)
@@ -103,7 +99,7 @@ describe Slack::Auth::CredentialLifecycle do
     RequestAuthorizerSupport.seed(store, other)
     transport = RequestAuthorizerSupport::Transport.new
     context = CredentialLifecycleSpec.context(store, transport, Slack::Auth::GrantKey.new(:bot))
-    service = Slack::Auth::CredentialLifecycle.new("A1", store, -> { clock.now })
+    service = Slack::Auth::CredentialLifecycle.new("A1", store, CredentialLifecycleSpec.verifier(clock))
     delivery = service.prepare(CredentialLifecycleSpec.request(CredentialLifecycleSpec.body("app_uninstalled"), clock.now))
     service.apply(delivery).applied?.should be_true
     tombstone = store.fetch(key).should_not(be_nil)
@@ -122,7 +118,7 @@ describe Slack::Auth::CredentialLifecycle do
       store = CredentialLifecycleSupport::Store.new(clock)
       key = RequestAuthorizerSupport.workspace_key
       RequestAuthorizerSupport.seed(store, key)
-      service = Slack::Auth::CredentialLifecycle.new("A1", store, -> { clock.now })
+      service = Slack::Auth::CredentialLifecycle.new("A1", store, CredentialLifecycleSpec.verifier(clock))
       uninstall = CredentialLifecycleSpec.prepare(service, clock, "app_uninstalled")
       revoke = CredentialLifecycleSpec.prepare(service, clock)
       first, second = uninstall_first ? {uninstall, revoke} : {revoke, uninstall}
@@ -139,7 +135,7 @@ describe Slack::Auth::CredentialLifecycle do
     store = CredentialLifecycleSupport::Store.new(clock)
     key = RequestAuthorizerSupport.workspace_key
     store.acquire_failure = Slack::Auth::ErrorCode::MissingGrant
-    service = Slack::Auth::CredentialLifecycle.new("A1", store, -> { clock.now })
+    service = Slack::Auth::CredentialLifecycle.new("A1", store, CredentialLifecycleSpec.verifier(clock))
     service.apply(CredentialLifecycleSpec.prepare(service, clock, "app_uninstalled")).already_absent?.should be_true
     store.store(key, Slack::Auth::InstallationPatch.new(bot: RequestAuthorizerSupport.grant("U_BOT", "expired", clock.now)), nil)
     service.apply(CredentialLifecycleSpec.prepare(service, clock, "bot_revoked")).applied?.should be_true
@@ -155,7 +151,7 @@ describe Slack::Auth::CredentialLifecycle do
     RequestAuthorizerSupport.seed(store, key)
     transport = RequestAuthorizerSupport::Transport.new
     context = CredentialLifecycleSpec.context(store, transport, Slack::Auth::GrantKey.new(:bot))
-    service = Slack::Auth::CredentialLifecycle.new("A1", store, -> { clock.now })
+    service = Slack::Auth::CredentialLifecycle.new("A1", store, CredentialLifecycleSpec.verifier(clock))
     uninstall = CredentialLifecycleSpec.prepare(service, clock, "app_uninstalled")
     revoke = CredentialLifecycleSpec.prepare(service, clock)
     service.apply(uninstall)
@@ -174,7 +170,7 @@ describe Slack::Auth::CredentialLifecycle do
     clock = RequestAuthorizerSupport::Clock.new
     store = CredentialLifecycleSupport::Store.new(clock)
     key = RequestAuthorizerSupport.workspace_key
-    service = Slack::Auth::CredentialLifecycle.new("A1", store, -> { clock.now })
+    service = Slack::Auth::CredentialLifecycle.new("A1", store, CredentialLifecycleSpec.verifier(clock))
     delivery = CredentialLifecycleSpec.prepare(service, clock, "app_uninstalled")
     record = RequestAuthorizerSupport.seed(store, key)
     service.apply(delivery).superseded?.should be_true
@@ -186,7 +182,7 @@ describe Slack::Auth::CredentialLifecycle do
     store = CredentialLifecycleSupport::Store.new(clock)
     key = RequestAuthorizerSupport.workspace_key
     initial = RequestAuthorizerSupport.seed(store, key)
-    service = Slack::Auth::CredentialLifecycle.new("A1", store, -> { clock.now })
+    service = Slack::Auth::CredentialLifecycle.new("A1", store, CredentialLifecycleSpec.verifier(clock))
     user = CredentialLifecycleSpec.prepare(service, clock)
     bot = CredentialLifecycleSpec.prepare(service, clock, "bot_revoked")
     updated = store.store(key, Slack::Auth::InstallationPatch.new(users: {
@@ -203,7 +199,7 @@ describe Slack::Auth::CredentialLifecycle do
     store = CredentialLifecycleSupport::Store.new(clock)
     key = RequestAuthorizerSupport.workspace_key
     initial = RequestAuthorizerSupport.seed(store, key)
-    service = Slack::Auth::CredentialLifecycle.new("A1", store, -> { clock.now })
+    service = Slack::Auth::CredentialLifecycle.new("A1", store, CredentialLifecycleSpec.verifier(clock))
     delivery = CredentialLifecycleSpec.prepare(service, clock)
     store.before_mutation = -> {
       store.store(key, Slack::Auth::InstallationPatch.new(bot: RequestAuthorizerSupport.grant("U_BOT", "changed")), initial.version)
@@ -220,7 +216,7 @@ describe Slack::Auth::CredentialLifecycle do
       store = CredentialLifecycleSupport::Store.new(clock)
       key = RequestAuthorizerSupport.workspace_key
       initial = RequestAuthorizerSupport.seed(store, key)
-      service = Slack::Auth::CredentialLifecycle.new("A1", store, -> { clock.now })
+      service = Slack::Auth::CredentialLifecycle.new("A1", store, CredentialLifecycleSpec.verifier(clock))
       delivery = CredentialLifecycleSpec.prepare(service, clock, name)
       store.before_mutation = -> {
         tombstone = store.delete(key, initial.version)
@@ -237,7 +233,7 @@ describe Slack::Auth::CredentialLifecycle do
     store = CredentialLifecycleSupport::Store.new(clock)
     key = RequestAuthorizerSupport.workspace_key
     record = RequestAuthorizerSupport.seed(store, key)
-    service = Slack::Auth::CredentialLifecycle.new("A1", store, -> { clock.now })
+    service = Slack::Auth::CredentialLifecycle.new("A1", store, CredentialLifecycleSpec.verifier(clock))
     delivery = CredentialLifecycleSpec.prepare(service, clock)
     store.mutation_failure = Slack::Auth::ErrorCode::Conflict
     expect_raises(Slack::Auth::ContractError) { service.apply(delivery) }.code.conflict?.should be_true
@@ -261,7 +257,7 @@ describe Slack::Auth::CredentialLifecycle do
       reference = store.acquire(query)
       lease = store.claim_refresh(reference, 1.minute)
       store.mark_refresh_dispatched(lease)
-      service = Slack::Auth::CredentialLifecycle.new("A1", store, -> { clock.now })
+      service = Slack::Auth::CredentialLifecycle.new("A1", store, CredentialLifecycleSpec.verifier(clock))
       delivery = CredentialLifecycleSpec.prepare(service, clock, name)
       service.apply(delivery).applied?.should be_true
       expect_raises(Slack::Auth::ContractError) { store.complete_refresh(lease, CredentialLifecycleSpec.refreshable(subject, "late")) }
@@ -279,7 +275,7 @@ describe Slack::Auth::CredentialLifecycle do
     query = Slack::Auth::InstallationQuery.new(key, Slack::Auth::GrantKey.new(:bot))
     lease = store.claim_refresh(store.acquire(query), 1.minute)
     store.mark_refresh_dispatched(lease)
-    service = Slack::Auth::CredentialLifecycle.new("A1", store, -> { clock.now })
+    service = Slack::Auth::CredentialLifecycle.new("A1", store, CredentialLifecycleSpec.verifier(clock))
     uninstall = CredentialLifecycleSpec.prepare(service, clock, "app_uninstalled")
     revoked = CredentialLifecycleSpec.prepare(service, clock, "bot_revoked")
     store.complete_refresh(lease, CredentialLifecycleSpec.refreshable("U_BOT", "rotated"))
@@ -291,7 +287,7 @@ describe Slack::Auth::CredentialLifecycle do
   it "rejects forged, unsigned, and stale requests before any store access" do
     clock = RequestAuthorizerSupport::Clock.new
     store = CredentialLifecycleSupport::Store.new(clock)
-    service = Slack::Auth::CredentialLifecycle.new("A1", store, -> { clock.now })
+    service = Slack::Auth::CredentialLifecycle.new("A1", store, CredentialLifecycleSpec.verifier(clock))
     body = CredentialLifecycleSpec.body("app_uninstalled")
     forged = CredentialLifecycleSpec.request(body, clock.now)
     forged.headers["X-Slack-Signature"] = "v0=#{"0" * 64}"
@@ -308,7 +304,7 @@ describe Slack::Auth::CredentialLifecycle do
   it "rejects invalid payloads and ambiguous ownership before accessing the store" do
     clock = RequestAuthorizerSupport::Clock.new
     store = CredentialLifecycleSupport::Store.new(clock)
-    service = Slack::Auth::CredentialLifecycle.new("A1", store, -> { clock.now })
+    service = Slack::Auth::CredentialLifecycle.new("A1", store, CredentialLifecycleSpec.verifier(clock))
     body = CredentialLifecycleSpec.body("app_uninstalled")
     payloads = ["{}", body.gsub("A1", "A_OTHER"), body.gsub("event_callback", "url_verification"), body.sub("T1", "T_OTHER"),
                 body.gsub("app_uninstalled", "unknown_event"),
@@ -335,11 +331,11 @@ describe Slack::Auth::CredentialLifecycle do
     forged = CredentialLifecycleSpec.request("{", clock.now)
     forged.headers["X-Slack-Signature"] = "v0=#{"0" * 64}"
     expect_raises(Slack::Errors::SignatureMismatch) do
-      Slack::Auth::PreparedLifecycleDelivery.new(forged, "A1", store, clock: -> { clock.now })
+      Slack::Auth::PreparedLifecycleDelivery.new(forged, "A1", store, CredentialLifecycleSpec.verifier(clock))
     end
     expect_raises(Slack::Auth::RequestAuthorizationError) do
       Slack::Auth::PreparedLifecycleDelivery.new(
-        CredentialLifecycleSpec.request("{", clock.now), "A1", store, clock: -> { clock.now })
+        CredentialLifecycleSpec.request("{", clock.now), "A1", store, CredentialLifecycleSpec.verifier(clock))
     end.reason.should eq(:invalid_payload)
     store.fetch_count.should eq(0)
     store.mutation_count.should eq(0)
@@ -348,7 +344,7 @@ describe Slack::Auth::CredentialLifecycle do
   it "restricts a selected owner without authorizations to the event's app and workspace" do
     clock = RequestAuthorizerSupport::Clock.new
     store = CredentialLifecycleSupport::Store.new(clock)
-    service = Slack::Auth::CredentialLifecycle.new("A1", store, -> { clock.now })
+    service = Slack::Auth::CredentialLifecycle.new("A1", store, CredentialLifecycleSpec.verifier(clock))
     body = CredentialLifecycleSpec.body
     expect_raises(Slack::Auth::RequestAuthorizationError) do
       service.prepare(CredentialLifecycleSpec.request(body, clock.now), RequestAuthorizerSupport.org_key)
@@ -370,13 +366,13 @@ describe Slack::Auth::CredentialLifecycle do
     first = CredentialLifecycleSupport::Store.new(clock)
     second = CredentialLifecycleSupport::Store.new(clock)
     {first, second}.each { |store| RequestAuthorizerSupport.seed(store, RequestAuthorizerSupport.workspace_key) }
-    service = Slack::Auth::CredentialLifecycle.new("A1", first, -> { clock.now })
+    service = Slack::Auth::CredentialLifecycle.new("A1", first, CredentialLifecycleSpec.verifier(clock))
     delivery = CredentialLifecycleSpec.prepare(service, clock)
     expect_raises(Slack::Auth::RequestAuthorizationError) do
-      Slack::Auth::CredentialLifecycle.new("A1", second).apply(delivery)
+      Slack::Auth::CredentialLifecycle.new("A1", second, CredentialLifecycleSpec.verifier(clock)).apply(delivery)
     end.reason.should eq(:store_mismatch)
     expect_raises(Slack::Auth::RequestAuthorizationError) do
-      Slack::Auth::CredentialLifecycle.new("OTHER", first).apply(delivery)
+      Slack::Auth::CredentialLifecycle.new("OTHER", first, CredentialLifecycleSpec.verifier(clock)).apply(delivery)
     end.reason.should eq(:app_mismatch)
     second.fetch_count.should eq(0)
     second.mutation_count.should eq(0)
@@ -390,7 +386,7 @@ describe Slack::Auth::CredentialLifecycle do
     workspace = RequestAuthorizerSupport.workspace_key("T1", "E_ORG")
     organization = RequestAuthorizerSupport.org_key
     {workspace, organization}.each { |key| RequestAuthorizerSupport.seed(store, key) }
-    service = Slack::Auth::CredentialLifecycle.new("A1", store, -> { clock.now })
+    service = Slack::Auth::CredentialLifecycle.new("A1", store, CredentialLifecycleSpec.verifier(clock))
     payload = JSON.parse(CredentialLifecycleSpec.body("app_uninstalled"))
     payload.as_h["authorizations"] = JSON.parse(<<-JSON)
       [
@@ -416,7 +412,7 @@ describe Slack::Auth::CredentialLifecycle do
     store = CredentialLifecycleSupport::Store.new(clock)
     key = RequestAuthorizerSupport.workspace_key
     initial = RequestAuthorizerSupport.seed(store, key)
-    service = Slack::Auth::CredentialLifecycle.new("A1", store, -> { clock.now })
+    service = Slack::Auth::CredentialLifecycle.new("A1", store, CredentialLifecycleSpec.verifier(clock))
     body = CredentialLifecycleSpec.body.gsub("U_ACTOR", "U_NEW")
     delivery = service.prepare(CredentialLifecycleSpec.request(body, clock.now), key)
     updated = store.store(key, Slack::Auth::InstallationPatch.new(users: {
@@ -431,7 +427,7 @@ describe Slack::Auth::CredentialLifecycle do
     store = CredentialLifecycleSupport::Store.new(clock)
     key = RequestAuthorizerSupport.workspace_key
     RequestAuthorizerSupport.seed(store, key)
-    service = Slack::Auth::CredentialLifecycle.new("A1", store, -> { clock.now })
+    service = Slack::Auth::CredentialLifecycle.new("A1", store, CredentialLifecycleSpec.verifier(clock))
     body = CredentialLifecycleSpec.body.gsub(%("U_ACTOR"), %("U_ACTOR", "U_INSTALLER"))
     delivery = service.prepare(CredentialLifecycleSpec.request(body, clock.now), key)
     store.before_mutation = -> {
@@ -456,7 +452,7 @@ describe Slack::Auth::CredentialLifecycle do
     store = CredentialLifecycleSupport::Store.new(clock)
     key = RequestAuthorizerSupport.workspace_key
     RequestAuthorizerSupport.seed(store, key)
-    service = Slack::Auth::CredentialLifecycle.new("A1", store, -> { clock.now })
+    service = Slack::Auth::CredentialLifecycle.new("A1", store, CredentialLifecycleSpec.verifier(clock))
     body = CredentialLifecycleSpec.body.gsub(%("U_ACTOR"), %("U_ACTOR", "U_INSTALLER", "U_ACTOR"))
     delivery = service.prepare(CredentialLifecycleSpec.request(body, clock.now), key)
     store.before_mutation = -> {
@@ -482,7 +478,7 @@ describe Slack::Auth::CredentialLifecycle do
     lease = store.claim_refresh(store.acquire(query), 1.minute)
     store.mark_refresh_dispatched(lease)
     store.fail_refresh(lease, Slack::Auth::RefreshFailure::UnknownRemoteOutcome)
-    service = Slack::Auth::CredentialLifecycle.new("A1", store, -> { clock.now })
+    service = Slack::Auth::CredentialLifecycle.new("A1", store, CredentialLifecycleSpec.verifier(clock))
     delivery = CredentialLifecycleSpec.prepare(service, clock, "bot_revoked")
     clock.now += 1.hour
     store.acquire_failure = Slack::Auth::ErrorCode::UnknownRemoteOutcome
@@ -498,7 +494,7 @@ describe Slack::Auth::CredentialLifecycle do
     RequestAuthorizerSupport.seed(store, key)
     transport = RequestAuthorizerSupport::Transport.new
     context = CredentialLifecycleSpec.context(store, transport, Slack::Auth::GrantKey.new(:user, "U_ACTOR"))
-    service = Slack::Auth::CredentialLifecycle.new("A1", store, -> { clock.now })
+    service = Slack::Auth::CredentialLifecycle.new("A1", store, CredentialLifecycleSpec.verifier(clock))
     start = Channel(Bool).new(1)
     result = Channel(Slack::Auth::ErrorCode?).new(1)
     # This fiber waits until cleanup commits. The parent joins it before closing channels.

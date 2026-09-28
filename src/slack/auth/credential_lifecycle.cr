@@ -10,12 +10,12 @@ module Slack::Auth
   # Credential-free cleanup. No fibers or network calls are started by this service.
   class CredentialLifecycle
     def initialize(@expected_app_id : String, @store : InstallationStore,
-                   @clock : Proc(Time) = -> { Time.utc })
+                   @verifier : Slack::Webhooks::Verifier)
       raise ContractError.new(:invalid_configuration) if @expected_app_id.empty?
     end
 
     def prepare(request : HTTP::Request, selected_owner : InstallationKey? = nil) : PreparedLifecycleDelivery
-      PreparedLifecycleDelivery.new(request, @expected_app_id, @store, selected_owner, @clock)
+      PreparedLifecycleDelivery.new(request, @expected_app_id, @store, @verifier, selected_owner)
     end
 
     def process(request : HTTP::Request, selected_owner : InstallationKey? = nil) : LifecycleOutcome

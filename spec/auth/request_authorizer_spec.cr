@@ -3,7 +3,7 @@ require "../support/request_authorizer/fakes"
 
 module RequestAuthorizerSpec
   CONFIGURATION  = Slack::Auth::APIConfiguration.new(URI.parse("https://api.example.test/slack/api/"))
-  SIGNING_SECRET = "synthetic-request-authorizer-secret"
+  SIGNING_SECRET = Slack::Auth::Secret.new("synthetic-request-authorizer-secret")
 
   def self.request(body : String, clock : RequestAuthorizerSupport::Clock,
                    signature : String? = nil, timestamp : Int64? = nil) : HTTP::Request
@@ -11,7 +11,7 @@ module RequestAuthorizerSpec
     timestamp_text = seconds.to_s
     headers = HTTP::Headers{
       "X-Slack-Request-Timestamp" => timestamp_text,
-      "X-Slack-Signature"         => signature || Slack::Webhooks::Signature.new(timestamp_text, body).compute,
+      "X-Slack-Signature"         => signature || Slack::Webhooks::Signature.new(SIGNING_SECRET, timestamp_text, body).compute,
     }
     HTTP::Request.new("POST", "/slack", headers, body)
   end
@@ -20,7 +20,11 @@ module RequestAuthorizerSpec
                       transport : RequestAuthorizerSupport::Transport,
                       clock : RequestAuthorizerSupport::Clock,
                       configuration : Slack::Auth::APIConfiguration = CONFIGURATION) : Slack::Auth::RequestAuthorizer
-    Slack::Auth::RequestAuthorizer.new("A1", store, transport, configuration, -> { clock.now })
+    Slack::Auth::RequestAuthorizer.new("A1", store, transport, configuration, verifier(clock))
+  end
+
+  def self.verifier(clock : Slack::Auth::Clock) : Slack::Webhooks::Verifier
+    Slack::Webhooks::Verifier.new(SIGNING_SECRET, clock: clock)
   end
 
   def self.event_request(clock : RequestAuthorizerSupport::Clock) : HTTP::Request
@@ -54,26 +58,6 @@ module RequestAuthorizerSpec
 end
 
 describe Slack::Auth::RequestAuthorizer do
-  around_each do |example|
-    secret = Slack.settings.signing_secret
-    version = Slack.settings.signing_secret_version
-    limit = Slack.settings.webhook_delivery_time_limit
-    begin
-      Slack.configure do |settings|
-        settings.signing_secret = RequestAuthorizerSpec::SIGNING_SECRET
-        settings.signing_secret_version = "v0"
-        settings.webhook_delivery_time_limit = 5.minutes
-      end
-      example.run
-    ensure
-      Slack.configure do |settings|
-        settings.signing_secret = secret
-        settings.signing_secret_version = version
-        settings.webhook_delivery_time_limit = limit
-      end
-    end
-  end
-
   it "verifies and authorizes each HTTP category before store access" do
     clock = RequestAuthorizerSupport::Clock.new
     transport = RequestAuthorizerSupport::Transport.new
@@ -295,7 +279,8 @@ describe Slack::Auth::RequestAuthorizer do
       view["future_content"] = JSON.parse(%({"retained":true}))
       body = URI::Params.encode({"payload" => object.to_json})
 
-      interaction = Slack.process_interaction(RequestAuthorizerSpec.request(body, clock))
+      verified = RequestAuthorizerSpec.verifier(clock).verify(RequestAuthorizerSpec.request(body, clock))
+      interaction = Slack::Interactions.parse(verified.body)
       parsed_view = RequestAuthorizerSpec.view(interaction).should_not be_nil
       parsed_view.app_installed_team_id.should eq("T_OWNER")
       JSON.parse(parsed_view.to_json).should eq(object["view"])
@@ -548,7 +533,7 @@ describe Slack::Auth::RequestContext do
 
     authorizer_uri = URI.parse("https://api.example.test/slack/api/")
     authorizer = Slack::Auth::RequestAuthorizer.new("A1", store, delegate,
-      Slack::Auth::APIConfiguration.new(authorizer_uri))
+      Slack::Auth::APIConfiguration.new(authorizer_uri), RequestAuthorizerSpec.verifier(RequestAuthorizerSupport::Clock.new))
     authorizer_uri.host = "foreign.example"
     trusted = Slack::Commands::Parser.parse(RequestAuthorizerSupport.command_body)
     authorizer.authorize_trusted(trusted, Slack::Auth::GrantKey.new(:bot)).dispatch("POST", "auth.test")

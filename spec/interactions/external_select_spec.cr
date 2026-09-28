@@ -30,6 +30,11 @@ module ExternalSelectInteractionSpec
     HTTP::Request.new("POST", "/options", headers, body)
   end
 
+  def self.receive(request : HTTP::Request) : Slack::Interaction
+    verifier = Slack::Webhooks::Verifier.new(Slack::Auth::Secret.new("synthetic-signing-secret"))
+    Slack::Interactions.parse(verifier.verify(request).body)
+  end
+
   # Based on Slack's documented message-surface block_suggestion example.
   MESSAGE_SUGGESTION = <<-JSON
     {"type":"block_suggestion","user":{"id":"U-SYNTHETIC","username":"sam","name":"sam","team_id":"E-ORG"},
@@ -42,16 +47,8 @@ module ExternalSelectInteractionSpec
     JSON
 
   describe "received block suggestions" do
-    around_each do |example|
-      secret = Slack.settings.signing_secret
-      Slack.configure { |settings| settings.signing_secret = "synthetic-signing-secret" }
-      example.run
-    ensure
-      Slack.configure(&.signing_secret=(secret))
-    end
-
     it "parses a signed message suggestion into typed IDs, query, and source" do
-      suggestion = Slack.process_interaction(signed_request(MESSAGE_SUGGESTION)).should be_a(Slack::Interactions::BlockSuggestion)
+      suggestion = receive(signed_request(MESSAGE_SUGGESTION)).should be_a(Slack::Interactions::BlockSuggestion)
       suggestion.type.should eq "block_suggestion"
       suggestion.action_id.should eq "location"
       suggestion.block_id.should eq "bK6"
@@ -85,16 +82,16 @@ module ExternalSelectInteractionSpec
 
     it "verifies request bytes before parsing a malformed suggestion" do
       request = signed_request(%({"type":"block_suggestion"}), secret: "wrong-secret")
-      expect_raises(Slack::Errors::SignatureMismatch) { Slack.process_interaction(request) }
+      expect_raises(Slack::Errors::SignatureMismatch) { receive(request) }
     end
 
     it "rejects suggestions without string action, block, or query fields" do
       base = JSON.parse(MESSAGE_SUGGESTION).as_h
       {"action_id" => nil, "block_id" => nil, "value" => nil}.each_key do |field|
         missing = base.reject(field)
-        expect_raises(JSON::SerializableError, /#{field}/) { Slack.process_interaction(signed_request(missing.to_json)) }
+        expect_raises(JSON::SerializableError, /#{field}/) { receive(signed_request(missing.to_json)) }
         wrong = base.merge({field => JSON::Any.new(42_i64)})
-        expect_raises(JSON::SerializableError) { Slack.process_interaction(signed_request(wrong.to_json)) }
+        expect_raises(JSON::SerializableError) { receive(signed_request(wrong.to_json)) }
       end
       null_query = base.merge({"value" => JSON::Any.new(nil)})
       expect_raises(JSON::SerializableError) { Slack::Interaction.from_json(null_query.to_json) }

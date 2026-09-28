@@ -7,20 +7,22 @@ module OfflineRichTextInputExample
   alias RT = UI::RichText
   alias Received = Slack::Interactions::RichText
 
+  SIGNING_SECRET = Slack::Auth::Secret.new("synthetic-signing-secret")
+  VERIFIER       = Slack::Webhooks::Verifier.new(SIGNING_SECRET)
+
   def self.receive(payload : String) : Slack::Interaction
     body = URI::Params.encode({"payload" => payload})
     timestamp = Time.utc.to_unix.to_s
     headers = HTTP::Headers{
       "X-Slack-Request-Timestamp" => timestamp,
-      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(timestamp, body).compute,
+      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(SIGNING_SECRET, timestamp, body).compute,
     }
-    Slack.process_interaction(HTTP::Request.new("POST", "/interactions", headers, body))
+    Slack::Interactions.parse(VERIFIER.verify(HTTP::Request.new("POST", "/interactions", headers, body)).body)
   end
 
   # Publishes a Home standup composer, then reads two dispatched updates.
   # The second update has a malformed tree, which the handler skips.
   def self.run(output : IO = STDOUT) : Nil
-    Slack.configure { |settings| settings.signing_secret = "synthetic-signing-secret" }
     install_transport
     draft = UI::Blocks::RichText.new(elements: {RT::Section.new(elements: {RT::Text.new("Yesterday: ")})})
     config = UI::CompositionObjects::DispatchActionConfig.new([UI::CompositionObjects::DispatchTrigger::OnEnterPressed])

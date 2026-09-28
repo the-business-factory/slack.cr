@@ -6,6 +6,9 @@ require "./webmock_transport"
 module OfflineInteractionContextExample
   alias UI = Slack::UI
 
+  SIGNING_SECRET = Slack::Auth::Secret.new("synthetic-signing-secret")
+  VERIFIER       = Slack::Webhooks::Verifier.new(SIGNING_SECRET)
+
   TOKEN = "xoxb-synthetic-interaction-context"
 
   def self.signed(payload : String) : HTTP::Request
@@ -14,19 +17,18 @@ module OfflineInteractionContextExample
     headers = HTTP::Headers{
       "Content-Type"              => "application/x-www-form-urlencoded",
       "X-Slack-Request-Timestamp" => timestamp,
-      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(timestamp, body).compute,
+      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(SIGNING_SECRET, timestamp, body).compute,
     }
     HTTP::Request.new("POST", "/interactions", headers, body)
   end
 
   # Returns the chat.update request body that the approval click produced.
   def self.run(output : IO = STDOUT) : JSON::Any
-    Slack.configure { |settings| settings.signing_secret = "synthetic-signing-secret" }
     updates = install_transport
 
     # Independently authored Slack payloads, not derived from outbound values.
     click = %({"type":"block_actions","team":{"id":"T-SYNTHETIC"},"user":{"id":"U-REVIEWER"},"api_app_id":"A-SYNTHETIC","container":{"type":"message","message_ts":"1710000000.000100","channel_id":"C-RELEASES","is_ephemeral":false},"channel":{"id":"C-RELEASES","name":"releases"},"message":{"type":"message","ts":"1710000000.000100","text":"Approve release 2.0?"},"actions":[{"type":"button","block_id":"decision","action_id":"approve","value":"2.0","action_ts":"1710000001.000100"}]})
-    case interaction = Slack.process_interaction(signed(click))
+    case interaction = Slack::Interactions.parse(VERIFIER.verify(signed(click)).body)
     when Slack::Interactions::BlockAction
       approve(interaction, output)
     else
@@ -34,7 +36,7 @@ module OfflineInteractionContextExample
     end
 
     submission = %({"type":"view_submission","team":{"id":"T-SYNTHETIC"},"user":{"id":"U-REVIEWER"},"api_app_id":"A-SYNTHETIC","view":{"id":"V-SHARE","type":"modal","callback_id":"share_notes","private_metadata":"release-2.0","state":{"values":{"target":{"channel":{"type":"conversations_select","selected_conversation":"C-ANNOUNCE"}}}}},"response_urls":[{"block_id":"target","action_id":"channel","channel_id":"C-ANNOUNCE","response_url":"https://hooks.slack.com/app/A-SYNTHETIC/1/synthetic"}]})
-    case interaction = Slack.process_interaction(signed(submission))
+    case interaction = Slack::Interactions.parse(VERIFIER.verify(signed(submission)).body)
     when Slack::Interactions::ViewSubmission
       release = interaction.view.try(&.private_metadata) || raise "Missing release"
       interaction.response_urls.each do |target|
@@ -46,7 +48,7 @@ module OfflineInteractionContextExample
     end
 
     closed = %({"type":"view_closed","team":{"id":"T-SYNTHETIC"},"user":{"id":"U-REVIEWER"},"api_app_id":"A-SYNTHETIC","view":{"id":"V-SHARE","type":"modal","callback_id":"share_notes"},"is_cleared":true})
-    case interaction = Slack.process_interaction(signed(closed))
+    case interaction = Slack::Interactions.parse(VERIFIER.verify(signed(closed)).body)
     when Slack::Interactions::ViewClosed
       scope = interaction.is_cleared ? "all views" : "one view"
       output.puts "Closed #{scope} of #{interaction.view.try(&.callback_id)}"

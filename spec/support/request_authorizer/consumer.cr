@@ -19,6 +19,7 @@ authorizer = Slack::Auth::RequestAuthorizer.new(
   store,
   RequestAuthorizerConsumerTransport.new,
   Slack::Auth::APIConfiguration.new(URI.parse("https://slack.example/api/")),
+  Slack::Webhooks::Verifier.new(Slack::Auth::Secret.new("synthetic-consumer-secret")),
 )
 command = Slack::Commands::Parser.parse(URI::Params.encode({
   "api_app_id"            => "A1",

@@ -10,6 +10,12 @@ module LifecycleSupport
     URI.parse("https://app.example.test/callback?route=install"),
   )
 
+  SIGNING_SECRET = Slack::Auth::Secret.new("synthetic-lifecycle-signing-secret")
+
+  def self.verifier(clock : Slack::Auth::Clock) : Slack::Webhooks::Verifier
+    Slack::Webhooks::Verifier.new(SIGNING_SECRET, clock: clock)
+  end
+
   def self.response(name : String) : Slack::Auth::TransportResponse
     Slack::Auth::TransportResponse.new(200, HTTP::Headers.new,
       File.read("spec/fixtures/oauth_responses/#{name}.json"))
@@ -33,7 +39,7 @@ module LifecycleSupport
     timestamp = clock.now.to_unix.to_s
     HTTP::Request.new("POST", "/slack", HTTP::Headers{
       "X-Slack-Request-Timestamp" => timestamp,
-      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(timestamp, body).compute,
+      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(SIGNING_SECRET, timestamp, body).compute,
     }, body)
   end
 
@@ -66,7 +72,7 @@ module LifecycleSupport
     rotation = Slack::Auth::RotationService.new(store,
       Slack::Auth::RefreshClient.new(OAUTH_CONFIGURATION, oauth), clock: clock)
     Slack::Auth::RequestAuthorizer.new("AAPP", store, api, API_CONFIGURATION,
-      -> { clock.now }, rotation: rotation)
+      verifier(clock), rotation: rotation)
   end
 
   def self.send(context : Slack::Auth::RequestContext, api : OAuthStateSupport::RecordingTransport) : Nil

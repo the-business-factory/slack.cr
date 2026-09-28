@@ -4,11 +4,13 @@ private def select_interaction(payload : String, signed : Bool) : Slack::Interac
   return Slack::Interaction.from_json(payload) unless signed
   body = URI::Params.encode({"payload" => payload})
   timestamp = Time.utc.to_unix.to_s
+  secret = Slack::Auth::Secret.new("synthetic-signing-secret")
   headers = HTTP::Headers{
     "X-Slack-Request-Timestamp" => timestamp,
-    "X-Slack-Signature"         => Slack::Webhooks::Signature.new(timestamp, body).compute,
+    "X-Slack-Signature"         => Slack::Webhooks::Signature.new(secret, timestamp, body).compute,
   }
-  Slack.process_interaction(HTTP::Request.new("POST", "/interactions", headers, body))
+  verified = Slack::Webhooks::Verifier.new(secret).verify(HTTP::Request.new("POST", "/interactions", headers, body))
+  Slack::Interactions.parse(verified.body)
 end
 
 private def selection_state(entry : String) : Slack::Interactions::StateMap

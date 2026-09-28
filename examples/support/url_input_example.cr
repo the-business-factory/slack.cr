@@ -5,20 +5,22 @@ require "./webmock_transport"
 module OfflineUrlInputExample
   alias UI = Slack::UI
 
+  SIGNING_SECRET = Slack::Auth::Secret.new("synthetic-signing-secret")
+  VERIFIER       = Slack::Webhooks::Verifier.new(SIGNING_SECRET)
+
   def self.receive(payload : String) : Slack::Interaction
     body = URI::Params.encode({"payload" => payload})
     timestamp = Time.utc.to_unix.to_s
     headers = HTTP::Headers{
       "X-Slack-Request-Timestamp" => timestamp,
-      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(timestamp, body).compute,
+      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(SIGNING_SECRET, timestamp, body).compute,
     }
-    Slack.process_interaction(HTTP::Request.new("POST", "/interactions", headers, body))
+    Slack::Interactions.parse(VERIFIER.verify(HTTP::Request.new("POST", "/interactions", headers, body)).body)
   end
 
   # URL input is modal-only in Slack, so the form opens from a button action.
   # Returns the views.open request body and the submission acknowledgments in order.
   def self.run(output : IO = STDOUT) : {JSON::Any, Array(HTTP::Client::Response)}
-    Slack.configure { |settings| settings.signing_secret = "synthetic-signing-secret" }
     requests = install_transport
 
     # Independent incoming payloads, not derived from the outbound form.

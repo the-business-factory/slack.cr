@@ -3,13 +3,16 @@ require "../../src/slack"
 module OfflineModalUpdateExample
   alias UI = Slack::UI
 
+  SIGNING_SECRET = Slack::Auth::Secret.new("synthetic-signing-secret")
+  VERIFIER       = Slack::Webhooks::Verifier.new(SIGNING_SECRET)
+
   # Independently authored incoming state, not derived from an outbound modal.
   SUBMISSION = %q({"type":"view_submission","api_app_id":"A-SYNTHETIC","team":{"id":"T-SYNTHETIC"},"user":{"id":"U-SYNTHETIC"},"view":{"type":"modal","callback_id":"request.reason","private_metadata":"42","state":{"values":{"request.reason":{"reason":{"type":"plain_text_input","value":"Need a test environment."}}}}}})
 
   # An application route copies the prepared status, headers, and body to its
   # HTTP response within three seconds. Verify before reading application state.
   def self.handle(request : HTTP::Request) : HTTP::Client::Response
-    interaction = Slack.process_interaction(request)
+    interaction = Slack::Interactions.parse(VERIFIER.verify(request).body)
     unless interaction.is_a?(Slack::Interactions::ViewSubmission)
       raise "Expected view submission"
     end
@@ -34,21 +37,15 @@ module OfflineModalUpdateExample
   end
 
   def self.run(output : IO = STDOUT) : HTTP::Client::Response
-    signing_secret = Slack.settings.signing_secret
-    begin
-      Slack.configure { |settings| settings.signing_secret = "synthetic-signing-secret" }
-      body = URI::Params.encode({"payload" => SUBMISSION})
-      timestamp = Time.utc.to_unix.to_s
-      headers = HTTP::Headers{
-        "Content-Type"              => "application/x-www-form-urlencoded",
-        "X-Slack-Request-Timestamp" => timestamp,
-        "X-Slack-Signature"         => Slack::Webhooks::Signature.new(timestamp, body).compute,
-      }
-      response = handle(HTTP::Request.new("POST", "/interactions", headers, body))
-      output.puts "Prepared updated form with retained request.reason/reason IDs (HTTP #{response.status_code})."
-      response
-    ensure
-      Slack.configure(&.signing_secret=(signing_secret))
-    end
+    body = URI::Params.encode({"payload" => SUBMISSION})
+    timestamp = Time.utc.to_unix.to_s
+    headers = HTTP::Headers{
+      "Content-Type"              => "application/x-www-form-urlencoded",
+      "X-Slack-Request-Timestamp" => timestamp,
+      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(SIGNING_SECRET, timestamp, body).compute,
+    }
+    response = handle(HTTP::Request.new("POST", "/interactions", headers, body))
+    output.puts "Prepared updated form with retained request.reason/reason IDs (HTTP #{response.status_code})."
+    response
   end
 end

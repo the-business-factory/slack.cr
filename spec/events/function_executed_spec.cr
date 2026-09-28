@@ -3,7 +3,7 @@ require "../spec_helper"
 private def function_executed_event(replace : Hash(String, String) = {} of String => String) : Slack::Events::FunctionExecuted
   body = File.read("spec/fixtures/events/function_executed.json")
   replace.each { |original, replacement| body = body.sub(original, replacement) }
-  envelope = Slack.from_json(body).should be_a(Slack::VerifiedEvent)
+  envelope = Slack::Events.parse(body).should be_a(Slack::VerifiedEvent)
   envelope.event.should be_a(Slack::Events::FunctionExecuted)
 end
 
