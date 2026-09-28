@@ -1,0 +1,11 @@
+{
+  "type": "checkboxes",
+  "action_id": "notifications",
+  "options": [
+    {"text": {"type": "mrkdwn", "text": "*Daily digest*", "verbatim": false}, "value": "digest", "description": {"type": "mrkdwn", "text": "_Once a day_"}},
+    {"text": {"type": "plain_text", "text": "Alerts", "emoji": false}, "value": "alerts"}
+  ],
+  "initial_options": [{"text": {"type": "mrkdwn", "text": "*Daily digest*", "verbatim": false}, "value": "digest", "description": {"type": "mrkdwn", "text": "_Once a day_"}}],
+  "focus_on_load": false,
+  "confirm": {"title": {"type": "plain_text", "text": "Change?"}, "text": {"type": "plain_text", "text": "Update notifications"}, "confirm": {"type": "plain_text", "text": "Yes"}, "deny": {"type": "plain_text", "text": "No"}}
+}

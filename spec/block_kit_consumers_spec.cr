@@ -4,6 +4,7 @@ require "../examples/support/modal_example"
 require "../examples/support/home_example"
 require "../examples/support/static_select_example"
 require "../examples/support/overflow_example"
+require "../examples/support/checkboxes_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -65,5 +66,10 @@ describe "documented Block Kit workflows" do
     output = IO::Memory.new
     OfflineOverflowExample.run(output)
     output.to_s.should eq "Selected request action: details (acknowledged 200)\n"
+  end
+  it "posts checkboxes and acknowledges checked and cleared signed selections" do
+    output = IO::Memory.new
+    OfflineCheckboxesExample.run(output)
+    output.to_s.should eq "Selected notifications: digest (acknowledged 200)\nSaved notifications: none (acknowledged 200)\n"
   end
 end
