@@ -1,0 +1,14 @@
+{
+  "type": "overflow",
+  "action_id": "request.more",
+  "options": [
+    {"text": {"type": "plain_text", "text": "Archive", "emoji": false}, "value": "archive"},
+    {"text": {"type": "plain_text", "text": "Details"}, "value": "details", "description": {"type": "plain_text", "text": "Open request"}, "url": "https://example.com/requests/42"}
+  ],
+  "confirm": {
+    "title": {"type": "plain_text", "text": "Continue?"},
+    "text": {"type": "mrkdwn", "text": "Apply to *request 42*"},
+    "confirm": {"type": "plain_text", "text": "Continue"},
+    "deny": {"type": "plain_text", "text": "Cancel"}
+  }
+}

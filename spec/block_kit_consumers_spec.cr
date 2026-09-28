@@ -3,6 +3,7 @@ require "../examples/support/message_example"
 require "../examples/support/modal_example"
 require "../examples/support/home_example"
 require "../examples/support/static_select_example"
+require "../examples/support/overflow_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -59,5 +60,10 @@ describe "documented Block Kit workflows" do
     output = IO::Memory.new
     OfflineStaticSelectExample.run(output)
     output.to_s.should eq("Saved notification colors: red, blue (acknowledged 200)\n")
+  end
+  it "posts an overflow menu and acknowledges a signed URL selection" do
+    output = IO::Memory.new
+    OfflineOverflowExample.run(output)
+    output.to_s.should eq "Selected request action: details (acknowledged 200)\n"
   end
 end

@@ -1,6 +1,6 @@
 struct Slack::UI::Checked::Blocks::Section
   alias Text = Slack::UI::Checked::CompositionObjects::Text
-  alias Accessory = Slack::UI::Checked::BlockElements::Button | Slack::UI::Checked::BlockElements::Image | Slack::UI::Checked::BlockElements::StaticSelect | Slack::UI::Checked::BlockElements::MultiStaticSelect
+  alias Accessory = Slack::UI::Checked::BlockElements::Button | Slack::UI::Checked::BlockElements::Image | Slack::UI::Checked::BlockElements::StaticSelect | Slack::UI::Checked::BlockElements::MultiStaticSelect | Slack::UI::Checked::BlockElements::Overflow
 
   TEXT_MAX_LENGTH     = 3000
   FIELD_MAX_LENGTH    = 2000
