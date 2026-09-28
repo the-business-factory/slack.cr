@@ -46,6 +46,8 @@ For modal business-validation failures, return `Slack::Interactions::ModalErrors
 
 For channel selects, verify the original signed request before reading `ChannelsSelectAction#selected_channel`, `MultiChannelsSelectAction#selected_channels`, or the corresponding StateMap accessors. See [channel selection handling](block-kit.md#select-notification-channels) and `examples/block_kit_channels_select.cr`. Modal submission response URLs remain available as raw data; selection does not prove permission to post.
 
+For the next step after a modal submission, return `Slack::Interactions::ModalPush#to_json` as HTTP 200 JSON after verifying the original signed request. No API token or trigger is needed; the application owns the three-second deadline. See [submission push acknowledgments](block-kit.md#push-a-view-in-a-submission-acknowledgment).
+
 ## OAuth app installation
 
 `Slack::AuthHandler` installs an app; it does not authenticate a human login. Give it explicit configuration, state storage, and transport. Global `Slack.configure` client credentials or scopes do not configure this handler.

@@ -291,7 +291,7 @@ The route must configure the signing secret and handle other callbacks, interact
 
 `ModalErrors` copies the supplied map; `errors` returns a copy. Construction rejects an empty map or blank messages with `Slack::UI::Checked::ValidationError`. These are library policies so the response contains useful feedback. `validate` and `validate!` use the existing checked validation conventions. No message length or block-ID format restriction is added. The application owns business rules and must ensure each key identifies an Input block in the submitted view; no original modal is required or checked.
 
-This outbound value needs no token and makes no API request. It is separate from `views.update` and API failure responses. Typed `update` and `push` response actions remain unsupported; the legacy `Slack::Helpers::Modal::CLOSE` constant is unchanged. The [offline example](../examples/block_kit_modal_errors.cr) verifies signed invalid and corrected submissions and prepares their HTTP responses. Ordinary consumer specs check the complete error body and JSON content type; they do not prove live rendering or handler timing.
+This outbound value needs no token and makes no API request. It is separate from `views.update` and API failure responses. Typed `update` response actions remain unsupported; the legacy `Slack::Helpers::Modal::CLOSE` constant is unchanged. The [offline example](../examples/block_kit_modal_errors.cr) verifies signed invalid and corrected submissions and prepares their HTTP responses. Ordinary consumer specs check the complete error body and JSON content type; they do not prove live rendering or handler timing.
 
 ## Close the modal stack after submission
 
@@ -307,6 +307,29 @@ response = HTTP::Client::Response.new(200,
 The application must send the response within three seconds. `clear` closes **all views** in the modal stack. An empty HTTP 200 instead closes only the submitted view and reveals the previous view, if one exists. See [Slack's closing guidance](https://docs.slack.dev/surfaces/modals/#closing-views).
 
 `ModalClear` has no options, needs no token, and makes no API request. The legacy `Slack::Helpers::Modal::CLOSE` named tuple remains unchanged. The [offline clear example](../examples/block_kit_modal_clear.cr) verifies a synthetic signed submission, accepts its input, and prepares the response. Consumer specs independently check its exact body and content type; they do not prove live closure, rendering, or acknowledgment timing.
+
+## Push a view in a submission acknowledgment
+
+Use `Slack::Interactions::ModalPush.new(view: next_view)` after verifying and routing a `view_submission`. It accepts a checked `FormModal` or `DisplayModal` and serializes `response_action: "push"` with the new `view`. Return that JSON as the HTTP 200 acknowledgment within three seconds. See [Slack's push acknowledgment guidance](https://docs.slack.dev/surfaces/modals/#add-a-new-view-via-response_action).
+
+```crystal
+# In the handler for a verified and routed view_submission:
+next_view = UI.form_modal(title: UI.plain("Delivery details"), submit: UI.plain("Save"),
+  close: UI.plain("Back"), callback_id: "request.delivery", private_metadata: "42") do |builder|
+  builder.input(label: UI.plain("Delivery note"), block_id: "delivery",
+    element: UI::BlockElements::PlainTextInput.new(action_id: "note", multiline: true))
+end
+acknowledgment = Slack::Interactions::ModalPush.new(view: next_view)
+context.response.status_code = 200
+context.response.content_type = "application/json"
+context.response.print(acknowledgment.to_json)
+```
+
+`ModalPush` owns a modal snapshot; `view` returns a snapshot. Existing placement, submit, focus, and validation rules apply. `validate` and `validate!` use the checked validation conventions. Callback ID, private metadata, `external_id`, and flags stay inside `view`; Slack checks external-ID uniqueness. `submit_disabled` remains specific to configuration modals.
+
+The application owns HTTP delivery and timing. This value needs no token or trigger and makes no Web API call. Slack owns the stack and permits at most three views; the library does not track stack depth, retry, or enforce the deadline. For a button interaction inside a modal, use the separate `CheckedViewsPush` API adapter described above.
+
+The [offline submission-push example](../examples/block_kit_modal_push.cr) verifies an independently authored signed submission, reads its reason and metadata, and returns the next form as HTTP 200 JSON. Its consumer spec checks the complete acknowledgment body. Offline checks do not prove live stack state, Slack acceptance, rendering, or response timing.
 
 ## Read actions and state
 
@@ -346,7 +369,7 @@ Use a collection typed for the destination surface. An ordinary `Array(Slack::UI
 
 ## Offline examples
 
-From a repository checkout, run `shards install` to install development dependencies, including WebMock. All fourteen commands use synthetic credentials and no Slack network call:
+From a repository checkout, run `shards install` to install development dependencies, including WebMock. These commands use synthetic credentials and no Slack network call:
 
 ```sh
 crystal run examples/block_kit_message.cr
@@ -363,6 +386,7 @@ crystal run examples/block_kit_view_push.cr
 crystal run examples/block_kit_modal_errors.cr
 crystal run examples/block_kit_modal_clear.cr
 crystal run examples/block_kit_channels_select.cr
+crystal run examples/block_kit_modal_push.cr
 ```
 
 The message example builds and prints a request. The modal example posts a button, verifies a signed action, opens a form, and reads a signed submission. The Home example publishes through a stub and reads simulated state. The static choice example posts a single choice, reads a signed selection, opens a grouped multi-choice form, and reads its submission. The overflow example posts action and URL choices and acknowledges a signed URL selection. The checkbox example posts initial choices, reads a signed checkbox action, and reads a cleared selection from a signed submission. The radio example posts an initial choice, reads a signed selection, opens an optional override form, and reads an unselected submission. The message-update example replaces a posted approval button with the completed status and new fallback text. The user-select example assigns an owner and submits multiple reviewers. Real handlers must acknowledge interactions within Slack's response window.

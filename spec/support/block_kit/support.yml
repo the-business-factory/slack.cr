@@ -17,13 +17,24 @@ entries:
     inbound_status: unsupported
     evidence_paths: [src/slack/interactions/modal_clear.cr, spec/interactions/modal_clear_spec.cr, examples/support/modal_clear_example.cr, spec/block_kit_consumers_spec.cr]
 
+  - wire_type: push response action
+    kind: interaction acknowledgment
+    documentation_url: https://docs.slack.dev/surfaces/modals/#add-a-new-view-via-response_action
+    fields_supported: [response_action, view]
+    parents: [view_submission]
+    surfaces: [modal]
+    restrictions: ModalPush owns a checked FormModal or DisplayModal snapshot and returns a snapshot accessor. Existing modal validation and placement rules apply. Metadata and external_id stay inside view. Applications return HTTP 200 JSON within three seconds; Slack owns stack state and the three-view limit. No token, trigger, hash, API dispatch, retry or deadline enforcement.
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/interactions/modal_push.cr, spec/interactions/modal_push_spec.cr, examples/support/modal_push_example.cr, spec/block_kit_consumers_spec.cr]
+
   - wire_type: errors response action
     kind: interaction acknowledgment
     documentation_url: https://docs.slack.dev/surfaces/modals/#display-errors-in-views
     fields_supported: [response_action, errors]
     parents: [view_submission]
     surfaces: [modal]
-    restrictions: ModalErrors owns a block-ID to plain-text message map and returns a copied accessor. Nonempty maps and nonblank messages are library policy. Callers verify Input block membership, apply business validation and return HTTP 200 JSON within three seconds. No API dispatch. ModalClear is listed separately; typed update/push actions remain unsupported.
+    restrictions: ModalErrors owns a block-ID to plain-text message map and returns a copied accessor. Nonempty maps and nonblank messages are library policy. Callers verify Input block membership, apply business validation and return HTTP 200 JSON within three seconds. No API dispatch; other response actions are separate values.
     implementation_status: supported
     inbound_status: unsupported
     evidence_paths: [src/slack/interactions/modal_errors.cr, spec/interactions/modal_errors_spec.cr, examples/support/modal_errors_example.cr, spec/block_kit_consumers_spec.cr]
@@ -340,9 +351,9 @@ entries:
     kind: surface
     documentation_url: https://docs.slack.dev/reference/views/modal-views/
     fields_supported: [type, title, submit, close, blocks, private_metadata, callback_id, external_id, clear_on_close, notify_on_close, submit_disabled]
-    parents: [views.open, views.update, views.push]
+    parents: [views.open, views.update, views.push, push response action]
     surfaces: [modal]
-    restrictions: Checked DisplayModal excludes Input; FormModal requires submit. The block catalog is limited to Section, Actions, Divider, Header, Context, Image, and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, user selects, or channel selects. submit_disabled is for Slack configuration modals only. Typed validation-error and clear acknowledgments are listed separately; other view lifecycle responses remain deferred. Legacy Modal keeps its previous contract.
+    restrictions: Checked DisplayModal excludes Input; FormModal requires submit. The block catalog is limited to Section, Actions, Divider, Header, Context, Image, and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, user selects, or channel selects. submit_disabled is for Slack configuration modals only. Typed validation-error, clear, and push acknowledgments are listed separately; other view lifecycle responses remain deferred. Legacy Modal keeps its previous contract.
     implementation_status: partial
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/surfaces/form_modal.cr, src/slack/ui/checked/surfaces/display_modal.cr, spec/ui/checked/modal_spec.cr, examples/block_kit_modal.cr]
@@ -862,3 +873,11 @@ rules:
     source_section: "Closing views: Close the current view and Close all views"
     requirement: "Serialize response_action clear to close the entire modal stack after a view_submission; applications own HTTP acknowledgment and timing. Empty HTTP 200 closes only the submitted view."
     evidence_paths: ["spec/interactions/modal_clear_spec.cr", "spec/block_kit_consumers_spec.cr", "examples/support/modal_clear_example.cr"]
+
+  - id: modal-push-acknowledgment
+    classification: library_support
+    reviewed_on: "2026-09-27"
+    source_url: "https://docs.slack.dev/surfaces/modals/#add-a-new-view-via-response_action"
+    source_section: "Add a new view via response_action"
+    requirement: "Serialize response_action push with an owned checked modal as the submission acknowledgment. Applications own HTTP delivery within three seconds; Slack owns stack state."
+    evidence_paths: ["src/slack/interactions/modal_push.cr", "spec/interactions/modal_push_spec.cr", "spec/block_kit_consumers_spec.cr", "examples/support/modal_push_example.cr"]

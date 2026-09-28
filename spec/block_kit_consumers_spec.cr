@@ -13,6 +13,7 @@ require "../examples/support/view_push_example"
 require "../examples/support/modal_errors_example"
 require "../examples/support/modal_clear_example"
 require "../examples/support/channels_select_example"
+require "../examples/support/modal_push_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -128,5 +129,22 @@ describe "documented Block Kit workflows" do
     response.headers["Content-Type"].should eq("application/json")
     response.body.should eq(%q({"response_action":"clear"}))
     output.to_s.should eq("Accepted reason: Need a test environment. (prepared HTTP 200 clear)\n")
+  end
+
+  it "returns the next form in a signed submission acknowledgment" do
+    output = IO::Memory.new
+    response = OfflineModalPushExample.run(output)
+    response.status_code.should eq(200)
+    response.headers["Content-Type"].should eq("application/json")
+    expected = JSON.parse(<<-JSON)
+      {"response_action":"push","view":{"type":"modal","title":{"type":"plain_text","text":"Delivery details"},
+        "submit":{"type":"plain_text","text":"Save"},"close":{"type":"plain_text","text":"Back"},
+        "callback_id":"request.delivery","private_metadata":"42","blocks":[
+          {"type":"section","text":{"type":"plain_text","text":"Reason: Need a test environment."}},
+          {"type":"input","block_id":"delivery","label":{"type":"plain_text","text":"Delivery note"},
+            "element":{"type":"plain_text_input","action_id":"note","multiline":true}}]}}
+      JSON
+    JSON.parse(response.body).should eq(expected)
+    output.to_s.should eq("Prepared delivery form from signed submission (HTTP 200).\n")
   end
 end
