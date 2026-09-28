@@ -6,10 +6,10 @@ Use `require "slack"` and `Slack::UI::Checked` to construct validated, immutable
 
 | Checked surface | Direct blocks | Input children | Send with |
 | --- | --- | --- | --- |
-| `Message` | Section, Actions, Divider, Header, Context, Image, Video, File, Input | PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, DatetimePicker | `Slack::Api::CheckedChatPostMessage`, `Slack::Api::CheckedChatUpdate` |
-| `DisplayModal` | Section, Actions, Divider, Header, Context, Image, Video | None, even if a submit label is supplied | `Slack::Api::CheckedViewsOpen`, `Slack::Api::CheckedViewsUpdate`, `Slack::Api::CheckedViewsPush` |
-| `FormModal` | Section, Actions, Divider, Header, Context, Image, Video, Input | PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, DatetimePicker | `Slack::Api::CheckedViewsOpen`, `Slack::Api::CheckedViewsUpdate`, `Slack::Api::CheckedViewsPush` |
-| `Home` | Section, Actions, Divider, Header, Context, Image, Video, Input | PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker | `Slack::Api::CheckedViewsPublish` |
+| `Message` | Section, Actions, Divider, Header, Context, Image, Video, File, RichText, Input | PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, DatetimePicker | `Slack::Api::CheckedChatPostMessage`, `Slack::Api::CheckedChatUpdate` |
+| `DisplayModal` | Section, Actions, Divider, Header, Context, Image, Video, RichText | None, even if a submit label is supplied | `Slack::Api::CheckedViewsOpen`, `Slack::Api::CheckedViewsUpdate`, `Slack::Api::CheckedViewsPush` |
+| `FormModal` | Section, Actions, Divider, Header, Context, Image, Video, RichText, Input | PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, DatetimePicker | `Slack::Api::CheckedViewsOpen`, `Slack::Api::CheckedViewsUpdate`, `Slack::Api::CheckedViewsPush` |
+| `Home` | Section, Actions, Divider, Header, Context, Image, Video, RichText, Input | PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker | `Slack::Api::CheckedViewsPublish` |
 
 `FormModal` always needs a plain-text `submit` label, including forms without Input. `DisplayModal` cannot contain Input. Message and Home need no submit label. A Message can contain Input even though older phase notes excluded it. [Slack's Input reference](https://docs.slack.dev/reference/block-kit/blocks/input-block.md) lists Messages, Modals, and Home.
 
@@ -18,9 +18,10 @@ Use `require "slack"` and `Slack::UI::Checked` to construct validated, immutable
 | Section accessory | Button, Image element, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker |
 | Actions elements | Button, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, DatetimePicker (not Home) |
 | Context elements | PlainText, Mrkdwn, Image element |
+| RichText elements | RichText Section, List, Preformatted, Quote |
 | Input element | PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, DatetimePicker (not Home) |
 
-Checked Header, Context, Image, and Video blocks are display content on all four surfaces. A File block is a message-only representation. An Image block or element needs alt text and exactly one public `image_url` or `SlackFile` source. `SlackFile` takes an ID or URL. Remote image availability and file access are checked by Slack. Section supports text, fields, and the listed accessory; Actions checks duplicate supplied action IDs within that block.
+Checked Header, Context, Image, Video, and RichText blocks are display content on all four surfaces. A File block is a message-only representation. An Image block or element needs alt text and exactly one public `image_url` or `SlackFile` source. `SlackFile` takes an ID or URL. Remote image availability and file access are checked by Slack. Section supports text, fields, and the listed accessory; Actions checks duplicate supplied action IDs within that block.
 
 Static choices use plain-text `Option` values, optional `OptionGroup` values, and exactly one `options:` or `option_groups:` source. `StaticSelect` has one `initial_option`; `MultiStaticSelect` has `initial_options` and optional `max_selected_items`. Choice values must be unique within a menu, and initial selections must match offered options. Each group can contain up to 100 options. These two types use a **static** source. User, channel, and conversation selects use Slack-provided lists. External selects load options from your app; see [Load options from your app](#load-options-from-your-app).
 
@@ -328,6 +329,48 @@ Read `ExternalSelectAction#selected_option` (`SelectedOption?`) and `MultiExtern
 
 Migration: `block_suggestion` payloads now decode as `BlockSuggestion` instead of raising an unknown-discriminator error. External select actions and state now decode as `ExternalSelectAction`/`MultiExternalSelectAction` and `ExternalSelectValue`/`MultiExternalSelectValue` instead of unknown types. Extend exhaustive matches on `Slack::Interaction` subtypes, `Interactions::Action`, `StateValue`, and the checked placement unions. The [offline workflow](../examples/block_kit_external_select.cr) posts an external menu, answers a signed suggestion, reads a signed selection, opens a related-project form, and reads its signed submission. It does not prove live acceptance, rendering, or response timing.
 
+## Show rich text
+
+Use `Blocks::RichText` for formatted display text. Build it from the `Slack::UI::Checked::RichText` types. The block holds containers, and the containers hold inline elements. The types enforce the parent rules that Slack documents:
+
+| Container | Children |
+| --- | --- |
+| `RichText::Section`, `RichText::Quote` | Text, Link, Emoji, User, Usergroup, Channel, Broadcast, Date, Color |
+| `RichText::Preformatted` | Text, Link |
+| `RichText::List` | `RichText::Section` only |
+
+```crystal
+alias RT = Slack::UI::Checked::RichText
+message = UI.message(fallback_text: "Release 2.0 is live") do |builder|
+  builder.rich_text(block_id: "notes", elements: [
+    RT::Section.new(elements: [
+      RT::Text.new("Release "), RT::Text.new("2.0", style: RT::TextStyle.new(bold: true)),
+      RT::Text.new(" is live for "), RT::Usergroup.new("S123"),
+    ] of RT::Element),
+    RT::List.new(RT::ListStyle::Bullet, elements: {
+      RT::Section.new(elements: {RT::Link.new("https://example.com/changelog", text: "Changelog")}),
+    }),
+    RT::Preformatted.new(elements: {RT::Text.new("shards update")}, language: "shell"),
+  ])
+end
+```
+
+`TextStyle` has `bold`, `italic`, `strike`, and `code`. Mentions, links, dates, and colors use `Style`, without `code`. Omitted flags and explicit false stay distinct. `Broadcast` takes `BroadcastRange::Here`, `Channel`, or `Everyone`. `Date` needs a Unix `timestamp` in seconds and a `format` such as `"{date_short} at {time}"`; `url` and `fallback` are optional. A `List` has optional `indent`, `offset`, and `border`; `Preformatted` has `border` and `language`; `Quote` has `border`. To nest a list, use a second `List` with a larger `indent`.
+
+The block and each container need at least one child. Required strings, such as text, URLs, IDs, and date formats, must not be empty. `border` is 0 or 1, and `indent` and `offset` are not negative. These checks are library policy. Other style flags, element types such as team or file mentions, and fields such as date `timezone` are not supported for outbound values. See Slack's [rich text block](https://docs.slack.dev/reference/block-kit/blocks/rich-text-block/) reference and its linked element pages.
+
+Read a received block with `Slack::Interactions::RichText::Block.new(raw, path)`. For example, use a block from `Slack::Events::Message#blocks`. The received types have the same names in `Slack::Interactions::RichText`. They keep `style`, `range`, and numbers as sent, allow empty children, and keep all JSON in `raw`. An unknown node type becomes `RichText::Unknown`. A missing required field, a wrong JSON type, or a known node in the wrong position raises a `TypeMismatch` with the JSON path.
+
+```crystal
+reply = Slack::Interactions::RichText::Block.new(event.blocks[0], "event.blocks[0]")
+reply.elements.each do |container|
+  next unless container.is_a?(Slack::Interactions::RichText::Section)
+  container.elements.each do |element|
+    puts element.user_id if element.is_a?(Slack::Interactions::RichText::User)
+  end
+end
+```
+
 ## Build modals and Home
 
 Use `form_modal` for input and `display_modal` for display content. Both have a plain-text title; a form has a required plain-text submit label. A modal can have at most 100 blocks. For a form:
@@ -565,6 +608,7 @@ crystal run examples/block_kit_datetime_picker.cr
 crystal run examples/block_kit_video.cr
 crystal run examples/block_kit_external_select.cr
 crystal run examples/block_kit_remote_file.cr
+crystal run examples/block_kit_rich_text.cr
 ```
 
-The message example builds and prints a request. The modal example posts a button, verifies a signed action, opens a form, and reads a signed submission. The Home example publishes through a stub and reads simulated state. The static choice example posts a single choice, reads a signed selection, opens a grouped multi-choice form, and reads its submission. The overflow example posts action and URL choices and acknowledges a signed URL selection. The checkbox example posts initial choices, reads a signed checkbox action, and reads a cleared selection from a signed submission. The radio example posts an initial choice, reads a signed selection, opens an optional override form, and reads an unselected submission. The message-update example replaces a posted approval button with the completed status and new fallback text. The user-select example assigns an owner and submits multiple reviewers. The video example posts a message with a video block and shows a local rejection of an HTTP video link. The external-select example answers a signed options-load request, then reads a signed selection and submission. The remote-file example prints the unfurls value for an application's own `chat.unfurl` request. Real handlers must acknowledge interactions within Slack's response window.
+The message example builds and prints a request. The modal example posts a button, verifies a signed action, opens a form, and reads a signed submission. The Home example publishes through a stub and reads simulated state. The static choice example posts a single choice, reads a signed selection, opens a grouped multi-choice form, and reads its submission. The overflow example posts action and URL choices and acknowledges a signed URL selection. The checkbox example posts initial choices, reads a signed checkbox action, and reads a cleared selection from a signed submission. The radio example posts an initial choice, reads a signed selection, opens an optional override form, and reads an unselected submission. The message-update example replaces a posted approval button with the completed status and new fallback text. The user-select example assigns an owner and submits multiple reviewers. The video example posts a message with a video block and shows a local rejection of an HTTP video link. The external-select example answers a signed options-load request, then reads a signed selection and submission. The remote-file example prints the unfurls value for an application's own `chat.unfurl` request. The rich text example posts formatted release notes and reads mentions and list items from a signed message event. Real handlers must acknowledge interactions within Slack's response window.

@@ -24,6 +24,7 @@ describe "Block Kit construction diagnostics" do
     "datetime_accessory"     => ["Section.new", "accessory", "DatetimePicker"],
     "home_file"              => ["Home#append_block", "Blocks::File"],
     "display_file"           => ["DisplayModal rejects File blocks", "messages only"],
+    "rich_text_list_item"    => ["RichText::List#append_element", "RichText::Section", "not Slack::UI::Checked::RichText::Text"],
   }.each do |name, fragments|
     it "explains #{name}" do
       result = CompileContracts.compile(root, "spec/fixtures/compile/fail/#{name}.cr")

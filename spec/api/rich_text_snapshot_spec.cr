@@ -1,0 +1,55 @@
+require "../spec_helper"
+require "../support/auth/webmock_transport"
+
+module RichTextSnapshotSpec
+  alias UI = Slack::UI::Checked
+  alias RT = UI::RichText
+
+  it "posts owned rich text release notes matching independent request JSON" do
+    items = [RT::Section.new(elements: {RT::Text.new("Faster builds")})]
+    intro = [RT::Text.new("Release "), RT::Text.new("2.0", style: RT::TextStyle.new(bold: true)), RT::Text.new(" is live for ")] of RT::Element
+    intro << RT::Usergroup.new("S-SYNTHETIC")
+    builder = UI::MessageBuilder.new(fallback_text: "Release 2.0 is live")
+    builder.header(UI.plain("Release 2.0"))
+    builder.rich_text(block_id: "notes", elements: [
+      RT::Section.new(elements: intro),
+      RT::List.new(RT::ListStyle::Bullet, elements: items),
+      RT::Quote.new(elements: {RT::Link.new("https://example.com/changelog", text: "Full changelog")}),
+    ])
+    request = Slack::Api::CheckedChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC",
+      message: builder.build, transport: AuthSupport::WebMockTransport.new)
+    items << RT::Section.new(elements: {RT::Text.new("added later")})
+    intro.clear
+    builder.divider
+
+    # Authored from Slack's rich text and chat.postMessage references, not from the serializer.
+    expected = JSON.parse(<<-JSON)
+      {"channel":"C-SYNTHETIC","text":"Release 2.0 is live","blocks":[
+        {"type":"header","text":{"type":"plain_text","text":"Release 2.0"}},
+        {"type":"rich_text","block_id":"notes","elements":[
+          {"type":"rich_text_section","elements":[
+            {"type":"text","text":"Release "},{"type":"text","text":"2.0","style":{"bold":true}},
+            {"type":"text","text":" is live for "},{"type":"usergroup","usergroup_id":"S-SYNTHETIC"}]},
+          {"type":"rich_text_list","style":"bullet","elements":[
+            {"type":"rich_text_section","elements":[{"type":"text","text":"Faster builds"}]}]},
+          {"type":"rich_text_quote","elements":[{"type":"link","url":"https://example.com/changelog","text":"Full changelog"}]}]}]}
+      JSON
+    sent = 0
+    WebMock.stub(:post, "https://slack.com/api/chat.postMessage").to_return do |http_request|
+      sent += 1
+      JSON.parse(http_request.body || fail("Missing body")).should eq expected
+      HTTP::Client::Response.new(200, body: %({"ok":true,"channel":"C-SYNTHETIC","ts":"1710000000.000001"}))
+    end
+    request.result.status_code.should eq 200
+    sent.should eq 1
+  end
+
+  it "places the same rich text block in display modals and Home" do
+    quote = RT::Quote.new(elements: {RT::Text.new("Read only")})
+    wire = JSON.parse(%({"type":"rich_text","elements":[{"type":"rich_text_quote","elements":[{"type":"text","text":"Read only"}]}]}))
+    modal = UI.display_modal(title: UI.plain("Notes"), &.rich_text({quote}))
+    home = UI.home(&.rich_text({quote}))
+    JSON.parse(modal.to_json)["blocks"][0].should eq wire
+    JSON.parse(home.to_json)["blocks"][0].should eq wire
+  end
+end

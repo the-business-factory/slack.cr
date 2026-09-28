@@ -31,6 +31,10 @@ module Slack::UI::Checked::DisplayBlockHelpers
     add(Blocks::Context.new(elements: elements, block_id: block_id))
   end
 
+  def rich_text(elements : Enumerable(T), block_id : String? = nil) : Nil forall T
+    add(Blocks::RichText.new(elements: elements, block_id: block_id))
+  end
+
   def image(*, alt_text : String, image_url : String, title : CompositionObjects::PlainText? = nil, block_id : String? = nil) : Nil
     add(Blocks::Image.new(alt_text: alt_text, image_url: image_url, title: title, block_id: block_id))
   end

@@ -58,6 +58,8 @@ For datetime pickers, verify the original signed request before reading `Datetim
 
 For external selects, pass the Options Load URL request to `Slack.process_interaction` so the signature and timestamp are verified before the `BlockSuggestion` is parsed. Then return `Slack::Interactions::BlockSuggestionResponse#to_json` as HTTP 200 JSON within three seconds. A suggestion or selection does not prove that the user may access the option; check access in your application. See [external option handling](block-kit.md#load-options-from-your-app) and `examples/block_kit_external_select.cr`.
 
+For received rich text, verify the signed event or interaction request before reading `Slack::Interactions::RichText::Block`. Mentions in a received tree are text content; they do not prove membership or permission. See [rich text](block-kit.md#show-rich-text) and `examples/block_kit_rich_text.cr`.
+
 ## OAuth app installation
 
 `Slack::AuthHandler` installs an app; it does not authenticate a human login. Give it explicit configuration, state storage, and transport. Global `Slack.configure` client credentials or scopes do not configure this handler.
