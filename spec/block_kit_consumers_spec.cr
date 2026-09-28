@@ -31,6 +31,7 @@ require "../examples/support/url_input_example"
 require "../examples/support/email_input_example"
 require "../examples/support/table_example"
 require "../examples/support/rich_text_input_example"
+require "../examples/support/markdown_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -248,6 +249,18 @@ describe "documented Block Kit workflows" do
     output = IO::Memory.new
     OfflineRichTextExample.run(output)
     output.to_s.should eq "Mentioned users: U-AUTHOR\nFollow-up items: docs, changelog\n"
+  end
+
+  it "posts an LLM markdown answer and rejects oversized markdown locally" do
+    output = IO::Memory.new
+    posted = OfflineMarkdownExample.run(output)
+    output.to_s.should eq "Posted answer to C-SYNTHETIC/1710000000.000400\nRejected before sending: message.markdown.too_long\n"
+    # Authored from Slack's markdown block and chat.postMessage references, not from the serializer.
+    posted.should eq JSON.parse(<<-'JSON')
+      {"channel":"C-SYNTHETIC","text":"How to rotate the signing secret","blocks":[
+        {"type":"markdown","text":"## Rotate the signing secret\n\n1. Open **Basic Information**.\n2. Select _Regenerate_ next to the secret.\n3. Update `SLACK_SIGNING_SECRET` and redeploy.\n\nSee [Verifying requests](https://docs.slack.dev/authentication/verifying-requests-from-slack)."},
+        {"type":"context","elements":[{"type":"plain_text","text":"Generated answer. Check the steps before you use them."}]}]}
+      JSON
   end
 
   it "posts a revenue table built from application records" do

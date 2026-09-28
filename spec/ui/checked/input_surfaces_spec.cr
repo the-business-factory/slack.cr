@@ -73,7 +73,7 @@ module SurfaceConsumer
     case block
     in UI::Blocks::Input
       "input"
-    in UI::Blocks::File
+    in UI::Blocks::File, UI::Blocks::Markdown
       "message-only"
     in UI::Blocks::Table
       "table"
@@ -90,6 +90,10 @@ module SurfaceConsumer
     block.external_id
   end
 
+  def self.caption(block : UI::Blocks::Markdown) : String
+    block.text
+  end
+
   def self.caption(block : UI::DisplayModalBlock | UI::Blocks::Table) : String
     block.type
   end
@@ -104,10 +108,11 @@ describe "typed surface consumers" do
     display_blocks = [Slack::UI::Checked::Blocks::Divider.new] of Slack::UI::Checked::DisplayModalBlock
     file = Slack::UI::Checked::Blocks::File.new(external_id: "ABCD1")
     table = Slack::UI::Checked::Blocks::Table.new(rows: { {Slack::UI::Checked::Table::RawText.new("Open")} })
-    message_blocks = [display_blocks.first, input, file, table] of Slack::UI::Checked::MessageBlock
+    markdown = Slack::UI::Checked::Blocks::Markdown.new("**Open**")
+    message_blocks = [display_blocks.first, input, file, table, markdown] of Slack::UI::Checked::MessageBlock
     consumer_message = Slack::UI::Checked::Message.new(fallback_text: "Note", blocks: message_blocks)
     Slack::UI::Checked::DisplayModal.new(title: Slack::UI::Checked.plain("Display"), blocks: display_blocks)
-    consumer_message.blocks.map { |block| SurfaceConsumer.kind(block) }.should eq(["display", "input", "message-only", "table"])
-    consumer_message.blocks.map { |block| SurfaceConsumer.caption(block) }.should eq(["divider", "Note", "ABCD1", "table"])
+    consumer_message.blocks.map { |block| SurfaceConsumer.kind(block) }.should eq(["display", "input", "message-only", "table", "message-only"])
+    consumer_message.blocks.map { |block| SurfaceConsumer.caption(block) }.should eq(["divider", "Note", "ABCD1", "table", "**Open**"])
   end
 end

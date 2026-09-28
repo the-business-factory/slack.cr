@@ -33,6 +33,12 @@ class Slack::UI::Checked::MessageBuilder
     add(Blocks::Table.new(rows: rows, column_settings: column_settings, block_id: block_id))
   end
 
+  # Adds a markdown block. Home and modal builders do not have this helper
+  # because Slack shows markdown blocks in messages only.
+  def markdown(text : String) : Nil
+    add(Blocks::Markdown.new(text))
+  end
+
   def add_all(blocks : Enumerable(T)) : Nil forall T
     blocks.each { |block| add(block) }
   end

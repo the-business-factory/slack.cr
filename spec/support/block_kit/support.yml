@@ -1,6 +1,6 @@
 schema_version: 2
 checked_on: "2026-09-27"
-scope: Checked Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, channel selects, date/time pickers, the datetime picker, video blocks, external selects with block_suggestion option responses, remote file blocks, rich text display blocks, table blocks, number inputs, file inputs, URL inputs, email inputs, and rich text inputs, including Input in Messages, FormModal and Home, modal-only Input children in FormModal, and view-only Input children in FormModal and Home.
+scope: Checked Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, channel selects, date/time pickers, the datetime picker, video blocks, external selects with block_suggestion option responses, remote file blocks, rich text display blocks, table blocks, markdown blocks, number inputs, file inputs, URL inputs, email inputs, and rich text inputs, including Input in Messages, FormModal and Home, modal-only Input children in FormModal, and view-only Input children in FormModal and Home.
 statuses:
   - unsupported
   - partial
@@ -474,7 +474,7 @@ entries:
     fields_supported: [text, blocks]
     parents: [chat.postMessage, chat.update]
     surfaces: [message]
-    restrictions: Supports explicit fallback text or the separately named Slack-generated fallback choice and a checked union of Section, Actions, Divider, Header, Context, Image, RichText, Table, and Input. The update adapter requires explicit fallback. Other block families remain unsupported until their slices ship.
+    restrictions: Supports explicit fallback text or the separately named Slack-generated fallback choice and a checked union of Section, Actions, Divider, Header, Context, Image, RichText, Table, Markdown, and Input. The text of all Markdown blocks in one message is at most 12,000 characters. The update adapter requires explicit fallback. Other block families remain unsupported until their slices ship.
     implementation_status: supported
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/surfaces/message.cr, src/slack/ui/checked/message_builder.cr, spec/ui/checked/message_spec.cr, examples/block_kit_message.cr]
@@ -709,6 +709,17 @@ entries:
     implementation_status: supported
     inbound_status: unsupported
     evidence_paths: [src/slack/ui/checked/table/raw_text.cr, src/slack/ui/checked/table/raw_number.cr, src/slack/ui/checked/table/column_setting.cr, spec/ui/checked/table_block_spec.cr]
+
+  - wire_type: markdown
+    kind: block
+    documentation_url: https://docs.slack.dev/reference/block-kit/blocks/markdown-block/
+    fields_supported: [type, text]
+    parents: [message]
+    surfaces: [message]
+    restrictions: Checked Blocks::Markdown sends standard markdown text; Slack translates it into one or more blocks. Text is at most 12,000 characters, and Message limits the total text of all its markdown blocks to 12,000 characters. Nonempty text is library policy. Slack ignores and does not keep block_id, so the block does not accept one and its block_id getter is always nil. Slack lists Messages only, so Home and modal surfaces reject it at compile time. Slack checks markdown rendering remotely. Received messages carry Slack's translated blocks, so received markdown blocks are not decoded.
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/checked/blocks/markdown.cr, src/slack/ui/checked/surfaces/message.cr, spec/ui/checked/markdown_block_spec.cr, spec/fixtures/block_kit/markdown_message.json, examples/support/markdown_example.cr, spec/block_kit_consumers_spec.cr]
 
 # Classification is independent of support status. Missing features are not invalid Slack payloads.
 review_policy:
@@ -1316,3 +1327,17 @@ rules:
     source_section: Fields, Example and Markdown placement metadata
     reviewed_on: "2026-09-28"
     evidence_paths: [spec/ui/checked/rich_text_input_spec.cr, spec/api/rich_text_input_snapshot_spec.cr, spec/block_kit_diagnostics_spec.cr]
+  - id: markdown_block
+    classification: slack_requirement
+    requirement: "text is required standard markdown. The cumulative limit for all markdown blocks in a single payload is 12,000 characters. block_id is ignored and not retained. Available in Messages."
+    source_url: https://docs.slack.dev/reference/block-kit/blocks/markdown-block.md
+    source_section: "Fields, Usage info, and available_in_surfaces metadata"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/ui/checked/markdown_block_spec.cr, spec/block_kit_consumers_spec.cr]
+  - id: markdown_policy
+    classification: library_policy
+    requirement: "Outbound markdown text is not empty, and a markdown block does not accept a block_id."
+    source_url: https://docs.slack.dev/reference/block-kit/blocks/markdown-block/
+    source_section: "Fields: text and block_id"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/ui/checked/markdown_block_spec.cr]

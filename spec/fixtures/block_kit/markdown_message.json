@@ -1,0 +1,16 @@
+{
+  "text": "Deploy summary for release 4.2",
+  "blocks": [
+    {
+      "type": "markdown",
+      "text": "## Release 4.2\n\n**Deployed** to _production_.\n\n- [x] migrations\n- [ ] cache warmup\n\n```sh\nbin/deploy --env production\n```"
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "markdown",
+      "text": "See the [runbook](https://docs.example.test/runbook)."
+    }
+  ]
+}
