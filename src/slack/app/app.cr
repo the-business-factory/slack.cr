@@ -27,6 +27,9 @@ require "log"
 class Slack::App
   alias Payload = Slack::VerifiedEvent | Slack::Command | Slack::Interaction
 
+  # Builds the Web API client for a custom step's workflow token.
+  alias WorkflowClient = Proc(Slack::Auth::Secret, Slack::Api::Client)
+
   # Slack expects an acknowledgment within three seconds. The margin leaves
   # time to write the response.
   DEFAULT_ACK_TIMEOUT = 2500.milliseconds
@@ -37,8 +40,11 @@ class Slack::App
   @router = Router.new
   @middleware = [] of Middleware
 
+  # *workflow_client* builds the client for a custom step's workflow token
+  # (`bot_access_token`). Give one to set the API configuration or transport.
   def initialize(*, @authorizer : Authorizer, @log : ::Log = ::Log.for("slack.app"),
-                 @ack_timeout : Time::Span = DEFAULT_ACK_TIMEOUT)
+                 @ack_timeout : Time::Span = DEFAULT_ACK_TIMEOUT,
+                 @workflow_client : WorkflowClient = ->(token : Slack::Auth::Secret) { Slack::Api::Client.new(token: token) })
     raise ArgumentError.new("ack_timeout must be positive") unless @ack_timeout.positive?
   end
 
@@ -108,7 +114,7 @@ class Slack::App
   # API retry headers, if any.
   def dispatch(payload : Payload, delivery : Slack::Events::Delivery? = nil) : Outcome
     client = authorize(payload) || return Outcome.unauthorized
-    environment = Environment.new(client, @log, delivery)
+    environment = Environment.new(client, @log, delivery, @workflow_client)
     listener = find_listener(payload, environment) || return Outcome.acknowledged
     spawn(name: "slack.app.listener") { run(listener, environment.ack) }
     wait(environment.ack)

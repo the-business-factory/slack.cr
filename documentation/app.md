@@ -38,7 +38,7 @@ Register listeners before the app receives requests. Each registration method gi
 | --- | --- | --- | --- |
 | `event(type)` | Events API event of `type` | `EventContext`: `envelope`, `event` | Automatic, before the listener runs |
 | `message(pattern = nil)` | `message` event without a subtype | `MessageContext`: `envelope`, `message` | Automatic, before the listener runs |
-| `function(callback_id)` | `function_executed` | `FunctionContext`: `envelope`, `event` | Automatic, before the listener runs |
+| `function(callback_id)` | `function_executed` | `FunctionContext`: `envelope`, `event`, `inputs`, `complete`, `fail` | Automatic, before the listener runs |
 | `action(action_id, block_id = nil)` | `block_actions` | `ActionContext`: `payload`, `action` | `ack` |
 | `command(name)` | Slash command | `CommandContext`: `command` | `ack`, `ack(Commands::Response)` |
 | `shortcut(callback_id)` | Global or message shortcut | `ShortcutContext`: `shortcut` | `ack` |
@@ -52,10 +52,11 @@ Matching rules:
 - A string `message` pattern matches text that contains it, as in Bolt. A `Regex` matches the text. Nil matches every message.
 - `action` uses the first action of the payload. Slack sends one action for each click.
 - For each request, only the first matching listener runs, in registration order.
+- `ActionContext` and `ViewContext` give `function_execution` for blocks and views that a custom step created. See [Handle a step](workflows.md#handle-a-step).
 
 Every context also gives:
 
-- `client`: the `Slack::Api::Client` from the authorizer.
+- `client`: the `Slack::Api::Client` from the authorizer. In `FunctionContext`, `client` has the event's workflow token (`bot_access_token`).
 - `log`: the app `Log` (source `slack.app`).
 - `delivery`: the Events API retry headers (`Slack::Events::Delivery`), or nil for other requests.
 - `store`: a `Hash(String, String)` that middleware uses to give values to later steps of the same request.

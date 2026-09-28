@@ -2,6 +2,7 @@
 # `#action` is the first action in the payload; Slack sends one per click.
 struct Slack::App::ActionContext < Slack::App::Context
   include Acknowledging
+  include FunctionInteractivity
 
   getter payload : Slack::Interactions::BlockAction
   getter action : Slack::Interactions::Action

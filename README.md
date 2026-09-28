@@ -311,7 +311,15 @@ if (event = envelope.event).is_a?(Slack::Events::FunctionExecuted)
 end
 ```
 
-See [Workflow steps](documentation/workflows.md) for the manifest, inputs, and failures.
+With `Slack::App`, `app.function(callback_id)` routes the event, and its context completes or fails the step with the workflow token:
+
+```crystal
+app.function("custom_step_button") do |ctx|
+  ctx.complete({user_id: ctx.inputs["user_id"].as_s})
+end
+```
+
+See [Workflow steps](documentation/workflows.md) for the manifest, inputs, failures, and steps that wait for a button click or a view submission.
 
 ## Streaming messages
 
@@ -411,9 +419,10 @@ crystal run examples/workflow_step.cr
 crystal run examples/testing.cr
 crystal run examples/app.cr
 crystal run examples/app_manifest.cr
+crystal run examples/custom_step.cr
 ```
 
-The examples show Web API calls and error codes, channel history and thread replies across cursor pages, workspace members read into an on-call user group, an incident channel created, staffed, and archived, an incident message acknowledged with a reaction, a pin, and a runbook bookmark, a file upload, a remote file share, message construction, a message with a colored attachment and metadata, an ephemeral thread reply with a permalink and a scheduled reminder, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, message workflow buttons, typed blocks of a received message, routed app events and message subtypes, routed assistant thread and agent session events, Socket Mode frames with their acknowledgments, a Socket Mode connection to a local server, a slash command response with a `response_url` reply, a custom workflow step that completes or fails its execution, an app that answers a signed mention and a button click through its HTTP receiver, an offline test of a slash command handler, and an app manifest that is validated, fixed, created, and exported. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
+The examples show Web API calls and error codes, channel history and thread replies across cursor pages, workspace members read into an on-call user group, an incident channel created, staffed, and archived, an incident message acknowledged with a reaction, a pin, and a runbook bookmark, a file upload, a remote file share, message construction, a message with a colored attachment and metadata, an ephemeral thread reply with a permalink and a scheduled reminder, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, message workflow buttons, typed blocks of a received message, routed app events and message subtypes, routed assistant thread and agent session events, Socket Mode frames with their acknowledgments, a Socket Mode connection to a local server, a slash command response with a `response_url` reply, a custom workflow step that completes or fails its execution, an app that answers a signed mention and a button click through its HTTP receiver, a custom step that waits for a button click and then completes, an offline test of a slash command handler, and an app manifest that is validated, fixed, created, and exported. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
 
 ## Contributing
 

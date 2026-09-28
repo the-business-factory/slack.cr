@@ -2,6 +2,7 @@
 # An empty `ack` closes the submitted view.
 struct Slack::App::ViewContext < Slack::App::Context
   include Acknowledging
+  include FunctionInteractivity
 
   getter payload : Slack::Interactions::ViewSubmission
 

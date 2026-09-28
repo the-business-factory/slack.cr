@@ -1068,7 +1068,7 @@ entries:
     fields_supported: [type, function, inputs, function_execution_id, workflow_execution_id, event_ts, bot_access_token]
     parents: [events_api]
     surfaces: []
-    restrictions: "Events::FunctionExecuted decodes through Slack::Event with a typed FunctionDefinition (id, callback_id, title, description, type, app_id, input and output FunctionParameter lists, date_created, date_updated, and date_deleted, which is nil for 0). inputs stay raw JSON; the library does not convert them by Slack type. bot_access_token is a required, non-empty Auth::Secret that inspect and to_s redact and to_json omits. Manifest functions stay application JSON. No listener routing or automatic completion."
+    restrictions: "Events::FunctionExecuted decodes through Slack::Event with a typed FunctionDefinition (id, callback_id, title, description, type, app_id, input and output FunctionParameter lists, date_created, date_updated, and date_deleted, which is nil for 0). inputs stay raw JSON; the library does not convert them by Slack type. bot_access_token is a required, non-empty Auth::Secret that inspect and to_s redact and to_json omits. Manifest functions stay application JSON. Slack::App#function routes it by callback_id (see app_custom_steps); nothing completes an execution automatically."
     implementation_status: unsupported
     inbound_status: supported
     evidence_paths: [src/slack/events/event_types/function_executed.cr, src/slack/events/event_data/function_definition.cr, src/slack/events/event_data/function_parameter.cr, spec/events/function_executed_spec.cr, spec/fixtures/events/function_executed.json, examples/support/workflow_step_example.cr, spec/block_kit_consumers_spec.cr]
@@ -2133,3 +2133,10 @@ rules:
     source_section: "Acknowledgment response"
     reviewed_on: "2026-09-28"
     evidence_paths: [src/slack/app/app.cr, spec/app/http_receiver_spec.cr, examples/support/app_example.cr]
+  - id: app_custom_steps
+    classification: library_policy
+    requirement: "Slack::App#function routes function_executed by function callback_id and acknowledges it before the listener runs. FunctionContext#client, #complete, and #fail use the event's bot_access_token, never the app token. ActionContext and ViewContext give function_execution only when the payload has function_data and bot_access_token; their client stays the authorizer's client. The library does not complete an execution automatically and does not prevent a second completion."
+    source_url: https://docs.slack.dev/reference/events/function_executed
+    source_section: "Event fields: function, inputs, function_execution_id, bot_access_token; block_actions payload: function_data, bot_access_token"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [src/slack/app/function_context.cr, src/slack/app/function_execution.cr, src/slack/app/function_interactivity.cr, spec/app/function_spec.cr, examples/support/custom_step_example.cr, spec/block_kit_consumers_spec.cr]

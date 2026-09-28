@@ -89,7 +89,59 @@ Both methods are Tier 3. Slack returns these errors, which `Slack::Api::Error#co
 
 The library does not check outputs against the manifest.
 
+## Handle a step
+
+`Slack::App#function` routes a `function_executed` event by the function `callback_id`. The app acknowledges the event before the listener runs. `FunctionContext` gives:
+
+- `inputs`: the input values, keyed by input parameter name.
+- `complete(outputs)`: sends `functions.completeSuccess`. `outputs` is a `NamedTuple` or `Hash`, keyed by output parameter name. The default is an empty object.
+- `fail(error)`: sends `functions.completeError` with a message for the workflow user.
+- `client`: a `Slack::Api::Client` with the event's `bot_access_token`, not the app token.
+- `event`, `envelope`, and `execution` (`Slack::App::FunctionExecution`).
+
+```crystal
+app.function("custom_step_button") do |ctx|
+  if user_id = ctx.inputs["user_id"]?.try(&.as_s?)
+    ctx.complete({user_id: user_id})
+  else
+    ctx.fail("Choose a user.")
+  end
+end
+```
+
+A step that waits for a user posts blocks or opens a view, and does not complete in the function listener. Slack then sends the interaction with `function_data` and a `bot_access_token` (function-scoped interactivity). In `action` and `view` listeners, `function_execution` gives a `FunctionExecution` with `inputs`, `client`, `complete`, and `fail`. It is nil when the payload has no `function_data` or no `bot_access_token`. Acknowledge first, then complete or fail the step:
+
+```crystal
+app.function("custom_step_button") do |ctx|
+  button = Slack::UI::BlockElements::Button.new(text: Slack::UI.plain("Done"), action_id: "step.done")
+  message = Slack::UI.message(fallback_text: "Click when done.") { |blocks| blocks.actions(elements: [button]) }
+  ctx.client.call(Slack::Api::ChatPostMessage.new(channel: ctx.inputs["user_id"].as_s, message: message))
+end
+
+app.action("step.done") do |ctx|
+  ctx.ack
+  ctx.function_execution.try(&.complete({user_id: ctx.payload.user.try(&.id)}))
+end
+```
+
+In `action` and `view` listeners, `client` keeps the client from the authorizer. Use `function_execution.client` for calls that need the workflow token. Complete or fail each execution once; a second call gives `execution_not_in_running_state`.
+
+The client for the workflow token comes from `Slack::Api::Client.new(token: token)`. To set the API configuration or the transport, give `Slack::App.new` a `workflow_client`:
+
+```crystal
+app = Slack::App.new(authorizer: authorizer,
+  workflow_client: ->(token : Slack::Auth::Secret) { Slack::Api::Client.new(token: token, transport: transport) })
+```
+
+Dynamic options for step inputs (Bolt `custom-steps-dynamic-options`) arrive as `block_suggestion` requests. Answer them with an `App#options` listener. The library does not generate the manifest.
+
 ## Example
+
+`examples/custom_step.cr` runs a step through `Slack::App::HttpReceiver`. The function listener posts an Approve button with the step's workflow token. The click listener completes the step with the approver as its output.
+
+```sh
+crystal run examples/custom_step.cr
+```
 
 `examples/workflow_step.cr` decodes two synthetic `function_executed` events. It completes the first one with outputs and fails the second one, which has no input. It uses a WebMock transport and does not contact Slack.
 

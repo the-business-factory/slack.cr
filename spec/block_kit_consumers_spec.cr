@@ -62,6 +62,7 @@ require "../examples/support/app_example"
 require "../examples/support/assistant_events_example"
 require "../examples/support/incident_triage_example"
 require "../examples/support/app_manifest_example"
+require "../examples/support/custom_step_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -782,5 +783,25 @@ describe "documented Block Kit workflows" do
                  {"type":"actions","block_id":"deploy.controls",
                   "elements":[{"type":"button","text":{"type":"plain_text","text":"Approve"},"action_id":"deploy.approve","value":"api"}]}]}
       JSON
+  end
+
+  it "posts a custom step's approval button and completes the step from the click" do
+    output = IO::Memory.new
+    result = OfflineCustomStepExample.run(output)
+    output.to_s.lines.should eq ["Step acknowledged: 200", "Click acknowledged: 200"]
+    result.executed.body.should be_empty
+    result.click.body.should be_empty
+    # Authored from the chat.postMessage, Block Kit button, and functions.completeSuccess references.
+    posted = JSON.parse(<<-JSON)
+      {"channel":"C-APPROVALS","text":"Approve this request?",
+       "blocks":[{"type":"actions","block_id":"approval.controls",
+                  "elements":[{"type":"button","text":{"type":"plain_text","text":"Approve"},
+                               "action_id":"approval.approve","value":"approve"}]}]}
+      JSON
+    completed = JSON.parse(%({"function_execution_id":"Fx-APPROVAL","outputs":{"approver_id":"U-APPROVER"}}))
+    result.calls.should eq [
+      OfflineCustomStepExample::Call.new("chat.postMessage", "Bearer xwfp-synthetic-step", posted),
+      OfflineCustomStepExample::Call.new("functions.completeSuccess", "Bearer xwfp-synthetic-click", completed),
+    ]
   end
 end
