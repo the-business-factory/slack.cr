@@ -149,6 +149,7 @@ crystal run examples/block_kit_workflow_button.cr
 crystal run examples/block_kit_alert.cr
 crystal run examples/event_delivery.cr
 crystal run examples/socket_mode_protocol.cr
+crystal run examples/interaction_context.cr
 ```
 
 The examples show checked message construction, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, message workflow buttons, and Socket Mode frames with their acknowledgments. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).

@@ -202,7 +202,7 @@ Both support optional `action_id` (255 characters), plain-text `placeholder` (15
 
 Empty initial IDs, repeated initial channels, and an initial count above a supplied maximum are rejected as library policy. There are no ID-prefix, ID-length, static-membership, or remote-existence checks. Conversation filters and default-to-current-conversation fields are not part of these controls. See the [single-channel fields](https://docs.slack.dev/reference/block-kit/block-elements/select-menu-element/#channels_select) and [multi-channel fields](https://docs.slack.dev/reference/block-kit/block-elements/multi-select-menu-element/#channel_multi_select).
 
-Only `ChannelsSelect` accepts `response_url_enabled`. Slack documents it for Input blocks in modals. The checked library rejects any supplied value, including `false`, outside that placement; this field-presence restriction is library policy. Omit the field elsewhere. In modal Input, omitted, `false`, and `true` remain distinct. With `true`, Slack can return `response_urls` on submission; inspect the existing raw `ViewSubmission#response_urls`. This adds no response-URL transport or delivery guarantee.
+Only `ChannelsSelect` accepts `response_url_enabled`. Slack documents it for Input blocks in modals. The checked library rejects any supplied value, including `false`, outside that placement; this field-presence restriction is library policy. Omit the field elsewhere. In modal Input, omitted, `false`, and `true` remain distinct. With `true`, Slack can return `response_urls` on submission; read them from `ViewSubmission#response_urls` (see [Read interaction context](#read-interaction-context)). This adds no response-URL transport or delivery guarantee.
 
 Read `ChannelsSelectAction#selected_channel` (`String?`) and `MultiChannelsSelectAction#selected_channels` (`Array(String)?`), or use `state_map.channels_select_value?` and `state_map.multi_channels_select_value?`. Their `selected_channel_presence` and `selected_channels_presence` distinguish Absent, Null, and Present. A cleared single selection is null; a cleared multi-selection is a present empty array. Missing state entries return nil. Received IDs have no outbound limits; malformed known fields raise path-aware `TypeMismatch`. Raw unknown fields are retained, and selected-array getters return copies. Input can set `dispatch_action: true` for selection changes.
 
@@ -234,7 +234,7 @@ A `ConversationFilter` needs at least one supplied field; an explicit false flag
 
 Initial IDs and filter includes are copied in one pass; getters return copies. Empty IDs, repeated initial IDs, and an initial count above a supplied maximum are rejected as library policy. The library does not impose ID prefixes or lengths, check remote membership, or check an initial ID against a filter.
 
-Only the single control accepts `response_url_enabled`. It is allowed only in modal Input blocks; rejecting a supplied false outside that placement is library policy, matching ChannelsSelect. Omit it elsewhere. Submission `response_urls` stay available as raw data; this adds no response-URL transport.
+Only the single control accepts `response_url_enabled`. It is allowed only in modal Input blocks; rejecting a supplied false outside that placement is library policy, matching ChannelsSelect. Omit it elsewhere. Submission `response_urls` are available as typed `ResponseUrl` values; this adds no response-URL transport.
 
 Read `ConversationsSelectAction#selected_conversation` (`String?`) and `MultiConversationsSelectAction#selected_conversations` (`Array(String)?`), or use `state_map.conversations_select_value?` and `state_map.multi_conversations_select_value?` with block/action IDs. Presence accessors distinguish Absent, Null, and Present. A cleared single selection is null; a cleared multi-selection is an empty array. Missing entries return nil, malformed known values raise path-aware `TypeMismatch`, and unknown fields stay in raw JSON. Received IDs have no outbound limits; selected-array getters return copies. Input can use `dispatch_action: true` for changes; submissions also carry state.
 
@@ -953,6 +953,38 @@ end
 
 `StateMap#plain_text?`, `#static_select_value?`, `#multi_static_select_value?`, `#external_select_value?`, `#multi_external_select_value?`, `#checkboxes_value?`, `#radio_buttons_value?`, `#users_select_value?`, `#multi_users_select_value?`, `#channels_select_value?`, `#multi_channels_select_value?`, `#conversations_select_value?`, `#multi_conversations_select_value?`, `#number_input_value?`, `#file_input_value?`, `#url_input_value?`, `#email_input_value?`, and `#rich_text_input_value?` work on supported BlockAction, View, and ViewSubmission state. A missing block/action key returns nil. For an existing selection entry, the matching `selected_option_presence`, `selected_options_presence`, `selected_user_presence`, `selected_users_presence`, `selected_channel_presence`, `selected_channels_presence`, `selected_conversation_presence`, or `selected_conversations_presence` distinguishes Absent, Null, and Present. A cleared single choice can be null; a cleared multi choice can be a present empty array. `selected_options`, `selected_users`, `selected_channels`, and `selected_conversations` can also be nil if absent or null. Asking for the wrong typed family raises `TypeMismatch`, as do malformed known values; it does not silently return nil. Complete raw JSON remains available for unmodeled fields. This library does not implement a full view lifecycle or response-action framework.
 
+## Read interaction context
+
+Interactions tell the app where the user acted. Use these typed values to reply in the correct place:
+
+- `BlockAction#container` decodes the source surface. `Container::Message` has `message_ts`, `channel_id`, and `is_ephemeral`. `Container::View` has `view_id`. `Container::MessageAttachment` has `message_ts`, `attachment_id`, `channel_id`, `is_ephemeral`, and `is_app_unfurl`. Other types decode as `Container::Unknown` with `type` and `raw`.
+- `BlockAction#channel`, `MessageAction#channel`, and `Shortcut#channel` give `Channel` (`id`, `name`) when Slack sends a channel.
+- `BlockAction#view_hash` and `View#view_hash` read the `hash` field. Send it as `hash` to `views.update` or `views.publish` to prevent a race with another update.
+- `ViewSubmission#response_urls` gives `ResponseUrl` values (`response_url`, `block_id`, `action_id`, `channel_id`) for conversation selects with `response_url_enabled`. Absent and null give an empty array.
+- `ViewClosed#is_cleared` is true when the user closed the whole view stack.
+- `View` has typed getters for `id`, `team_id`, `type`, `title`, `callback_id`, `private_metadata`, `external_id`, `root_view_id`, `previous_view_id`, `app_id`, `bot_id`, `clear_on_close`, and `notify_on_close`. `View#[]` and `View#payload` keep all other fields.
+- Received messages (`BlockAction#message`, `MessageAction#message`), `View#blocks`, and `interactivity` stay raw JSON.
+- `BlockAction#response_url` gives the reply webhook for a message click. Use it to reply to an ephemeral message, which `chat.update` cannot change. Slack deprecates `response_url` and `response_urls` only for apps created with the Deno Slack SDK.
+
+```crystal
+case interaction = Slack.process_interaction(request)
+when Slack::Interactions::BlockAction
+  case container = interaction.container
+  when Slack::Interactions::Container::Message
+    # chat.update cannot change an ephemeral message.
+    update_message(container.channel_id, container.message_ts) unless container.is_ephemeral
+  when Slack::Interactions::Container::View
+    refresh_view(container.view_id, interaction.view_hash)
+  end
+end
+```
+
+Typed getters read the payload when called. A malformed known field raises `TypeMismatch` with its path, such as `container.message_ts` or `view.title`. A non-object `container` also raises `TypeMismatch`.
+
+Slack sends `function_data`, `interactivity`, and `bot_access_token` only for blocks and views that a custom workflow step created. `FunctionData` has `execution_id`, `function.callback_id`, and raw `inputs`. `bot_access_token` is an `Auth::Secret`: `inspect` and `to_s` redact it, and `to_json` omits it. `interactivity` can contain `interactor.secret`, so `inspect` and `to_s` redact it too; `interactivity` and `to_json` keep the complete object. An empty token makes the payload invalid. These fields do not change how `Auth::RequestAuthorizer` selects the installation.
+
+The [offline example](../examples/interaction_context.cr) updates the clicked message through its container, reads a submission's response URL target, and reads a cleared view stack. It does not prove live Slack delivery or that Slack accepts the update.
+
 ## Validation, limits, and ownership
 
 Constructors check supported local values, and the complete surface checks placement, block IDs, and cross-block rules. `validate` returns `Array(ValidationIssue)`; `validate!` raises `ValidationError`. Each issue has a code, field path, and message. `ValidationError` is an `InvalidUIBlock`.
@@ -1013,6 +1045,7 @@ crystal run examples/block_kit_markdown.cr
 crystal run examples/block_kit_workflow_button.cr
 crystal run examples/block_kit_context_actions.cr
 crystal run examples/block_kit_alert.cr
+crystal run examples/interaction_context.cr
 ```
 
 The message example builds and prints a request. The modal example posts a button, verifies a signed action, opens a form, and reads a signed submission. The Home example publishes through a stub and reads simulated state. The static choice example posts a single choice, reads a signed selection, opens a grouped multi-choice form, and reads its submission. The overflow example posts action and URL choices and acknowledges a signed URL selection. The checkbox example posts initial choices, reads a signed checkbox action, and reads a cleared selection from a signed submission. The radio example posts an initial choice, reads a signed selection, opens an optional override form, and reads an unselected submission. The message-update example replaces a posted approval button with the completed status and new fallback text. The user-select example assigns an owner and submits multiple reviewers. The video example posts a message with a video block and shows a local rejection of an HTTP video link. The external-select example answers a signed options-load request, then reads a signed selection and submission. The remote-file example prints the unfurls value for an application's own `chat.unfurl` request. The rich text example posts formatted release notes with a team mention and a canvas link, and reads mentions, list items, and a workflow mention from a signed message event. The file input example opens a receipt form and reads uploaded file IDs. The number and email input examples open modal-only forms from a signed button, read a dispatched value, and reject then accept a signed submission. The table example posts a revenue table built from application records and shows a local rejection of a row with too many cells. The rich text input example publishes a Home standup composer and reads a signed dispatched action. The markdown example posts an LLM answer as markdown and shows a local rejection of markdown text that is too long for one message. The workflow button example posts incident workflow buttons with trigger inputs and shows a local rejection on Home. The context actions example posts an answer with feedback and delete buttons and reads a signed feedback click as `UnknownAction`. The alert example opens a deploy status modal with one alert for each check and shows a local rejection of alert text that is too long. The data table example posts a paged ticket table and shows a local rejection of a row that is narrower than the header. The data visualization example posts deploy and latency charts built from application records and shows a local rejection of a series with a missing category. The card carousel example posts department cards, reads a signed card button click, and shows a local rejection of a card without main content. The container example posts a collapsible bulk update and reads a signed button click from inside the container. Real handlers must acknowledge interactions within Slack's response window.

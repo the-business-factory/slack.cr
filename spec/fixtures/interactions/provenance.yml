@@ -1,0 +1,27 @@
+fixtures:
+  - path: block_actions_message.json
+    origin: synthetic
+    reference: https://docs.slack.dev/reference/interaction-payloads/block_actions-payload/
+    expected: message container, channel, raw message, and deprecated response_url
+  - path: block_actions_view_function.json
+    origin: synthetic
+    reference: https://docs.slack.dev/reference/interaction-payloads/block_actions-payload/
+    expected: view container, typed view fields, hash, and functions-only fields
+  - path: block_actions_attachment.json
+    origin: synthetic
+    reference: https://docs.slack.dev/reference/interaction-payloads/block_actions-payload/
+    expected: message_attachment container with an integer attachment_id
+  - path: view_submission_response_urls.json
+    origin: synthetic
+    reference: https://docs.slack.dev/reference/interaction-payloads/view-interactions-payload/
+    expected: top-level response_urls from a modal with a response_url_enabled select
+  - path: view_closed_cleared.json
+    origin: synthetic
+    reference: https://docs.slack.dev/reference/interaction-payloads/view-interactions-payload/
+    expected: is_cleared reports a cleared view stack
+  - path: message_action.json
+    origin: synthetic
+    reference: https://docs.slack.dev/reference/interaction-payloads/shortcuts-interaction-payload/
+    expected: message shortcut channel, message_ts, and raw message
+reviewed: 2026-09-28
+live_verified: false

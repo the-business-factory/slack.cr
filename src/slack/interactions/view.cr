@@ -1,4 +1,6 @@
 # Retains arbitrary Slack view content while exposing typed installation ownership.
+# Other typed getters read the retained payload when called. They return nil for
+# an absent or null field and raise `TypeMismatch` for a malformed one.
 struct Slack::Interactions::View
   private struct Ownership
     include JSON::Serializable
@@ -55,11 +57,79 @@ struct Slack::Interactions::View
     @payload.to_json(json)
   end
 
+  def id : String?
+    string?("id")
+  end
+
+  def team_id : String?
+    string?("team_id")
+  end
+
+  # The view type, such as `modal` or `home`.
+  def type : String?
+    string?("type")
+  end
+
+  def title : ReceivedText?
+    raw = @payload["title"]?
+    ReceivedText.new(raw, "view.title") if raw && !raw.raw.nil?
+  end
+
+  def callback_id : String?
+    string?("callback_id")
+  end
+
+  def private_metadata : String?
+    string?("private_metadata")
+  end
+
+  def external_id : String?
+    string?("external_id")
+  end
+
+  # The view version, which `views.update` and `views.publish` accept as `hash`.
+  def view_hash : String?
+    string?("hash")
+  end
+
+  def root_view_id : String?
+    string?("root_view_id")
+  end
+
+  def previous_view_id : String?
+    string?("previous_view_id")
+  end
+
+  def app_id : String?
+    string?("app_id")
+  end
+
+  def bot_id : String?
+    string?("bot_id")
+  end
+
+  def clear_on_close : Bool?
+    PayloadAccess.bool?(@payload["clear_on_close"]?, "view.clear_on_close")
+  end
+
+  def notify_on_close : Bool?
+    PayloadAccess.bool?(@payload["notify_on_close"]?, "view.notify_on_close")
+  end
+
+  # The view blocks. They stay raw JSON; typed received blocks are not decoded yet.
+  def blocks : JSON::Any?
+    @payload["blocks"]?
+  end
+
   def state_map : StateMap
     StateMap.new(@payload["state"]?, "view.state")
   end
 
   def plain_text?(block_id : String, action_id : String) : String?
     state_map.plain_text?(block_id, action_id)
+  end
+
+  private def string?(key : String) : String?
+    PayloadAccess.string?(@payload[key]?, "view.#{key}")
   end
 end

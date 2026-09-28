@@ -1,0 +1,8 @@
+{
+  "type": "view_closed",
+  "team": {"id": "T-SYNTHETIC", "domain": "example"},
+  "user": {"id": "U-SYNTHETIC", "name": "reporter"},
+  "view": {"id": "V-SYNTHETIC", "type": "modal", "title": {"type": "plain_text", "text": "Share report"}, "blocks": []},
+  "api_app_id": "A-SYNTHETIC",
+  "is_cleared": true
+}

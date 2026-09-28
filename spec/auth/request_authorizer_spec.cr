@@ -216,6 +216,13 @@ describe Slack::Auth::RequestAuthorizer do
       end.reason.should eq(:invalid_payload)
     end
 
+    empty_workflow_token = JSON.parse(RequestAuthorizerSupport.fixture("interaction_block_view.json"))
+    empty_workflow_token.as_h["bot_access_token"] = JSON::Any.new("")
+    empty_workflow_token_form = URI::Params.encode({"payload" => empty_workflow_token.to_json})
+    expect_raises(Slack::Auth::RequestAuthorizationError) do
+      authorizer.authorize_interaction(RequestAuthorizerSpec.request(empty_workflow_token_form, clock), grant)
+    end.reason.should eq(:invalid_payload)
+
     challenge = File.read("spec/fixtures/events/url_verification.json")
     expect_raises(Slack::Auth::RequestAuthorizationError) do
       authorizer.authorize_event(RequestAuthorizerSpec.request(challenge, clock), grant)
@@ -306,6 +313,23 @@ describe Slack::Auth::RequestAuthorizer do
       context.dispatch("POST", "chat.postMessage")
       transport.requests.last.headers["Authorization"].should eq("Bearer owner-bot-token")
     end
+  end
+
+  it "selects the installation owner, not the workflow token, for a function block action" do
+    clock = RequestAuthorizerSupport::Clock.new(Time.utc)
+    store = RequestAuthorizerSupport::Store.new(clock)
+    transport = RequestAuthorizerSupport::Transport.new
+    RequestAuthorizerSupport.seed(store, RequestAuthorizerSupport.workspace_key("T_OWNER"), "owner-bot-token")
+    authorizer = RequestAuthorizerSpec.authorizer(store, transport, clock)
+    object = JSON.parse(RequestAuthorizerSupport.fixture("interaction_block_view.json"))
+    object.as_h["bot_access_token"] = JSON::Any.new("xwfp-synthetic-workflow-token")
+    object.as_h["function_data"] = JSON.parse(%({"execution_id":"Fx1","function":{"callback_id":"approve"},"inputs":{}}))
+    body = URI::Params.encode({"payload" => object.to_json})
+
+    context = authorizer.authorize_interaction(RequestAuthorizerSpec.request(body, clock), Slack::Auth::GrantKey.new(:bot))
+    context.query.owner.should eq(RequestAuthorizerSupport.workspace_key("T_OWNER"))
+    context.dispatch("POST", "chat.postMessage")
+    transport.requests.last.headers["Authorization"].should eq("Bearer owner-bot-token")
   end
 
   it "rejects unrelated enterprise evidence for a cross-workspace view before store access" do

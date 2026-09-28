@@ -139,7 +139,7 @@ describe "Typed Block Kit interaction access" do
       Slack::Interaction.from_json("{#{fields}}")
     end
     submission = received_submission("")
-    submission.response_urls.should be_nil
+    submission.response_urls.should be_empty
     submission.team.should be_nil
   end
 

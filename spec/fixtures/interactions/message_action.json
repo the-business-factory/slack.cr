@@ -1,0 +1,11 @@
+{
+  "type": "message_action",
+  "callback_id": "file_bug",
+  "trigger_id": "3456.7890.synthetic",
+  "team": {"id": "T-SYNTHETIC", "domain": "example"},
+  "user": {"id": "U-SYNTHETIC", "name": "reporter"},
+  "channel": {"id": "C-SYNTHETIC", "name": "support"},
+  "message_ts": "1710000000.000300",
+  "message": {"type": "message", "user": "U-AUTHOR", "ts": "1710000000.000300", "text": "The export fails"},
+  "response_url": "https://hooks.slack.com/app/A-SYNTHETIC/3/synthetic"
+}

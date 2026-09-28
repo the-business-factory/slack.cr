@@ -39,6 +39,7 @@ require "../examples/support/markdown_example"
 require "../examples/support/workflow_button_example"
 require "../examples/support/context_actions_example"
 require "../examples/support/event_delivery_example"
+require "../examples/support/interaction_context_example"
 require "../examples/support/alert_example"
 require "../examples/support/socket_mode_example"
 
@@ -514,5 +515,18 @@ describe "documented Block Kit workflows" do
       JSON.parse(%({"envelope_id":"E-COMMAND"})),
       JSON.parse(%({"envelope_id":"E-SUBMIT","payload":{"response_action":"errors","errors":{"request.reason":"Explain why you need this request (at least 10 characters)."}}})),
     ]
+  end
+
+  it "updates the clicked message from its container and reads submission and close context" do
+    output = IO::Memory.new
+    updated = OfflineInteractionContextExample.run(output)
+    output.to_s.lines.should eq ["Approved in #releases at 1710000000.000100",
+                                 "Share release-2.0 notes in C-ANNOUNCE (acknowledged 200)",
+                                 "Closed all views of share_notes"]
+    # Authored from Slack's chat.update reference, not from the serializer.
+    updated.should eq JSON.parse(<<-JSON)
+      {"channel":"C-RELEASES","ts":"1710000000.000100","text":"Release 2.0 approved.",
+       "blocks":[{"type":"section","block_id":"decision.done","text":{"type":"mrkdwn","text":"*Release 2.0 approved.*"}}]}
+      JSON
   end
 end

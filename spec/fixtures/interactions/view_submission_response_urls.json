@@ -1,0 +1,20 @@
+{
+  "type": "view_submission",
+  "team": {"id": "T-SYNTHETIC", "domain": "example"},
+  "user": {"id": "U-SYNTHETIC", "username": "reporter"},
+  "api_app_id": "A-SYNTHETIC",
+  "trigger_id": "2345.6789.synthetic",
+  "view": {
+    "id": "V-SYNTHETIC",
+    "type": "modal",
+    "title": {"type": "plain_text", "text": "Share report"},
+    "blocks": [],
+    "callback_id": "share_report",
+    "private_metadata": "report-7",
+    "state": {"values": {"target": {"channel": {"type": "conversations_select", "selected_conversation": "C-TARGET"}}}},
+    "hash": "1710000000.efgh5678"
+  },
+  "response_urls": [
+    {"block_id": "target", "action_id": "channel", "channel_id": "C-TARGET", "response_url": "https://hooks.slack.com/app/A-SYNTHETIC/2/synthetic"}
+  ]
+}

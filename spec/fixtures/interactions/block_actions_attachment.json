@@ -1,0 +1,10 @@
+{
+  "type": "block_actions",
+  "team": {"id": "T-SYNTHETIC"},
+  "user": {"id": "U-SYNTHETIC"},
+  "api_app_id": "A-SYNTHETIC",
+  "container": {"type": "message_attachment", "message_ts": "1710000000.000200", "attachment_id": 1, "channel_id": "C-SYNTHETIC", "is_ephemeral": false, "is_app_unfurl": true},
+  "channel": {"id": "C-SYNTHETIC", "name": "links"},
+  "message": {"type": "message", "ts": "1710000000.000200", "text": "Unfurled link"},
+  "actions": [{"type": "button", "block_id": "unfurl", "action_id": "open", "action_ts": "1710000001.000200"}]
+}

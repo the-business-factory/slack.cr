@@ -287,7 +287,7 @@ entries:
     fields_supported: [type, action_id, initial_channel, placeholder, confirm, focus_on_load, response_url_enabled]
     parents: [section, actions, input]
     surfaces: [message, modal, home]
-    restrictions: Checked ChannelsSelect uses Slack-provided channel IDs with no local prefix, length, or remote existence checks. An empty initial ID is rejected as library policy. Input supports Message, FormModal and Home; view focus is unique. Typed selections and action IDs preserve absent/null/empty; other fields remain raw. No conversation filters. A supplied response_url_enabled is allowed only in modal Input; rejecting false elsewhere is library policy. Submission response_urls stay raw; no response URL transport.
+    restrictions: Checked ChannelsSelect uses Slack-provided channel IDs with no local prefix, length, or remote existence checks. An empty initial ID is rejected as library policy. Input supports Message, FormModal and Home; view focus is unique. Typed selections and action IDs preserve absent/null/empty; other fields remain raw. No conversation filters. A supplied response_url_enabled is allowed only in modal Input; rejecting false elsewhere is library policy. Submission response_urls decode as typed ResponseUrl values; no response URL transport.
     implementation_status: supported
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/block_elements/channels_select.cr, src/slack/interactions/channels_select_action.cr, src/slack/interactions/channels_select_value.cr, spec/ui/checked/channels_select_spec.cr, spec/interactions/channels_select_spec.cr, spec/api/channels_select_snapshot_spec.cr, examples/block_kit_channels_select.cr]
@@ -320,7 +320,7 @@ entries:
     fields_supported: [type, action_id, initial_conversation, default_to_current_conversation, filter, placeholder, confirm, focus_on_load, response_url_enabled]
     parents: [section, actions, input]
     surfaces: [message, modal, home]
-    restrictions: Slack provides visible public/private channels, DMs and MPIMs. Empty initial IDs are rejected as library policy; no ID-prefix, length, membership or filter-match checks. Initial conversation takes precedence over current-conversation default in Slack; both fields are preserved. Input supports Message, FormModal and Home; view focus is unique. Any supplied response_url_enabled is restricted to modal Input, including false by library policy. Typed selection preserves absent/null/empty and raw fields; response_urls stays raw.
+    restrictions: Slack provides visible public/private channels, DMs and MPIMs. Empty initial IDs are rejected as library policy; no ID-prefix, length, membership or filter-match checks. Initial conversation takes precedence over current-conversation default in Slack; both fields are preserved. Input supports Message, FormModal and Home; view focus is unique. Any supplied response_url_enabled is restricted to modal Input, including false by library policy. Typed selection preserves absent/null/empty and raw fields; response_urls decode as typed ResponseUrl values.
     implementation_status: supported
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/block_elements/conversations_select.cr, src/slack/interactions/conversations_select_action.cr, src/slack/interactions/conversations_select_value.cr, spec/ui/checked/conversations_select_spec.cr, spec/interactions/conversations_select_spec.cr, spec/api/conversations_select_snapshot_spec.cr, examples/block_kit_conversations_select.cr]
@@ -1260,7 +1260,7 @@ rules:
     evidence_paths: ["src/slack/ui/checked/channel_response_url.cr", "spec/ui/checked/channels_select_spec.cr", "spec/api/channels_select_snapshot_spec.cr"]
   - id: channel_select_received_ids
     classification: "library_support"
-    requirement: "Typed selected_channel and selected_channels actions and state preserve absent/null/empty and raw fields. Malformed known fields raise path-aware TypeMismatch without outbound constraints. Selected array access returns copies. Submission response_urls remains raw."
+    requirement: "Typed selected_channel and selected_channels actions and state preserve absent/null/empty and raw fields. Malformed known fields raise path-aware TypeMismatch without outbound constraints. Selected array access returns copies. Submission response_urls decode as typed ResponseUrl values."
     source_url: "https://docs.slack.dev/changelog/2020/09/01/full-state-on-view-submisson-and-block-actions/"
     source_section: "Empty state semantics; selected ID fields follow Bolt ChannelsSelectAction and MultiChannelsSelectAction (upstream_evidence)"
     reviewed_on: "2026-09-27"
@@ -1600,3 +1600,10 @@ rules:
     source_section: "Fields: child_blocks; Supported child blocks"
     reviewed_on: "2026-09-28"
     evidence_paths: [spec/ui/checked/container_block_spec.cr]
+  - id: interaction_context
+    classification: library_support
+    requirement: "block_actions container decodes message, view, and message_attachment types; other types stay Container::Unknown with raw JSON, and a non-object container raises TypeMismatch. channel, hash, function_data, and bot_access_token are typed; bot_access_token is a redacted Auth::Secret. view_submission response_urls are typed; view_closed is_cleared is typed. View getters read id, title, callback_id, private_metadata, external_id, hash, and related fields. Received message and view blocks and interactivity stay raw JSON."
+    source_url: https://docs.slack.dev/reference/interaction-payloads/block_actions-payload
+    source_section: "Fields: container, channel, hash, response_url, function_data, interactivity, bot_access_token"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/interactions/interaction_payloads_spec.cr, spec/auth/request_authorizer_spec.cr, examples/support/interaction_context_example.cr, spec/block_kit_consumers_spec.cr]

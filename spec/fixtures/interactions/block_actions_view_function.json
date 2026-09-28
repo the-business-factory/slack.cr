@@ -1,0 +1,38 @@
+{
+  "type": "block_actions",
+  "team": {"id": "T-SYNTHETIC", "domain": "example"},
+  "user": {"id": "U-SYNTHETIC", "team_id": "T-SYNTHETIC"},
+  "api_app_id": "A-SYNTHETIC",
+  "container": {"type": "view", "view_id": "V-SYNTHETIC"},
+  "trigger_id": "1234.5678.synthetic",
+  "hash": "1710000000.abcd1234",
+  "bot_access_token": "xwfp-synthetic-workflow-token",
+  "function_data": {
+    "execution_id": "Fx-SYNTHETIC",
+    "function": {"callback_id": "approve_request"},
+    "inputs": {"requester": "U-REQUESTER", "amount": 42}
+  },
+  "interactivity": {"interactivity_pointer": "1234.5678.pointer", "interactor": {"id": "U-SYNTHETIC", "secret": "synthetic-interactor-secret"}},
+  "view": {
+    "id": "V-SYNTHETIC",
+    "team_id": "T-SYNTHETIC",
+    "type": "modal",
+    "title": {"type": "plain_text", "text": "Approve request", "emoji": true},
+    "blocks": [{"type": "actions", "block_id": "decision", "elements": []}],
+    "private_metadata": "request-42",
+    "callback_id": "approval",
+    "state": {"values": {}},
+    "hash": "1710000000.abcd1234",
+    "clear_on_close": true,
+    "notify_on_close": false,
+    "close": null,
+    "submit": null,
+    "previous_view_id": null,
+    "root_view_id": "V-ROOT",
+    "app_id": "A-SYNTHETIC",
+    "external_id": "",
+    "app_installed_team_id": "T-SYNTHETIC",
+    "bot_id": "B-SYNTHETIC"
+  },
+  "actions": [{"type": "button", "block_id": "decision", "action_id": "approve", "value": "yes", "action_ts": "1710000001.000100"}]
+}
