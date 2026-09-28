@@ -54,6 +54,39 @@ module RichTextSpec
         .should eq JSON.parse(%({"type":"rich_text_list","style":"bullet","elements":[{"type":"rich_text_section","elements":[{"type":"text","text":"One"}]}]}))
     end
 
+    it "serializes the extended style flags, fields, and mention elements" do
+      marked = RT::Style.new(highlight: true, client_highlight: false, underline: true, unlink: true)
+      block = UI::Blocks::RichText.new(elements: [
+        RT::Section.new(elements: [
+          RT::Text.new("Note", style: RT::TextStyle.new(code: false, highlight: true, client_highlight: true, underline: false, unlink: false)),
+          RT::Channel.new("C-SYNTHETIC", tab_id: "Ct-SYNTHETIC", style: RT::Style.new(underline: true)),
+          RT::Date.new(1_800_000_000_i64, "{date_long_full}", timezone: "America/Chicago"),
+          RT::Team.new("T-SYNTHETIC", style: marked),
+          RT::File.new("F-SYNTHETIC", text: "plan.pdf", url: "https://example.com/files/plan.pdf", style: RT::Style.new(bold: true)),
+          RT::Canvas.new("F-CANVAS", label: "Runbook", hide_title: false, section_id: "temp:C:abc", text: "Runbook", url: "https://example.com/docs/runbook"),
+          RT::WorkflowMention.new("Wf-SYNTHETIC", function_trigger_id: "Ft-SYNTHETIC", text: "Request access",
+            url: "https://example.com/workflows/access", style: RT::Style.new(italic: true, unlink: false)),
+        ] of RT::Element),
+        RT::Quote.new(elements: [RT::Team.new("T-OTHER"), RT::File.new("F-OTHER"), RT::Canvas.new("F-DOC")] of RT::Element),
+      ])
+
+      # Authored from Slack's text, channel, date, team, file, canvas, and workflow mention element references.
+      JSON.parse(block.to_json).should eq JSON.parse(<<-JSON)
+        {"type":"rich_text","elements":[
+          {"type":"rich_text_section","elements":[
+            {"type":"text","text":"Note","style":{"code":false,"highlight":true,"client_highlight":true,"underline":false,"unlink":false}},
+            {"type":"channel","channel_id":"C-SYNTHETIC","tab_id":"Ct-SYNTHETIC","style":{"underline":true}},
+            {"type":"date","timestamp":1800000000,"format":"{date_long_full}","timezone":"America/Chicago"},
+            {"type":"team","team_id":"T-SYNTHETIC","style":{"highlight":true,"client_highlight":false,"underline":true,"unlink":true}},
+            {"type":"file","file_id":"F-SYNTHETIC","text":"plan.pdf","url":"https://example.com/files/plan.pdf","style":{"bold":true}},
+            {"type":"canvas","file_id":"F-CANVAS","label":"Runbook","hide_title":false,"section_id":"temp:C:abc","text":"Runbook","url":"https://example.com/docs/runbook"},
+            {"type":"workflow_mention","workflow_id":"Wf-SYNTHETIC","function_trigger_id":"Ft-SYNTHETIC","text":"Request access",
+             "url":"https://example.com/workflows/access","style":{"italic":true,"unlink":false}}]},
+          {"type":"rich_text_quote","elements":[
+            {"type":"team","team_id":"T-OTHER"},{"type":"file","file_id":"F-OTHER"},{"type":"canvas","file_id":"F-DOC"}]}]}
+        JSON
+    end
+
     it "owns snapshots of every nested collection" do
       leaves = [RT::Text.new("first")] of RT::Element
       items = [RT::Section.new(elements: leaves)]
@@ -97,6 +130,12 @@ module RichTextSpec
       expect_raises(UI::ValidationError) { RT::Date.new(0_i64, "") }.issues.map(&.path).should eq ["format"]
       expect_raises(UI::ValidationError) { RT::Quote.new(elements: {RT::Text.new("quoted")}, border: -1) }
         .issues.map(&.path).should eq ["border"]
+      expect_raises(UI::ValidationError) { RT::Team.new("") }
+        .issues.map { |issue| {issue.code, issue.path} }.should eq [{"team.team_id.empty", "team_id"}]
+      expect_raises(UI::ValidationError) { RT::File.new("") }.issues.map(&.path).should eq ["file_id"]
+      expect_raises(UI::ValidationError) { RT::Canvas.new("") }.issues.map(&.path).should eq ["file_id"]
+      expect_raises(UI::ValidationError) { RT::WorkflowMention.new("", function_trigger_id: "", text: "") }
+        .issues.map(&.path).should eq ["workflow_id", "function_trigger_id", "text"]
     end
   end
 end

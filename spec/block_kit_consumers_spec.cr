@@ -251,8 +251,23 @@ describe "documented Block Kit workflows" do
 
   it "posts rich text notes and reads a signed rich text reply" do
     output = IO::Memory.new
-    OfflineRichTextExample.run(output)
-    output.to_s.should eq "Mentioned users: U-AUTHOR\nFollow-up items: docs, changelog\n"
+    posted = OfflineRichTextExample.run(output)
+    output.to_s.should eq "Mentioned users: U-AUTHOR\nFollow-up items: docs, changelog\nWorkflows offered: Send feedback (Ft-FEEDBACK)\n"
+    # Authored from Slack's rich text element references and chat.postMessage, not from the serializer.
+    posted.should eq JSON.parse(<<-JSON)
+      {"channel":"C-SYNTHETIC","text":"Release 2.0 is live","blocks":[
+        {"type":"rich_text","block_id":"notes","elements":[
+          {"type":"rich_text_section","elements":[
+            {"type":"text","text":"Release "},{"type":"text","text":"2.0","style":{"bold":true,"highlight":true}},
+            {"type":"text","text":" is live for "},{"type":"team","team_id":"T-PARTNER"},{"type":"text","text":". "},
+            {"type":"emoji","name":"tada"}]},
+          {"type":"rich_text_list","style":"bullet","elements":[
+            {"type":"rich_text_section","elements":[{"type":"text","text":"Faster builds"}]},
+            {"type":"rich_text_section","elements":[{"type":"text","text":"New "},{"type":"link","url":"https://example.com/api","text":"API"}]},
+            {"type":"rich_text_section","elements":[{"type":"text","text":"Rollout: "},
+              {"type":"canvas","file_id":"F-RUNBOOK","section_id":"temp:C:rollout","text":"Release runbook","style":{"underline":true}}]}]},
+          {"type":"rich_text_preformatted","language":"shell","elements":[{"type":"text","text":"shards update"}]}]}]}
+      JSON
   end
 
   it "posts an LLM markdown answer and rejects oversized markdown locally" do

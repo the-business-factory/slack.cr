@@ -6,7 +6,11 @@ alias Slack::UI::Checked::RichText::Element = Slack::UI::Checked::RichText::Text
                                               Slack::UI::Checked::RichText::Channel |
                                               Slack::UI::Checked::RichText::Broadcast |
                                               Slack::UI::Checked::RichText::Date |
-                                              Slack::UI::Checked::RichText::Color
+                                              Slack::UI::Checked::RichText::Color |
+                                              Slack::UI::Checked::RichText::Team |
+                                              Slack::UI::Checked::RichText::File |
+                                              Slack::UI::Checked::RichText::Canvas |
+                                              Slack::UI::Checked::RichText::WorkflowMention
 
 # A run of inline rich text elements. It is also the only item type of a list.
 struct Slack::UI::Checked::RichText::Section

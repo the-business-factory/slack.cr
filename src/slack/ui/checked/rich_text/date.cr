@@ -7,8 +7,10 @@ struct Slack::UI::Checked::RichText::Date
   getter url : String?
   getter fallback : String?
   getter style : Style?
+  getter timezone : String?
 
-  def initialize(@timestamp : Int64, @format : String, @url : String? = nil, @fallback : String? = nil, @style : Style? = nil)
+  def initialize(@timestamp : Int64, @format : String, @url : String? = nil, @fallback : String? = nil, @style : Style? = nil,
+                 @timezone : String? = nil)
     validate!
   end
 
@@ -28,6 +30,7 @@ struct Slack::UI::Checked::RichText::Date
       json.field "type", type
       json.field "timestamp", @timestamp
       json.field "format", @format
+      json.field "timezone", @timezone if @timezone
       json.field "url", @url if @url
       json.field "fallback", @fallback if @fallback
       json.field "style", @style if @style

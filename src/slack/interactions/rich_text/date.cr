@@ -2,6 +2,7 @@ struct Slack::Interactions::RichText::Date
   getter raw : JSON::Any
   getter timestamp : Int64
   getter format : String
+  getter timezone : String?
   getter url : String?
   getter fallback : String?
   getter style : Style?
@@ -10,6 +11,7 @@ struct Slack::Interactions::RichText::Date
     object = Decoder.object(@raw, path)
     @timestamp = Decoder.int64(object["timestamp"]?, "#{path}.timestamp")
     @format = PayloadAccess.string(object["format"]?, "#{path}.format")
+    @timezone = PayloadAccess.string?(object["timezone"]?, "#{path}.timezone")
     @url = PayloadAccess.string?(object["url"]?, "#{path}.url")
     @fallback = PayloadAccess.string?(object["fallback"]?, "#{path}.fallback")
     @style = Decoder.style?(object, path)

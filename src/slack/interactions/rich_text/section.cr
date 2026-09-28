@@ -7,6 +7,10 @@ alias Slack::Interactions::RichText::Element = Slack::Interactions::RichText::Te
                                                Slack::Interactions::RichText::Broadcast |
                                                Slack::Interactions::RichText::Date |
                                                Slack::Interactions::RichText::Color |
+                                               Slack::Interactions::RichText::Team |
+                                               Slack::Interactions::RichText::File |
+                                               Slack::Interactions::RichText::Canvas |
+                                               Slack::Interactions::RichText::WorkflowMention |
                                                Slack::Interactions::RichText::Unknown
 
 struct Slack::Interactions::RichText::Section

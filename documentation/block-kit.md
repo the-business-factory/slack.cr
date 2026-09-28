@@ -341,7 +341,7 @@ Use `Blocks::RichText` for formatted display text. Build it from the `Slack::UI:
 
 | Container | Children |
 | --- | --- |
-| `RichText::Section`, `RichText::Quote` | Text, Link, Emoji, User, Usergroup, Channel, Broadcast, Date, Color |
+| `RichText::Section`, `RichText::Quote` | Text, Link, Emoji, User, Usergroup, Channel, Broadcast, Date, Color, Team, File, Canvas, WorkflowMention |
 | `RichText::Preformatted` | Text, Link |
 | `RichText::List` | `RichText::Section` only |
 
@@ -361,11 +361,29 @@ message = UI.message(fallback_text: "Release 2.0 is live") do |builder|
 end
 ```
 
-`TextStyle` has `bold`, `italic`, `strike`, and `code`. Mentions, links, dates, and colors use `Style`, without `code`. Omitted flags and explicit false stay distinct. `Broadcast` takes `BroadcastRange::Here`, `Channel`, or `Everyone`. `Date` needs a Unix `timestamp` in seconds and a `format` such as `"{date_short} at {time}"`; `url` and `fallback` are optional. A `List` has optional `indent`, `offset`, and `border`; `Preformatted` has `border` and `language`; `Quote` has `border`. To nest a list, use a second `List` with a larger `indent`.
+`TextStyle` has `bold`, `italic`, `strike`, `code`, `highlight`, `client_highlight`, `underline`, and `unlink`. The other inline elements use `Style`, which has the same flags without `code`. Omitted flags and explicit false stay distinct. Slack does not list `unlink` for dates, colors, and files; the library does not check this. `Broadcast` takes `BroadcastRange::Here`, `Channel`, or `Everyone`. `Date` needs a Unix `timestamp` in seconds and a `format` such as `"{date_short} at {time}"`; `timezone`, `url`, and `fallback` are optional. `Channel` has an optional `tab_id`. A `List` has optional `indent`, `offset`, and `border`; `Preformatted` has `border` and `language`; `Quote` has `border`. To nest a list, use a second `List` with a larger `indent`.
 
-The block and each container need at least one child. Required strings, such as text, URLs, IDs, and date formats, must not be empty. `border` is 0 or 1, and `indent` and `offset` are not negative. These checks are library policy. Other style flags, element types such as team or file mentions, and fields such as date `timezone` are not supported for outbound values. See Slack's [rich text block](https://docs.slack.dev/reference/block-kit/blocks/rich-text-block/) reference and its linked element pages.
+Use these elements to link to Slack objects:
 
-Read a received block with `Slack::Interactions::RichText::Block.new(raw, path)`. For example, use a block from `Slack::Events::Message#blocks`. The received types have the same names in `Slack::Interactions::RichText`. They keep `style`, `range`, and numbers as sent, allow empty children, and keep all JSON in `raw`. An unknown node type becomes `RichText::Unknown`. A missing required field, a wrong JSON type, or a known node in the wrong position raises a `TypeMismatch` with the JSON path.
+| Element | Required | Optional |
+| --- | --- | --- |
+| `Team` | `team_id` | `style` |
+| `File` | `file_id` | `text` (the file title), `url`, `style` |
+| `Canvas` | `file_id` | `label`, `hide_title`, `section_id`, `text` (the canvas title), `url`, `style` |
+| `WorkflowMention` | `workflow_id`, `function_trigger_id`, `text` | `url`, `style` |
+
+```crystal
+RT::Section.new(elements: [
+  RT::Text.new("Read the ", style: RT::TextStyle.new(highlight: true)),
+  RT::Canvas.new("F123", section_id: "temp:C:rollout", text: "Rollout steps"),
+  RT::Text.new(", then "),
+  RT::WorkflowMention.new("Wf123", function_trigger_id: "Ft123", text: "request access"),
+] of RT::Element)
+```
+
+The block and each container need at least one child. Required strings, such as text, URLs, IDs, and date formats, must not be empty. `border` is 0 or 1, and `indent` and `offset` are not negative. These checks are library policy. Other element types, such as `citation`, `tag`, and `message_mention`, are not supported for outbound values. See Slack's [rich text block](https://docs.slack.dev/reference/block-kit/blocks/rich-text-block/) reference and its linked element pages.
+
+Read a received block with `Slack::Interactions::RichText::Block.new(raw, path)`. For example, use a block from `Slack::Events::Message#blocks`. The received types have the same names in `Slack::Interactions::RichText`. They keep `style`, `range`, and numbers as sent, allow empty children, and keep all JSON in `raw`. Slack sets some fields only to describe a received node. Read them on the received types: link `from_llm`, `is_slack_url`, and `truncated`; user and channel `from_llm`; file and canvas `is_skill_invocation`; and workflow mention `channel_id` and `ts`. An unknown node type becomes `RichText::Unknown`. A missing required field, a wrong JSON type, or a known node in the wrong position raises a `TypeMismatch` with the JSON path.
 
 ```crystal
 reply = Slack::Interactions::RichText::Block.new(event.blocks[0], "event.blocks[0]")
@@ -376,6 +394,8 @@ reply.elements.each do |container|
   end
 end
 ```
+
+Migration: received `team`, `file`, `canvas`, and `workflow_mention` nodes now decode as `RichText::Team`, `File`, `Canvas`, and `WorkflowMention` instead of `RichText::Unknown`. Move handlers that match `Unknown#type` to these types, and extend exhaustive matches on `Interactions::RichText::Element` and `UI::Checked::RichText::Element`. Existing constructors are unchanged; the new style flags, `Channel#tab_id`, and `Date#timezone` are optional named arguments.
 
 ## Show a table
 
@@ -890,4 +910,4 @@ crystal run examples/block_kit_context_actions.cr
 crystal run examples/block_kit_alert.cr
 ```
 
-The message example builds and prints a request. The modal example posts a button, verifies a signed action, opens a form, and reads a signed submission. The Home example publishes through a stub and reads simulated state. The static choice example posts a single choice, reads a signed selection, opens a grouped multi-choice form, and reads its submission. The overflow example posts action and URL choices and acknowledges a signed URL selection. The checkbox example posts initial choices, reads a signed checkbox action, and reads a cleared selection from a signed submission. The radio example posts an initial choice, reads a signed selection, opens an optional override form, and reads an unselected submission. The message-update example replaces a posted approval button with the completed status and new fallback text. The user-select example assigns an owner and submits multiple reviewers. The video example posts a message with a video block and shows a local rejection of an HTTP video link. The external-select example answers a signed options-load request, then reads a signed selection and submission. The remote-file example prints the unfurls value for an application's own `chat.unfurl` request. The rich text example posts formatted release notes and reads mentions and list items from a signed message event. The file input example opens a receipt form and reads uploaded file IDs. The number and email input examples open modal-only forms from a signed button, read a dispatched value, and reject then accept a signed submission. The table example posts a revenue table built from application records and shows a local rejection of a row with too many cells. The rich text input example publishes a Home standup composer and reads a signed dispatched action. The markdown example posts an LLM answer as markdown and shows a local rejection of markdown text that is too long for one message. The workflow button example posts incident workflow buttons with trigger inputs and shows a local rejection on Home. The context actions example posts an answer with feedback and delete buttons and reads a signed feedback click as `UnknownAction`. The alert example opens a deploy status modal with one alert for each check and shows a local rejection of alert text that is too long. The data table example posts a paged ticket table and shows a local rejection of a row that is narrower than the header. Real handlers must acknowledge interactions within Slack's response window.
+The message example builds and prints a request. The modal example posts a button, verifies a signed action, opens a form, and reads a signed submission. The Home example publishes through a stub and reads simulated state. The static choice example posts a single choice, reads a signed selection, opens a grouped multi-choice form, and reads its submission. The overflow example posts action and URL choices and acknowledges a signed URL selection. The checkbox example posts initial choices, reads a signed checkbox action, and reads a cleared selection from a signed submission. The radio example posts an initial choice, reads a signed selection, opens an optional override form, and reads an unselected submission. The message-update example replaces a posted approval button with the completed status and new fallback text. The user-select example assigns an owner and submits multiple reviewers. The video example posts a message with a video block and shows a local rejection of an HTTP video link. The external-select example answers a signed options-load request, then reads a signed selection and submission. The remote-file example prints the unfurls value for an application's own `chat.unfurl` request. The rich text example posts formatted release notes with a team mention and a canvas link, and reads mentions, list items, and a workflow mention from a signed message event. The file input example opens a receipt form and reads uploaded file IDs. The number and email input examples open modal-only forms from a signed button, read a dispatched value, and reject then accept a signed submission. The table example posts a revenue table built from application records and shows a local rejection of a row with too many cells. The rich text input example publishes a Home standup composer and reads a signed dispatched action. The markdown example posts an LLM answer as markdown and shows a local rejection of markdown text that is too long for one message. The workflow button example posts incident workflow buttons with trigger inputs and shows a local rejection on Home. The context actions example posts an answer with feedback and delete buttons and reads a signed feedback click as `UnknownAction`. The alert example opens a deploy status modal with one alert for each check and shows a local rejection of alert text that is too long. The data table example posts a paged ticket table and shows a local rejection of a row that is narrower than the header. Real handlers must acknowledge interactions within Slack's response window.
