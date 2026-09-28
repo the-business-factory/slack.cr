@@ -2,6 +2,6 @@
 # the thread parent.
 struct Slack::Models::ConversationsReplies < Slack::Model
   properties_with_initializer \
-    messages : Array(ConversationsHistory::MessageHistory),
+    messages : Array(Message),
     has_more : Bool
 end

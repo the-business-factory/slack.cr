@@ -1,0 +1,40 @@
+{
+  "ok": true,
+  "user": {
+    "id": "W012A3CDE",
+    "team_id": "T012AB3C4",
+    "name": "spengler",
+    "deleted": false,
+    "color": "9f69e7",
+    "real_name": "Egon Spengler",
+    "tz": "America/Los_Angeles",
+    "tz_label": "Pacific Daylight Time",
+    "tz_offset": -25200,
+    "locale": "en-US",
+    "profile": {
+      "avatar_hash": "ge3b51ca72de",
+      "status_text": "Print is dead",
+      "status_emoji": ":books:",
+      "status_expiration": 0,
+      "real_name": "Egon Spengler",
+      "display_name": "spengler",
+      "real_name_normalized": "Egon Spengler",
+      "display_name_normalized": "spengler",
+      "email": "spengler@ghostbusters.example.com",
+      "image_24": "https://avatars.example.test/spengler_24.jpg",
+      "image_72": "https://avatars.example.test/spengler_72.jpg",
+      "image_192": "https://avatars.example.test/spengler_192.jpg",
+      "team": "T012AB3C4"
+    },
+    "is_admin": true,
+    "is_owner": false,
+    "is_primary_owner": false,
+    "is_restricted": false,
+    "is_ultra_restricted": false,
+    "is_bot": false,
+    "is_app_user": false,
+    "updated": 1502138686,
+    "has_2fa": false,
+    "enterprise_user": {"id": "W012A3CDE", "enterprise_id": "E1", "is_admin": false}
+  }
+}

@@ -17,7 +17,12 @@ describe Slack::Api::ConversationsHistory do
       oldest: "1652800000.000000", limit: 15)
     response = ApiSupport.client.call(request)
 
-    files = response.messages[2].files.should_not be_nil
-    files.first["id"].should eq "F03GL2VDTCG"
+    messages = response.messages
+    messages[0].blocks.size.should eq 2
+    messages[0].reply_count.should eq 1
+    messages[5].subtype.should eq "tombstone"
+    files = messages[2].files.should_not be_nil
+    files.first.id.should eq "F03GL2VDTCG"
+    files.first.mimetype.should eq "image/png"
   end
 end

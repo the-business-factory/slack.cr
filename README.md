@@ -62,9 +62,33 @@ client.each_page(request) do |page|
 end
 ```
 
-Paginated requests are `ConversationsList`, `ConversationsHistory`, `ConversationsReplies`, and `ConversationsMembers`. Each accepts `cursor:` and `limit:`. The client rejects a `limit` outside 1 to 1000 before it sends the request; Slack checks lower method maximums. Slack recommends 100 to 200 items per page. `ConversationsInfo` reads one conversation, with optional `include_locale:` and `include_num_members:`. Conversations read as `PublicChannel`, `PrivateChannel` (also group direct messages), or `IMChat`.
+Paginated requests are `ConversationsList`, `ConversationsHistory`, `ConversationsReplies`, `ConversationsMembers`, `UsersList`, `UsersConversations`, and `AuthTeamsList`. Each accepts `cursor:` and `limit:`. The client rejects a `limit` outside 1 to 1000 before it sends the request; Slack checks lower method maximums. Slack recommends 100 to 200 items per page. `ConversationsInfo` reads one conversation, with optional `include_locale:` and `include_num_members:`. Conversations read as `PublicChannel`, `PrivateChannel` (also group direct messages), or `IMChat`.
 
 Each page is one call: local pacing applies, and an error such as `RateLimited` raises from the loop. The client does not wait and retry. Since 2025-05-29, Slack limits `conversations.history` and `conversations.replies` to one request per minute and 15 items per page for new apps distributed outside the Slack Marketplace. The client does not enforce this limit. See [pagination](https://docs.slack.dev/apis/web-api/pagination) and [rate limits](https://docs.slack.dev/apis/web-api/rate-limits).
+
+### Users and user groups
+
+Read people and bots with `UsersInfo`, `UsersLookupByEmail`, `UsersList`, and `BotsInfo`. A `Slack::Models::User` has `id`, `team_id`, `name`, `real_name`, `tz`, the flags `deleted?`, `is_bot?`, `is_admin?`, and `is_owner?`, and a `profile`. Slack omits empty profile fields, and `email` needs the `users:read.email` scope:
+
+```crystal
+user = client.call(Slack::Api::UsersLookupByEmail.new("ana@example.test")).user
+puts "#{user.profile.display_name} #{user.tz}"
+```
+
+`UsersConversations` reads the conversations of a user. `UsersProfileGet`, `UsersGetPresence`, and `UsersSetPresence` read and set the profile and presence. `UsersProfileSet` sets several fields with `profile:`, or one field with `name:` and `value:`; it needs a user token:
+
+```crystal
+client.call(Slack::Api::UsersProfileSet.new(profile: {status_text: "Focus time", status_emoji: ":headphones:"}))
+```
+
+User groups use `UsergroupsList`, `UsergroupsCreate`, `UsergroupsUpdate`, `UsergroupsEnable`, `UsergroupsDisable`, `UsergroupsUsersList`, and `UsergroupsUsersUpdate`. `UsergroupsUsersUpdate` replaces all members and needs at least one user ID:
+
+```crystal
+group = client.call(Slack::Api::UsergroupsCreate.new("On-call", handle: "oncall")).usergroup
+client.call(Slack::Api::UsergroupsUsersUpdate.new(group.id, ["U1", "U3"]))
+```
+
+`TeamInfo` reads the token's workspace, or another workspace with `team:` or `domain:`. Slack checks name and handle uniqueness, scopes, and admin permissions.
 
 ## Block Kit
 
@@ -244,6 +268,7 @@ crystal run examples/block_kit_alert.cr
 crystal run examples/web_api.cr
 crystal run examples/file_upload.cr
 crystal run examples/thread_history.cr
+crystal run examples/user_group.cr
 crystal run examples/streaming.cr
 crystal run examples/assistant_thread.cr
 crystal run examples/attachments.cr
@@ -257,7 +282,7 @@ crystal run examples/received_blocks.cr
 crystal run examples/workflow_step.cr
 ```
 
-The examples show Web API calls and error codes, channel history and thread replies across cursor pages, a file upload, a remote file share, message construction, a message with a colored attachment and metadata, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, message workflow buttons, typed blocks of a received message, routed app events and message subtypes, Socket Mode frames with their acknowledgments, a Socket Mode connection to a local server, a slash command response with a `response_url` reply, and a custom workflow step that completes or fails its execution. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
+The examples show Web API calls and error codes, channel history and thread replies across cursor pages, workspace members read into an on-call user group, a file upload, a remote file share, message construction, a message with a colored attachment and metadata, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, message workflow buttons, typed blocks of a received message, routed app events and message subtypes, Socket Mode frames with their acknowledgments, a Socket Mode connection to a local server, a slash command response with a `response_url` reply, and a custom workflow step that completes or fails its execution. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
 
 ## Contributing
 

@@ -53,6 +53,7 @@ require "../examples/support/streaming_example"
 require "../examples/support/attachments_example"
 require "../examples/support/socket_mode_client_example"
 require "../examples/support/assistant_thread_example"
+require "../examples/support/user_group_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -117,6 +118,21 @@ describe "documented Block Kit workflows" do
     output = IO::Memory.new
     OfflineAssistantThreadExample.run(output)
     output.to_s.should eq("Suggested 2 prompts\nTitled the thread\nShowing a status\nCleared the status\n")
+  end
+
+  it "reads members across cursor pages and fills an on-call user group" do
+    output = IO::Memory.new
+    sent = OfflineUserGroupExample.run(output)
+    output.to_s.should eq(<<-TEXT)
+      People: ana, cy
+      Lead: Ana Ruiz (Europe/Madrid)
+      @oncall: 2 members
+
+      TEXT
+    sent.should eq [
+      URI::Params.parse("name=On-call&description=Led+by+Ana+Ruiz&handle=oncall"),
+      URI::Params.parse("usergroup=S1&users=U1%2CU3&include_count=true"),
+    ]
   end
 
   it "streams a threaded answer with a plan and final feedback blocks" do
