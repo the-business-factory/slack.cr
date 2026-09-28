@@ -34,6 +34,7 @@ require "../examples/support/rich_text_input_example"
 require "../examples/support/markdown_example"
 require "../examples/support/workflow_button_example"
 require "../examples/support/context_actions_example"
+require "../examples/support/alert_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -262,6 +263,21 @@ describe "documented Block Kit workflows" do
       {"channel":"C-SYNTHETIC","text":"How to rotate the signing secret","blocks":[
         {"type":"markdown","text":"## Rotate the signing secret\n\n1. Open **Basic Information**.\n2. Select _Regenerate_ next to the secret.\n3. Update `SLACK_SIGNING_SECRET` and redeploy.\n\nSee [Verifying requests](https://docs.slack.dev/authentication/verifying-requests-from-slack)."},
         {"type":"context","elements":[{"type":"plain_text","text":"Generated answer. Check the steps before you use them."}]}]}
+      JSON
+  end
+
+  it "opens a deploy status modal with an alert for each check" do
+    output = IO::Memory.new
+    opened = OfflineAlertExample.run(output)
+    output.to_s.should eq "Opened deploy status with 2 alerts\nRejected before sending: alert.text.too_long\n"
+    # Authored from Slack's alert block and views.open references, not from the serializer.
+    opened.should eq JSON.parse(<<-JSON)
+      {"trigger_id":"synthetic-trigger","view":{"type":"modal",
+        "title":{"type":"plain_text","text":"Deploy 42"},"close":{"type":"plain_text","text":"Done"},
+        "blocks":[
+          {"type":"alert","block_id":"check.build","text":{"type":"mrkdwn","text":"*Build* passed"},"level":"success"},
+          {"type":"alert","block_id":"check.migrations","text":{"type":"mrkdwn","text":"*Migrations* failed"},"level":"error"},
+          {"type":"section","text":{"type":"plain_text","text":"Fix the failed checks, then deploy again."}}]}}
       JSON
   end
 

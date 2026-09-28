@@ -106,9 +106,10 @@ crystal run examples/block_kit_context_actions.cr
 crystal run examples/block_kit_rich_text_input.cr
 crystal run examples/block_kit_markdown.cr
 crystal run examples/block_kit_workflow_button.cr
+crystal run examples/block_kit_alert.cr
 ```
 
-The examples show checked message construction, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, uploaded files, and message workflow buttons. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
+The examples show checked message construction, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, and message workflow buttons. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
 
 ## Contributing
 

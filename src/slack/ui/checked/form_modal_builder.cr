@@ -23,6 +23,12 @@ class Slack::UI::Checked::FormModalBuilder
     @blocks << block
   end
 
+  # Adds an alert block. Message and Home builders do not have this helper
+  # because Slack shows alerts in modals only.
+  def alert(text : CompositionObjects::Text, level : Blocks::AlertLevel? = nil, block_id : String? = nil) : Nil
+    add(Blocks::Alert.new(text: text, level: level, block_id: block_id))
+  end
+
   def add_all(blocks : Enumerable(T)) : Nil forall T
     blocks.each { |block| add(block) }
   end

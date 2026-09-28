@@ -25,7 +25,10 @@ struct Slack::UI::Checked::Home
     @external_id : String? = nil,
   ) forall T
     @blocks = [] of HomeBlock
-    blocks.each { |block| append_block(block) }
+    blocks.each do |block|
+      DeclaredTypes.non_modal_block(typeof(block))
+      append_block(block)
+    end
     validate!
   end
 

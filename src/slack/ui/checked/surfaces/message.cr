@@ -117,7 +117,10 @@ struct Slack::UI::Checked::Message
 
   private def copy_blocks(blocks : Enumerable(T)) : Array(MessageBlock) forall T
     copied = [] of MessageBlock
-    blocks.each { |block| append_block(copied, block) }
+    blocks.each do |block|
+      DeclaredTypes.non_modal_block(typeof(block))
+      append_block(copied, block)
+    end
     copied
   end
 
