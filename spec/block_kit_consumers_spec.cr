@@ -50,6 +50,7 @@ require "../examples/support/file_upload_example"
 require "../examples/support/thread_history_example"
 require "../examples/support/streaming_example"
 require "../examples/support/attachments_example"
+require "../examples/support/socket_mode_client_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -578,6 +579,22 @@ describe "documented Block Kit workflows" do
       JSON.parse(%({"envelope_id":"E-EVENT"})),
       JSON.parse(%({"envelope_id":"E-COMMAND"})),
       JSON.parse(%({"envelope_id":"E-SUBMIT","payload":{"response_action":"errors","errors":{"request.reason":"Explain why you need this request (at least 10 characters)."}}})),
+    ]
+  end
+
+  it "receives a slash command over a Socket Mode connection and acknowledges it with a response" do
+    output = IO::Memory.new
+    finished = Channel(Array(String)).new(1)
+    spawn { finished.send(OfflineSocketModeClientExample.run(output)) }
+    acks = select
+    when received = finished.receive
+      received
+    when timeout(5.seconds)
+      fail "the Socket Mode client example did not stop"
+    end
+    output.to_s.lines.should eq ["Acknowledged /deploy staging", "Socket Mode is off; the client stopped"]
+    acks.map { |ack| JSON.parse(ack) }.should eq [
+      JSON.parse(%({"envelope_id":"E-DEPLOY","payload":{"response_type":"ephemeral","text":"Deploying staging"}})),
     ]
   end
 

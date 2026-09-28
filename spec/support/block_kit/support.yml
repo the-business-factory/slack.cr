@@ -969,10 +969,21 @@ entries:
     fields_supported: [envelope_id, payload]
     parents: [events_api, interactive, slash_commands]
     surfaces: [socket mode]
-    restrictions: "SocketMode::Frame decodes hello, disconnect (warning, refresh_requested, link_disabled, or an unknown reason by name), envelopes of any type, and other frames raw. Envelope#event, #interaction, and #command decode the raw payload bytes with the HTTP-path decoders and raise TypeMismatch for the wrong kind; commands reject duplicate routing fields. retry_attempt and retry_reason are SDK-sourced (Bolt JS socket-mode client) and nilable. Acknowledgment writes envelope_id and adds payload only when given: ModalErrors, ModalPush, ModalUpdate, ModalClear, BlockSuggestionResponse, or Commands::Response. No WebSocket connection, reconnect, three-second deadline, or accepts_response_payload enforcement. Offline fixtures do not prove live frame shapes or timing."
+    restrictions: "SocketMode::Frame decodes hello, disconnect (warning, refresh_requested, link_disabled, or an unknown reason by name), envelopes of any type, and other frames raw. Envelope#event, #interaction, and #command decode the raw payload bytes with the HTTP-path decoders and raise TypeMismatch for the wrong kind; commands reject duplicate routing fields. retry_attempt and retry_reason are SDK-sourced (Bolt JS socket-mode client) and nilable. Acknowledgment writes envelope_id and adds payload only when given: ModalErrors, ModalPush, ModalUpdate, ModalClear, BlockSuggestionResponse, or Commands::Response. SocketMode::Client owns the connection (see the apps.connections.open entry); the types do not enforce the three-second deadline. Offline fixtures do not prove live frame shapes or timing."
     implementation_status: supported
     inbound_status: supported
     evidence_paths: [src/slack/socket_mode/frame.cr, src/slack/socket_mode/envelope.cr, src/slack/socket_mode/acknowledgment.cr, spec/socket_mode/frame_spec.cr, spec/socket_mode/acknowledgment_spec.cr, examples/support/socket_mode_example.cr, spec/block_kit_consumers_spec.cr]
+
+  - wire_type: apps.connections.open request
+    kind: endpoint
+    documentation_url: https://docs.slack.dev/reference/methods/apps.connections.open
+    fields_supported: [url]
+    parents: []
+    surfaces: [socket mode]
+    restrictions: "AppsConnectionsOpen posts an empty form (Tier 3) and reads url as a URI; the app-level token travels in the Authorization header of the client. SocketMode::Client keeps one connection (Slack allows 10), calls this method for each connection, dispatches each envelope to the handler on its own fiber, and sends acknowledgments from one writer fiber on the current connection. Acknowledger#ack is single-use and rejects a payload when accepts_response_payload is false. warning, refresh_requested, and unknown disconnect reasons open a new connection before the old one closes; link_disabled stops run; a close without a disconnect frame reconnects after a backoff wait. Transport, network, TLS, and rate-limit failures of an open retry; failed opens and unexpected closes share one failure count until hello, with waits of 1 to 30 seconds or Retry-After; other Slack errors raise from run. The default connector limits DNS, connect, TLS, and handshake time to 10 seconds, and close ends a handshake or wait in progress. HTTP::WebSocket answers pings. No debug_reconnects, multiple connections, three-second deadline enforcement, or listener routing. The loopback specs do not prove live delivery, reconnect timing, or acknowledgment acceptance."
+    implementation_status: supported
+    inbound_status: supported
+    evidence_paths: [src/slack/api/requests/apps/connections_open.cr, src/slack/models/apps/connections_open.cr, src/slack/socket_mode/client.cr, src/slack/socket_mode/connector.cr, src/slack/socket_mode/acknowledger.cr, spec/api/apps_connections_open_spec.cr, spec/socket_mode/client_spec.cr, examples/support/socket_mode_client_example.cr, spec/block_kit_consumers_spec.cr]
 
   - wire_type: slash command response
     kind: command acknowledgment
