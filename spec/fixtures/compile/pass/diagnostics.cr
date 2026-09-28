@@ -25,6 +25,7 @@ UI.home(&.data_visualization("Tickets", UI::DataVisualization::PieChart.new({UI:
 card = UI::Blocks::Card.new(title: label)
 UI.home(&.carousel({card}))
 UI::DisplayModal.new(title: label, blocks: [card, section])
+UI.home(&.add(UI::Blocks::Container.new(title: label, child_blocks: {section})))
 UI::Message.new(fallback_text: "File", blocks: [UI::Blocks::File.new(external_id: "ABCD1"), section])
 trash = UI::BlockElements::IconButton.new(UI::BlockElements::IconButtonIcon::Trash, text: UI.plain("Delete"))
 UI::Message.new(fallback_text: "Answer", blocks: [UI::Blocks::ContextActions.new(elements: {trash}), section])

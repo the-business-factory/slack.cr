@@ -81,6 +81,8 @@ module SurfaceConsumer
       "chart"
     in UI::Blocks::Carousel
       "carousel"
+    in UI::Blocks::Container
+      "container"
     in UI::DisplayModalBlock
       "display"
     end
@@ -101,10 +103,14 @@ module SurfaceConsumer
   def self.caption(block : UI::DisplayModalBlock | UI::Blocks::Table | UI::Blocks::ContextActions | UI::Blocks::DataTable | UI::Blocks::DataVisualization | UI::Blocks::Carousel) : String
     block.type
   end
+
+  def self.caption(block : UI::Blocks::Container) : String
+    block.child_blocks.size.to_s
+  end
 end
 
 describe "typed surface consumers" do
-  it "dispatches Input, message-only, table, carousel, and display blocks through exhaustive cases and overloads" do
+  it "dispatches Input, message-only, table, carousel, container, and display blocks through exhaustive cases and overloads" do
     input = Slack::UI::Checked::Blocks::Input.new(
       label: Slack::UI::Checked.plain("Note"),
       element: Slack::UI::Checked::BlockElements::PlainTextInput.new
@@ -121,10 +127,11 @@ describe "typed surface consumers" do
       rows: { {Slack::UI::Checked::Table::RawText.new("T-1")} })
     card = Slack::UI::Checked::Blocks::Card.new(title: Slack::UI::Checked.plain("Card"))
     carousel = Slack::UI::Checked::Blocks::Carousel.new(elements: {card})
-    message_blocks = [divider, input, file, table, markdown, context_actions, data_table, carousel] of Slack::UI::Checked::MessageBlock
+    container = Slack::UI::Checked::Blocks::Container.new(title: Slack::UI::Checked.plain("Group"), child_blocks: {file, input})
+    message_blocks = [divider, input, file, table, markdown, context_actions, data_table, carousel, container] of Slack::UI::Checked::MessageBlock
     consumer_message = Slack::UI::Checked::Message.new(fallback_text: "Note", blocks: message_blocks)
     Slack::UI::Checked::DisplayModal.new(title: Slack::UI::Checked.plain("Display"), blocks: display_blocks)
-    consumer_message.blocks.map { |block| SurfaceConsumer.kind(block) }.should eq(["display", "input", "message-only", "table", "message-only", "message-only", "table", "carousel"])
-    consumer_message.blocks.map { |block| SurfaceConsumer.caption(block) }.should eq(["divider", "Note", "ABCD1", "table", "**Open**", "context_actions", "data_table", "carousel"])
+    consumer_message.blocks.map { |block| SurfaceConsumer.kind(block) }.should eq(["display", "input", "message-only", "table", "message-only", "message-only", "table", "carousel", "container"])
+    consumer_message.blocks.map { |block| SurfaceConsumer.caption(block) }.should eq(["divider", "Note", "ABCD1", "table", "**Open**", "context_actions", "data_table", "carousel", "2"])
   end
 end

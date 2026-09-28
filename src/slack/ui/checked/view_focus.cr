@@ -1,4 +1,5 @@
-# A view has one focus target across Input, Actions, and Section children.
+# A view has one focus target across Input, Actions, and Section children,
+# including those inside a container.
 module Slack::UI::Checked::ViewFocus
   def self.validate(blocks : Enumerable(T), surface : String) : Array(ValidationIssue) forall T
     issues = [] of ValidationIssue
@@ -14,7 +15,7 @@ module Slack::UI::Checked::ViewFocus
     issues
   end
 
-  private def self.paths(block : HomeBlock | Blocks::ModalInput | Blocks::Alert) : Array(String)
+  private def self.paths(block : HomeBlock | Blocks::ModalInput | Blocks::Alert | Blocks::Container::Child) : Array(String)
     paths = [] of String
     case block
     when Blocks::Input
@@ -30,6 +31,10 @@ module Slack::UI::Checked::ViewFocus
     when Blocks::Actions
       block.elements.each_with_index do |element, index|
         paths << "elements[#{index}].focus_on_load" if focused?(element)
+      end
+    when Blocks::Container
+      block.child_blocks.each_with_index do |child, index|
+        paths(child).each { |path| paths << "child_blocks[#{index}].#{path}" }
       end
     end
     paths

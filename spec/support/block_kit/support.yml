@@ -1,6 +1,6 @@
 schema_version: 2
 checked_on: "2026-09-28"
-scope: Checked Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, channel selects, date/time pickers, the datetime picker, video blocks, external selects with block_suggestion option responses, remote file blocks, rich text display blocks, table blocks, data table blocks, data visualization blocks, card and carousel blocks, alert blocks, markdown blocks, context actions blocks with feedback and icon buttons, number inputs, file inputs, URL inputs, email inputs, rich text inputs, and message workflow buttons, including Input in Messages, FormModal and Home, modal-only Input children in FormModal, and view-only Input children in FormModal and Home.
+scope: Checked Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, channel selects, date/time pickers, the datetime picker, video blocks, external selects with block_suggestion option responses, remote file blocks, rich text display blocks, table blocks, data table blocks, data visualization blocks, card and carousel blocks, container blocks, alert blocks, markdown blocks, context actions blocks with feedback and icon buttons, number inputs, file inputs, URL inputs, email inputs, rich text inputs, and message workflow buttons, including Input in Messages, FormModal and Home, modal-only Input children in FormModal, and view-only Input children in FormModal and Home.
 statuses:
   - unsupported
   - partial
@@ -474,7 +474,7 @@ entries:
     fields_supported: [text, blocks]
     parents: [chat.postMessage, chat.update]
     surfaces: [message]
-    restrictions: Supports explicit fallback text or the separately named Slack-generated fallback choice and a checked union of Section, Actions, Divider, Header, Context, Image, RichText, Table, DataTable, DataVisualization, Card, Carousel, Markdown, ContextActions, and Input. At most two DataVisualization blocks per message. The text of all Markdown blocks in one message is at most 12,000 characters. The update adapter requires explicit fallback. Other block families remain unsupported until their slices ship.
+    restrictions: Supports explicit fallback text or the separately named Slack-generated fallback choice and a checked union of Section, Actions, Divider, Header, Context, Image, RichText, Table, DataTable, DataVisualization, Card, Carousel, Container, Markdown, ContextActions, and Input. At most two DataVisualization blocks per message. The text of all Markdown blocks in one message is at most 12,000 characters. The update adapter requires explicit fallback. Other block families remain unsupported until their slices ship.
     implementation_status: supported
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/surfaces/message.cr, src/slack/ui/checked/message_builder.cr, spec/ui/checked/message_spec.cr, examples/block_kit_message.cr]
@@ -617,7 +617,7 @@ entries:
     fields_supported: [type, blocks, private_metadata, callback_id, external_id]
     parents: [views.publish]
     surfaces: [home]
-    restrictions: Checked Home and HomeBuilder accept Section, Actions, Divider, Header, Context, Image, RichText, Table, DataTable, DataVisualization, Card, Carousel, and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, user selects, channel selects, conversation selects, or date/time pickers, and ViewInput containing RichTextInput. At most 100 blocks, unique supplied block IDs, and one focused element per view across Section, Actions, and Input. Modal fields are unavailable. Other block and input families remain deferred. Inbound Home views retain raw JSON; button/static-select/overflow/checkbox/radio/user-select/channel-select/conversation-select/date-picker/time-picker actions and plain text/static-select/checkbox/radio/user-select/channel-select/conversation-select/date-picker/time-picker/rich-text-input state have typed access; rich-text-input actions are also typed.
+    restrictions: Checked Home and HomeBuilder accept Section, Actions, Divider, Header, Context, Image, RichText, Table, DataTable, DataVisualization, Card, Carousel, Container (no File child), and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, user selects, channel selects, conversation selects, or date/time pickers, and ViewInput containing RichTextInput. At most 100 blocks, unique supplied block IDs (including Container children), and one focused element per view across Section, Actions, and Input, including Container children. Modal fields are unavailable. Other block and input families remain deferred. Inbound Home views retain raw JSON; button/static-select/overflow/checkbox/radio/user-select/channel-select/conversation-select/date-picker/time-picker actions and plain text/static-select/checkbox/radio/user-select/channel-select/conversation-select/date-picker/time-picker/rich-text-input state have typed access; rich-text-input actions are also typed.
     implementation_status: supported
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/surfaces/home.cr, src/slack/ui/checked/home_builder.cr, spec/ui/checked/home_spec.cr, spec/interactions/home_spec.cr, examples/block_kit_home.cr]
@@ -852,6 +852,17 @@ entries:
     implementation_status: supported
     inbound_status: unsupported
     evidence_paths: [src/slack/ui/checked/composition_objects/slack_icon.cr, src/slack/ui/checked/composition_objects/slack_icon_name.cr, spec/ui/checked/card_carousel_spec.cr]
+
+  - wire_type: container
+    kind: block
+    documentation_url: https://docs.slack.dev/reference/block-kit/blocks/container-block
+    fields_supported: [type, title, rich_text_title, subtitle, child_blocks, block_id, width, icon, is_collapsible, default_collapsed, has_header_divider]
+    parents: [message, home]
+    surfaces: [message, home]
+    restrictions: "Checked Blocks::Container owns a copy of 1 to 10 child blocks of Section, Actions, Context, Divider, File, Header, Image, Input, RichText, Table, or Video; other children, including a nested Container, are compile errors. The constructors require title, rich_text_title, or both at compile time; Slack shows rich_text_title when both are sent. title and subtitle (plain_text or mrkdwn) 150 characters, icon alt_text 2000, block_id 255. width is Container::Width (narrow, standard, wide, full). is_collapsible, default_collapsed, and has_header_divider keep omission and explicit false distinct and are sent as given. One or more children is library policy. Home rejects a File child at runtime as library policy, because the File block is documented for messages only. Child block IDs share the surface's ID space; child focus_on_load, Home datetimepicker, Home workflow_button, and response_url_enabled checks apply as at the top level. DisplayModal and FormModal reject it at compile time. The container has no payload of its own; clicks in children decode as their usual actions. Input state keying inside a container is not documented. Received message containers are not decoded."
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/checked/blocks/container.cr, spec/ui/checked/container_block_spec.cr, spec/fixtures/block_kit/container_message.json, spec/block_kit_diagnostics_spec.cr, examples/support/container_example.cr, spec/block_kit_consumers_spec.cr]
 
 # Classification is independent of support status. Missing features are not invalid Slack payloads.
 review_policy:
@@ -1564,3 +1575,17 @@ rules:
     source_section: "Fields: actions, block_id; Example"
     reviewed_on: "2026-09-28"
     evidence_paths: [spec/ui/checked/card_carousel_spec.cr]
+  - id: container_block
+    classification: slack_requirement
+    requirement: "title (plain_text, 150) or rich_text_title (a rich_text block) is required; rich_text_title wins when both are sent. subtitle is plain_text or mrkdwn, 150. child_blocks is required, up to 10 blocks of actions, context, divider, file, header, image, input, rich_text, section, table, or video. width is narrow, standard, wide, or full. icon is an image element; alt_text 2000. is_collapsible, default_collapsed, and has_header_divider are booleans. Available in Messages and Home tabs."
+    source_url: https://docs.slack.dev/reference/block-kit/blocks/container-block
+    source_section: "Fields, Supported child blocks, and Available in surfaces"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/ui/checked/container_block_spec.cr, spec/block_kit_consumers_spec.cr, spec/block_kit_diagnostics_spec.cr]
+  - id: container_policy
+    classification: library_policy
+    requirement: "Outbound containers need one or more child blocks. Home rejects a File child because Slack documents the File block for messages only; Slack does not document a File child on Home. A container does not nest another container."
+    source_url: https://docs.slack.dev/reference/block-kit/blocks/container-block
+    source_section: "Fields: child_blocks; Supported child blocks"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/ui/checked/container_block_spec.cr]

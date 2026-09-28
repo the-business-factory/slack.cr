@@ -1,0 +1,38 @@
+{
+  "text": "Bulk update: 2 records selected",
+  "blocks": [
+    {
+      "type": "container",
+      "block_id": "bulk.update",
+      "title": {"type": "plain_text", "text": "Bulk update: 2 records selected"},
+      "subtitle": {"type": "mrkdwn", "text": "Review *all* changes"},
+      "width": "wide",
+      "icon": {"type": "image", "alt_text": "Records", "image_url": "https://example.com/records.png"},
+      "is_collapsible": true,
+      "default_collapsed": false,
+      "has_header_divider": false,
+      "child_blocks": [
+        {"type": "header", "text": {"type": "plain_text", "text": "Changes"}},
+        {"type": "section", "block_id": "record-row-1", "text": {"type": "mrkdwn", "text": "*DCW-1024*\nStatus: Open → Closed"}},
+        {"type": "divider"},
+        {"type": "context", "elements": [{"type": "mrkdwn", "text": "2 records will be updated"}]},
+        {"type": "image", "alt_text": "Chart", "image_url": "https://example.com/chart.png"},
+        {"type": "input", "block_id": "reason", "label": {"type": "plain_text", "text": "Reason"}, "element": {"type": "plain_text_input", "action_id": "reason"}},
+        {"type": "actions", "block_id": "bulk-actions", "elements": [
+          {"type": "button", "text": {"type": "plain_text", "text": "Confirm All"}, "action_id": "bulk_confirm", "style": "primary"}
+        ]}
+      ]
+    },
+    {
+      "type": "container",
+      "title": {"type": "plain_text", "text": "Ignored when rich_text_title is present"},
+      "rich_text_title": {"type": "rich_text", "elements": [{"type": "rich_text_section", "elements": [{"type": "text", "text": "Attachments", "style": {"bold": true}}]}]},
+      "width": "full",
+      "child_blocks": [
+        {"type": "file", "external_id": "ABCD1", "source": "remote"},
+        {"type": "rich_text", "elements": [{"type": "rich_text_section", "elements": [{"type": "user", "user_id": "U-SYNTHETIC"}]}]},
+        {"type": "table", "rows": [[{"type": "raw_text", "text": "Open"}, {"type": "raw_number", "value": 4, "text": "4"}]]}
+      ]
+    }
+  ]
+}

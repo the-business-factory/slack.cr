@@ -17,8 +17,15 @@ module Slack::UI::Checked::ChannelResponseUrl
   def self.non_modal_inputs(blocks : Enumerable(T)) : Array(ValidationIssue) forall T
     issues = [] of ValidationIssue
     blocks.each_with_index do |block, index|
-      if block.is_a?(Blocks::Input)
+      case block
+      when Blocks::Input
         issues.concat(validate(block.element, "blocks[#{index}].element.response_url_enabled"))
+      when Blocks::Container
+        block.child_blocks.each_with_index do |child, position|
+          next unless child.is_a?(Blocks::Input)
+
+          issues.concat(validate(child.element, "blocks[#{index}].child_blocks[#{position}].element.response_url_enabled"))
+        end
       end
     end
     issues
