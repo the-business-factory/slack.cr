@@ -106,6 +106,21 @@ end
 
 See [Socket Mode](documentation/socket-mode.md) for frame types, payload decoding, and acknowledgment payloads.
 
+## Slash commands and response URLs
+
+Verify a slash command, then answer it in the HTTP 200 body. Post later replies to its `response_url`.
+
+```crystal
+command = Slack.process_command(request)
+body = Slack::Commands::Response.new(text: "Deploy started.").to_json
+# {"response_type":"ephemeral","text":"Deploy started."}
+
+later = Slack::Interactions::ResponseUrlMessage.new(text: "Deploy finished.", replace_original: true)
+Slack::Interactions::ResponseUrlResponder.new(command.response_url).post(Slack::Auth::HTTPTransport.new, later)
+```
+
+A `response_url` accepts five posts within 30 minutes. See [Respond to a slash command](documentation/block-kit.md#respond-to-a-slash-command).
+
 ## Runnable examples
 
 From a repository checkout, run `shards install` first. The modal, Home, and static choice examples use the development dependency WebMock. They use synthetic credentials and stub HTTP requests; they do not contact Slack.
@@ -150,9 +165,10 @@ crystal run examples/block_kit_alert.cr
 crystal run examples/event_delivery.cr
 crystal run examples/socket_mode_protocol.cr
 crystal run examples/interaction_context.cr
+crystal run examples/slash_command.cr
 ```
 
-The examples show message construction, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, message workflow buttons, and Socket Mode frames with their acknowledgments. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
+The examples show message construction, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, message workflow buttons, Socket Mode frames with their acknowledgments, and a slash command response with a `response_url` reply. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
 
 ## Contributing
 

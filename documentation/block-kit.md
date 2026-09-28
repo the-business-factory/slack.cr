@@ -991,6 +991,39 @@ Slack sends `function_data`, `interactivity`, and `bot_access_token` only for bl
 
 The [offline example](../examples/interaction_context.cr) updates the clicked message through its container, reads a submission's response URL target, and reads a cleared view stack. It does not prove live Slack delivery or that Slack accepts the update.
 
+## Respond to a slash command
+
+`Slack.process_command` verifies the signed request and returns `Slack::Command`. Return `Slack::Commands::Response` as the HTTP 200 `application/json` body within three seconds. It holds `text` or a `UI::Message`. The response is ephemeral by default: only the user who ran the command sees it. With `:in_channel`, everyone in the conversation sees the response and the command. To acknowledge without a message, return an empty HTTP 200.
+
+```crystal
+command = Slack.process_command(request)
+message = Slack::UI.message(fallback_text: "Deploying api.") do |builder|
+  builder.section(Slack::UI.mrkdwn("*Deploying api*"))
+end
+body = Slack::Commands::Response.new(message: message, response_type: :in_channel).to_json
+# {"response_type":"in_channel","text":"Deploying api.","blocks":[{"type":"section",...}]}
+```
+
+## Reply through a response URL
+
+Slash commands, message clicks (`BlockAction#response_url`), and some modal submissions (`ViewSubmission#response_urls`) give a `response_url`. Use `Slack::Interactions::ResponseUrlResponder` to post a `ResponseUrlMessage` to it. Still acknowledge the original request within three seconds.
+
+- Slack accepts up to five posts to one URL within 30 minutes. The library does not count uses or track expiry.
+- A message without `response_type` is ephemeral.
+- To reply in a thread, use `response_type: :in_channel` with `thread_ts`. The message then sends `replace_original: false`, so the reply does not overwrite the source message. The constructor rejects `thread_ts` without `:in_channel` or with `replace_original: true`.
+- `replace_original: true` replaces the message that holds the used component. `ResponseUrlMessage.delete_original` deletes it; Slack requires `delete_original` as the sole attribute.
+- The URL lets anyone post without a token. `inspect` and errors do not show it.
+
+```crystal
+responder = Slack::Interactions::ResponseUrlResponder.new(command.response_url)
+reply = Slack::Interactions::ResponseUrlMessage.new(text: "Deployed api.", replace_original: true)
+responder.post(Slack::Auth::HTTPTransport.new, reply)
+# POST response_url, Content-Type: application/json
+# {"replace_original":true,"text":"Deployed api."}
+```
+
+`post` makes one attempt. A non-2xx status raises `ResponseUrlError` with `http_status`, for example after the URL expires. A transport failure raises `Auth::ContractError` with `TransportFailure` or `UnknownRemoteOutcome`; after `UnknownRemoteOutcome`, Slack can have shown the message. The [offline example](../examples/slash_command.cr) answers a signed command and replaces the response through a stubbed `response_url`. It does not prove that Slack accepts or shows the message.
+
 ## Validation, limits, and ownership
 
 Constructors check supported local values, and the complete surface checks placement, block IDs, and cross-block rules. `validate` returns `Array(ValidationIssue)`; `validate!` raises `ValidationError`. Each issue has a code, field path, and message.
@@ -1052,6 +1085,7 @@ crystal run examples/block_kit_workflow_button.cr
 crystal run examples/block_kit_context_actions.cr
 crystal run examples/block_kit_alert.cr
 crystal run examples/interaction_context.cr
+crystal run examples/slash_command.cr
 ```
 
-The message example builds and prints a request. The modal example posts a button, verifies a signed action, opens a form, and reads a signed submission. The Home example publishes through a stub and reads simulated state. The static choice example posts a single choice, reads a signed selection, opens a grouped multi-choice form, and reads its submission. The overflow example posts action and URL choices and acknowledges a signed URL selection. The checkbox example posts initial choices, reads a signed checkbox action, and reads a cleared selection from a signed submission. The radio example posts an initial choice, reads a signed selection, opens an optional override form, and reads an unselected submission. The message-update example replaces a posted approval button with the completed status and new fallback text. The user-select example assigns an owner and submits multiple reviewers. The video example posts a message with a video block and shows a local rejection of an HTTP video link. The external-select example answers a signed options-load request, then reads a signed selection and submission. The remote-file example prints the unfurls value for an application's own `chat.unfurl` request. The rich text example posts formatted release notes with a team mention and a canvas link, and reads mentions, list items, and a workflow mention from a signed message event. The file input example opens a receipt form and reads uploaded file IDs. The number and email input examples open modal-only forms from a signed button, read a dispatched value, and reject then accept a signed submission. The table example posts a revenue table built from application records and shows a local rejection of a row with too many cells. The rich text input example publishes a Home standup composer and reads a signed dispatched action. The markdown example posts an LLM answer as markdown and shows a local rejection of markdown text that is too long for one message. The workflow button example posts incident workflow buttons with trigger inputs and shows a local rejection on Home. The context actions example posts an answer with feedback and delete buttons and reads a signed feedback click as `UnknownAction`. The alert example opens a deploy status modal with one alert for each check and shows a local rejection of alert text that is too long. The data table example posts a paged ticket table and shows a local rejection of a row that is narrower than the header. The data visualization example posts deploy and latency charts built from application records and shows a local rejection of a series with a missing category. The card carousel example posts department cards, reads a signed card button click, and shows a local rejection of a card without main content. The container example posts a collapsible bulk update and reads a signed button click from inside the container. Real handlers must acknowledge interactions within Slack's response window.
+The message example builds and prints a request. The modal example posts a button, verifies a signed action, opens a form, and reads a signed submission. The Home example publishes through a stub and reads simulated state. The static choice example posts a single choice, reads a signed selection, opens a grouped multi-choice form, and reads its submission. The overflow example posts action and URL choices and acknowledges a signed URL selection. The checkbox example posts initial choices, reads a signed checkbox action, and reads a cleared selection from a signed submission. The radio example posts an initial choice, reads a signed selection, opens an optional override form, and reads an unselected submission. The message-update example replaces a posted approval button with the completed status and new fallback text. The user-select example assigns an owner and submits multiple reviewers. The video example posts a message with a video block and shows a local rejection of an HTTP video link. The external-select example answers a signed options-load request, then reads a signed selection and submission. The remote-file example prints the unfurls value for an application's own `chat.unfurl` request. The rich text example posts formatted release notes with a team mention and a canvas link, and reads mentions, list items, and a workflow mention from a signed message event. The file input example opens a receipt form and reads uploaded file IDs. The number and email input examples open modal-only forms from a signed button, read a dispatched value, and reject then accept a signed submission. The table example posts a revenue table built from application records and shows a local rejection of a row with too many cells. The rich text input example publishes a Home standup composer and reads a signed dispatched action. The markdown example posts an LLM answer as markdown and shows a local rejection of markdown text that is too long for one message. The workflow button example posts incident workflow buttons with trigger inputs and shows a local rejection on Home. The context actions example posts an answer with feedback and delete buttons and reads a signed feedback click as `UnknownAction`. The alert example opens a deploy status modal with one alert for each check and shows a local rejection of alert text that is too long. The data table example posts a paged ticket table and shows a local rejection of a row that is narrower than the header. The data visualization example posts deploy and latency charts built from application records and shows a local rejection of a series with a missing category. The card carousel example posts department cards, reads a signed card button click, and shows a local rejection of a card without main content. The container example posts a collapsible bulk update and reads a signed button click from inside the container. The slash command example answers a signed command in the channel and replaces that response through a stubbed `response_url`. Real handlers must acknowledge interactions within Slack's response window.

@@ -42,6 +42,7 @@ require "../examples/support/event_delivery_example"
 require "../examples/support/interaction_context_example"
 require "../examples/support/alert_example"
 require "../examples/support/socket_mode_example"
+require "../examples/support/slash_command_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -528,5 +529,19 @@ describe "documented Block Kit workflows" do
       {"channel":"C-RELEASES","ts":"1710000000.000100","text":"Release 2.0 approved.",
        "blocks":[{"type":"section","block_id":"decision.done","text":{"type":"mrkdwn","text":"*Release 2.0 approved.*"}}]}
       JSON
+  end
+
+  it "answers a signed slash command in the channel and replaces it through response_url" do
+    output = IO::Memory.new
+    result = OfflineSlashCommandExample.run(output)
+    output.to_s.lines.should eq ["/deploy api 42 from U-SYNTHETIC", "Reported result through response_url"]
+    result.acknowledgment.status_code.should eq 200
+    result.acknowledgment.headers["Content-Type"].should eq "application/json"
+    # Authored from Slack's slash command and response_url references, not from the serializer.
+    JSON.parse(result.acknowledgment.body).should eq JSON.parse(<<-JSON)
+      {"response_type":"in_channel","text":"Deploying api build 42.",
+       "blocks":[{"type":"section","block_id":"deploy.status","text":{"type":"mrkdwn","text":"*Deploying api* build 42."}}]}
+      JSON
+    result.follow_up.should eq JSON.parse(%({"response_type":"in_channel","replace_original":true,"text":"Deployed api build 42."}))
   end
 end

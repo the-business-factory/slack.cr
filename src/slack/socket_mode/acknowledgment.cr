@@ -12,7 +12,8 @@ struct Slack::SocketMode::Acknowledgment
                   Slack::Interactions::ModalPush |
                   Slack::Interactions::ModalUpdate |
                   Slack::Interactions::ModalClear |
-                  Slack::Interactions::BlockSuggestionResponse
+                  Slack::Interactions::BlockSuggestionResponse |
+                  Slack::Commands::Response
 
   getter envelope_id : String
   getter payload : Payload?

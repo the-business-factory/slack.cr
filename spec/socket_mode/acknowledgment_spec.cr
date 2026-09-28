@@ -34,4 +34,17 @@ describe Slack::SocketMode::Acknowledgment do
       }
       JSON
   end
+
+  it "carries a slash command response as the payload" do
+    response = Slack::Commands::Response.new(text: "Deploy started.",
+      response_type: Slack::Interactions::ResponseType::InChannel)
+    ack = Slack::SocketMode::Acknowledgment.new("E-COMMAND", response)
+
+    JSON.parse(ack.to_json).should eq(JSON.parse(<<-JSON))
+      {
+        "envelope_id": "E-COMMAND",
+        "payload": {"response_type": "in_channel", "text": "Deploy started."}
+      }
+      JSON
+  end
 end

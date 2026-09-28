@@ -870,10 +870,32 @@ entries:
     fields_supported: [envelope_id, payload]
     parents: [events_api, interactive, slash_commands]
     surfaces: [socket mode]
-    restrictions: "SocketMode::Frame decodes hello, disconnect (warning, refresh_requested, link_disabled, or an unknown reason by name), envelopes of any type, and other frames raw. Envelope#event, #interaction, and #command decode the raw payload bytes with the HTTP-path decoders and raise TypeMismatch for the wrong kind; commands reject duplicate routing fields. retry_attempt and retry_reason are SDK-sourced (Bolt JS socket-mode client) and nilable. Acknowledgment writes envelope_id and adds payload only when given: ModalErrors, ModalPush, ModalUpdate, ModalClear, or BlockSuggestionResponse. Slash command response messages are not supported yet. No WebSocket connection, reconnect, three-second deadline, or accepts_response_payload enforcement. Offline fixtures do not prove live frame shapes or timing."
+    restrictions: "SocketMode::Frame decodes hello, disconnect (warning, refresh_requested, link_disabled, or an unknown reason by name), envelopes of any type, and other frames raw. Envelope#event, #interaction, and #command decode the raw payload bytes with the HTTP-path decoders and raise TypeMismatch for the wrong kind; commands reject duplicate routing fields. retry_attempt and retry_reason are SDK-sourced (Bolt JS socket-mode client) and nilable. Acknowledgment writes envelope_id and adds payload only when given: ModalErrors, ModalPush, ModalUpdate, ModalClear, BlockSuggestionResponse, or Commands::Response. No WebSocket connection, reconnect, three-second deadline, or accepts_response_payload enforcement. Offline fixtures do not prove live frame shapes or timing."
     implementation_status: supported
     inbound_status: supported
     evidence_paths: [src/slack/socket_mode/frame.cr, src/slack/socket_mode/envelope.cr, src/slack/socket_mode/acknowledgment.cr, spec/socket_mode/frame_spec.cr, spec/socket_mode/acknowledgment_spec.cr, examples/support/socket_mode_example.cr, spec/block_kit_consumers_spec.cr]
+
+  - wire_type: slash command response
+    kind: command acknowledgment
+    documentation_url: https://docs.slack.dev/interactivity/implementing-slash-commands
+    fields_supported: [response_type, text, blocks]
+    parents: [slash_commands]
+    surfaces: [message]
+    restrictions: "Commands::Response is the HTTP 200 application/json body (or the Socket Mode acknowledgment payload) for a slash command: text or a validated UI::Message, and response_type ephemeral (default, always sent) or in_channel. Nonblank text is library policy. An empty HTTP 200 acknowledges without a message. The application returns the body within three seconds; the library does not serve HTTP. Offline evidence does not prove live delivery or visibility."
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/commands/response.cr, spec/commands/response_spec.cr, spec/socket_mode/acknowledgment_spec.cr, examples/support/slash_command_example.cr, spec/block_kit_consumers_spec.cr]
+
+  - wire_type: response_url message
+    kind: response url message
+    documentation_url: https://docs.slack.dev/interactivity/handling-user-interaction
+    fields_supported: [response_type, text, blocks, replace_original, delete_original, thread_ts]
+    parents: [slash_commands, block_actions, message_action, view_submission]
+    surfaces: [message]
+    restrictions: "ResponseUrlMessage holds text or a validated UI::Message with optional response_type (omitted means ephemeral), replace_original, and thread_ts; thread_ts requires in_channel and sends replace_original false (an explicit true is rejected), as Slack documents, so a thread reply does not overwrite the source message. .delete_original sends delete_original as the sole attribute. ResponseUrlResponder validates an HTTPS URL, posts one application/json request through the given Auth::Transport without a token, and raises ResponseUrlError(http_status) for non-2xx; transport errors keep their classification. The URL is redacted from inspect and errors. Slack allows five uses in 30 minutes; the library does not count uses, track expiry, or retry. Offline evidence does not prove live acceptance."
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/interactions/response_url_message.cr, src/slack/interactions/response_url_responder.cr, src/slack/interactions/response_url_error.cr, spec/interactions/response_url_message_spec.cr, spec/interactions/response_url_responder_spec.cr, examples/support/slash_command_example.cr, spec/block_kit_consumers_spec.cr]
 
 # Classification is independent of support status. Missing features are not invalid Slack payloads.
 review_policy:

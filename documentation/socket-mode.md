@@ -48,6 +48,6 @@ Slack::SocketMode::Acknowledgment.new(envelope.envelope_id, errors).to_json
 # => {"envelope_id":"...","payload":{"response_action":"errors","errors":{...}}}
 ```
 
-The payload can be `ModalErrors`, `ModalPush`, `ModalUpdate`, `ModalClear`, or `BlockSuggestionResponse`. Send a payload only when `accepts_response_payload?` is true. Slash command response messages are not available yet.
+The payload can be `ModalErrors`, `ModalPush`, `ModalUpdate`, `ModalClear`, `BlockSuggestionResponse`, or `Slack::Commands::Response`. Send a payload only when `accepts_response_payload?` is true.
 
 The specs use synthetic frames. They do not prove live frame shapes, delivery, or timing.
