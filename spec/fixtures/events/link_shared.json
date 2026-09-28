@@ -1,0 +1,38 @@
+{
+  "token": "synthetic-legacy-token",
+  "team_id": "T-SYNTHETIC",
+  "api_app_id": "A-SYNTHETIC",
+  "event": {
+    "type": "link_shared",
+    "channel": "C-SYNTHETIC",
+    "is_bot_user_member": true,
+    "is_unfurl_refresh": false,
+    "user": "U-SHARER",
+    "message_ts": "1789232400.000300",
+    "unfurl_id": "C-SYNTHETIC.1789232400.000300.synthetic",
+    "thread_ts": "1789232300.000100",
+    "source": "conversations_history",
+    "links": [
+      {
+        "domain": "example.com",
+        "url": "https://example.com/12345"
+      },
+      {
+        "domain": "another-example.com",
+        "url": "https://yet.another-example.com/v/abcde"
+      }
+    ],
+    "user_locale": "en-US"
+  },
+  "type": "event_callback",
+  "authorizations": [
+    {
+      "team_id": "T-SYNTHETIC",
+      "user_id": "U-BOT",
+      "is_bot": true,
+      "is_enterprise_install": false
+    }
+  ],
+  "event_id": "Ev-CATALOG-7",
+  "event_time": 1789232400
+}

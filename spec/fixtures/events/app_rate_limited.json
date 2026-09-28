@@ -1,0 +1,7 @@
+{
+  "token": "synthetic-legacy-token",
+  "type": "app_rate_limited",
+  "team_id": "T-SYNTHETIC",
+  "minute_rate_limited": 1789232400,
+  "api_app_id": "A-SYNTHETIC"
+}

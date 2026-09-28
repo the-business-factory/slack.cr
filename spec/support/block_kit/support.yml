@@ -1018,6 +1018,72 @@ entries:
     inbound_status: supported
     evidence_paths: [src/slack/events/event_types/function_executed.cr, src/slack/events/event_data/function_definition.cr, src/slack/events/event_data/function_parameter.cr, spec/events/function_executed_spec.cr, spec/fixtures/events/function_executed.json, examples/support/workflow_step_example.cr, spec/block_kit_consumers_spec.cr]
 
+  - wire_type: app_rate_limited request
+    kind: event envelope
+    documentation_url: https://docs.slack.dev/reference/events/app_rate_limited
+    fields_supported: [type, token, team_id, api_app_id, minute_rate_limited]
+    parents: [events_api]
+    surfaces: []
+    restrictions: "Slack::Events.parse returns Slack::AppRateLimited for this outer request, which has no inner event and no event_id; SocketMode::Envelope#event returns the same union. minute_rate_limited is a Time. Slack sends it above 30,000 events per hour from one workspace; the library does not count events, pause work, or send a response. Auth::RequestAuthorizer still accepts only event_callback envelopes."
+    implementation_status: unsupported
+    inbound_status: supported
+    evidence_paths: [src/slack/events/app_rate_limited.cr, src/slack/events/parse.cr, spec/events/app_events_spec.cr, spec/fixtures/events/app_rate_limited.json, examples/support/event_catalog_example.cr, spec/block_kit_consumers_spec.cr]
+
+  - wire_type: app lifecycle events
+    kind: event
+    documentation_url: https://docs.slack.dev/reference/events/app_installed
+    fields_supported: [app_installed, app_deleted, app_requested, app_mention document_mention]
+    parents: [events_api]
+    surfaces: []
+    restrictions: "Events::AppInstalled and AppDeleted give app_id, app_name, app_owner_id, team_domain, event_ts, and (installed only) user_id; team_id is the organization ID. AppRequested keeps app_request as raw JSON. AppMentioned gives subtype and a typed DocumentMention (file_id, section_id, mentioning_user_ids) for a canvas mention, which Slack sends as app_mention, not as a message subtype. Scopes (admin.apps:read for app_deleted) are checked by Slack."
+    implementation_status: unsupported
+    inbound_status: supported
+    evidence_paths: [src/slack/events/event_types/app_installed.cr, src/slack/events/event_types/app_deleted.cr, src/slack/events/event_types/app_requested.cr, src/slack/events/event_types/app_mentioned.cr, spec/events/app_events_spec.cr, spec/fixtures/events/app_installed.json, spec/fixtures/events/app_mention_document.json]
+
+  - wire_type: channel and membership events
+    kind: event
+    documentation_url: https://docs.slack.dev/reference/events/member_joined_channel
+    fields_supported: [channel_created, channel_deleted, channel_rename, channel_archive, channel_unarchive, member_joined_channel, member_left_channel, team_join]
+    parents: [events_api]
+    surfaces: []
+    restrictions: "channel_created and channel_rename give an EventData::Channel (id, name, created as Time, creator nil on rename); the other channel events give channel IDs and the acting user. Member events keep channel_type as Slack's one-letter value (C or G), which does not identify private channels reliably. team_join keeps user as raw JSON because no typed user model exists yet."
+    implementation_status: unsupported
+    inbound_status: supported
+    evidence_paths: [src/slack/events/event_types/channel_created.cr, src/slack/events/event_types/member_joined_channel.cr, src/slack/events/event_types/team_join.cr, src/slack/events/event_data/channel.cr, spec/events/app_events_spec.cr, spec/fixtures/events/member_joined_channel.json, examples/support/event_catalog_example.cr]
+
+  - wire_type: link_shared event
+    kind: event
+    documentation_url: https://docs.slack.dev/reference/events/link_shared
+    fields_supported: [channel, user, message_ts, thread_ts, unfurl_id, source, links, is_bot_user_member, is_unfurl_refresh, user_locale]
+    parents: [events_api]
+    surfaces: []
+    restrictions: "Events::LinkShared gives links as LinkShared::Link values (domain, url; both required). unfurl_id and source are nil in an Enterprise organization; thread_ts is nil outside a thread; is_unfurl_refresh defaults to false. For a composer link, channel and message_ts are placeholder values that chat.unfurl accepts. No chat.unfurl request in this entry."
+    implementation_status: unsupported
+    inbound_status: supported
+    evidence_paths: [src/slack/events/event_types/link_shared.cr, spec/events/app_events_spec.cr, spec/fixtures/events/link_shared.json, spec/fixtures/events/link_shared_composer.json, examples/support/event_catalog_example.cr]
+
+  - wire_type: message metadata, pin, user, user group, and emoji events
+    kind: event
+    documentation_url: https://docs.slack.dev/reference/events
+    fields_supported: [message_metadata_posted, message_metadata_updated, message_metadata_deleted, pin_added, pin_removed, user_change, user_status_changed, subteam_created, subteam_updated, subteam_members_changed, subteam_self_added, subteam_self_removed, emoji_changed]
+    parents: [events_api]
+    surfaces: []
+    restrictions: "Metadata events give channel_id, message_ts, and EventData::Metadata (event_type, raw event_payload). Pin items, user objects, and user group objects stay raw JSON. subteam_members_changed gives subteam_id, added_users, and removed_users. emoji_changed gives subtype (add, remove, rename, or nil), name, names, old_name, new_name, and value."
+    implementation_status: unsupported
+    inbound_status: supported
+    evidence_paths: [src/slack/events/event_types/message_metadata_posted.cr, src/slack/events/event_types/pin_added.cr, src/slack/events/event_types/user_change.cr, src/slack/events/event_types/subteam_members_changed.cr, src/slack/events/event_types/emoji_changed.cr, src/slack/events/event_data/metadata.cr, spec/events/app_events_spec.cr, spec/fixtures/events/message_metadata_updated.json]
+
+  - wire_type: message event subtypes
+    kind: event
+    documentation_url: https://docs.slack.dev/reference/events/message
+    fields_supported: [bot_add, bot_message, channel_join, channel_leave, channel_name, channel_purpose, channel_topic, file_share, me_message, message_changed, message_deleted, message_replied, pinned_item, thread_broadcast, unpinned_item]
+    parents: [events_api]
+    surfaces: []
+    restrictions: "MessageFactory selects Events::Message::<Subtype> by subtype. A missing, null, or unmapped subtype decodes as the base Events::Message with subtype set; channel, user, team, text, and channel_type are nilable. Typed subtypes (MessageSubtype) give channel, channel_type, and event_ts as nil when omitted, because Slack's reference examples omit them for several subtypes. A non-string subtype raises JSON::SerializableError. Message#mpim? and MessageSubtype#mpim? read channel_type mpim. reply_broadcast and file_mention are not mapped because Slack no longer serves them; message_replied can arrive without its subtype (documented Slack bug). assistant_app_thread is not mapped here."
+    implementation_status: unsupported
+    inbound_status: supported
+    evidence_paths: [src/slack/events/event_types/message_factory.cr, src/slack/events/event_types/message.cr, src/slack/events/event_types/message/channel_topic.cr, src/slack/events/event_types/message/message_replied.cr, spec/events/message_subtypes_spec.cr, spec/fixtures/events/message/unmapped_subtype.json, examples/support/event_catalog_example.cr]
+
   - wire_type: functions.completeSuccess request
     kind: endpoint
     documentation_url: https://docs.slack.dev/reference/methods/functions.completeSuccess

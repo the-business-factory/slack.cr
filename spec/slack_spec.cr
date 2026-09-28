@@ -4,7 +4,7 @@ module SlackSpec
   SECRET   = Slack::Auth::Secret.new("synthetic-signing-secret")
   VERIFIER = Slack::Webhooks::Verifier.new(SECRET)
 
-  def self.event(request : HTTP::Request) : Slack::VerifiedEvent | Slack::UrlVerification
+  def self.event(request : HTTP::Request) : Slack::VerifiedEvent | Slack::UrlVerification | Slack::AppRateLimited
     Slack::Events.parse(VERIFIER.verify(request).body)
   end
 

@@ -1,0 +1,31 @@
+{
+  "token": "synthetic-legacy-token",
+  "team_id": "T-SYNTHETIC",
+  "api_app_id": "A-SYNTHETIC",
+  "event": {
+    "type": "subteam_updated",
+    "subteam": {
+      "id": "S-MARKETING",
+      "team_id": "T-SYNTHETIC",
+      "is_usergroup": true,
+      "name": "Marketing",
+      "handle": "marketing",
+      "users": [
+        "U-ONE",
+        "U-TWO"
+      ],
+      "user_count": 2
+    }
+  },
+  "type": "event_callback",
+  "authorizations": [
+    {
+      "team_id": "T-SYNTHETIC",
+      "user_id": "U-BOT",
+      "is_bot": true,
+      "is_enterprise_install": false
+    }
+  ],
+  "event_id": "Ev-CATALOG-24",
+  "event_time": 1789232400
+}

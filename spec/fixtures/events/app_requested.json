@@ -1,0 +1,48 @@
+{
+  "token": "synthetic-legacy-token",
+  "team_id": "T-SYNTHETIC",
+  "api_app_id": "A-SYNTHETIC",
+  "event": {
+    "type": "app_requested",
+    "app_request": {
+      "id": "1234",
+      "app": {
+        "id": "A-REQUESTED",
+        "name": "Synthetic app",
+        "is_internal": false
+      },
+      "previous_resolution": null,
+      "user": {
+        "id": "U-REQUESTER",
+        "name": "requester"
+      },
+      "team": {
+        "id": "T-SYNTHETIC",
+        "name": "Synthetic team",
+        "domain": "synthetic"
+      },
+      "enterprise": null,
+      "scopes": [
+        {
+          "name": "chat:write",
+          "description": "Send messages",
+          "is_sensitive": false,
+          "token_type": "bot"
+        }
+      ],
+      "message": "Please install",
+      "manager_app_id": "A-MANAGER"
+    }
+  },
+  "type": "event_callback",
+  "authorizations": [
+    {
+      "team_id": "T-SYNTHETIC",
+      "user_id": "U-BOT",
+      "is_bot": true,
+      "is_enterprise_install": false
+    }
+  ],
+  "event_id": "Ev-CATALOG-3",
+  "event_time": 1789232400
+}

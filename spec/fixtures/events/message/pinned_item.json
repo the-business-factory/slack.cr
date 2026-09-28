@@ -1,0 +1,28 @@
+{
+  "token": "synthetic-legacy-token",
+  "team_id": "T-SYNTHETIC",
+  "api_app_id": "A-SYNTHETIC",
+  "event": {
+    "type": "message",
+    "channel": "C-SYNTHETIC",
+    "ts": "1789232400.002000",
+    "subtype": "pinned_item",
+    "user": "U-PINNER",
+    "item_type": "F",
+    "text": "<@U-PINNER> pinned their Image to this channel.",
+    "item": {
+      "id": "F-SYNTHETIC"
+    }
+  },
+  "type": "event_callback",
+  "authorizations": [
+    {
+      "team_id": "T-SYNTHETIC",
+      "user_id": "U-BOT",
+      "is_bot": true,
+      "is_enterprise_install": false
+    }
+  ],
+  "event_id": "Ev-CATALOG-107",
+  "event_time": 1789232400
+}

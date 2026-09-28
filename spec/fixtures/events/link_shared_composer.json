@@ -1,0 +1,29 @@
+{
+  "token": "synthetic-legacy-token",
+  "team_id": "T-SYNTHETIC",
+  "api_app_id": "A-SYNTHETIC",
+  "event": {
+    "type": "link_shared",
+    "channel": "COMPOSER",
+    "is_bot_user_member": false,
+    "user": "U-SHARER",
+    "message_ts": "U-SHARER-composer-synthetic",
+    "links": [
+      {
+        "domain": "example.com",
+        "url": "https://example.com/67890"
+      }
+    ]
+  },
+  "type": "event_callback",
+  "authorizations": [
+    {
+      "team_id": "T-SYNTHETIC",
+      "user_id": "U-BOT",
+      "is_bot": true,
+      "is_enterprise_install": false
+    }
+  ],
+  "event_id": "Ev-CATALOG-8",
+  "event_time": 1789232400
+}

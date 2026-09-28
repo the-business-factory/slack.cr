@@ -1,8 +1,11 @@
+# Common fields of a typed message subtype. Slack's reference examples for
+# several subtypes omit `channel`, `channel_type`, or `event_ts`, so these are
+# nil when Slack omits them.
 module Slack::Events::MessageSubtype
-  property channel : String,
-    channel_type : String,
+  property channel : String?,
+    channel_type : String?,
     subtype : String,
-    event_ts : String,
+    event_ts : String?,
     thread_ts : String?,
     ts : String
 
@@ -20,5 +23,9 @@ module Slack::Events::MessageSubtype
 
   def private_channel?
     channel_type == "group"
+  end
+
+  def mpim?
+    channel_type == "mpim"
   end
 end

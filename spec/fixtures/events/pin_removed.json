@@ -1,0 +1,27 @@
+{
+  "token": "synthetic-legacy-token",
+  "team_id": "T-SYNTHETIC",
+  "api_app_id": "A-SYNTHETIC",
+  "event": {
+    "type": "pin_removed",
+    "user": "U-PINNER",
+    "channel_id": "C-SYNTHETIC",
+    "item": {
+      "type": "message",
+      "channel": "C-SYNTHETIC"
+    },
+    "has_pins": false,
+    "event_ts": "1789232400.000500"
+  },
+  "type": "event_callback",
+  "authorizations": [
+    {
+      "team_id": "T-SYNTHETIC",
+      "user_id": "U-BOT",
+      "is_bot": true,
+      "is_enterprise_install": false
+    }
+  ],
+  "event_id": "Ev-CATALOG-15",
+  "event_time": 1789232400
+}

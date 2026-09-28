@@ -1,0 +1,24 @@
+{
+  "token": "synthetic-legacy-token",
+  "team_id": "T-SYNTHETIC",
+  "api_app_id": "A-SYNTHETIC",
+  "event": {
+    "type": "message",
+    "subtype": "group_topic",
+    "ts": "1789232400.002100",
+    "user": "U-EDITOR",
+    "topic": "hello world",
+    "text": "<@U-EDITOR> set the group topic: hello world"
+  },
+  "type": "event_callback",
+  "authorizations": [
+    {
+      "team_id": "T-SYNTHETIC",
+      "user_id": "U-BOT",
+      "is_bot": true,
+      "is_enterprise_install": false
+    }
+  ],
+  "event_id": "Ev-CATALOG-200",
+  "event_time": 1789232400
+}

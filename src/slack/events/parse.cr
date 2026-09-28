@@ -2,13 +2,14 @@ require "json"
 
 module Slack::Events
   # Decodes verified Events API bytes. A `url_verification` request becomes a
-  # `Slack::UrlVerification`; every other request becomes a `Slack::VerifiedEvent`.
+  # `Slack::UrlVerification`, an `app_rate_limited` request becomes a
+  # `Slack::AppRateLimited`, and every other request becomes a `Slack::VerifiedEvent`.
   # Pass only a body that `Slack::Webhooks::Verifier#verify` returned.
-  def self.parse(body : String) : Slack::VerifiedEvent | Slack::UrlVerification
-    if envelope_type(body) == "url_verification"
-      Slack::UrlVerification.from_json(body)
-    else
-      Slack::VerifiedEvent.from_json(body)
+  def self.parse(body : String) : Slack::VerifiedEvent | Slack::UrlVerification | Slack::AppRateLimited
+    case envelope_type(body)
+    when "url_verification" then Slack::UrlVerification.from_json(body)
+    when "app_rate_limited" then Slack::AppRateLimited.from_json(body)
+    else                         Slack::VerifiedEvent.from_json(body)
     end
   end
 

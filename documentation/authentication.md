@@ -21,7 +21,7 @@ For Events API, commands, and interactions, create one `Slack::Webhooks::Verifie
 ```crystal
 verifier = Slack::Webhooks::Verifier.new(Slack::Auth::Secret.new(signing_secret))
 
-# Events API route: Slack::VerifiedEvent | Slack::UrlVerification
+# Events API route: Slack::VerifiedEvent | Slack::UrlVerification | Slack::AppRateLimited
 envelope = Slack::Events.parse(verifier.verify(request).body)
 # Slash command route
 command = Slack::Commands.parse(verifier.verify(request).body)

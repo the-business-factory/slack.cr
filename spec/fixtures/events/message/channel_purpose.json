@@ -1,0 +1,24 @@
+{
+  "token": "synthetic-legacy-token",
+  "team_id": "T-SYNTHETIC",
+  "api_app_id": "A-SYNTHETIC",
+  "event": {
+    "type": "message",
+    "ts": "1789232400.002000",
+    "subtype": "channel_purpose",
+    "user": "U-EDITOR",
+    "purpose": "whatever",
+    "text": "<@U-EDITOR> set the channel purpose: whatever"
+  },
+  "type": "event_callback",
+  "authorizations": [
+    {
+      "team_id": "T-SYNTHETIC",
+      "user_id": "U-BOT",
+      "is_bot": true,
+      "is_enterprise_install": false
+    }
+  ],
+  "event_id": "Ev-CATALOG-103",
+  "event_time": 1789232400
+}

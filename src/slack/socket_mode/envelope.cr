@@ -41,7 +41,7 @@ struct Slack::SocketMode::Envelope
 
   # Decodes an `events_api` payload. Raises `Slack::Interactions::TypeMismatch`
   # for another kind.
-  def event : Slack::VerifiedEvent | Slack::UrlVerification
+  def event : Slack::VerifiedEvent | Slack::UrlVerification | Slack::AppRateLimited
     require_kind(Kind::EventsApi, "events_api")
     Slack::Events.parse(@payload_json)
   end

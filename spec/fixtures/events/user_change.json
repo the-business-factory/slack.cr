@@ -1,0 +1,31 @@
+{
+  "token": "synthetic-legacy-token",
+  "team_id": "T-SYNTHETIC",
+  "api_app_id": "A-SYNTHETIC",
+  "event": {
+    "type": "user_change",
+    "user": {
+      "id": "U-CHANGED",
+      "team_id": "T-SYNTHETIC",
+      "name": "changed-user",
+      "deleted": false,
+      "profile": {
+        "status_text": "riding a train",
+        "status_emoji": ":mountain_railway:"
+      }
+    },
+    "cache_ts": 1789232400,
+    "event_ts": "1789232400.000600"
+  },
+  "type": "event_callback",
+  "authorizations": [
+    {
+      "team_id": "T-SYNTHETIC",
+      "user_id": "U-BOT",
+      "is_bot": true,
+      "is_enterprise_install": false
+    }
+  ],
+  "event_id": "Ev-CATALOG-16",
+  "event_time": 1789232400
+}

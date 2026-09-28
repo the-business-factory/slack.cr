@@ -39,6 +39,7 @@ require "../examples/support/markdown_example"
 require "../examples/support/workflow_button_example"
 require "../examples/support/context_actions_example"
 require "../examples/support/event_delivery_example"
+require "../examples/support/event_catalog_example"
 require "../examples/support/interaction_context_example"
 require "../examples/support/alert_example"
 require "../examples/support/socket_mode_example"
@@ -549,6 +550,18 @@ describe "documented Block Kit workflows" do
     response.status_code.should eq(200)
     response.body.should be_empty
     output.to_s.should eq("Skipped synthetic_future_event Ev-SYNTHETIC (retry 1: http_timeout)\n")
+  end
+
+  it "routes signed app events, message subtypes, and a rate-limit notice" do
+    output = IO::Memory.new
+    OfflineEventCatalogExample.run(output)
+    output.to_s.lines.should eq [
+      "Unfurl https://example.com/tickets/42 in C-SYNTHETIC (C-SYNTHETIC.unfurl)",
+      "Welcome U-NEWCOMER to C-SYNTHETIC, invited by U-INVITER",
+      "Topic of C-SYNTHETIC is now Release week",
+      "Message subtype synthetic_future_subtype in C-SYNTHETIC",
+      "Rate limited for T-SYNTHETIC since 2026-09-12T17:00:00Z",
+    ]
   end
 
   it "decodes Socket Mode frames and acknowledges each envelope" do

@@ -97,7 +97,7 @@ The send requires a bot token with `chat:write` and a channel the app can post t
 
 ## Events API payloads
 
-Verify the signed request with `Slack::Webhooks::Verifier`, then give the verified body to `Slack::Events.parse`. It returns `Slack::UrlVerification` or `Slack::VerifiedEvent`. The inner `event` is a typed struct for mapped types. An event type that the library does not map decodes as `Slack::Events::Unknown`: `type` gives the event type and `raw` keeps the complete event JSON. Match `Unknown` explicitly. Do not log `raw`: it can hold credentials, such as a workflow `bot_access_token`. A `message` event with a subtype that the library does not map still raises `JSON::SerializableError`.
+Verify the signed request with `Slack::Webhooks::Verifier`, then give the verified body to `Slack::Events.parse`. It returns `Slack::UrlVerification`, `Slack::AppRateLimited`, or `Slack::VerifiedEvent`. The inner `event` is a typed struct for mapped types. An event type that the library does not map decodes as `Slack::Events::Unknown`: `type` gives the event type and `raw` keeps the complete event JSON. Match `Unknown` explicitly. Do not log `raw`: it can hold credentials, such as a workflow `bot_access_token`.
 
 ```crystal
 verifier = Slack::Webhooks::Verifier.new(Slack::Auth::Secret.new(signing_secret))
@@ -113,6 +113,36 @@ end
 ```
 
 The envelope also gives `is_ext_shared_channel`, `context_team_id`, `context_enterprise_id`, and `event_context`. Each is nil when Slack omits it.
+
+### Typed events
+
+These inner event types decode as typed structs in `Slack::Events`:
+
+| Group | Event types |
+| --- | --- |
+| App | `app_home_opened`, `app_mention`, `app_installed`, `app_deleted`, `app_requested`, `app_uninstalled`, `tokens_revoked`, `function_executed` |
+| Channels and members | `channel_created`, `channel_deleted`, `channel_rename`, `channel_archive`, `channel_unarchive`, `member_joined_channel`, `member_left_channel`, `team_join` |
+| Messages | `message`, `link_shared`, `message_metadata_posted`, `message_metadata_updated`, `message_metadata_deleted`, `pin_added`, `pin_removed`, `reaction_added`, `reaction_removed` |
+| Users, groups, and emoji | `user_change`, `user_status_changed`, `subteam_created`, `subteam_updated`, `subteam_members_changed`, `subteam_self_added`, `subteam_self_removed`, `emoji_changed` |
+
+User, user group, app request, and pinned item objects stay raw `JSON::Any`. Message metadata gives `event_type` and a raw `event_payload`.
+
+A `message` event selects a struct in `Slack::Events::Message` by `subtype`: `bot_add`, `bot_message`, `channel_join`, `channel_leave`, `channel_name`, `channel_purpose`, `channel_topic`, `file_share`, `me_message`, `message_changed`, `message_deleted`, `message_replied`, `pinned_item`, `thread_broadcast`, and `unpinned_item`. A message without a subtype, or with a subtype that the library does not map, decodes as `Slack::Events::Message`; its `subtype` gives the name. `channel`, `user`, `team`, `text`, and `channel_type` are nil when Slack omits them. A typed subtype gives `channel`, `channel_type`, and `event_ts` as nil when Slack omits them, as several reference examples do. Slack documents that `message_replied` can arrive without its subtype, so check `thread_ts` to find replies. A canvas mention arrives as `app_mention` with `subtype` `document_mention` and a `document_mention` value.
+
+```crystal
+case event = envelope.event
+when Slack::Events::LinkShared
+  unfurl(event.channel, event.message_ts, event.links.map(&.url))
+when Slack::Events::Message::ChannelTopic
+  log("#{event.channel} topic: #{event.topic}")
+when Slack::Events::Message
+  log("Message subtype #{event.subtype}") if event.subtype
+end
+```
+
+Slack sends `app_rate_limited` instead of events when the app would get more than 30,000 events in one hour from one workspace. It has no inner event. `Slack::AppRateLimited#minute_rate_limited` gives the minute when the limit started. Return HTTP 200 for it.
+
+### Retries
 
 Slack retries a delivery up to three times when the app does not return HTTP 2xx within three seconds. To stop retries for a failed delivery, add `Slack::Events::Delivery::NO_RETRY_HEADER` with `NO_RETRY_VALUE` (`X-Slack-No-Retry: 1`) to the non-2xx response. The library does not send responses or remove duplicate deliveries; use `event_id` for that. The offline specs do not prove Slack retry timing or behavior.
 
@@ -213,6 +243,7 @@ crystal run examples/thread_history.cr
 crystal run examples/streaming.cr
 crystal run examples/attachments.cr
 crystal run examples/event_delivery.cr
+crystal run examples/event_catalog.cr
 crystal run examples/socket_mode_protocol.cr
 crystal run examples/socket_mode_client.cr
 crystal run examples/interaction_context.cr
@@ -221,7 +252,7 @@ crystal run examples/received_blocks.cr
 crystal run examples/workflow_step.cr
 ```
 
-The examples show Web API calls and error codes, channel history and thread replies across cursor pages, a file upload, a remote file share, message construction, a message with a colored attachment and metadata, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, message workflow buttons, typed blocks of a received message, Socket Mode frames with their acknowledgments, a Socket Mode connection to a local server, a slash command response with a `response_url` reply, and a custom workflow step that completes or fails its execution. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
+The examples show Web API calls and error codes, channel history and thread replies across cursor pages, a file upload, a remote file share, message construction, a message with a colored attachment and metadata, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, message workflow buttons, typed blocks of a received message, routed app events and message subtypes, Socket Mode frames with their acknowledgments, a Socket Mode connection to a local server, a slash command response with a `response_url` reply, and a custom workflow step that completes or fails its execution. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
 
 ## Contributing
 

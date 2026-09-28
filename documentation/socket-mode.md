@@ -66,7 +66,7 @@ Decode the payload with the method for the envelope kind. The wrong method raise
 envelope = Slack::SocketMode::Frame.parse(text)
 if envelope.is_a?(Slack::SocketMode::Envelope)
   case envelope.kind
-  in .events_api?     then envelope.event       # Slack::VerifiedEvent | Slack::UrlVerification
+  in .events_api?     then envelope.event       # Slack::VerifiedEvent | Slack::UrlVerification | Slack::AppRateLimited
   in .interactive?    then envelope.interaction # Slack::Interaction
   in .slash_commands? then envelope.command     # Slack::Command
   in .unknown?        then nil
