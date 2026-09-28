@@ -1,0 +1,136 @@
+# Checked Block Kit
+
+Use `require "slack"` and `Slack::UI::Checked` to construct validated, immutable outbound values. Construction and JSON inspection need no Slack credentials. Sending needs a token with the relevant Slack API scope, and signed interaction handling needs the app signing secret. The [README](../README.md) has a complete message example and commands for four offline workflows.
+
+## Supported surfaces and placement
+
+| Checked surface | Direct blocks | Input children | Send with |
+| --- | --- | --- | --- |
+| `Message` | Section, Actions, Divider, Header, Context, Image, Input | PlainTextInput, StaticSelect, MultiStaticSelect | `Slack::Api::CheckedChatPostMessage` |
+| `DisplayModal` | Section, Actions, Divider, Header, Context, Image | None, even if a submit label is supplied | `Slack::Api::CheckedViewsOpen` |
+| `FormModal` | Section, Actions, Divider, Header, Context, Image, Input | PlainTextInput, StaticSelect, MultiStaticSelect | `Slack::Api::CheckedViewsOpen` |
+| `Home` | Section, Actions, Divider, Header, Context, Image, Input | PlainTextInput, StaticSelect, MultiStaticSelect | `Slack::Api::CheckedViewsPublish` |
+
+`FormModal` always needs a plain-text `submit` label, including forms without Input. `DisplayModal` cannot contain Input. Message and Home need no submit label. A Message can contain Input even though older phase notes excluded it. [Slack's Input reference](https://docs.slack.dev/reference/block-kit/blocks/input-block.md) lists Messages, Modals, and Home.
+
+| Parent | Supported children |
+| --- | --- |
+| Section accessory | Button, Image element, StaticSelect, MultiStaticSelect |
+| Actions elements | Button, StaticSelect, MultiStaticSelect |
+| Context elements | PlainText, Mrkdwn, Image element |
+| Input element | PlainTextInput, StaticSelect, MultiStaticSelect |
+
+Checked Header, Context, and Image blocks are display content on all four surfaces. An Image block or element needs alt text and exactly one public `image_url` or `SlackFile` source. `SlackFile` takes an ID or URL. Remote image availability and file access are checked by Slack. Section supports text, fields, and the listed accessory; Actions checks duplicate supplied action IDs within that block.
+
+Static choices use plain-text `Option` values, optional `OptionGroup` values, and exactly one `options:` or `option_groups:` source. `StaticSelect` has one `initial_option`; `MultiStaticSelect` has `initial_options` and optional `max_selected_items`. Choice values must be unique within a menu, and initial selections must match offered options. Each group can contain up to 100 options. The supported menu is a **static** source; external or dynamic sources are outside this checked API.
+
+Checkboxes, radio buttons, overflow, date/time pickers, and user, channel, or conversation select families are not checked implementations. Placeholder or mutable types elsewhere in the library do not extend the checked placement matrix. The checked endpoints cover only their documented request fields; they are not complete wrappers for every Slack method field or view lifecycle action.
+
+The machine-readable [support manifest](../spec/support/block_kit/support.yml) records detailed wire fields, upstream references, and repository evidence. Evidence paths in it are relative to the repository root.
+
+## Build and send a message
+
+Give a message an explicit top-level fallback for screen readers. `message_with_slack_generated_fallback` omits top-level text and asks Slack to derive it; the library does not create a partial summary. The local message limit is 50 blocks. Supplied block IDs must be unique.
+
+```crystal
+require "slack"
+
+alias UI = Slack::UI::Checked
+message = UI.message(fallback_text: "Request 42 needs approval.") do |builder|
+  builder.section(UI.mrkdwn("*Request 42* needs approval"))
+  builder.actions(elements: [UI::BlockElements::Button.new(
+    text: UI.plain("Approve"), action_id: "request.approve", value: "42",
+    accessibility_label: "Approve request 42"
+  )])
+end
+
+request = Slack::Api::CheckedChatPostMessage.new(
+  token: ENV["SLACK_BOT_TOKEN"], channel: ENV["SLACK_CHANNEL_ID"],
+  message: message
+)
+puts request.to_pretty_json
+response = request.call
+```
+
+`CheckedChatPostMessage` accepts `channel`, checked `text`/`blocks`, `thread_ts`, `reply_broadcast`, `unfurl_links`, and `unfurl_media`. It copies and validates the message before dispatch and requires a `String` token. `result` and `call` share the same validation boundary. Named `configuration`, `transport`, and `limiter` options can customize dispatch; they are not JSON fields. The wrapper sends through the existing API client and raises `Slack::Api::Error` for API failures. It does not support every `chat.postMessage` field.
+
+## Build modals and Home
+
+Use `form_modal` for input and `display_modal` for display content. Both have a plain-text title; a form has a required plain-text submit label. A modal can have at most 100 blocks. For a form:
+
+```crystal
+alias UI = Slack::UI::Checked
+view = UI.form_modal(title: UI.plain("Request reason"), submit: UI.plain("Save")) do |builder|
+  builder.input(label: UI.plain("Reason"), block_id: "reason", optional: true,
+    element: UI::BlockElements::PlainTextInput.new(action_id: "text", multiline: true))
+end
+
+opened = Slack::Api::CheckedViewsOpen.new(
+  token: ENV["SLACK_BOT_TOKEN"], trigger_id: trigger_id, view: view
+).call
+```
+
+The checked open request needs a trigger ID from the interaction and places `external_id` inside the view. A Home view has no title or submit. Its builder accepts the same display blocks and Input. An empty Home is valid; the local maximum is 100 blocks. Publishing needs a user ID. An optional `hash` helps avoid overwriting a newer Home; Slack validates the remote hash and external ID uniqueness.
+
+```crystal
+alias UI = Slack::UI::Checked
+home = UI.home(callback_id: "projects") do |builder|
+  builder.header(text: UI.plain("Your projects"), level: 1)
+  builder.context(elements: {UI.mrkdwn("*Project 42*"), UI.plain("Ready for review")})
+end
+
+published = Slack::Api::CheckedViewsPublish.new(
+  token: ENV["SLACK_BOT_TOKEN"], user_id: user_id, view: home
+).call
+```
+
+Enable the Home tab and install the app with the permissions required for publishing. The checked publish response exposes the returned view as raw JSON. Slack remains responsible for server access checks and rendering.
+
+## Read actions and state
+
+Pass the original signed HTTP request to `Slack.process_interaction`. It checks the signature and timestamp freshness before decoding. For JSON already verified by trusted code, use `Slack::Interaction.from_json`. Timestamp freshness is not duplicate suppression; applications own event deduplication and HTTP acknowledgments.
+
+`BlockAction#decoded_actions` gives typed ButtonAction, StaticSelectAction, and MultiStaticSelectAction values with block/action IDs, selections, and raw JSON. A dispatched `plain_text_input` action stays `UnknownAction`; read its text through `state_map`. Unknown action and state families retain raw JSON for application inspection.
+
+```crystal
+case interaction = Slack.process_interaction(request)
+when Slack::Interactions::ViewSubmission
+  reason : String? = interaction.plain_text?("reason", "text")
+  if color = interaction.state_map.static_select_value?("preferences", "color")
+    selected = color.selected_option.try(&.value)
+  end
+end
+```
+
+`StateMap#plain_text?`, `#static_select_value?`, and `#multi_static_select_value?` work on supported BlockAction, View, and ViewSubmission state. A missing block/action key returns nil. For an existing selection entry, `selected_option_presence` or `selected_options_presence` distinguishes Absent, Null, and Present. A cleared single choice can be null; a cleared multi choice can be a present empty array. `selected_options` can also be nil if absent or null. Asking for the wrong typed family raises `TypeMismatch`, as do malformed known values; it does not silently return nil. Complete raw JSON remains available for unmodeled fields. This library does not implement a full view lifecycle, response-action framework, or external suggestion responses.
+
+## Validation, limits, and ownership
+
+Constructors check supported local values, and the complete surface checks placement, block IDs, and cross-block rules. `validate` returns `Array(ValidationIssue)`; `validate!` raises `ValidationError`. Each issue has a code, field path, and message. `ValidationError` is an `InvalidUIBlock`.
+
+```crystal
+begin
+  Slack::UI::Checked::Blocks::Divider.new(block_id: "x" * 256)
+rescue error : Slack::UI::Checked::ValidationError
+  puts error.issues.first.path # block_id
+end
+```
+
+Text and field lengths count characters. Common limits: top-level Message 50 blocks, modal/Home 100 blocks, Actions 25 elements, Context 10 elements, a Section 10 fields, block/action IDs 255 characters, Header text 150, and modal title/submit/close labels 24. PlainTextInput supports `min_length`, `max_length`, multiline, and dispatch settings. View surfaces permit only one `focus_on_load: true` element across Section, Actions, and Input. These checks do not prove Slack will accept a remote payload or image.
+
+Checked constructors and builders accept arrays, tuples, and custom enumerables according to the **types actually yielded by `each`**. A broad declared `Enumerable(T?)` is allowed if its `each` yields only supported `T` values. Unsupported yielded values cause a compile error; constructors do no runtime filtering. Inputs are traversed once and copied into owned typed arrays. Getters return snapshots, so changing a caller array, a getter result, or a builder cannot mutate an already built surface or endpoint request.
+
+Use a collection typed for the destination surface. An ordinary `Array(Slack::UI::Checked::MessageBlock)` has an item union that includes Input; it cannot be passed to `DisplayModal` even if its present elements happen to be display blocks. Use `Array(Slack::UI::Checked::DisplayModalBlock)` for that surface. Legacy conversion helpers remain available in the API for supported mutable Section and Actions values; checked values can be built directly from application data.
+
+## Offline examples
+
+From a repository checkout, run `shards install` to install development dependencies, including WebMock. All four commands use synthetic credentials and no Slack network call:
+
+```sh
+crystal run examples/block_kit_message.cr
+crystal run examples/block_kit_modal.cr
+crystal run examples/block_kit_home.cr
+crystal run examples/block_kit_static_select.cr
+```
+
+The message example builds and prints a request. The modal example posts a button, verifies a signed action, opens a form, and reads a signed submission. The Home example publishes through a stub and reads simulated state. The static choice example posts a single choice, reads a signed selection, opens a grouped multi-choice form, and reads its submission. Real handlers must acknowledge interactions within Slack's response window.
