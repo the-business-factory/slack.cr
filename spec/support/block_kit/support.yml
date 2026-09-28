@@ -241,9 +241,9 @@ entries:
     kind: surface
     documentation_url: https://docs.slack.dev/block-kit/
     fields_supported: [text, blocks]
-    parents: [chat.postMessage]
+    parents: [chat.postMessage, chat.update]
     surfaces: [message]
-    restrictions: Supports explicit fallback text or the separately named Slack-generated fallback choice and a checked union of Section, Actions, Divider, Header, Context, Image, and Input. Other block families remain unsupported until their slices ship.
+    restrictions: Supports explicit fallback text or the separately named Slack-generated fallback choice and a checked union of Section, Actions, Divider, Header, Context, Image, and Input. The update adapter requires explicit fallback. Other block families remain unsupported until their slices ship.
     implementation_status: supported
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/surfaces/message.cr, src/slack/ui/checked/message_builder.cr, spec/ui/checked/message_spec.cr, examples/block_kit_message.cr]
@@ -258,6 +258,17 @@ entries:
     implementation_status: partial
     inbound_status: unsupported
     evidence_paths: [src/slack/api/endpoints/checked_chat_post_message.cr, spec/api/checked_chat_post_message_spec.cr, spec/block_kit_consumers_spec.cr]
+
+  - wire_type: chat.update checked adapter
+    kind: endpoint
+    documentation_url: https://docs.slack.dev/reference/methods/chat.update/
+    fields_supported: [channel, ts, text, blocks, as_user]
+    parents: []
+    surfaces: [message]
+    restrictions: Replaces text and nonempty blocks from an owned checked Message. Explicit fallback of 1–4000 characters is required; generated fallback, partial patches, text-only updates and block clearing are unsupported. Channel must be nonblank; timestamp stays a decimal string without fixed digit counts. Optional as_user preserves false and omission. Attachments and metadata are omitted and retained; parse and link_names use Slack update defaults. Other method fields are unsupported. String token and existing dispatch injection are required as for checked posting. UpdateMessage exposes channel, ts, text and optional raw message. Slack checks ownership, permissions, non-ephemeral message state and rendering.
+    implementation_status: partial
+    inbound_status: partial
+    evidence_paths: [src/slack/api/endpoints/checked_chat_update.cr, src/slack/models/chat/update_message.cr, spec/api/checked_chat_update_spec.cr, spec/api/transport_injection_spec.cr, examples/block_kit_message_update.cr, spec/block_kit_consumers_spec.cr]
 
   - wire_type: modal view
     kind: surface
@@ -655,3 +666,17 @@ rules:
     source_section: "Changes to empty state in all payloads; radio selected_option also follows official Bolt RadioButtonsAction"
     reviewed_on: "2026-09-27"
     evidence_paths: ["spec/interactions/radio_buttons_spec.cr", "spec/block_kit_consumers_spec.cr"]
+  - id: chat_update_replacement
+    classification: "library_policy"
+    requirement: "Always replace checked nonempty blocks and explicit fallback text; reject generated fallback instead of assuming update omission regenerates accessibility text. No partial patch or clearing API."
+    source_url: "https://docs.slack.dev/reference/methods/chat.update/"
+    source_section: "Usage info: text, blocks or attachments"
+    reviewed_on: "2026-09-27"
+    evidence_paths: ["spec/api/checked_chat_update_spec.cr", "spec/block_kit_consumers_spec.cr"]
+  - id: chat_update_fields
+    classification: "slack_requirement"
+    requirement: "Channel and message timestamp select the target; text maximum is 4000 characters. Optional as_user applies to bot-owned updates."
+    source_url: "https://docs.slack.dev/reference/methods/chat.update/"
+    source_section: "Arguments, Valid message types, Errors: msg_too_long"
+    reviewed_on: "2026-09-27"
+    evidence_paths: ["spec/api/checked_chat_update_spec.cr"]

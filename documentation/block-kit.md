@@ -6,7 +6,7 @@ Use `require "slack"` and `Slack::UI::Checked` to construct validated, immutable
 
 | Checked surface | Direct blocks | Input children | Send with |
 | --- | --- | --- | --- |
-| `Message` | Section, Actions, Divider, Header, Context, Image, Input | PlainTextInput, StaticSelect, MultiStaticSelect, Checkboxes, RadioButtons | `Slack::Api::CheckedChatPostMessage` |
+| `Message` | Section, Actions, Divider, Header, Context, Image, Input | PlainTextInput, StaticSelect, MultiStaticSelect, Checkboxes, RadioButtons | `Slack::Api::CheckedChatPostMessage`, `Slack::Api::CheckedChatUpdate` |
 | `DisplayModal` | Section, Actions, Divider, Header, Context, Image | None, even if a submit label is supplied | `Slack::Api::CheckedViewsOpen` |
 | `FormModal` | Section, Actions, Divider, Header, Context, Image, Input | PlainTextInput, StaticSelect, MultiStaticSelect, Checkboxes, RadioButtons | `Slack::Api::CheckedViewsOpen` |
 | `Home` | Section, Actions, Divider, Header, Context, Image, Input | PlainTextInput, StaticSelect, MultiStaticSelect, Checkboxes, RadioButtons | `Slack::Api::CheckedViewsPublish` |
@@ -53,6 +53,30 @@ response = request.call
 ```
 
 `CheckedChatPostMessage` accepts `channel`, checked `text`/`blocks`, `thread_ts`, `reply_broadcast`, `unfurl_links`, and `unfurl_media`. It copies and validates the message before dispatch and requires a `String` token. `result` and `call` share the same validation boundary. Named `configuration`, `transport`, and `limiter` options can customize dispatch; they are not JSON fields. The wrapper sends through the existing API client and raises `Slack::Api::Error` for API failures. It does not support every `chat.postMessage` field.
+
+## Update a message
+
+Use `CheckedChatUpdate` to replace the blocks and fallback text of an existing message. Pass the channel ID and exact timestamp string returned when posting. For a direct message, use its conversation ID, not a user ID.
+
+```crystal
+updated_message = UI.message(fallback_text: "Request 42 approved.") do |builder|
+  builder.section(UI.mrkdwn("*Request 42 approved.*"), block_id: "request.approved")
+end
+channel = response.channel || raise "Missing posted channel"
+updated = Slack::Api::CheckedChatUpdate.new(
+  token: ENV["SLACK_BOT_TOKEN"], channel: channel, ts: response.ts,
+  message: updated_message, as_user: true
+).call
+puts updated.text
+```
+
+The supported request fields are `channel`, `ts`, `text`, `blocks`, and optional `as_user`. The adapter always sends both text and nonempty blocks from an owned checked Message snapshot. It requires explicit fallback text of 1–4000 characters. A Message created with Slack-generated fallback is rejected: text omission on an update does not promise a new accessibility fallback. This is a library policy. Use fresh block IDs for each message version.
+
+This is a content replacement operation, not a partial patch builder. It cannot retain old blocks by omission, clear all blocks, or send a text-only update. Attachments and metadata are omitted and retained by Slack. Parsing and name-linking options are omitted and use Slack's update defaults. Thread, broadcast, unfurl, file, and other method options are outside this adapter. Optional `as_user` preserves omission and explicit false; Slack documents `as_user: true` for updating a bot's own message.
+
+`channel` must not be blank. `ts` must contain digits, a decimal point, and fractional digits; it remains a string without fixed digit counts or rounding. `result`, `call`, and JSON serialization reject invalid local values before dispatch. `result` caches the HTTP response; `call` parses that response as `Slack::Models::Chat::UpdateMessage`, with `channel`, `ts`, `text`, and optional raw `message` JSON. API failures raise `Slack::Errors::Api`. Named `configuration`, `transport`, and `limiter` options reuse the existing dispatch path and are not JSON fields.
+
+The token needs `chat:write`, and only messages owned by the authenticated user or bot can be updated. Ephemeral messages are unsupported. Slack checks ownership, permissions, message state, and rendering. See the [chat.update reference](https://docs.slack.dev/reference/methods/chat.update/) and the offline [message-update example](../examples/block_kit_message_update.cr); stubs do not prove live acceptance.
 
 ## Add an overflow menu
 
@@ -181,7 +205,7 @@ Use a collection typed for the destination surface. An ordinary `Array(Slack::UI
 
 ## Offline examples
 
-From a repository checkout, run `shards install` to install development dependencies, including WebMock. All seven commands use synthetic credentials and no Slack network call:
+From a repository checkout, run `shards install` to install development dependencies, including WebMock. All eight commands use synthetic credentials and no Slack network call:
 
 ```sh
 crystal run examples/block_kit_message.cr
@@ -191,6 +215,7 @@ crystal run examples/block_kit_static_select.cr
 crystal run examples/block_kit_overflow.cr
 crystal run examples/block_kit_checkboxes.cr
 crystal run examples/block_kit_radio_buttons.cr
+crystal run examples/block_kit_message_update.cr
 ```
 
-The message example builds and prints a request. The modal example posts a button, verifies a signed action, opens a form, and reads a signed submission. The Home example publishes through a stub and reads simulated state. The static choice example posts a single choice, reads a signed selection, opens a grouped multi-choice form, and reads its submission. The overflow example posts action and URL choices and acknowledges a signed URL selection. The checkbox example posts initial choices, reads a signed checkbox action, and reads a cleared selection from a signed submission. The radio example posts an initial choice, reads a signed selection, opens an optional override form, and reads an unselected submission. Real handlers must acknowledge interactions within Slack's response window.
+The message example builds and prints a request. The modal example posts a button, verifies a signed action, opens a form, and reads a signed submission. The Home example publishes through a stub and reads simulated state. The static choice example posts a single choice, reads a signed selection, opens a grouped multi-choice form, and reads its submission. The overflow example posts action and URL choices and acknowledges a signed URL selection. The checkbox example posts initial choices, reads a signed checkbox action, and reads a cleared selection from a signed submission. The radio example posts an initial choice, reads a signed selection, opens an optional override form, and reads an unselected submission. The message-update example replaces a posted approval button with the completed status and new fallback text. Real handlers must acknowledge interactions within Slack's response window.
