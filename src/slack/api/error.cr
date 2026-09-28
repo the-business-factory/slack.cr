@@ -1,3 +1,5 @@
+require "./error_detail"
+
 module Slack::Api
   # A Web API call that Slack did not complete successfully.
   #
@@ -12,10 +14,12 @@ module Slack::Api
     getter http_status : Int32
     getter retry_after : Time::Span?
     @messages : Array(String)
+    @details : Array(ErrorDetail)
 
     def initialize(@code : String, @http_status : Int32, messages : Array(String) = [] of String,
-                   @retry_after : Time::Span? = nil)
+                   @retry_after : Time::Span? = nil, details : Array(ErrorDetail) = [] of ErrorDetail)
       @messages = messages.dup
+      @details = details.dup
       # Slack error names are short identifiers. Keep any other remote text out of the message.
       shown = SAFE_CODE.matches?(@code) ? @code : "unrecognized error"
       super("Slack API error: #{shown} (HTTP #{@http_status})")
@@ -24,6 +28,12 @@ module Slack::Api
     # Details from `response_metadata.messages`, such as invalid argument descriptions.
     def messages : Array(String)
       @messages.dup
+    end
+
+    # Problems from the response's top-level `errors` array, such as the manifest
+    # problems of `invalid_manifest`. Empty when Slack sends none.
+    def details : Array(ErrorDetail)
+      @details.dup
     end
   end
 end

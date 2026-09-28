@@ -29,11 +29,11 @@ puts team.name
 A method without a typed request is available through the generic call. It sends form fields and returns the raw JSON. Strings are sent unchanged; other values are sent as JSON text:
 
 ```crystal
-emoji = client.call("emoji.list", {include_categories: true})
-emoji["emoji"].as_h.size
+dnd = client.call("dnd.info", {user: "U123"})
+dnd["snooze_enabled"].as_bool
 ```
 
-An unsuccessful result raises `Slack::Api::Error`. `code` is Slack's error name, such as `channel_not_found`, and `messages` holds `response_metadata.messages`. HTTP 429 raises `Slack::Api::RateLimited`, with `retry_after` from the `Retry-After` header. The error message never contains the response body, headers, or token.
+An unsuccessful result raises `Slack::Api::Error`. `code` is Slack's error name, such as `channel_not_found`, `messages` holds `response_metadata.messages`, and `details` holds problems from a top-level `errors` array, such as the manifest problems of `invalid_manifest`. HTTP 429 raises `Slack::Api::RateLimited`, with `retry_after` from the `Retry-After` header. The error message never contains the response body, headers, or token.
 
 The client paces each method locally at its documented [rate limit tier](https://docs.slack.dev/apis/web-api/rate-limits) and makes exactly one attempt. It does not retry. Local pacing does not guarantee that Slack accepts the call. API calls use `https://slack.com/api/` by default. Pass `configuration:` and `transport:` to the client to change this; see [authentication and transport](documentation/authentication.md).
 
@@ -387,9 +387,10 @@ crystal run examples/received_blocks.cr
 crystal run examples/workflow_step.cr
 crystal run examples/testing.cr
 crystal run examples/app.cr
+crystal run examples/app_manifest.cr
 ```
 
-The examples show Web API calls and error codes, channel history and thread replies across cursor pages, workspace members read into an on-call user group, an incident message acknowledged with a reaction, a pin, and a runbook bookmark, a file upload, a remote file share, message construction, a message with a colored attachment and metadata, an ephemeral thread reply with a permalink and a scheduled reminder, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, message workflow buttons, typed blocks of a received message, routed app events and message subtypes, routed assistant thread and agent session events, Socket Mode frames with their acknowledgments, a Socket Mode connection to a local server, a slash command response with a `response_url` reply, a custom workflow step that completes or fails its execution, an app that answers a signed mention and a button click through its HTTP receiver, and an offline test of a slash command handler. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
+The examples show Web API calls and error codes, channel history and thread replies across cursor pages, workspace members read into an on-call user group, an incident message acknowledged with a reaction, a pin, and a runbook bookmark, a file upload, a remote file share, message construction, a message with a colored attachment and metadata, an ephemeral thread reply with a permalink and a scheduled reminder, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, message workflow buttons, typed blocks of a received message, routed app events and message subtypes, routed assistant thread and agent session events, Socket Mode frames with their acknowledgments, a Socket Mode connection to a local server, a slash command response with a `response_url` reply, a custom workflow step that completes or fails its execution, an app that answers a signed mention and a button click through its HTTP receiver, an offline test of a slash command handler, and an app manifest that is validated, fixed, created, and exported. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
 
 ## Contributing
 

@@ -26,7 +26,8 @@ module Slack::Api
       envelope = parse_envelope(response.body, status)
       metadata = envelope.response_metadata
       unless envelope.ok?
-        raise Error.new(envelope.error || "unknown_error", status, metadata.try(&.messages) || [] of String)
+        raise Error.new(envelope.error || "unknown_error", status, metadata.try(&.messages) || [] of String,
+          details: details(envelope))
       end
       raise Error.new("http_error", status) unless success?(status)
 
@@ -45,6 +46,15 @@ module Slack::Api
       # Converters such as String#to_f raise ArgumentError with the remote value in
       # the message. Replace it without a cause so no response text escapes.
       raise Error.new("invalid_response", status)
+    end
+
+    private def self.details(envelope : Envelope) : Array(ErrorDetail)
+      entries = envelope.errors.try(&.as_a?) || [] of JSON::Any
+      entries.compact_map do |entry|
+        next unless fields = entry.as_h?
+        next unless message = fields["message"]?.try(&.as_s?)
+        ErrorDetail.new(message, fields["pointer"]?.try(&.as_s?))
+      end
     end
 
     private def self.warnings(envelope : Envelope) : Array(String)

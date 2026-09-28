@@ -193,6 +193,46 @@ Targeted revocation removes only grants captured at preparation; the bot list co
 
 Applications own event ID deduplication, delivery history, and queue persistence. Reuse the original preparation for duplicates and queued work; preparing a duplicate after reinstall could capture a new generation. Slack's event payload has no library installation generation. A delayed first delivery cannot prove that it belongs to earlier credentials, even if preparation sees the current generation. Preserve your own ordering history and defer cleanup when that history is insufficient. There is no durable prepared-delivery serialization in the library.
 
+To revoke credentials in Slack, call the Web API with the credential itself. `AuthRevoke` revokes the calling token. `AppsUninstall` uninstalls the app from the token's workspace and revokes all tokens of that installation. It needs the app's client ID and client secret:
+
+```crystal
+client = Slack::Api::Client.new(token: user_token)
+client.call(Slack::Api::AuthRevoke.new(test: true)).revoked? # => false; test mode keeps the token
+client.call(Slack::Api::AuthRevoke.new).revoked?             # => true
+
+bot_client = Slack::Api::Client.new(token: bot_token)
+bot_client.call(Slack::Api::AppsUninstall.new(client_id: client_id, client_secret: client_secret))
+```
+
+`AppsUninstall` keeps the client secret as an `Auth::Secret`. These calls do not change the installation store. After a successful call, Slack sends `tokens_revoked` or `app_uninstalled`; clean up the store through `CredentialLifecycle`, as above. Slack returns `bad_client_secret` or `client_id_token_mismatch` as `Api::Error#code` when the client credentials do not match the token.
+
+## App manifests
+
+An app configuration token (`xoxe.xoxp-`) manages apps through their manifests. Give it to the client like any other token. The manifest stays raw JSON (`JSON::Any`); see the [app manifest reference](https://docs.slack.dev/reference/app-manifest). The requests send the manifest as JSON text and keep their own copy.
+
+```crystal
+config = Slack::Api::Client.new(token: configuration_token)
+manifest = JSON.parse(File.read("manifest.json"))
+
+begin
+  config.call(Slack::Api::AppsManifestValidate.new(manifest))
+rescue error : Slack::Api::Error
+  raise error unless error.code == "invalid_manifest"
+  error.details.each { |detail| puts "#{detail.pointer}: #{detail.message}" }
+  # /settings/event_subscriptions: Event Subscription requires either Request URL or Socket Mode Enabled
+end
+
+app = config.call(Slack::Api::AppsManifestCreate.new(manifest))
+app.credentials.signing_secret # Auth::Secret; inspect shows [REDACTED]
+config.call(Slack::Api::AppsManifestUpdate.new(app.app_id, manifest)).permissions_updated
+config.call(Slack::Api::AppsManifestExport.new(app.app_id)).manifest
+config.call(Slack::Api::AppsManifestDelete.new(app.app_id))
+```
+
+For `invalid_manifest`, `apps.manifest.validate`, `apps.manifest.create`, and `apps.manifest.update` give each problem in `Api::Error#details`, with a JSON pointer into the manifest. `AppsManifestCreate` returns the client secret, verification token, and signing secret as `Auth::Secret` values; store them securely. The library does not check the manifest schema. Configuration tokens expire after 12 hours; the library does not rotate them (`tooling.tokens.rotate` is available through the generic call). See `examples/app_manifest.cr`.
+
+`AppsEventAuthorizationsList` reads the installations that can see an event, from the envelope's `event_context`. It needs an app-level token (`xapp-`) with `authorizations:read` and pages with `Client#each_page`. Each item is a `Slack::Events::Authorization`.
+
 ## Transport settings and failures
 
 `APIConfiguration` defaults to `https://slack.com/api/` and supports an explicit alternate base URI. API-only use needs no OAuth client credentials or signing secret. Pass the configuration and transport to `Slack::Api::Client`:

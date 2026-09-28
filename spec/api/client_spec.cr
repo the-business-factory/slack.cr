@@ -74,9 +74,21 @@ describe Slack::Api::Client do
     error.http_status.should eq 200
     error.retry_after.should be_nil
     error.messages.should eq ["[ERROR] invalid `trigger_id`"]
+    error.details.should be_empty
     error.message.to_s.should_not contain("canary")
     error.message.to_s.should_not contain("trigger_id")
     error.message.to_s.should_not contain("xoxb")
+  end
+
+  it "keeps the Slack code when the errors array has entries without a message" do
+    client, _transport = recording_client(<<-JSON)
+      {"ok":false,"error":"cant_invite","errors":[{"user":"U1","ok":false,"error":"cant_invite_self"},"x"]}
+      JSON
+
+    error = expect_raises(Slack::Api::Error) { client.call(delete_request) }
+
+    error.code.should eq "cant_invite"
+    error.details.should be_empty
   end
 
   it "maps HTTP 429 to RateLimited with Retry-After and without reading the body" do

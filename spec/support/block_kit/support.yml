@@ -1238,6 +1238,50 @@ entries:
     inbound_status: unsupported
     evidence_paths: [src/slack/api/requests/agents/sessions_rename.cr, src/slack/models/agents/session_title.cr, spec/api/agents_spec.cr]
 
+  - wire_type: apps.manifest.create, validate, update, export, and delete requests
+    kind: endpoint
+    documentation_url: https://docs.slack.dev/reference/methods/apps.manifest.create
+    fields_supported: [manifest, team_id, app_id, credentials, oauth_authorize_url, permissions_updated, errors]
+    parents: []
+    surfaces: [app configuration]
+    restrictions: "The client sends the app configuration token like any other token. Requests post form fields; manifest is sent as JSON text (Slack documents it as a string) from a copy of the given JSON::Any, and the manifest stays raw JSON with no typed model or local schema check. create sends manifest and optional team_id and returns app_id, oauth_authorize_url as a URI, and credentials with client_secret, verification_token, and signing_secret as Auth::Secret. validate sends manifest and optional app_id. export returns the manifest as JSON::Any; delete sends app_id. Tiers: create, update, and delete Tier 1; validate and export Tier 3. For ok:false, Api::Error#details gives each entry of the top-level errors array that has a string message, with its pointer; entries of other shapes are skipped. Slack checks the schema, token expiry (12 hours), and app ownership."
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/api/requests/apps/manifest_create.cr, src/slack/api/requests/apps/manifest_validate.cr, src/slack/api/requests/apps/manifest_update.cr, src/slack/api/requests/apps/manifest_export.cr, src/slack/api/requests/apps/manifest_delete.cr, src/slack/models/apps/manifest_create.cr, src/slack/models/apps/app_credentials.cr, src/slack/api/error_detail.cr, spec/api/apps_manifest_spec.cr, examples/support/app_manifest_example.cr, spec/block_kit_consumers_spec.cr]
+
+  - wire_type: apps.uninstall and auth.revoke requests
+    kind: endpoint
+    documentation_url: https://docs.slack.dev/reference/methods/apps.uninstall
+    fields_supported: [client_id, client_secret, test, revoked]
+    parents: []
+    surfaces: [workspace]
+    restrictions: "AppsUninstall posts client_id and client_secret (kept as Auth::Secret) with the workspace bot or user token; Tier 1. AuthRevoke posts test=true only in test mode and returns revoked?; Tier 3. Neither changes the installation store; tokens_revoked and app_uninstalled events drive CredentialLifecycle cleanup. Slack checks that the client credentials match the token."
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/api/requests/apps/uninstall.cr, src/slack/api/requests/auth/revoke.cr, src/slack/models/auth/revoke.cr, spec/api/apps_spec.cr, spec/api/auth_revoke_spec.cr, documentation/authentication.md]
+
+  - wire_type: apps.event.authorizations.list request
+    kind: endpoint
+    documentation_url: https://docs.slack.dev/reference/methods/apps.event.authorizations.list
+    fields_supported: [event_context, cursor, limit, authorizations]
+    parents: []
+    surfaces: [events api]
+    restrictions: "AppsEventAuthorizationsList posts event_context with cursor and limit and pages through Client#each_page; limit must be 1 to 1000 (library pagination policy). Items decode as Slack::Events::Authorization (user_id, is_bot, team_id, enterprise_id, is_enterprise_install). Slack documents a special limit of 600 calls per minute; the client paces at Tier 4. Needs an app-level token with authorizations:read; Slack checks it."
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/api/requests/apps/event_authorizations_list.cr, src/slack/models/apps/event_authorizations_list.cr, spec/api/apps_spec.cr]
+
+  - wire_type: emoji.list and api.test requests
+    kind: endpoint
+    documentation_url: https://docs.slack.dev/reference/methods/emoji.list
+    fields_supported: [include_categories, emoji, categories, error, args]
+    parents: []
+    surfaces: [workspace]
+    restrictions: "EmojiList posts include_categories=true only when set; Tier 2. emoji maps names to an image URL or alias:<name>, and alias_target reads the alias. categories stays raw JSON because Slack does not document its shape; cache_ts and categories_version are not decoded. ApiTest posts an optional error, which Slack returns as Api::Error#code, and returns the echoed args as strings; Tier 4."
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/api/requests/emoji/list.cr, src/slack/models/emoji/emoji_list.cr, src/slack/api/requests/api/test.cr, src/slack/models/api/api_test.cr, spec/api/emoji_spec.cr, spec/api/api_test_spec.cr]
+
 # Classification is independent of support status. Missing features are not invalid Slack payloads.
 review_policy:
   cadence: Before each release and at least every 90 days.

@@ -60,6 +60,7 @@ require "../examples/support/testing_example"
 require "../examples/support/app_example"
 require "../examples/support/assistant_events_example"
 require "../examples/support/incident_triage_example"
+require "../examples/support/app_manifest_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -166,6 +167,27 @@ describe "documented Block Kit workflows" do
       URI::Params.parse("channel=C123&timestamp=1710000000.000100"),
       URI::Params.parse("channel_id=C123&title=Queue+runbook&type=link&link=https%3A%2F%2Frunbooks.example.test%2Fqueue&emoji=%3Abooks%3A"),
     ]
+  end
+
+  it "fixes a reported manifest problem, creates the app, and exports its manifest" do
+    output = IO::Memory.new
+    sent = OfflineAppManifestExample.run(output)
+
+    output.to_s.should eq(<<-TEXT)
+      /settings/event_subscriptions: Event Subscription requires either Request URL or Socket Mode Enabled
+      Manifest is valid
+      Created A0DEPLOY01 with client ID 1234.5678
+      Signing secret: [REDACTED]
+      Exported Deploy Bot
+
+      TEXT
+    sent.map(&.[0]).should eq %w[apps.manifest.validate apps.manifest.validate apps.manifest.create apps.manifest.export]
+    JSON.parse(sent[0][1]["manifest"])["settings"].should eq JSON.parse(%({"event_subscriptions":{"bot_events":["app_mention"]}}))
+    JSON.parse(sent[2][1]["manifest"])["settings"].should eq JSON.parse(
+      %({"socket_mode_enabled":true,"event_subscriptions":{"bot_events":["app_mention"]}}))
+    JSON.parse(sent[2][1]["manifest"])["oauth_config"].should eq JSON.parse(
+      %({"scopes":{"bot":["app_mentions:read","chat:write"]}}))
+    sent[3][1].should eq URI::Params.parse("app_id=A0DEPLOY01")
   end
 
   it "streams a threaded answer with a plan and final feedback blocks" do

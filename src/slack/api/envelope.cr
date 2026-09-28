@@ -18,5 +18,8 @@ module Slack::Api
     getter error : String?
     getter warning : String?
     getter response_metadata : Metadata?
+    # Raw, because methods give different entry shapes; `Response` reads the
+    # entries that have a string `message`.
+    getter errors : JSON::Any?
   end
 end
