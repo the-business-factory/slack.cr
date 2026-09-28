@@ -27,6 +27,7 @@ describe "Block Kit construction diagnostics" do
     "display_table"          => ["DisplayModal rejects Table blocks", "messages and Home tabs only"],
     "rich_text_list_item"    => ["RichText::List#append_element", "RichText::Section", "not Slack::UI::Checked::RichText::Text"],
     "number_input_message"   => ["MessageBuilder#input", "argument 'element'", "NumberInput"],
+    "rich_text_in_message"   => ["MessageBuilder#input", "argument 'element'", "RichTextInput"],
   }.each do |name, fragments|
     it "explains #{name}" do
       result = CompileContracts.compile(root, "spec/fixtures/compile/fail/#{name}.cr")

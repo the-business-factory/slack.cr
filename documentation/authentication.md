@@ -68,6 +68,8 @@ For URL inputs, verify the original signed request before reading `UrlInputActio
 
 For email inputs, verify the original signed request before reading `EmailInputAction#value` or `StateMap#email_input_value?`. The library does not check the received address; check it in the application. See [email input handling](block-kit.md#enter-an-email-address) and `examples/block_kit_email_input.cr`.
 
+For rich text inputs, verify the original signed request before reading `RichTextInputAction#rich_text_value` or `StateMap#rich_text_input_value?`. A malformed tree raises `TypeMismatch`. See [rich text input handling](block-kit.md#enter-formatted-text) and `examples/block_kit_rich_text_input.cr`.
+
 ## OAuth app installation
 
 `Slack::AuthHandler` installs an app; it does not authenticate a human login. Give it explicit configuration, state storage, and transport. Global `Slack.configure` client credentials or scopes do not configure this handler.

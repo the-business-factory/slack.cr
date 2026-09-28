@@ -21,6 +21,8 @@ module Slack::UI::Checked::ViewFocus
       paths << "element.focus_on_load" if block.element.focus_on_load
     when Blocks::ModalInput
       paths << "element.focus_on_load" if focused?(block.element)
+    when Blocks::ViewInput
+      paths << "element.focus_on_load" if block.element.focus_on_load
     when Blocks::Section
       if focused?(block.accessory)
         paths << "accessory.focus_on_load"

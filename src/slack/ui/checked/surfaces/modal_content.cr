@@ -7,7 +7,7 @@ alias Slack::UI::Checked::DisplayModalBlock = Slack::UI::Checked::Blocks::Sectio
                                               Slack::UI::Checked::Blocks::Image |
                                               Slack::UI::Checked::Blocks::Video |
                                               Slack::UI::Checked::Blocks::RichText
-alias Slack::UI::Checked::ModalBlock = Slack::UI::Checked::DisplayModalBlock | Slack::UI::Checked::Blocks::Input | Slack::UI::Checked::Blocks::ModalInput
+alias Slack::UI::Checked::ModalBlock = Slack::UI::Checked::DisplayModalBlock | Slack::UI::Checked::Blocks::Input | Slack::UI::Checked::Blocks::ModalInput | Slack::UI::Checked::Blocks::ViewInput
 alias Slack::UI::Checked::Modal = Slack::UI::Checked::DisplayModal | Slack::UI::Checked::FormModal
 
 # Shared wire and validation rules; each concrete surface owns its child union.

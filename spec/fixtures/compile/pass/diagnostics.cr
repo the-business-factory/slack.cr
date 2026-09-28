@@ -26,3 +26,6 @@ UI::Blocks::RichText.new(elements: {UI::RichText::List.new(UI::RichText::ListSty
 UI.form_modal(title: label, submit: UI.plain("Save")) do |builder|
   builder.input(label: label, element: UI::BlockElements::NumberInput.new(is_decimal_allowed: false))
 end
+UI.home do |builder|
+  builder.input(label: label, element: UI::BlockElements::RichTextInput.new(action_id: "summary"))
+end
