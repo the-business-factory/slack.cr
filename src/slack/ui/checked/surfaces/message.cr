@@ -71,6 +71,7 @@ struct Slack::UI::Checked::Message
     end
 
     BlockValidation.validate(@blocks, issues, "message.block_id.duplicate", "Block IDs must be unique within a message.")
+    issues.concat(ChannelResponseUrl.non_modal_inputs(@blocks))
     issues
   end
 

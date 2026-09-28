@@ -87,6 +87,7 @@ crystal run examples/block_kit_view_update.cr
 crystal run examples/block_kit_users_select.cr
 crystal run examples/block_kit_view_push.cr
 crystal run examples/block_kit_modal_errors.cr
+crystal run examples/block_kit_channels_select.cr
 ```
 
 The examples show checked message construction, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, message status updates, and modal updates and pushes. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).

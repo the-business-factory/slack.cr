@@ -11,6 +11,7 @@ require "../examples/support/view_update_example"
 require "../examples/support/users_select_example"
 require "../examples/support/view_push_example"
 require "../examples/support/modal_errors_example"
+require "../examples/support/channels_select_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -113,5 +114,10 @@ describe "documented Block Kit workflows" do
     accepted.status_code.should eq(200)
     accepted.body.should eq("")
     output.to_s.should eq("Rejected short reason; accepted corrected reason (HTTP 200).\n")
+  end
+  it "chooses a notification channel and submits destination channels" do
+    output = IO::Memory.new
+    OfflineChannelsSelectExample.run(output)
+    output.to_s.should eq "Selected notification channel: C-NOTIFY (acknowledged 200)\nSaved destinations: C-ONE, C-TWO (acknowledged 200)\n"
   end
 end
