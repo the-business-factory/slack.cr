@@ -18,6 +18,13 @@ module Slack::Api
       [] of UI::ValidationIssue
     end
 
+    # Top-level boolean fields that make an `ok: false` response without `error`
+    # a documented outcome. When one of them is `true`, `Client#call` returns the
+    # model instead of raising. Every other `ok: false` response still raises.
+    def outcome_flags : Array(String)
+      [] of String
+    end
+
     def validate! : Nil
       issues = validate
       raise UI::ValidationError.new(issues) unless issues.empty?

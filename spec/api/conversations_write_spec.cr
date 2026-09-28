@@ -239,12 +239,36 @@ describe Slack::Api::ConversationsLeave do
     ApiSupport.client.call(Slack::Api::ConversationsLeave.new("C1")).not_in_channel?.should be_true
   end
 
-  it "raises the documented unsuccessful not_in_channel form, which has no error name" do
-    WebMock.stub(:post, "https://slack.com/api/conversations.leave").to_return(body: %({"ok":false,"not_in_channel":true}))
+  it "returns the documented unsuccessful not_in_channel form, which has no error name" do
+    stub_json("conversations.leave", %({"channel":"C1"}), %({"ok":false,"not_in_channel":true}))
+
+    ApiSupport.client.call(Slack::Api::ConversationsLeave.new("C1")).not_in_channel?.should be_true
+  end
+
+  it "raises Slack's error name when an unsuccessful response has one" do
+    WebMock.stub(:post, "https://slack.com/api/conversations.leave")
+      .to_return(body: %({"ok":false,"error":"channel_not_found","not_in_channel":true}))
+
+    expect_raises(Slack::Api::Error) do
+      ApiSupport.client.call(Slack::Api::ConversationsLeave.new("C404"))
+    end.code.should eq "channel_not_found"
+  end
+
+  it "raises unknown_error for an unsuccessful response without the flag or an error name" do
+    WebMock.stub(:post, "https://slack.com/api/conversations.leave").to_return(body: %({"ok":false,"not_in_channel":false}))
 
     expect_raises(Slack::Api::Error) do
       ApiSupport.client.call(Slack::Api::ConversationsLeave.new("C1"))
     end.code.should eq "unknown_error"
+  end
+
+  it "raises an HTTP error when the flag comes with a failing status" do
+    WebMock.stub(:post, "https://slack.com/api/conversations.leave")
+      .to_return(status: 500, body: %({"ok":false,"not_in_channel":true}))
+
+    expect_raises(Slack::Api::Error) do
+      ApiSupport.client.call(Slack::Api::ConversationsLeave.new("C1"))
+    end.code.should eq "http_error"
   end
 end
 
@@ -260,6 +284,14 @@ describe "conversation state requests" do
     client.call(Slack::Api::ConversationsUnarchive.new("C1")).ok?.should be_true
     client.call(Slack::Api::ConversationsSetPurpose.new("C1", "Deploy coordination")).ok?.should be_true
     client.call(Slack::Api::ConversationsMark.new("C1", "1593473566.000200")).ok?.should be_true
+  end
+
+  it "raises a not_in_channel flag without an error name when the request declares no flag" do
+    WebMock.stub(:post, "https://slack.com/api/conversations.archive").to_return(body: %({"ok":false,"not_in_channel":true}))
+
+    expect_raises(Slack::Api::Error) do
+      ApiSupport.client.call(Slack::Api::ConversationsArchive.new("C1"))
+    end.code.should eq "unknown_error"
   end
 
   it "raises channel_not_found as an API error" do

@@ -74,6 +74,8 @@ dnd["snooze_enabled"].as_bool
 
 The error message never contains the response body, headers, or token.
 
+Some methods document an `ok: false` response with a flag field and no `error`. The typed request returns this response as its model and does not raise: for example, `ConversationsLeave` returns a `LeaveResponse` with `not_in_channel?` true when the caller is not a member. The generic call and all other `ok: false` responses raise `Slack::Api::Error`.
+
 ## Rate limits
 
 The client paces each method locally at its documented [rate limit tier](https://docs.slack.dev/apis/web-api/rate-limits). Pacing waits in the calling fiber and starts no fibers. Local pacing does not guarantee that Slack accepts the call. Without a retry policy, the client makes exactly one attempt.

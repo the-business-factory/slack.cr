@@ -4,9 +4,8 @@ module Slack::Models::Conversations
   # The `conversations.leave` response. `not_in_channel?` is true when the
   # caller was not a member of the conversation.
   #
-  # The method reference also shows this flag with `"ok": false` and no
-  # `error`. `Client#call` raises that form as `Api::Error` with the code
-  # `unknown_error`.
+  # Slack sends this flag with `"ok": true` or, as the method reference shows,
+  # with `"ok": false` and no `error`. `Client#call` returns both forms.
   struct LeaveResponse
     include JSON::Serializable
 
