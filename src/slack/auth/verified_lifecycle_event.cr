@@ -9,10 +9,16 @@ module Slack::Auth
     getter owner : InstallationKey
     getter event : Slack::Event
 
-    def initialize(request : HTTP::Request, expected_app_id : String,
-                   verifier : Slack::Webhooks::Verifier, selected_owner : InstallationKey? = nil)
+    # Verifies the request bytes before it parses them.
+    def self.new(request : HTTP::Request, expected_app_id : String,
+                 verifier : Slack::Webhooks::Verifier, selected_owner : InstallationKey? = nil) : self
       body = verifier.verify(request).body
-      envelope = parse(body)
+      new(parse(body), expected_app_id, selected_owner)
+    end
+
+    # Takes an envelope that trusted application routing decoded from verified bytes.
+    def initialize(envelope : Slack::VerifiedEvent, expected_app_id : String,
+                   selected_owner : InstallationKey? = nil)
       @event = validate_event(envelope, expected_app_id)
       @event_id = envelope.event_id
       @owner = resolve_owner(envelope, expected_app_id, selected_owner)
@@ -25,10 +31,10 @@ module Slack::Auth
       @event.is_a?(Slack::Events::AppUninstalled)
     end
 
-    private def parse(body : String) : Slack::VerifiedEvent
+    private def self.parse(body : String) : Slack::VerifiedEvent
       Slack::VerifiedEvent.from_json(body)
     rescue JSON::ParseException | JSON::SerializableError
-      invalid(:invalid_payload)
+      raise RequestAuthorizationError.new(:invalid_payload)
     end
 
     private def validate_event(envelope : Slack::VerifiedEvent, app_id : String) : Slack::Event

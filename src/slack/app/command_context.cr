@@ -1,6 +1,8 @@
 # The context of an `App#command` listener for a slash command.
 struct Slack::App::CommandContext < Slack::App::Context
   include Acknowledging
+  include Saying
+  include Responding
 
   getter command : Slack::Command
 
@@ -13,5 +15,13 @@ struct Slack::App::CommandContext < Slack::App::Context
   # when the request already has a response.
   def ack(response : Slack::Commands::Response) : Nil
     acknowledge(response)
+  end
+
+  private def say_channel : String?
+    @command.channel_id
+  end
+
+  private def response_url : String?
+    @command.response_url
   end
 end

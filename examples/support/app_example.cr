@@ -1,6 +1,7 @@
 require "../../src/slack"
 require "webmock"
 require "./webmock_transport"
+require "../../src/slack/testing"
 
 # Serves a signed app_mention and a button click through `Slack::App::HttpReceiver`.
 # The mention listener posts a message with an Approve button; the click
@@ -89,5 +90,46 @@ module OfflineAppExample
         HTTP::Client::Response.new(200, body: %({"ok":true,"channel":"C-DEPLOYS","ts":"1789232400.000200"}))
       end
     posts
+  end
+
+  # Independently authored from the slash command reference.
+  COMMAND = {"token" => "synthetic-legacy-token", "team_id" => "T-SYNTHETIC", "team_name" => "synthetic",
+             "channel_id" => "C-DEPLOYS", "channel_name" => "deploys", "user_id" => "U-SYNTHETIC",
+             "user_name" => "synthetic.user", "command" => "/deploy", "text" => "api", "api_app_id" => "A-SYNTHETIC",
+             "response_url" => "https://hooks.slack.com/commands/T-SYNTHETIC/1/synthetic",
+             "trigger_id" => "1789232400.synthetic.trigger"}
+
+  record Replies, acknowledgment : HTTP::Client::Response, requests : Array(Slack::Auth::TransportRequest)
+
+  # Serves a signed `/deploy api` command. The listener acknowledges, says a
+  # message in the command's channel, and responds privately through the
+  # command's response_url. One recording transport answers both.
+  def self.run_replies(output : IO = STDOUT) : Replies
+    transport = Slack::Testing::RecordingTransport.new
+    transport.respond(%({"ok":true,"channel":"C-DEPLOYS","ts":"1789232400.000300","message":{"type":"message","text":"Deploying api.","ts":"1789232400.000300"}}))
+    transport.respond("ok")
+    done = Channel(Nil).new(1)
+    receiver = Slack::App::HttpReceiver.new(build_reply_app(transport, done), Slack::Webhooks::Verifier.new(SIGNING_SECRET))
+
+    acknowledgment = serve(receiver, signed("application/x-www-form-urlencoded", URI::Params.encode(COMMAND)))
+    done.receive
+    output.puts "Command acknowledged: #{acknowledgment.status_code}"
+    output.puts "Sent #{transport.requests.size} replies"
+    Replies.new(acknowledgment, transport.requests)
+  end
+
+  def self.build_reply_app(transport : Slack::Auth::Transport, done : Channel(Nil)) : Slack::App
+    client = Slack::Api::Client.new(token: Slack::Auth::Secret.new("xoxb-synthetic-app"), transport: transport)
+    app = Slack::App.new(authorizer: Slack::App::SingleTokenAuthorizer.new(client), response_url_transport: transport)
+    app.error { |error, ctx| ctx.log.error { error.message } }
+
+    app.command("/deploy") do |ctx|
+      ctx.ack
+      ctx.say("Deploying #{ctx.command.text}.")
+      ctx.respond(Slack::Interactions::ResponseUrlMessage.new(text: "Only you can see this: deploy queued."))
+    ensure
+      done.send(nil)
+    end
+    app
   end
 end

@@ -42,9 +42,12 @@ class Slack::App
 
   # *workflow_client* builds the client for a custom step's workflow token
   # (`bot_access_token`). Give one to set the API configuration or transport.
+  # *response_url_transport* sends `respond` posts. They go to Slack's
+  # `response_url` hosts, not the Web API, so they do not use the client.
   def initialize(*, @authorizer : Authorizer, @log : ::Log = ::Log.for("slack.app"),
                  @ack_timeout : Time::Span = DEFAULT_ACK_TIMEOUT,
-                 @workflow_client : WorkflowClient = ->(token : Slack::Auth::Secret) { Slack::Api::Client.new(token: token) })
+                 @workflow_client : WorkflowClient = ->(token : Slack::Auth::Secret) { Slack::Api::Client.new(token: token) },
+                 @response_url_transport : Slack::Auth::Transport = Slack::Auth::HTTPTransportFactory.new.build(Slack::Auth::TransportOptions.new))
     raise ArgumentError.new("ack_timeout must be positive") unless @ack_timeout.positive?
   end
 
@@ -113,10 +116,14 @@ class Slack::App
   # Pass only payloads decoded from verified bytes. *delivery* holds the Events
   # API retry headers, if any.
   def dispatch(payload : Payload, delivery : Slack::Events::Delivery? = nil) : Outcome
+    if outcome = apply_lifecycle(payload, delivery)
+      return outcome
+    end
     client = authorize(payload) || return Outcome.unauthorized
-    environment = Environment.new(client, @log, delivery, @workflow_client)
+    environment = Environment.new(client, @log, delivery, @workflow_client, @response_url_transport)
     listener = find_listener(payload, environment) || return Outcome.acknowledged
-    spawn(name: "slack.app.listener") { run(listener, environment.ack) }
+    payload_kind = describe(payload)
+    spawn(name: "slack.app.listener") { run(listener, environment.ack, payload_kind) }
     wait(environment.ack)
   rescue error
     @log.error { "Routing #{describe(payload)} raised #{error.class}" }
@@ -136,13 +143,15 @@ class Slack::App
     listener
   end
 
-  # Exceptions are logged by class only: their messages can hold payload data.
-  private def run(listener : Listener, ack : Ack) : Nil
+  # Exceptions go to the error handler, or are logged by class only: their
+  # messages can hold payload data.
+  private def run(listener : Listener, ack : Ack, payload_kind : String) : Nil
     listener.call(@middleware)
     ack.complete(Outcome.acknowledged)
   rescue error
-    moment = ack.complete(Outcome.failed) ? "before" : "after"
-    @log.error { "Listener for #{listener.context.class} raised #{error.class} #{moment} acknowledging" }
+    # Yields to the receiver first, so the failed response does not wait for the handler.
+    acknowledged = !ack.respond(Outcome.failed)
+    report(ListenerError.new(error, payload_kind, listener.context.class.name, acknowledged), listener.context)
   end
 
   private def wait(ack : Ack) : Outcome

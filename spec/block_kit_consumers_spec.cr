@@ -823,4 +823,19 @@ describe "documented Block Kit workflows" do
       JSON.parse(%({"envelope_id":"E-SUBMIT","payload":{"response_action":"errors","errors":{"reason":"Enter at least 5 characters."}}})),
     ]
   end
+
+  it "says in the command's channel and responds through its response_url" do
+    output = IO::Memory.new
+    result = OfflineAppExample.run_replies(output)
+    output.to_s.lines.should eq ["Command acknowledged: 200", "Sent 2 replies"]
+    result.acknowledgment.body.should be_empty
+    post, response = result.requests
+    # Authored from the chat.postMessage and response_url references, not from the serializer.
+    post.uri.to_s.should eq "https://slack.com/api/chat.postMessage"
+    post.headers["Authorization"].should eq "Bearer xoxb-synthetic-app"
+    JSON.parse(post.body || "").should eq JSON.parse(%({"channel":"C-DEPLOYS","text":"Deploying api."}))
+    response.uri.to_s.should eq "https://hooks.slack.com/commands/T-SYNTHETIC/1/synthetic"
+    response.headers["Authorization"]?.should be_nil
+    JSON.parse(response.body || "").should eq JSON.parse(%({"text":"Only you can see this: deploy queued."}))
+  end
 end

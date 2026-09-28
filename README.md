@@ -184,7 +184,7 @@ verifier = Slack::Webhooks::Verifier.new(Slack::Auth::Secret.new(ENV["SLACK_SIGN
 HTTP::Server.new([Slack::App::HttpReceiver.new(app, verifier)]).listen(3000)
 ```
 
-The receiver answers when the listener calls `ack` or returns, or after 2.5 seconds. See [App listeners](documentation/app.md) for listeners, middleware, authorization, and responses.
+The receiver answers when the listener calls `ack` or returns, or after 2.5 seconds. In a listener, `ctx.say("Done.")` posts to the payload's channel and `ctx.respond(message)` posts to its `response_url`. `app.error { |error, ctx| }` receives listener exceptions. See [App listeners](documentation/app.md) for listeners, middleware, replies, errors, authorization, and responses.
 
 To receive the same listeners over Socket Mode, use `Slack::App::SocketModeReceiver`. It needs an app-level token and no signing secret:
 

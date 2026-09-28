@@ -11,9 +11,14 @@ module Slack::Auth
     getter? uninstall : Bool
     @targets : Hash(GrantKey, Int64)
 
-    def initialize(request : HTTP::Request, expected_app_id : String, @store : InstallationStore,
-                   verifier : Slack::Webhooks::Verifier, selected_owner : InstallationKey? = nil)
-      verified = VerifiedLifecycleEvent.new(request, expected_app_id, verifier, selected_owner)
+    def self.new(request : HTTP::Request, expected_app_id : String, store : InstallationStore,
+                 verifier : Slack::Webhooks::Verifier, selected_owner : InstallationKey? = nil) : self
+      new(VerifiedLifecycleEvent.new(request, expected_app_id, verifier, selected_owner), store)
+    end
+
+    # :nodoc:
+    # Captures the store fences for an event that is already verified and validated.
+    def initialize(verified : VerifiedLifecycleEvent, @store : InstallationStore)
       @event_id = verified.event_id
       @uninstall = verified.uninstall?
       @owner = verified.owner

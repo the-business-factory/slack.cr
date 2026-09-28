@@ -22,6 +22,18 @@ module Slack::Auth
       apply(prepare(request, selected_owner))
     end
 
+    # Prepares an envelope that trusted application routing, such as `Slack::App`,
+    # decoded from verified bytes. It does not verify a signature.
+    def prepare_trusted(envelope : Slack::VerifiedEvent,
+                        selected_owner : InstallationKey? = nil) : PreparedLifecycleDelivery
+      PreparedLifecycleDelivery.new(VerifiedLifecycleEvent.new(envelope, @expected_app_id, selected_owner), @store)
+    end
+
+    # Prepares and applies a trusted envelope. See `#prepare_trusted`.
+    def process_trusted(envelope : Slack::VerifiedEvent, selected_owner : InstallationKey? = nil) : LifecycleOutcome
+      apply(prepare_trusted(envelope, selected_owner))
+    end
+
     # Retry the same prepared object. Do not prepare an old event against new grants.
     def apply(delivery : PreparedLifecycleDelivery) : LifecycleOutcome
       unless delivery.owner.app_id == @expected_app_id

@@ -5,5 +5,6 @@ record Slack::App::Environment,
   log : ::Log,
   delivery : Slack::Events::Delivery?,
   workflow_client : Slack::App::WorkflowClient,
+  response_url_transport : Slack::Auth::Transport,
   ack : Slack::App::Ack = Slack::App::Ack.new,
   store : Hash(String, String) = {} of String => String

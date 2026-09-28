@@ -1,6 +1,6 @@
 # App listeners
 
-`Slack::App` routes verified Slack requests to listeners. `Slack::App::HttpReceiver` serves the requests over HTTP. This is the layer that Bolt calls `App`. Socket Mode, `say`, `respond`, and an error handler are not part of this layer yet.
+`Slack::App` routes verified Slack requests to listeners. `Slack::App::HttpReceiver` serves the requests over HTTP. This is the layer that Bolt calls `App`. Socket Mode is not part of this layer yet.
 
 ## Minimal app
 
@@ -28,7 +28,7 @@ server.listen
 
 Set the Events API Request URL, the Interactivity Request URL, the Options Load URL, and each slash command URL to `https://<your host>/slack/events`. To use a different path, give it as the third argument: `HttpReceiver.new(app, verifier, "/slack/requests")`.
 
-The offline example `examples/app.cr` sends a signed `app_mention` and a button click through the receiver.
+The offline example `examples/app.cr` sends a signed `app_mention` and a button click through the receiver. It also sends a slash command whose listener uses `say` and `respond`.
 
 ## Listeners
 
@@ -57,6 +57,7 @@ Matching rules:
 Every context also gives:
 
 - `client`: the `Slack::Api::Client` from the authorizer. In `FunctionContext`, `client` has the event's workflow token (`bot_access_token`).
+- `say` and `respond`, on the contexts that support them. See [Reply with say and respond](#reply-with-say-and-respond).
 - `log`: the app `Log` (source `slack.app`).
 - `delivery`: the Events API retry headers (`Slack::Events::Delivery`), or nil for other requests.
 - `store`: a `Hash(String, String)` that middleware uses to give values to later steps of the same request.
@@ -85,7 +86,63 @@ end
 
 `ack` is single-use. A second `ack`, or an `ack` after the timeout, raises `Slack::App::AlreadyAcknowledged`. `ack` with an invalid body raises `Slack::UI::ValidationError`. Change the timeout with `Slack::App.new(authorizer: ..., ack_timeout: 2.seconds)`.
 
-If a listener raises before the request has a response, the receiver answers 500. If it raises after, the response stays as sent. In both cases the app logs the exception class. For events, the app acknowledges before the listener runs, so an exception in the listener does not cause a retry.
+If a listener raises before the request has a response, the receiver answers 500. If it raises after, the response stays as sent. In both cases the app gives the exception to the [error handler](#error-handler). For events, the app acknowledges before the listener runs, so an exception in the listener does not cause a retry.
+
+## Reply with say and respond
+
+`say` posts a message with `chat.postMessage` to the channel of the payload. It uses `ctx.client`, so an installation's credential check applies before the send. It returns the `Slack::Models::Chat::PostMessage` result. Give plain text or a `Slack::UI::Message`, and optionally `thread_ts`, `attachments`, and `metadata`.
+
+`respond` posts a `Slack::Interactions::ResponseUrlMessage` to the `response_url` of the payload. The post has no token. Slack accepts up to five posts to one `response_url` within 30 minutes.
+
+```crystal
+app.command("/deploy") do |ctx|
+  ctx.ack
+  ctx.say("Deploying #{ctx.command.text}.")
+  ctx.respond(Slack::Interactions::ResponseUrlMessage.new(text: "Only you can see this."))
+end
+
+app.message("status") do |ctx|
+  # A reply goes into a thread only when you give thread_ts.
+  ctx.say("All green.", thread_ts: ctx.message.thread_ts || ctx.message.ts)
+end
+
+app.action("deploy.approve") do |ctx|
+  ctx.ack
+  ctx.respond(Slack::Interactions::ResponseUrlMessage.new(text: "Approved.", replace_original: true))
+end
+```
+
+| Context | `say` channel | `respond` URL |
+| --- | --- | --- |
+| `EventContext` | The event's channel: messages, `app_mention`, `app_home_opened`, `member_joined_channel`, `member_left_channel`, reactions, pins, `link_shared` | — |
+| `MessageContext` | `message.channel` | — |
+| `CommandContext` | `command.channel_id` | `command.response_url` |
+| `ActionContext` | `payload.channel` (messages only) | `payload.response_url` (messages only) |
+| `ShortcutContext` | The channel of a message shortcut | The `response_url` of a message shortcut |
+
+If the payload has no channel or `response_url`, for example for a click in a modal, the call raises `Slack::App::NoReplyTarget`. `say` raises the errors of `Api::Client#call`. `respond` raises `Slack::Interactions::ResponseUrlError` for a non-2xx status.
+
+The app sends `respond` posts through its `response_url_transport`, not through the client, because the URL is not a Web API URL. The default is an HTTP transport. Give a different one with `Slack::App.new(authorizer: ..., response_url_transport: transport)`, for example `Slack::Testing::RecordingTransport` in specs.
+
+## Error handler
+
+`app.error` sets one handler for the exceptions that listeners and their middleware raise. Without a handler, the app logs `error.message`.
+
+```crystal
+app.error do |error, ctx|
+  ctx.log.error { "#{error.payload_kind} failed: #{error.cause.class}" }
+  notify_on_call(error.route) unless error.acknowledged?
+end
+```
+
+The handler gets a `Slack::App::ListenerError` and the listener's context:
+
+- `payload_kind`: for example `event app_mention`, `command /deploy`, or `block_actions`.
+- `route`: the context type, for example `Slack::App::CommandContext`.
+- `acknowledged?`: true when the request had its response before the exception. When false, the receiver answered 500.
+- `cause`: the original exception.
+
+The error message never contains the payload or the message of the original exception, because they can hold user data. The handler runs in the listener fiber after the response. If the handler raises, the app logs the exception class.
 
 ## Middleware
 
@@ -108,9 +165,39 @@ app.command("/purge", middleware: [only_admins]) { |ctx| ctx.ack }
 The app calls its authorizer after it decodes a request and before it routes it. The authorizer gives the `client` for that request.
 
 - `SingleTokenAuthorizer.new(client)`: one client for all requests. Use it for an app in one workspace.
-- `InstallationAuthorizer.new(request_authorizer, grant)`: finds the installation that owns the request through `Slack::Auth::RequestAuthorizer#authorize_trusted`. The client holds no token; the scoped transport reads the stored credential immediately before each send. See [authentication](authentication.md).
+- `InstallationAuthorizer.new(request_authorizer, grant)`: finds the installation that owns the request through `Slack::Auth::RequestAuthorizer#authorize_trusted`. The client holds no token; the scoped transport reads the stored credential immediately before each send. If a grant is revoked after authorization, the next send raises `Slack::Auth::ContractError`, and the error handler receives it. See [authentication](authentication.md).
 
-If the authorizer raises, no listener runs and the receiver answers 401. `tokens_revoked` and `app_uninstalled` events can arrive after the installation is gone. Handle them with `Slack::Auth::CredentialLifecycle` before the receiver.
+If the authorizer raises, no listener runs and the receiver answers 401.
+
+### Token rotation
+
+Give the `RequestAuthorizer` a `Slack::Auth::RotationService`. Then the authorizer refreshes an access token that expires soon before the listener runs, and the listener's `client`, `say`, and `respond` do not change:
+
+```crystal
+rotation = Slack::Auth::RotationService.new(store, Slack::Auth::RefreshClient.new(oauth_configuration, transport))
+request_authorizer = Slack::Auth::RequestAuthorizer.new(app_id, store, transport, api_configuration, verifier, rotation: rotation)
+app = Slack::App.new(authorizer: Slack::App::InstallationAuthorizer.new(request_authorizer, Slack::Auth::GrantKey.new(:bot)))
+```
+
+### Revoked tokens and uninstalls
+
+`tokens_revoked` and `app_uninstalled` events can arrive after the installation is gone. Give the app a `Slack::Auth::CredentialLifecycle` for the same store:
+
+```crystal
+app.lifecycle(Slack::Auth::CredentialLifecycle.new(app_id, store, verifier))
+```
+
+The app then applies these events before authorization: it removes the revoked grants or the installation, and answers with an empty 200. These events do not go to listeners. If the cleanup raises, the receiver answers 500 and Slack sends the event again.
+
+Slack's `tokens_revoked` example has no `authorizations`. For such events, give a block that selects the exact installation from your own routing. The lifecycle still checks the key against the event's app and workspace:
+
+```crystal
+app.lifecycle(lifecycle) do |envelope|
+  Slack::Auth::InstallationKey.new(app_id, :workspace, team_id: envelope.team_id)
+end
+```
+
+The app keeps the preparation of each lifecycle event in memory, by event ID, and applies the same preparation to a repeated delivery. Thus a retry after a reinstall does not remove the new installation. A retry that the process has no preparation for, for example after a restart or on a different process, gets an empty 200 without cleanup and a warning in the log. If you run more than one process, or you must survive restarts, keep your own delivery history and use `Slack::Auth::CredentialLifecycle` before the receiver. See [authentication](authentication.md).
 
 ## HTTP receiver
 
@@ -153,8 +240,8 @@ The receiver logs with source `slack.app.socket_mode_receiver`. The logs contain
 
 ## Logging
 
-The app logs with the standard `Log` module: source `slack.app` for routing, authorization, and listeners, and `slack.app.receiver` for rejected requests. Logs contain payload kinds, IDs such as the command name, and exception classes. They never contain bodies, headers, or tokens.
+The app logs with the standard `Log` module: source `slack.app` for routing, authorization, credential cleanup, and listeners, and `slack.app.receiver` for rejected requests. Logs contain payload kinds, IDs such as the command name, and exception classes. They never contain bodies, headers, or tokens.
 
 ## Limits of the offline tests
 
-The specs and the example run requests in memory with synthetic credentials. They do not prove that Slack accepts the responses, the three-second timing on a live network, or retry behavior.
+The specs and the example run requests in memory with synthetic credentials. They do not prove that Slack accepts the responses or the `say` and `respond` posts, the three-second timing on a live network, or retry behavior.

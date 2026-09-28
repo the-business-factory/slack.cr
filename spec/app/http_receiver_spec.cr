@@ -327,6 +327,9 @@ describe Slack::App::HttpReceiver do
 
     Log.capture("slack.app") do |logs|
       receive(app, AppSupport.interaction(BLOCK_ACTIONS)).status.should eq 500
+      # The listener fiber reports the exception after the receiver has the
+      # response; a timed sleep lets the ready listener fiber run first.
+      sleep 1.millisecond
       logs.check(:error, "Listener for Slack::App::ActionContext raised Exception before acknowledging")
     end
   end
