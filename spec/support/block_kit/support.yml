@@ -54,7 +54,7 @@ entries:
     kind: composition object
     documentation_url: https://docs.slack.dev/reference/block-kit/composition-objects/text-object/
     fields_supported: [type, text, emoji, verbatim]
-    parents: [button, confirmation, section, input, plain_text_input, modal, header, context, image, option, overflow option, checkbox option, radio option, option_group, static_select, multi_static_select, users_select, multi_users_select, channels_select, multi_channels_select]
+    parents: [button, confirmation, section, input, plain_text_input, modal, header, context, image, option, overflow option, checkbox option, radio option, option_group, static_select, multi_static_select, users_select, multi_users_select, channels_select, multi_channels_select, conversations_select, multi_conversations_select]
     surfaces: [message, modal, home]
     restrictions: Immutable checked outbound values have fixed discriminators and format-specific options; legacy field-specific values remain mutable for compatibility.
     implementation_status: supported
@@ -65,7 +65,7 @@ entries:
     kind: composition object
     documentation_url: https://docs.slack.dev/reference/block-kit/composition-objects/confirmation-dialog-object/
     fields_supported: [title, text, confirm, deny, style]
-    parents: [button, static_select, multi_static_select, overflow, checkboxes, radio_buttons, users_select, multi_users_select, channels_select, multi_channels_select]
+    parents: [button, static_select, multi_static_select, overflow, checkboxes, radio_buttons, users_select, multi_users_select, channels_select, multi_channels_select, conversations_select, multi_conversations_select]
     surfaces: [message, modal, home]
     restrictions: Checked outbound values are immutable and validated; the confirmation body accepts plain_text or mrkdwn as used by Slack's official examples. Legacy confirmation values remain mutable.
     implementation_status: supported
@@ -259,6 +259,39 @@ entries:
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/block_elements/multi_channels_select.cr, src/slack/interactions/multi_channels_select_action.cr, src/slack/interactions/multi_channels_select_value.cr, spec/ui/checked/channels_select_spec.cr, spec/interactions/channels_select_spec.cr, spec/api/channels_select_snapshot_spec.cr, examples/block_kit_channels_select.cr]
 
+  - wire_type: conversation filter
+    kind: composition object
+    documentation_url: https://docs.slack.dev/reference/block-kit/composition-objects/conversation-filter-object/
+    fields_supported: [include, exclude_external_shared_channels, exclude_bot_users]
+    parents: [conversations_select, multi_conversations_select]
+    surfaces: [message, modal, home]
+    restrictions: At least one supplied field; false counts. Include must be nonempty and contain only im, mpim, private, or public. Collections are copied once and getters return copies. Filters do not validate remote membership or initial IDs.
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/checked/composition_objects/conversation_filter.cr, spec/ui/checked/conversations_select_spec.cr, spec/api/conversations_select_snapshot_spec.cr]
+
+  - wire_type: conversations_select
+    kind: block element
+    documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/select-menu-element/
+    fields_supported: [type, action_id, initial_conversation, default_to_current_conversation, filter, placeholder, confirm, focus_on_load, response_url_enabled]
+    parents: [section, actions, input]
+    surfaces: [message, modal, home]
+    restrictions: Slack provides visible public/private channels, DMs and MPIMs. Empty initial IDs are rejected as library policy; no ID-prefix, length, membership or filter-match checks. Initial conversation takes precedence over current-conversation default in Slack; both fields are preserved. Input supports Message, FormModal and Home; view focus is unique. Any supplied response_url_enabled is restricted to modal Input, including false by library policy. Typed selection preserves absent/null/empty and raw fields; response_urls stays raw.
+    implementation_status: supported
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/checked/block_elements/conversations_select.cr, src/slack/interactions/conversations_select_action.cr, src/slack/interactions/conversations_select_value.cr, spec/ui/checked/conversations_select_spec.cr, spec/interactions/conversations_select_spec.cr, spec/api/conversations_select_snapshot_spec.cr, examples/block_kit_conversations_select.cr]
+
+  - wire_type: multi_conversations_select
+    kind: block element
+    documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/multi-select-menu-element/
+    fields_supported: [type, action_id, initial_conversations, default_to_current_conversation, filter, placeholder, confirm, focus_on_load, max_selected_items]
+    parents: [section, actions, input]
+    surfaces: [message, modal, home]
+    restrictions: Initial conversations must contain at least one ID when supplied. Empty IDs, duplicate initial IDs and initial count above maximum are rejected as library policy; no ID-prefix, length, membership or filter-match checks. Slack documents initial_conversations ignored when current-conversation default is also supplied; both fields are preserved. Input supports Message, FormModal and Home; view focus is unique. Typed selections preserve absent/null/empty and raw fields. No response_url_enabled.
+    implementation_status: supported
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/checked/block_elements/multi_conversations_select.cr, src/slack/interactions/multi_conversations_select_action.cr, src/slack/interactions/multi_conversations_select_value.cr, spec/ui/checked/conversations_select_spec.cr, spec/interactions/conversations_select_spec.cr, spec/api/conversations_select_snapshot_spec.cr, examples/block_kit_conversations_select.cr]
+
   - wire_type: timepicker
     kind: block element
     documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/time-picker-element/
@@ -276,7 +309,7 @@ entries:
     fields_supported: [type, block_id, elements]
     parents: [message, modal, home]
     surfaces: [message, modal, home]
-    restrictions: Checked Actions accepts Button, StaticSelect, MultiStaticSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, and MultiChannelsSelect; other Slack interactive elements are deferred. Legacy Actions still accepts only Button. Checked collections are immutable snapshots and validate duplicate supplied action IDs.
+    restrictions: Checked Actions accepts Button, StaticSelect, MultiStaticSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, and MultiConversationsSelect; other Slack interactive elements are deferred. Legacy Actions still accepts only Button. Checked collections are immutable snapshots and validate duplicate supplied action IDs.
     implementation_status: partial
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/blocks/actions.cr, spec/ui/checked/blocks_spec.cr, src/slack/ui/blocks/actions.cr]
@@ -287,7 +320,7 @@ entries:
     fields_supported: [type, label, element, dispatch_action, block_id, hint, optional]
     parents: [message, modal, home]
     surfaces: [message, modal, home]
-    restrictions: Checked Input accepts PlainTextInput, StaticSelect, MultiStaticSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, and MultiChannelsSelect in Message, FormModal and Home; all Input fields are supported. Other input element families remain deferred. Legacy Input retains its previous partial contract.
+    restrictions: Checked Input accepts PlainTextInput, StaticSelect, MultiStaticSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, and MultiConversationsSelect in Message, FormModal and Home; all Input fields are supported. Other input element families remain deferred. Legacy Input retains its previous partial contract.
     implementation_status: partial
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/blocks/input.cr, spec/ui/checked/input_spec.cr, spec/interactions/block_kit_spec.cr]
@@ -298,7 +331,7 @@ entries:
     fields_supported: [type, text, fields, accessory, block_id, expand]
     parents: [message, modal, home]
     surfaces: [message, modal, home]
-    restrictions: Checked Section supports text, fields, block_id, expand, and Button, Image, StaticSelect, MultiStaticSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, or MultiChannelsSelect accessories. Other documented accessory element families are deferred and the legacy type still accepts broad mutable children.
+    restrictions: Checked Section supports text, fields, block_id, expand, and Button, Image, StaticSelect, MultiStaticSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, or MultiConversationsSelect accessories. Other documented accessory element families are deferred and the legacy type still accepts broad mutable children.
     implementation_status: partial
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/blocks/section.cr, spec/ui/checked/blocks_spec.cr, src/slack/ui/blocks/section.cr]
@@ -900,3 +933,36 @@ rules:
     source_section: "Update a view via response_action"
     requirement: "Serialize response_action update and an owned checked modal view as an HTTP acknowledgment. Reuse modal validation and snapshot rules; applications own acknowledgment timing and retained input ID matching."
     evidence_paths: ["src/slack/interactions/modal_update.cr", "spec/interactions/modal_update_spec.cr", "spec/block_kit_consumers_spec.cr", "examples/support/modal_update_example.cr"]
+
+
+  - id: conversation-select-fields
+    classification: slack_requirement
+    requirement: "Conversation selects support action_id 255, plain-text placeholder 150, confirmation, focus, filters, initial choices and current-conversation defaults. Single initial takes precedence; multi initial is ignored when the default field is also supplied. Multi initial has one or more IDs; max_selected_items is at least one. Single response_url_enabled works only in modal Input."
+    source_url: https://docs.slack.dev/reference/block-kit/block-elements/multi-select-menu-element/
+    source_section: "Conversations list; single fields in select-menu-element"
+    reviewed_on: "2026-09-27"
+    evidence_paths: [spec/ui/checked/conversations_select_spec.cr, spec/api/conversations_select_snapshot_spec.cr]
+
+  - id: conversation-filter-fields
+    classification: slack_requirement
+    requirement: "A conversation filter supplies at least one field, including false. Include is nonempty and contains im, mpim, private or public; optional flags exclude external shared channels or bot users."
+    source_url: https://docs.slack.dev/reference/block-kit/composition-objects/conversation-filter-object/
+    source_section: "Fields"
+    reviewed_on: "2026-09-27"
+    evidence_paths: [src/slack/ui/checked/composition_objects/conversation_filter.cr, spec/ui/checked/conversations_select_spec.cr, spec/api/conversations_select_snapshot_spec.cr]
+
+  - id: conversation-select-local-policies
+    classification: library_policy
+    requirement: "Initial IDs must be nonempty and distinct and fit a supplied maximum. No prefix, length, membership or filter-match checks. Any supplied single response_url_enabled, including false, requires modal Input. Collections are consumed once into owned snapshots."
+    source_url: https://docs.slack.dev/reference/block-kit/block-elements/select-menu-element/
+    source_section: "Conversations fields; library ownership and field-presence policies"
+    reviewed_on: "2026-09-27"
+    evidence_paths: [spec/ui/checked/conversations_select_spec.cr, spec/api/conversations_select_snapshot_spec.cr]
+
+  - id: conversation-select-inbound
+    classification: library_support
+    requirement: "Typed selected_conversation and selected_conversations actions and state preserve absent/null/empty, raw fields and copied selection arrays. Malformed known values raise path-aware TypeMismatch without outbound limits."
+    source_url: https://docs.slack.dev/changelog/2020/09/01/full-state-on-view-submisson-and-block-actions/
+    source_section: "Full state and empty-state semantics"
+    reviewed_on: "2026-09-27"
+    evidence_paths: [spec/interactions/conversations_select_spec.cr, spec/block_kit_consumers_spec.cr]
