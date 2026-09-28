@@ -1,6 +1,6 @@
 schema_version: 2
 checked_on: "2026-09-27"
-scope: Checked Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, and channel selects, including Input in Messages, FormModal and Home.
+scope: Checked Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, channel selects, and date/time pickers, including Input in Messages, FormModal and Home.
 statuses:
   - unsupported
   - partial
@@ -54,7 +54,7 @@ entries:
     kind: composition object
     documentation_url: https://docs.slack.dev/reference/block-kit/composition-objects/text-object/
     fields_supported: [type, text, emoji, verbatim]
-    parents: [button, confirmation, section, input, plain_text_input, modal, header, context, image, option, overflow option, checkbox option, radio option, option_group, static_select, multi_static_select, users_select, multi_users_select, channels_select, multi_channels_select, conversations_select, multi_conversations_select]
+    parents: [button, confirmation, section, input, plain_text_input, modal, header, context, image, option, overflow option, checkbox option, radio option, option_group, static_select, multi_static_select, users_select, multi_users_select, channels_select, multi_channels_select, conversations_select, multi_conversations_select, datepicker, timepicker]
     surfaces: [message, modal, home]
     restrictions: Immutable checked outbound values have fixed discriminators and format-specific options; legacy field-specific values remain mutable for compatibility.
     implementation_status: supported
@@ -65,7 +65,7 @@ entries:
     kind: composition object
     documentation_url: https://docs.slack.dev/reference/block-kit/composition-objects/confirmation-dialog-object/
     fields_supported: [title, text, confirm, deny, style]
-    parents: [button, static_select, multi_static_select, overflow, checkboxes, radio_buttons, users_select, multi_users_select, channels_select, multi_channels_select, conversations_select, multi_conversations_select]
+    parents: [button, static_select, multi_static_select, overflow, checkboxes, radio_buttons, users_select, multi_users_select, channels_select, multi_channels_select, conversations_select, multi_conversations_select, datepicker, timepicker]
     surfaces: [message, modal, home]
     restrictions: Checked outbound values are immutable and validated; the confirmation body accepts plain_text or mrkdwn as used by Slack's official examples. Legacy confirmation values remain mutable.
     implementation_status: supported
@@ -130,13 +130,13 @@ entries:
   - wire_type: datepicker
     kind: block element
     documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/date-picker-element/
-    fields_supported: [type]
-    parents: []
-    surfaces: []
-    restrictions: Discriminator-only placeholder; not in a supported placement union.
-    implementation_status: unsupported
-    inbound_status: unsupported
-    evidence_paths: [src/slack/ui/block_elements/date_picker.cr]
+    fields_supported: [type, action_id, initial_date, placeholder, confirm, focus_on_load]
+    parents: [section, actions, input]
+    surfaces: [message, modal, home]
+    restrictions: Checked DatePicker supports optional initial value, action ID, plain placeholder, confirm and view-wide focus. Exact YYYY-MM-DD and a valid Gregorian date in years 0001–9999 (local year-range policy), without a scheduling window. Input supports Message, FormModal and Home. Typed action/state strings preserve absent/null/empty and malformed-format strings without outbound validation; wrong JSON types raise TypeMismatch. Other fields remain raw. No datetimepicker or instant parsing. Legacy placeholder remains unsupported.
+    implementation_status: supported
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/checked/block_elements/date_picker.cr, src/slack/interactions/date_picker_action.cr, src/slack/interactions/date_picker_value.cr, spec/ui/checked/date_picker_spec.cr, spec/ui/checked/date_time_placement_spec.cr, spec/interactions/date_time_pickers_spec.cr, spec/api/date_time_pickers_snapshot_spec.cr, examples/block_kit_date_time_pickers.cr]
 
   - wire_type: image element
     kind: block element
@@ -295,13 +295,13 @@ entries:
   - wire_type: timepicker
     kind: block element
     documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/time-picker-element/
-    fields_supported: [type]
-    parents: []
-    surfaces: []
-    restrictions: Discriminator-only placeholder; not in a supported placement union.
-    implementation_status: unsupported
-    inbound_status: unsupported
-    evidence_paths: [src/slack/ui/block_elements/time_picker.cr]
+    fields_supported: [type, action_id, initial_time, placeholder, confirm, focus_on_load, timezone]
+    parents: [section, actions, input]
+    surfaces: [message, modal, home]
+    restrictions: Checked TimePicker supports optional initial value, action ID, plain placeholder, confirm and view-wide focus. Exact HH:mm from 00:00 through 23:59. Optional IANA timezone hint is sent unchanged without host tzdb validation or conversion; received timezone and its presence are exposed when supplied. Input supports Message, FormModal and Home. Typed action/state strings preserve absent/null/empty and malformed-format strings without outbound validation; wrong JSON types raise TypeMismatch. Other fields remain raw. No datetimepicker or instant parsing. Legacy placeholder remains unsupported.
+    implementation_status: supported
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/checked/block_elements/time_picker.cr, src/slack/interactions/time_picker_action.cr, src/slack/interactions/time_picker_value.cr, spec/ui/checked/time_picker_spec.cr, spec/ui/checked/date_time_placement_spec.cr, spec/interactions/date_time_pickers_spec.cr, spec/api/date_time_pickers_snapshot_spec.cr, examples/block_kit_date_time_pickers.cr]
 
   - wire_type: actions
     kind: block
@@ -309,7 +309,7 @@ entries:
     fields_supported: [type, block_id, elements]
     parents: [message, modal, home]
     surfaces: [message, modal, home]
-    restrictions: Checked Actions accepts Button, StaticSelect, MultiStaticSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, and MultiConversationsSelect; other Slack interactive elements are deferred. Legacy Actions still accepts only Button. Checked collections are immutable snapshots and validate duplicate supplied action IDs.
+    restrictions: Checked Actions accepts Button, StaticSelect, MultiStaticSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, and TimePicker; other Slack interactive elements are deferred. Legacy Actions still accepts only Button. Checked collections are immutable snapshots and validate duplicate supplied action IDs.
     implementation_status: partial
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/blocks/actions.cr, spec/ui/checked/blocks_spec.cr, src/slack/ui/blocks/actions.cr]
@@ -320,7 +320,7 @@ entries:
     fields_supported: [type, label, element, dispatch_action, block_id, hint, optional]
     parents: [message, modal, home]
     surfaces: [message, modal, home]
-    restrictions: Checked Input accepts PlainTextInput, StaticSelect, MultiStaticSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, and MultiConversationsSelect in Message, FormModal and Home; all Input fields are supported. Other input element families remain deferred. Legacy Input retains its previous partial contract.
+    restrictions: Checked Input accepts PlainTextInput, StaticSelect, MultiStaticSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, and TimePicker in Message, FormModal and Home; all Input fields are supported. Other input element families remain deferred. Legacy Input retains its previous partial contract.
     implementation_status: partial
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/blocks/input.cr, spec/ui/checked/input_spec.cr, spec/interactions/block_kit_spec.cr]
@@ -331,7 +331,7 @@ entries:
     fields_supported: [type, text, fields, accessory, block_id, expand]
     parents: [message, modal, home]
     surfaces: [message, modal, home]
-    restrictions: Checked Section supports text, fields, block_id, expand, and Button, Image, StaticSelect, MultiStaticSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, or MultiConversationsSelect accessories. Other documented accessory element families are deferred and the legacy type still accepts broad mutable children.
+    restrictions: Checked Section supports text, fields, block_id, expand, and Button, Image, StaticSelect, MultiStaticSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, or TimePicker accessories. Other documented accessory element families are deferred and the legacy type still accepts broad mutable children.
     implementation_status: partial
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/blocks/section.cr, spec/ui/checked/blocks_spec.cr, src/slack/ui/blocks/section.cr]
@@ -397,7 +397,7 @@ entries:
     fields_supported: [type, title, submit, close, blocks, private_metadata, callback_id, external_id, clear_on_close, notify_on_close, submit_disabled]
     parents: [views.open, views.update, views.push, push response action, update response action]
     surfaces: [modal]
-    restrictions: Checked DisplayModal excludes Input; FormModal requires submit. The block catalog is limited to Section, Actions, Divider, Header, Context, Image, and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, user selects, or channel selects. submit_disabled is for Slack configuration modals only. Typed validation-error, clear, push, and update acknowledgments are listed separately. Legacy Modal keeps its previous contract.
+    restrictions: Checked DisplayModal excludes Input; FormModal requires submit. The block catalog is limited to Section, Actions, Divider, Header, Context, Image, and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, user selects, channel selects, conversation selects, or date/time pickers. submit_disabled is for Slack configuration modals only. Typed validation-error, clear, push, and update acknowledgments are listed separately. Legacy Modal keeps its previous contract.
     implementation_status: partial
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/surfaces/form_modal.cr, src/slack/ui/checked/surfaces/display_modal.cr, spec/ui/checked/modal_spec.cr, examples/block_kit_modal.cr]
@@ -441,7 +441,7 @@ entries:
     fields_supported: [actions, state, view.state.values]
     parents: []
     surfaces: [message, modal, home]
-    restrictions: Typed button, static-select, overflow, checkbox, radio, and user-select actions, plus plain text, static-select, checkbox, radio, and user-select StateMap access through Interaction.from_json and process_interaction. Selection fields preserve absent/null/empty. Other known action metadata, view bodies, and dispatched text actions remain raw. UnknownAction and UnknownStateValue retain complete raw JSON. Other incoming families are deferred; outbound validation-error acknowledgments are listed separately.
+    restrictions: Typed button, static-select, overflow, checkbox, radio, user-select, channel-select, conversation-select, and date/time-picker actions, plus plain text, static-select, checkbox, radio, user-select, channel-select, conversation-select, and date/time-picker StateMap access through Interaction.from_json and process_interaction. Selection fields preserve absent/null/empty. Other known action metadata, view bodies, and dispatched text actions remain raw. UnknownAction and UnknownStateValue retain complete raw JSON. Other incoming families are deferred; outbound validation-error acknowledgments are listed separately.
     implementation_status: partial
     inbound_status: partial
     evidence_paths: [src/slack/interactions/action_decoder.cr, src/slack/interactions/state_map.cr, spec/interactions/block_kit_spec.cr, spec/interactions/static_select_spec.cr, examples/block_kit_modal.cr, examples/block_kit_static_select.cr]
@@ -496,7 +496,7 @@ entries:
     fields_supported: [type, blocks, private_metadata, callback_id, external_id]
     parents: [views.publish]
     surfaces: [home]
-    restrictions: Checked Home and HomeBuilder accept Section, Actions, Divider, Header, Context, Image, and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, user selects, or channel selects. At most 100 blocks, unique supplied block IDs, and one focused element per view across Section, Actions, and Input. Modal fields are unavailable. Other block and input families remain deferred. Inbound Home views retain raw JSON; button/static-select/overflow/checkbox/radio/user-select actions and plain text/static-select/checkbox/radio/user-select state have typed access.
+    restrictions: Checked Home and HomeBuilder accept Section, Actions, Divider, Header, Context, Image, and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, user selects, channel selects, conversation selects, or date/time pickers. At most 100 blocks, unique supplied block IDs, and one focused element per view across Section, Actions, and Input. Modal fields are unavailable. Other block and input families remain deferred. Inbound Home views retain raw JSON; button/static-select/overflow/checkbox/radio/user-select/channel-select/conversation-select/date-picker/time-picker actions and plain text/static-select/checkbox/radio/user-select/channel-select/conversation-select/date-picker/time-picker state have typed access.
     implementation_status: supported
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/surfaces/home.cr, src/slack/ui/checked/home_builder.cr, spec/ui/checked/home_spec.cr, spec/interactions/home_spec.cr, examples/block_kit_home.cr]
@@ -966,3 +966,25 @@ rules:
     source_section: "Full state and empty-state semantics"
     reviewed_on: "2026-09-27"
     evidence_paths: [spec/interactions/conversations_select_spec.cr, spec/block_kit_consumers_spec.cr]
+
+  - id: datepicker_fields
+    classification: slack_requirement
+    requirement: "Optional initial_date uses YYYY-MM-DD; action_id 255; plain placeholder 150; confirmation and one focus target per view. Section/Actions/Input on all three surfaces."
+    source_url: https://docs.slack.dev/reference/block-kit/block-elements/date-picker-element/
+    source_section: Fields, Example and Markdown placement metadata
+    reviewed_on: "2026-09-27"
+    evidence_paths: [spec/ui/checked/date_picker_spec.cr, spec/ui/checked/date_time_placement_spec.cr]
+  - id: datepicker_calendar_policy
+    classification: library_policy
+    requirement: "Require real Gregorian calendar dates in years 0001–9999; do not enforce remote scheduling windows or apply outbound validation to received strings."
+    source_url: https://docs.slack.dev/reference/block-kit/block-elements/date-picker-element/
+    source_section: "Fields: initial_date"
+    reviewed_on: "2026-09-27"
+    evidence_paths: [spec/ui/checked/date_picker_spec.cr, spec/interactions/date_time_pickers_spec.cr]
+  - id: timepicker_fields
+    classification: slack_requirement
+    requirement: "Optional initial_time uses HH:mm (00–23 hours, 00–59 minutes); action_id 255; plain placeholder 150; confirmation, one focus target per view, optional IANA timezone hint. Section/Actions/Input on all three surfaces."
+    source_url: https://docs.slack.dev/reference/block-kit/block-elements/time-picker-element/
+    source_section: Fields, Example and Markdown placement metadata
+    reviewed_on: "2026-09-27"
+    evidence_paths: [spec/ui/checked/time_picker_spec.cr, spec/ui/checked/date_time_placement_spec.cr, spec/api/date_time_pickers_snapshot_spec.cr]

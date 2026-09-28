@@ -18,6 +18,8 @@ require "../examples/support/modal_push_example"
 require "../examples/support/modal_update_example"
 require "../examples/support/conversations_select_example"
 
+require "../examples/support/date_time_pickers_example"
+
 describe "documented Block Kit workflows" do
   around_each do |example|
     client_id = Slack.settings.client_id
@@ -190,5 +192,11 @@ describe "documented Block Kit workflows" do
     output = IO::Memory.new
     OfflineConversationsSelectExample.run(output)
     output.to_s.should eq "Selected notification conversation: D-NOTIFY (acknowledged 200)\nSaved destinations: C-ONE, G-TWO (acknowledged 200)\n"
+  end
+
+  it "collects a date and time choice through a signed scheduling form" do
+    output = IO::Memory.new
+    OfflineDateTimePickersExample.run(output)
+    output.to_s.should eq "Chosen date: 2028-02-29 (acknowledged 200)\nSaved choice: 2028-03-01 at 09:30 (America/Chicago; acknowledged 200)\n"
   end
 end
