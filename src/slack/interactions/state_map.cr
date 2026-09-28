@@ -1,4 +1,4 @@
-alias Slack::Interactions::StateValue = Slack::Interactions::PlainTextValue | Slack::Interactions::StaticSelectValue | Slack::Interactions::MultiStaticSelectValue | Slack::Interactions::CheckboxesValue | Slack::Interactions::RadioButtonsValue | Slack::Interactions::UsersSelectValue | Slack::Interactions::MultiUsersSelectValue | Slack::Interactions::UnknownStateValue
+alias Slack::Interactions::StateValue = Slack::Interactions::PlainTextValue | Slack::Interactions::StaticSelectValue | Slack::Interactions::MultiStaticSelectValue | Slack::Interactions::CheckboxesValue | Slack::Interactions::RadioButtonsValue | Slack::Interactions::UsersSelectValue | Slack::Interactions::MultiUsersSelectValue | Slack::Interactions::ChannelsSelectValue | Slack::Interactions::MultiChannelsSelectValue | Slack::Interactions::UnknownStateValue
 
 # Reads state.values by stable block and action IDs without imposing outbound rules.
 struct Slack::Interactions::StateMap
@@ -24,6 +24,10 @@ struct Slack::Interactions::StateMap
     object = PayloadAccess.object?(item, path)
     type = PayloadAccess.string?(object.try(&.["type"]?), "#{path}.type")
     case type
+    when "channels_select"
+      ChannelsSelectValue.new(item, path)
+    when "multi_channels_select"
+      MultiChannelsSelectValue.new(item, path)
     when "users_select"
       UsersSelectValue.new(item, path)
     when "multi_users_select"
@@ -100,6 +104,26 @@ struct Slack::Interactions::StateMap
     when MultiUsersSelectValue then entry
     else
       raise TypeMismatch.new(entry_path(block_id, action_id), "multi_users_select", entry.type || "null or untyped state value")
+    end
+  end
+
+  def channels_select_value?(block_id : String, action_id : String) : ChannelsSelectValue?
+    entry = self[block_id, action_id]?
+    case entry
+    when Nil                 then nil
+    when ChannelsSelectValue then entry
+    else
+      raise TypeMismatch.new(entry_path(block_id, action_id), "channels_select", entry.type || "null or untyped state value")
+    end
+  end
+
+  def multi_channels_select_value?(block_id : String, action_id : String) : MultiChannelsSelectValue?
+    entry = self[block_id, action_id]?
+    case entry
+    when Nil                      then nil
+    when MultiChannelsSelectValue then entry
+    else
+      raise TypeMismatch.new(entry_path(block_id, action_id), "multi_channels_select", entry.type || "null or untyped state value")
     end
   end
 

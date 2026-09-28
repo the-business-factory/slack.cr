@@ -1,6 +1,6 @@
 struct Slack::UI::Checked::Blocks::Section
   alias Text = Slack::UI::Checked::CompositionObjects::Text
-  alias Accessory = Slack::UI::Checked::BlockElements::Button | Slack::UI::Checked::BlockElements::Image | Slack::UI::Checked::BlockElements::StaticSelect | Slack::UI::Checked::BlockElements::MultiStaticSelect | Slack::UI::Checked::BlockElements::Checkboxes | Slack::UI::Checked::BlockElements::RadioButtons | Slack::UI::Checked::BlockElements::UsersSelect | Slack::UI::Checked::BlockElements::MultiUsersSelect | Slack::UI::Checked::BlockElements::Overflow
+  alias Accessory = Slack::UI::Checked::BlockElements::Button | Slack::UI::Checked::BlockElements::Image | Slack::UI::Checked::BlockElements::StaticSelect | Slack::UI::Checked::BlockElements::MultiStaticSelect | Slack::UI::Checked::BlockElements::Checkboxes | Slack::UI::Checked::BlockElements::RadioButtons | Slack::UI::Checked::BlockElements::UsersSelect | Slack::UI::Checked::BlockElements::MultiUsersSelect | Slack::UI::Checked::BlockElements::ChannelsSelect | Slack::UI::Checked::BlockElements::MultiChannelsSelect | Slack::UI::Checked::BlockElements::Overflow
 
   TEXT_MAX_LENGTH     = 3000
   FIELD_MAX_LENGTH    = 2000
@@ -99,6 +99,7 @@ struct Slack::UI::Checked::Blocks::Section
 
     if accessory = @accessory
       accessory.validate.each { |issue| issues << issue.at("accessory") }
+      issues.concat(ChannelResponseUrl.validate(accessory, "accessory.response_url_enabled"))
     end
     append_block_id_issue(issues)
     issues

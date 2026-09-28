@@ -1,5 +1,5 @@
 struct Slack::UI::Checked::Blocks::Actions
-  alias Element = Slack::UI::Checked::BlockElements::Button | Slack::UI::Checked::BlockElements::StaticSelect | Slack::UI::Checked::BlockElements::MultiStaticSelect | Slack::UI::Checked::BlockElements::Checkboxes | Slack::UI::Checked::BlockElements::RadioButtons | Slack::UI::Checked::BlockElements::UsersSelect | Slack::UI::Checked::BlockElements::MultiUsersSelect | Slack::UI::Checked::BlockElements::Overflow
+  alias Element = Slack::UI::Checked::BlockElements::Button | Slack::UI::Checked::BlockElements::StaticSelect | Slack::UI::Checked::BlockElements::MultiStaticSelect | Slack::UI::Checked::BlockElements::Checkboxes | Slack::UI::Checked::BlockElements::RadioButtons | Slack::UI::Checked::BlockElements::UsersSelect | Slack::UI::Checked::BlockElements::MultiUsersSelect | Slack::UI::Checked::BlockElements::ChannelsSelect | Slack::UI::Checked::BlockElements::MultiChannelsSelect | Slack::UI::Checked::BlockElements::Overflow
 
   ELEMENTS_MAX_SIZE   =  25
   BLOCK_ID_MAX_LENGTH = 255
@@ -40,6 +40,7 @@ struct Slack::UI::Checked::Blocks::Actions
     action_ids = {} of String => Int32
     @elements.each_with_index do |element, index|
       element.validate.each { |issue| issues << issue.at("elements[#{index}]") }
+      issues.concat(ChannelResponseUrl.validate(element, "elements[#{index}].response_url_enabled"))
       if action_id = element.action_id
         if action_ids.has_key?(action_id)
           issues << Slack::UI::Checked::ValidationIssue.new(
