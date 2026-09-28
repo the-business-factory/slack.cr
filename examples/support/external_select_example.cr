@@ -91,7 +91,7 @@ module OfflineExternalSelectExample
       wire = JSON.parse(request.body || raise "Missing message")
       control = wire["blocks"][0]["accessory"]
       raise "Missing project select" unless control["type"].as_s == "external_select" && control["min_query_length"].as_i == 2
-      HTTP::Client::Response.new(200, body: {ok: true, channel: "C-SYNTHETIC", ts: "1710000000.000001", message: wire}.to_json)
+      HTTP::Client::Response.new(200, body: {ok: true, channel: "C-SYNTHETIC", ts: "1710000000.000001", message: {type: "message", ts: "1710000000.000001", blocks: wire["blocks"]}}.to_json)
     end
     WebMock.stub(:post, "https://slack.com/api/views.open").to_return do |request|
       wire = JSON.parse(request.body || raise "Missing form")

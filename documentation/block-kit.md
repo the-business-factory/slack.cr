@@ -61,7 +61,70 @@ puts request.to_pretty_json
 response = client.call(request)
 ```
 
-`ChatPostMessage` accepts `channel`, `text`/`blocks`, `thread_ts`, `reply_broadcast`, `unfurl_links`, and `unfurl_media`. It copies the message when you create it. The request holds no token; `Slack::Api::Client#call` validates it before dispatch and raises `Slack::Api::Error` for API failures. It does not support every `chat.postMessage` field.
+The request copies the message when you create it. It holds no token. `Slack::Api::Client#call` validates it before dispatch and raises `Slack::Api::Error` for API failures.
+
+## Send a message
+
+`ChatPostMessage` has one constructor for each kind of content:
+
+| Constructor | Sends | Use it for |
+| --- | --- | --- |
+| `new(channel:, message:)` | `text` (the fallback) and `blocks` | Block Kit layouts |
+| `new(channel:, text:)` | `text` | Plain messages; Slack formats `mrkdwn` |
+| `new(channel:, markdown_text:)` | `markdown_text` (1 to 12,000 characters) | Standard Markdown, for example LLM output |
+
+Slack rejects `markdown_text` together with `text` or `blocks` (`markdown_text_conflict`), so no constructor accepts both. All three constructors take the same options:
+
+- `attachments`: up to 100 `UI::Attachment` values (see below).
+- `thread_ts` and `reply_broadcast`: reply in a thread. `reply_broadcast: true` needs `thread_ts`.
+- `metadata`: a `UI::MessageMetadata` value.
+- `icon`: `UI::Icon::Emoji.new(":robot_face:")` or `UI::Icon::Url.new("https://...")`. A message has one icon.
+- `username`: a custom bot name. `username` and `icon` need the `chat:write.customize` scope.
+- `mrkdwn`, `parse` (`ChatPostMessage::Parse::None` or `Full`), `link_names`, `unfurl_links`, `unfurl_media`, `unfurl_app_links`, and the legacy `as_user`.
+
+```crystal
+request = Slack::Api::ChatPostMessage.new(
+  channel: "C123",
+  markdown_text: "**Deploy 812** finished\n\n- api: healthy",
+  thread_ts: "1710000000.000100",
+  icon: Slack::UI::Icon::Emoji.new(":rocket:")
+)
+posted = client.call(request).message
+posted.ts       # => "1710000123.000200"
+posted.blocks   # => Array(Slack::Interactions::ReceivedBlock)
+```
+
+The response `message` is a `Slack::Models::Message`. It has typed `ts`, `type`, `subtype`, `text`, `user`, `bot_id`, `thread_ts`, and received `blocks`. `attachments` and `metadata` stay raw JSON.
+
+The request does not send `current_draft_last_updated_ts` (Slack clients use it to sync drafts).
+
+### Add attachments and metadata
+
+An attachment shows secondary content with a colored border. Slack recommends `blocks` and `color`; the other display fields are legacy fields. An attachment without blocks needs `fallback` or `text`. `author_link` and `author_icon` need `author_name`, and `footer_icon` needs `footer`. `footer` is at most 300 characters, and `image_url` cannot go with `thumb_url`. `Color` is `good`, `warning`, `danger`, or `#RRGGBB`. Attachment blocks follow the message block rules. Block IDs must be unique across the message and all its attachments, and all Markdown blocks in the request share the 12,000-character limit.
+
+```crystal
+checks = UI::Attachment.new(
+  color: UI::Attachment::Color.hex("#2EB886"),
+  blocks: [UI::Blocks::Context.new(elements: [UI.mrkdwn("api: healthy · web: healthy")])]
+)
+legacy = UI::Attachment.new(
+  color: UI::Attachment::Color.danger, fallback: "web: unhealthy",
+  title: "web", text: "Health check failed",
+  fields: [UI::Attachment::Field.new(title: "Region", value: "us-east-1", short: true)]
+)
+request = Slack::Api::ChatPostMessage.new(
+  channel: "C123", message: message, attachments: [checks, legacy],
+  metadata: UI::MessageMetadata.new(event_type: "deploy_finished",
+    event_payload: {"deploy_id" => JSON::Any.new("812")})
+)
+# {"channel":"C123","text":...,"blocks":[...],
+#  "attachments":[{"color":"#2EB886","blocks":[...]},{"color":"danger","fallback":"web: unhealthy",...}],
+#  "metadata":{"event_type":"deploy_finished","event_payload":{"deploy_id":"812"}}}
+```
+
+The library rejects more than 100 attachments, which is the `chat.postMessage` limit. The attachments guide advises no more than 20. For a message with only attachments, use `new(channel:, text:, attachments:)`: the text is the notification fallback. Interactive legacy attachment fields (`callback_id`, `actions`) are not supported.
+
+Metadata needs a nonblank `event_type` and a JSON object `event_payload`. Slack checks the size and format (`metadata_too_large`, `invalid_metadata_format`). Offline tests do not prove that Slack accepts or shows a message.
 
 ## Build a remote file block
 

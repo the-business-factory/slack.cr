@@ -12,7 +12,7 @@ module OfflineMessageUpdateExample
     WebMock.stub(:post, "https://slack.com/api/chat.postMessage").to_return do |request|
       body = JSON.parse(request.body || raise "Missing posted message")
       raise "Missing approval control" unless body["blocks"][1]["elements"][0]["action_id"] == "request.approve"
-      HTTP::Client::Response.new(200, body: %({"ok":true,"channel":"C123","ts":"1710000000.000001","message":{"text":"Request 42 needs approval."}}))
+      HTTP::Client::Response.new(200, body: %({"ok":true,"channel":"C123","ts":"1710000000.000001","message":{"type":"message","ts":"1710000000.000001","text":"Request 42 needs approval."}}))
     end
     pending = UI.message(fallback_text: "Request 42 needs approval.") do |builder|
       builder.section(UI.plain("Request 42 needs approval."), block_id: "request.pending")

@@ -25,7 +25,7 @@ module OfflineModalExample
     WebMock.stub(:post, "https://slack.com/api/chat.postMessage").to_return do |request|
       wire = JSON.parse(request.body || raise "Missing message body")
       raise "Incorrect message action" unless wire["blocks"][0]["elements"][0]["action_id"].as_s == "request.open"
-      HTTP::Client::Response.new(200, body: {ok: true, channel: "C-SYNTHETIC", ts: "1710000000.000001", message: wire}.to_json)
+      HTTP::Client::Response.new(200, body: {ok: true, channel: "C-SYNTHETIC", ts: "1710000000.000001", message: {type: "message", ts: "1710000000.000001", blocks: wire["blocks"]}}.to_json)
     end
     WebMock.stub(:post, "https://slack.com/api/views.open").to_return do |request|
       wire = JSON.parse(request.body || raise "Missing modal body")

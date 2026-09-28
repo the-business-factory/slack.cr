@@ -20,7 +20,7 @@ module OfflineVideoExample
            "provider_name":"Example Video"}]}
         JSON
       raise "Incorrect video message" unless JSON.parse(request.body || raise "Missing posted message") == expected
-      HTTP::Client::Response.new(200, body: %({"ok":true,"channel":"C123","ts":"1710000000.000100","message":{"text":"Release 4.2 walkthrough video"}}))
+      HTTP::Client::Response.new(200, body: %({"ok":true,"channel":"C123","ts":"1710000000.000100","message":{"type":"message","ts":"1710000000.000100","text":"Release 4.2 walkthrough video"}}))
     end
 
     # Slack embeds video_url in an iframe. The app needs links.embed:write and

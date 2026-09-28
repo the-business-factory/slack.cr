@@ -73,7 +73,7 @@ module OfflineConversationsSelectExample
       raise "Missing notification select" unless control["type"].as_s == "conversations_select"
       raise "Missing conversation filter" unless control["filter"] == JSON.parse(%({"include":["public","private","im"],"exclude_bot_users":true}))
       raise "Missing initial notification" unless control["initial_conversation"].as_s == "D-NOTIFY"
-      HTTP::Client::Response.new(200, body: {ok: true, channel: "C-SYNTHETIC", ts: "1710000000.000001", message: wire}.to_json)
+      HTTP::Client::Response.new(200, body: {ok: true, channel: "C-SYNTHETIC", ts: "1710000000.000001", message: {type: "message", ts: "1710000000.000001", blocks: wire["blocks"]}}.to_json)
     end
     WebMock.stub(:post, "https://slack.com/api/views.open").to_return do |request|
       wire = JSON.parse(request.body || raise "Missing form")

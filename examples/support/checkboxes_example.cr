@@ -23,7 +23,7 @@ module OfflineCheckboxesExample
       control = wire["blocks"][0]["accessory"]
       raise "Missing checkboxes" unless control["type"].as_s == "checkboxes"
       raise "Missing initial selection" unless control["initial_options"][0]["value"].as_s == "digest"
-      HTTP::Client::Response.new(200, body: {ok: true, channel: "C-SYNTHETIC", ts: "1710000000.000001", message: wire}.to_json)
+      HTTP::Client::Response.new(200, body: {ok: true, channel: "C-SYNTHETIC", ts: "1710000000.000001", message: {type: "message", ts: "1710000000.000001", blocks: wire["blocks"]}}.to_json)
     end
     digest = UI::CompositionObjects::CheckboxOption.new(text: UI.mrkdwn("*Daily digest*"), value: "digest")
     alerts = UI::CompositionObjects::CheckboxOption.new(text: UI.plain("Alerts"), value: "alerts")

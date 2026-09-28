@@ -21,7 +21,7 @@ module OfflineCardCarouselExample
     WebMock.allow_net_connect = false
     WebMock.stub(:post, "https://slack.com/api/chat.postMessage").to_return do |request|
       posted = JSON.parse(request.body || raise "Missing posted message")
-      HTTP::Client::Response.new(200, body: %({"ok":true,"channel":"C-SYNTHETIC","ts":"1710000000.000400","message":{"text":"Departments open for visits"}}))
+      HTTP::Client::Response.new(200, body: %({"ok":true,"channel":"C-SYNTHETIC","ts":"1710000000.000400","message":{"type":"message","ts":"1710000000.000400","text":"Departments open for visits"}}))
     end
 
     message = UI.message(fallback_text: "Departments open for visits") do |builder|

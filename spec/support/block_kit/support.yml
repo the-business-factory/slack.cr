@@ -482,13 +482,35 @@ entries:
   - wire_type: chat.postMessage request
     kind: endpoint
     documentation_url: https://docs.slack.dev/reference/methods/chat.postMessage/
-    fields_supported: [channel, text, blocks, thread_ts, reply_broadcast, unfurl_links, unfurl_media]
+    fields_supported: [channel, text, blocks, markdown_text, attachments, thread_ts, reply_broadcast, metadata, mrkdwn, parse, link_names, unfurl_links, unfurl_media, unfurl_app_links, username, icon_emoji, icon_url, as_user]
     parents: []
     surfaces: [message]
-    restrictions: The request is partial. It does not send attachments, parse, link_names, mrkdwn, username, icon_emoji, icon_url, metadata, markdown_text, or draft fields.
-    implementation_status: partial
+    restrictions: "Separate constructors take a Message (text and blocks), plain text, or markdown_text, so markdown_text never goes with text or blocks (markdown_text_conflict). Text must be nonempty; markdown_text is 1 to 12,000 characters. At most 100 attachments (method page); the attachments guide advises 20. Block IDs are unique across the message and its attachments, and Markdown block text in the whole request is at most 12,000 characters. Icon is one Icon::Emoji or Icon::Url. Username must be nonblank; username and icon need chat:write.customize. current_draft_last_updated_ts is not supported (client draft sync). The request copies its message, attachments and metadata. Chat::PostMessage#message is a Models::Message with typed ts, type, subtype, text, user, bot_id, thread_ts and received blocks; attachments and metadata stay raw JSON. Slack checks scopes, metadata size and format, channel access and rendering."
+    implementation_status: supported
+    inbound_status: partial
+    evidence_paths: [src/slack/api/requests/chat/post_message.cr, src/slack/models/message.cr, spec/api/chat_post_message_spec.cr, examples/support/attachments_example.cr, spec/block_kit_consumers_spec.cr]
+
+  - wire_type: message attachment
+    kind: message composition
+    documentation_url: https://docs.slack.dev/legacy/legacy-messaging/legacy-secondary-message-attachments/
+    fields_supported: [blocks, color, fallback, pretext, author_name, author_link, author_icon, title, title_link, text, fields, image_url, thumb_url, footer, footer_icon, ts, mrkdwn_in]
+    parents: [chat.postMessage]
+    surfaces: [message]
+    restrictions: "UI::Attachment is immutable. Blocks follow the message block rules. Without blocks, fallback or text is required. author_link and author_icon require author_name; footer_icon requires footer; footer is at most 300 characters; image_url cannot go with thumb_url. Color is good, warning, danger, or #RRGGBB. Fields hold optional title, value and short. mrkdwn_in holds field names as strings because Slack does not list the allowed names. Interactive legacy fields callback_id and actions are not supported. Received attachments stay raw JSON."
+    implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/api/requests/chat/post_message.cr, spec/api/chat_post_message_spec.cr, spec/block_kit_consumers_spec.cr]
+    evidence_paths: [src/slack/ui/attachment.cr, src/slack/ui/attachment/color.cr, src/slack/ui/attachment/field.cr, spec/api/chat_post_message_spec.cr, examples/support/attachments_example.cr]
+
+  - wire_type: message metadata
+    kind: message composition
+    documentation_url: https://docs.slack.dev/messaging/message-metadata/
+    fields_supported: [event_type, event_payload]
+    parents: [chat.postMessage]
+    surfaces: [message]
+    restrictions: "UI::MessageMetadata needs a nonblank event_type and a JSON object event_payload, and keeps a deep copy of the payload. Slack checks size and format remotely (metadata_too_large, invalid_metadata_format). Received metadata stays raw JSON."
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/message_metadata.cr, spec/api/chat_post_message_spec.cr, examples/support/attachments_example.cr]
 
   - wire_type: chat.update request
     kind: endpoint
@@ -1760,3 +1782,45 @@ rules:
     source_section: "Chunks: task_update"
     reviewed_on: "2026-09-28"
     evidence_paths: [spec/api/chat_stream_spec.cr]
+  - id: chat_post_message_content
+    classification: slack_requirement
+    requirement: "One of text, blocks, attachments or markdown_text; markdown_text at most 12,000 characters and never with text or blocks; at most 100 attachments."
+    source_url: https://docs.slack.dev/reference/methods/chat.postMessage
+    source_section: "Arguments: text, blocks, attachments, markdown_text; Errors: markdown_text_conflict, too_many_attachments"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/api/chat_post_message_spec.cr]
+  - id: chat_post_message_policy
+    classification: library_policy
+    requirement: "Text and markdown_text are nonempty, username and icon values are nonblank, and each constructor takes one content kind; an attachments-only post passes text as its notification fallback."
+    source_url: https://docs.slack.dev/reference/methods/chat.postMessage
+    source_section: "Arguments: text, username, icon_emoji, icon_url"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/api/chat_post_message_spec.cr]
+  - id: attachment_fields
+    classification: slack_requirement
+    requirement: "Fallback or text without blocks; author_link and author_icon need author_name; footer_icon needs footer; footer at most 300 characters; image_url not with thumb_url; color good, warning, danger or a hex code."
+    source_url: https://docs.slack.dev/legacy/legacy-messaging/legacy-secondary-message-attachments
+    source_section: "Fields"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/api/chat_post_message_spec.cr]
+  - id: attachment_policy
+    classification: library_policy
+    requirement: "Hex colors use the #RRGGBB form; the 100-attachment method limit is enforced and the guide's advice of 20 is documented only."
+    source_url: https://docs.slack.dev/legacy/legacy-messaging/legacy-secondary-message-attachments
+    source_section: "Fields: color; attachment count advice"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/api/chat_post_message_spec.cr]
+  - id: message_metadata
+    classification: library_policy
+    requirement: "event_type is nonblank and event_payload is a JSON object; size and format limits are remote-only."
+    source_url: https://docs.slack.dev/messaging/message-metadata
+    source_section: "Metadata structure: event_type, event_payload"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/api/chat_post_message_spec.cr]
+  - id: chat_post_message_attached_blocks
+    classification: slack_requirement
+    requirement: "Block IDs are unique across the message and its attachment blocks; Markdown block text in one payload is at most 12,000 characters in total."
+    source_url: https://docs.slack.dev/reference/block-kit/blocks/markdown-block/
+    source_section: "Fields: text (cumulative payload limit); section block Fields: block_id (unique for each message)"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/api/chat_post_message_spec.cr]

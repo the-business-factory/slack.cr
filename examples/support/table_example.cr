@@ -22,7 +22,7 @@ module OfflineTableExample
     WebMock.allow_net_connect = false
     WebMock.stub(:post, "https://slack.com/api/chat.postMessage").to_return do |request|
       posted = JSON.parse(request.body || raise "Missing posted message")
-      HTTP::Client::Response.new(200, body: %({"ok":true,"channel":"C-SYNTHETIC","ts":"1710000000.000300","message":{"text":"Q3 revenue by region"}}))
+      HTTP::Client::Response.new(200, body: %({"ok":true,"channel":"C-SYNTHETIC","ts":"1710000000.000300","message":{"type":"message","ts":"1710000000.000300","text":"Q3 revenue by region"}}))
     end
 
     message = UI.message(fallback_text: "Q3 revenue by region") do |builder|

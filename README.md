@@ -212,6 +212,7 @@ crystal run examples/web_api.cr
 crystal run examples/file_upload.cr
 crystal run examples/thread_history.cr
 crystal run examples/streaming.cr
+crystal run examples/attachments.cr
 crystal run examples/event_delivery.cr
 crystal run examples/socket_mode_protocol.cr
 crystal run examples/interaction_context.cr
@@ -220,7 +221,7 @@ crystal run examples/received_blocks.cr
 crystal run examples/workflow_step.cr
 ```
 
-The examples show Web API calls and error codes, channel history and thread replies across cursor pages, a file upload, a remote file share, message construction, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, message workflow buttons, typed blocks of a received message, Socket Mode frames with their acknowledgments, a slash command response with a `response_url` reply, and a custom workflow step that completes or fails its execution. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
+The examples show Web API calls and error codes, channel history and thread replies across cursor pages, a file upload, a remote file share, message construction, a message with a colored attachment and metadata, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, message workflow buttons, typed blocks of a received message, Socket Mode frames with their acknowledgments, a slash command response with a `response_url` reply, and a custom workflow step that completes or fails its execution. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
 
 ## Contributing
 

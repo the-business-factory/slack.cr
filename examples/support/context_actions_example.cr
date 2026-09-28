@@ -16,7 +16,7 @@ module OfflineContextActionsExample
     WebMock.allow_net_connect = false
     WebMock.stub(:post, "https://slack.com/api/chat.postMessage").to_return do |request|
       posted = JSON.parse(request.body || raise "Missing posted message")
-      HTTP::Client::Response.new(200, body: %({"ok":true,"channel":"C-SYNTHETIC","ts":"1710000000.000400","message":{"text":"Answer"}}))
+      HTTP::Client::Response.new(200, body: %({"ok":true,"channel":"C-SYNTHETIC","ts":"1710000000.000400","message":{"type":"message","ts":"1710000000.000400","text":"Answer"}}))
     end
 
     message = UI.message(fallback_text: "Answer") do |builder|

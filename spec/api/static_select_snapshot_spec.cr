@@ -54,7 +54,7 @@ describe "Static selections at endpoint boundaries" do
         .to_return do |http_request|
           count += 1
           JSON.parse(http_request.body || fail("Missing request body")).should eq expected
-          response = method == "chat.postMessage" ? %({"ok":true,"channel":"C-SYNTHETIC","ts":"1710000000.000001","message":{}}) : %({"ok":true,"view":{"id":"V-SYNTHETIC","future":true}})
+          response = method == "chat.postMessage" ? %({"ok":true,"channel":"C-SYNTHETIC","ts":"1710000000.000001","message":{"type":"message","ts":"1710000000.000001"}}) : %({"ok":true,"view":{"id":"V-SYNTHETIC","future":true}})
           HTTP::Client::Response.new(200, body: response)
         end
       # Client#call infers one response type, so dispatch each request type separately.

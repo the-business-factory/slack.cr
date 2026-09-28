@@ -39,7 +39,7 @@ module RichTextSnapshotSpec
     WebMock.stub(:post, "https://slack.com/api/chat.postMessage").to_return do |http_request|
       sent += 1
       JSON.parse(http_request.body || fail("Missing body")).should eq expected
-      HTTP::Client::Response.new(200, body: %({"ok":true,"channel":"C-SYNTHETIC","ts":"1710000000.000001","message":{}}))
+      HTTP::Client::Response.new(200, body: %({"ok":true,"channel":"C-SYNTHETIC","ts":"1710000000.000001","message":{"type":"message","ts":"1710000000.000001"}}))
     end
     client.call(request)
     sent.should eq 1

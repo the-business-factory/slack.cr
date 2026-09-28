@@ -69,7 +69,7 @@ module OfflineDatetimePickerExample
       picker = wire["blocks"][0]["elements"][0]
       raise "Expected datetime picker" unless picker["type"].as_s == "datetimepicker"
       raise "Expected Unix seconds" unless picker["initial_date_time"].as_i64 == 1835454600
-      HTTP::Client::Response.new(200, body: {ok: true, channel: "C-SYNTHETIC", ts: "1710000000.000001", message: wire}.to_json)
+      HTTP::Client::Response.new(200, body: {ok: true, channel: "C-SYNTHETIC", ts: "1710000000.000001", message: {type: "message", ts: "1710000000.000001", blocks: wire["blocks"]}}.to_json)
     end
     WebMock.stub(:post, "https://slack.com/api/views.open").to_return do |request|
       wire = JSON.parse(request.body || raise "Missing form")

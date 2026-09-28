@@ -49,6 +49,7 @@ require "../examples/support/workflow_step_example"
 require "../examples/support/file_upload_example"
 require "../examples/support/thread_history_example"
 require "../examples/support/streaming_example"
+require "../examples/support/attachments_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -126,6 +127,20 @@ describe "documented Block Kit workflows" do
     output = IO::Memory.new
     OfflineStreamingExample.run(output)
     output.to_s.should eq("Started stream 1721609600.123456 in C123\nAppended the plan\nFinal text: Checking the report. Revenue grew 4%.\n")
+  end
+
+  it "posts a message with a colored attachment, metadata, and an emoji icon" do
+    output = IO::Memory.new
+    OfflineAttachmentsExample.run(output)
+    body, summary = output.to_s.lines
+    JSON.parse(body).should eq JSON.parse(<<-JSON)
+      {"channel":"C123","text":"Deploy 812 finished",
+       "blocks":[{"type":"section","text":{"type":"mrkdwn","text":"*Deploy 812* finished"}}],
+       "attachments":[{"color":"#2EB886","blocks":[{"type":"context","elements":[{"type":"mrkdwn","text":"api: healthy · web: healthy"}]}]}],
+       "metadata":{"event_type":"deploy_finished","event_payload":{"deploy_id":"812"}},
+       "icon_emoji":":rocket:"}
+      JSON
+    summary.should eq "Posted 1710000123.000200 with metadata deploy_finished"
   end
 
   it "posts a button, opens a modal, and reads its signed submission" do
