@@ -1,0 +1,8 @@
+{
+  "channel": "C-SYNTHETIC", "text": "Request actions",
+  "blocks": [{"type": "actions", "block_id": "request", "elements": [
+    {"type": "overflow", "action_id": "more", "options": [
+      {"text": {"type": "plain_text", "text": "Archive"}, "value": "archive"}
+    ]}
+  ]}]
+}

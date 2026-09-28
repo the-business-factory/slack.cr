@@ -1,5 +1,5 @@
 struct Slack::UI::Checked::Blocks::Actions
-  alias Element = Slack::UI::Checked::BlockElements::Button | Slack::UI::Checked::BlockElements::StaticSelect | Slack::UI::Checked::BlockElements::MultiStaticSelect
+  alias Element = Slack::UI::Checked::BlockElements::Button | Slack::UI::Checked::BlockElements::StaticSelect | Slack::UI::Checked::BlockElements::MultiStaticSelect | Slack::UI::Checked::BlockElements::Overflow
 
   ELEMENTS_MAX_SIZE   =  25
   BLOCK_ID_MAX_LENGTH = 255

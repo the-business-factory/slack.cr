@@ -79,6 +79,7 @@ crystal run examples/block_kit_message.cr
 crystal run examples/block_kit_modal.cr
 crystal run examples/block_kit_home.cr
 crystal run examples/block_kit_static_select.cr
+crystal run examples/block_kit_overflow.cr
 ```
 
 The examples show checked message construction, a signed button and form submission, Home publishing and state, and static selections. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).

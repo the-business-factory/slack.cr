@@ -1,4 +1,4 @@
-# Plain-text menu option. URL and markdown variants belong to later slices.
+# Plain-text static menu option. Use OverflowOption for overflow menus and URLs.
 struct Slack::UI::Checked::CompositionObjects::Option
   include Slack::UI::Checked::ValueValidation
 
