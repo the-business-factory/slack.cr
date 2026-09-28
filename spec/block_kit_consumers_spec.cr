@@ -849,6 +849,20 @@ describe "documented Block Kit workflows" do
     JSON.parse(response.body || "").should eq JSON.parse(%({"text":"Only you can see this: deploy queued."}))
   end
 
+  it "reacts as the approving user and posts as the bot from one click" do
+    output = IO::Memory.new
+    result = OfflineAppExample.run_as_user(output)
+    output.to_s.lines.should eq ["Click acknowledged: 200", "Reacted as the approver and posted as the bot"]
+    reaction, post = result.requests
+    # Authored from the reactions.add and chat.postMessage references, not from the serializer.
+    reaction.uri.to_s.should eq "https://slack.com/api/reactions.add"
+    reaction.headers["Authorization"].should eq "Bearer xoxp-synthetic-approver"
+    JSON.parse(reaction.body || "").should eq JSON.parse(%({"channel":"C-DEPLOYS","name":"white_check_mark","timestamp":"1789232400.000200"}))
+    post.uri.to_s.should eq "https://slack.com/api/chat.postMessage"
+    post.headers["Authorization"].should eq "Bearer xoxb-synthetic-app"
+    JSON.parse(post.body || "").should eq JSON.parse(%({"channel":"C-DEPLOYS","text":"api approved by <@U-APPROVER>."}))
+  end
+
   it "greets an app thread and streams an answer with the stored thread context" do
     output = IO::Memory.new
     requests = OfflineAssistantExample.run(output)

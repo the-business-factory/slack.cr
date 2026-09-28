@@ -171,6 +171,30 @@ The app calls its authorizer after it decodes a request and before it routes it.
 
 If the authorizer raises, no listener runs and the receiver answers 401.
 
+### Act as the user
+
+`ctx.client` sends the app-wide token, usually the bot token. To act as a user for one call, give `ctx.client` a grant. Slack does write actions with a user token as if the user did them:
+
+```crystal
+app.command("/standup") do |ctx|
+  ctx.ack
+  as_user = ctx.client(Slack::Auth::GrantKey.new(:user, ctx.command.user_id))
+  as_user.call(Slack::Api::ChatPostMessage.new(channel: ctx.command.channel_id, text: "Yesterday: shipped the deploy fix."))
+end
+```
+
+The user must install or authorize the app with the user scopes that the call needs. Request them in the OAuth flow:
+
+```crystal
+handler = Slack::AuthHandler.new(oauth, state_store, transport,
+  bot_scopes: ["commands", "chat:write"], user_scopes: ["chat:write"])
+```
+
+`AuthHandler#authenticate_user` returns the `AuthResponse`; it does not store it. Your code must store `response.installation_patch(clock)` in the store that the `RequestAuthorizer` uses. The patch holds the user grant beside the bot grant. See [Persist the installation](authentication.md#persist-the-installation).
+
+- With `InstallationAuthorizer`, each `ctx.client(grant)` call finds the grant in the installation that sent the request. The client does not keep a token: the store checks the grant immediately before each send. A user without a stored grant, or a grant that is revoked, raises `Slack::Auth::ContractError`, and the error handler receives it. The app does not select a grant by scope.
+- `SingleTokenAuthorizer.new(client, grant)` has one token. `ctx.client(grant)` returns that client only for the grant it was built for (the bot by default). Other grants raise `Slack::App::GrantUnavailable`. The error names the payload kind and the grant; it holds no token.
+
 ### Token rotation
 
 Give the `RequestAuthorizer` a `Slack::Auth::RotationService`. Then the authorizer refreshes an access token that expires soon before the listener runs, and the listener's `client`, `say`, and `respond` do not change:
@@ -252,7 +276,7 @@ The specs and the example run requests in memory with synthetic credentials. The
 
 | Example | Shows |
 | --- | --- |
-| [`app.cr`](../examples/app.cr) | A signed mention, a button click, and a slash command with `say` and `respond`, through the HTTP receiver |
+| [`app.cr`](../examples/app.cr) | A signed mention, a button click, and a slash command with `say` and `respond`, through the HTTP receiver; a click that reacts with the user's token |
 | [`socket_mode_app.cr`](../examples/socket_mode_app.cr) | Listeners that answer a slash command and a view submission over Socket Mode |
 | [`custom_step.cr`](../examples/custom_step.cr) | A custom step that waits for a button click, then completes |
 | [`assistant.cr`](../examples/assistant.cr) | An assistant that greets an app thread and streams an answer |

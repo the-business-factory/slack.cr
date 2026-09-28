@@ -9,6 +9,15 @@ abstract struct Slack::App::Context
     @environment.client
   end
 
+  # Web API client for *grant* of the installation that sent the request, for
+  # example `Slack::Auth::GrantKey.new(:user, user_id)` to act as that user.
+  # Each call resolves the grant again. It raises when the authorizer has no
+  # client for *grant*: `Auth::ContractError` for a missing installation grant,
+  # `GrantUnavailable` in single-token mode.
+  def client(grant : Slack::Auth::GrantKey) : Slack::Api::Client
+    @environment.authorizer.authorize(@environment.payload, grant)
+  end
+
   def log : ::Log
     @environment.log
   end

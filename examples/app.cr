@@ -4,3 +4,4 @@ require "./support/app_example"
 
 OfflineAppExample.run
 OfflineAppExample.run_replies
+OfflineAppExample.run_as_user

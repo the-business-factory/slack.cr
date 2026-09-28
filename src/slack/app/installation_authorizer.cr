@@ -6,11 +6,18 @@
 # ```
 # authorizer = Slack::App::InstallationAuthorizer.new(request_authorizer, Slack::Auth::GrantKey.new(:bot))
 # ```
+#
+# *grant* selects the app-wide client. `Context#client(grant)` resolves other
+# grants of the same installation, for example a user grant.
 class Slack::App::InstallationAuthorizer < Slack::App::Authorizer
   def initialize(@request_authorizer : Slack::Auth::RequestAuthorizer, @grant : Slack::Auth::GrantKey)
   end
 
   def authorize(payload : App::Payload) : Slack::Api::Client
-    @request_authorizer.authorize_trusted(payload, @grant).client
+    authorize(payload, @grant)
+  end
+
+  def authorize(payload : App::Payload, grant : Slack::Auth::GrantKey) : Slack::Api::Client
+    @request_authorizer.authorize_trusted(payload, grant).client
   end
 end

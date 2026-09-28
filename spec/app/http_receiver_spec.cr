@@ -98,6 +98,10 @@ private class FailingAuthorizer < Slack::App::Authorizer
   def authorize(payload : Slack::App::Payload) : Slack::Api::Client
     raise Slack::Auth::ContractError.new(:missing_installation)
   end
+
+  def authorize(payload : Slack::App::Payload, grant : Slack::Auth::GrantKey) : Slack::Api::Client
+    raise Slack::Auth::ContractError.new(:missing_installation)
+  end
 end
 
 private def build_app(ack_timeout : Time::Span = 2.5.seconds, authorizer : Slack::App::Authorizer? = nil) : Slack::App

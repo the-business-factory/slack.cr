@@ -120,7 +120,7 @@ class Slack::App
       return outcome
     end
     client = authorize(payload) || return Outcome.unauthorized
-    environment = Environment.new(client, @log, delivery, @workflow_client, @response_url_transport)
+    environment = Environment.new(client, @log, delivery, @workflow_client, @response_url_transport, payload, @authorizer)
     listener = find_listener(payload, environment) || return Outcome.acknowledged
     payload_kind = describe(payload)
     spawn(name: "slack.app.listener") { run(listener, environment.ack, payload_kind) }
@@ -162,6 +162,13 @@ class Slack::App
   end
 
   private def describe(payload : Payload) : String
+    App.describe(payload)
+  end
+
+  # :nodoc:
+  # Names *payload* in logs and errors without payload data, for example
+  # `"command /deploy"`.
+  def self.describe(payload : Payload) : String
     case payload
     in Slack::VerifiedEvent then "event #{payload.event.type}"
     in Slack::Command       then "command #{payload.command}"

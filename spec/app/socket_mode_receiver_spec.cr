@@ -56,6 +56,10 @@ private class RejectingAuthorizer < Slack::App::Authorizer
   def authorize(payload : Slack::App::Payload) : Slack::Api::Client
     raise Slack::Auth::ContractError.new(:missing_installation)
   end
+
+  def authorize(payload : Slack::App::Payload, grant : Slack::Auth::GrantKey) : Slack::Api::Client
+    raise Slack::Auth::ContractError.new(:missing_installation)
+  end
 end
 
 # A receiver on a Socket Mode client that is connected to a loopback server.

@@ -132,4 +132,59 @@ module OfflineAppExample
     end
     app
   end
+
+  record UserActions, acknowledgment : HTTP::Client::Response, requests : Array(Slack::Auth::TransportRequest)
+
+  # Serves the signed Approve click to an app that authorizes each request from
+  # an installation store. The listener adds a reaction to the request message
+  # as the approving user, with that user's token, and posts the result with
+  # the bot token. One recording transport answers both calls.
+  def self.run_as_user(output : IO = STDOUT) : UserActions
+    transport = Slack::Testing::RecordingTransport.new
+    transport.respond(%({"ok":true}))
+    transport.respond(%({"ok":true,"channel":"C-DEPLOYS","ts":"1789232401.000300","message":{"type":"message","text":"api approved.","ts":"1789232401.000300"}}))
+    done = Channel(Nil).new(1)
+    verifier = Slack::Webhooks::Verifier.new(SIGNING_SECRET)
+    receiver = Slack::App::HttpReceiver.new(build_user_app(transport, verifier, done), verifier)
+
+    acknowledgment = serve(receiver, signed("application/x-www-form-urlencoded", URI::Params.encode({"payload" => CLICK})))
+    done.receive
+    output.puts "Click acknowledged: #{acknowledgment.status_code}"
+    output.puts "Reacted as the approver and posted as the bot"
+    UserActions.new(acknowledgment, transport.requests)
+  end
+
+  def self.build_user_app(transport : Slack::Auth::Transport, verifier : Slack::Webhooks::Verifier,
+                          done : Channel(Nil)) : Slack::App
+    request_authorizer = Slack::Auth::RequestAuthorizer.new("A-SYNTHETIC", installed_store, transport,
+      Slack::Auth::APIConfiguration.default, verifier)
+    app = Slack::App.new(authorizer: Slack::App::InstallationAuthorizer.new(request_authorizer, Slack::Auth::GrantKey.new(:bot)))
+    app.error { |error, ctx| ctx.log.error { error.message } }
+
+    app.action("deploy.approve") do |ctx|
+      ctx.ack
+      approver = ctx.payload.user.try(&.id)
+      message = ctx.payload.container
+      next unless approver && message.is_a?(Slack::Interactions::Container::Message)
+      # Needs the reactions:write user scope in the approver's install.
+      as_approver = ctx.client(Slack::Auth::GrantKey.new(:user, approver))
+      as_approver.call(Slack::Api::ReactionsAdd.new(message.channel_id, "white_check_mark", message.message_ts))
+      ctx.client.call(Slack::Api::ChatPostMessage.new(channel: message.channel_id, text: "api approved by <@#{approver}>."))
+    ensure
+      done.send(nil)
+    end
+    app
+  end
+
+  # One installation with a bot grant and the approver's user grant, as the
+  # application stores them from the `AuthResponse` of an install that asks
+  # for user scopes.
+  private def self.installed_store : Slack::Auth::MemoryInstallationStore
+    owner = Slack::Auth::InstallationKey.new("A-SYNTHETIC", :workspace, team_id: "T-SYNTHETIC")
+    bot = Slack::Auth::Grant.new("U-BOT", Slack::Auth::Secret.new("xoxb-synthetic-app"), ["chat:write"])
+    approver = Slack::Auth::Grant.new("U-APPROVER", Slack::Auth::Secret.new("xoxp-synthetic-approver"), ["reactions:write"])
+    store = Slack::Auth::MemoryInstallationStore.new
+    store.store(owner, Slack::Auth::InstallationPatch.new(bot: bot, users: {"U-APPROVER" => approver}), nil)
+    store
+  end
 end
