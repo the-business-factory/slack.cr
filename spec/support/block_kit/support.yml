@@ -1,6 +1,6 @@
 schema_version: 2
 checked_on: "2026-09-28"
-scope: Checked Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, channel selects, date/time pickers, the datetime picker, video blocks, external selects with block_suggestion option responses, remote file blocks, rich text display blocks, table blocks, markdown blocks, context actions blocks with feedback and icon buttons, number inputs, file inputs, URL inputs, email inputs, rich text inputs, and message workflow buttons, including Input in Messages, FormModal and Home, modal-only Input children in FormModal, and view-only Input children in FormModal and Home.
+scope: Checked Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, channel selects, date/time pickers, the datetime picker, video blocks, external selects with block_suggestion option responses, remote file blocks, rich text display blocks, table blocks, alert blocks, markdown blocks, context actions blocks with feedback and icon buttons, number inputs, file inputs, URL inputs, email inputs, rich text inputs, and message workflow buttons, including Input in Messages, FormModal and Home, modal-only Input children in FormModal, and view-only Input children in FormModal and Home.
 statuses:
   - unsupported
   - partial
@@ -507,7 +507,7 @@ entries:
     fields_supported: [type, title, submit, close, blocks, private_metadata, callback_id, external_id, clear_on_close, notify_on_close, submit_disabled]
     parents: [views.open, views.update, views.push, push response action, update response action]
     surfaces: [modal]
-    restrictions: Checked DisplayModal excludes Input; FormModal requires submit. The block catalog is limited to Section, Actions, Divider, Header, Context, Image, RichText, and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, user selects, channel selects, conversation selects, or date/time pickers; FormModal also accepts ModalInput containing NumberInput, FileInput, UrlInput, or EmailInput and ViewInput containing RichTextInput. submit_disabled is for Slack configuration modals only. Typed validation-error, clear, push, and update acknowledgments are listed separately. Legacy Modal keeps its previous contract.
+    restrictions: Checked DisplayModal excludes Input; FormModal requires submit. The block catalog is limited to Section, Actions, Divider, Header, Context, Image, RichText, Alert, and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, user selects, channel selects, conversation selects, or date/time pickers; FormModal also accepts ModalInput containing NumberInput, FileInput, UrlInput, or EmailInput and ViewInput containing RichTextInput. submit_disabled is for Slack configuration modals only. Typed validation-error, clear, push, and update acknowledgments are listed separately. Legacy Modal keeps its previous contract.
     implementation_status: partial
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/surfaces/form_modal.cr, src/slack/ui/checked/surfaces/display_modal.cr, spec/ui/checked/modal_spec.cr, examples/block_kit_modal.cr]
@@ -775,6 +775,17 @@ entries:
     implementation_status: supported
     inbound_status: unsupported
     evidence_paths: [src/slack/ui/checked/block_elements/icon_button.cr, src/slack/ui/checked/block_elements/icon_button_icon.cr, spec/ui/checked/context_actions_spec.cr, examples/support/context_actions_example.cr]
+
+  - wire_type: alert
+    kind: block
+    documentation_url: https://docs.slack.dev/reference/block-kit/blocks/alert-block/
+    fields_supported: [type, text, level, block_id]
+    parents: [modal]
+    surfaces: [modal]
+    restrictions: Checked Blocks::Alert takes a plain_text or mrkdwn text object of at most 200 characters, an optional Blocks::AlertLevel (default, info, warning, error, success), and a block_id of at most 255 characters. A nil level omits the field, and Slack then uses default. Slack lists modals only, so DisplayModal and FormModal accept it; Message and Home reject it at compile time with a modals-only diagnostic. The reference table lists text as String and level as Array; its example and the Slack SDKs send a text object and a single string, and the library follows them. Alerts have no interaction payload.
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/checked/blocks/alert.cr, src/slack/ui/checked/blocks/alert_level.cr, spec/ui/checked/alert_block_spec.cr, spec/fixtures/block_kit/alert_display_modal.json, spec/block_kit_diagnostics_spec.cr, examples/support/alert_example.cr, spec/block_kit_consumers_spec.cr]
 
 # Classification is independent of support status. Missing features are not invalid Slack payloads.
 review_policy:
@@ -1424,3 +1435,10 @@ rules:
     source_section: "Fields: text and visible_to_user_ids"
     reviewed_on: "2026-09-28"
     evidence_paths: [spec/ui/checked/context_actions_spec.cr, examples/support/context_actions_example.cr]
+  - id: alert_block
+    classification: slack_requirement
+    requirement: "Required text object (plain_text or mrkdwn) of at most 200 characters; optional level of default, info, warning, error, or success (default when omitted); optional block_id. Available in modals only."
+    source_url: https://docs.slack.dev/reference/block-kit/blocks/alert-block.md
+    source_section: "Fields, Example, and available_in_surfaces metadata"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/ui/checked/alert_block_spec.cr, spec/block_kit_consumers_spec.cr, spec/block_kit_diagnostics_spec.cr]

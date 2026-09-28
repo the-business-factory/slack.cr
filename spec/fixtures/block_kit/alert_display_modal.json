@@ -1,0 +1,22 @@
+{
+  "type": "modal",
+  "title": {"type": "plain_text", "text": "Deploy status"},
+  "blocks": [
+    {
+      "type": "alert",
+      "text": {"type": "mrkdwn", "text": "The work is mysterious and important.", "verbatim": false},
+      "level": "info"
+    },
+    {
+      "type": "alert",
+      "block_id": "deploy.failed",
+      "text": {"type": "plain_text", "text": "Deploy 42 failed."},
+      "level": "error"
+    },
+    {
+      "type": "alert",
+      "text": {"type": "plain_text", "text": "No level uses Slack's default."}
+    },
+    {"type": "divider"}
+  ]
+}

@@ -14,7 +14,7 @@ module Slack::UI::Checked::ViewFocus
     issues
   end
 
-  private def self.paths(block : HomeBlock | Blocks::ModalInput) : Array(String)
+  private def self.paths(block : HomeBlock | Blocks::ModalInput | Blocks::Alert) : Array(String)
     paths = [] of String
     case block
     when Blocks::Input

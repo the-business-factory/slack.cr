@@ -18,4 +18,11 @@ module Slack::UI::Checked::DeclaredTypes
       {% raise "DisplayModal rejects its yielded block item type. For Input, use FormModal with submit." %}
     {% end %}
   end
+
+  # Message and Home have no modal-only display blocks.
+  def self.non_modal_block(type : T.class) : Nil forall T
+    {% if T.union_types.any? { |member| member <= Slack::UI::Checked::Blocks::Alert } %}
+      {% raise "Messages and Home tabs reject Alert blocks. Slack shows alert blocks in modals only; use DisplayModal or FormModal." %}
+    {% end %}
+  end
 end

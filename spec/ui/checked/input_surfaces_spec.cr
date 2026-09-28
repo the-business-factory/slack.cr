@@ -105,13 +105,15 @@ describe "typed surface consumers" do
       label: Slack::UI::Checked.plain("Note"),
       element: Slack::UI::Checked::BlockElements::PlainTextInput.new
     )
-    display_blocks = [Slack::UI::Checked::Blocks::Divider.new] of Slack::UI::Checked::DisplayModalBlock
+    divider = Slack::UI::Checked::Blocks::Divider.new
+    # DisplayModalBlock includes the modal-only Alert, so share concrete display blocks.
+    display_blocks = [divider] of Slack::UI::Checked::DisplayModalBlock
     file = Slack::UI::Checked::Blocks::File.new(external_id: "ABCD1")
     table = Slack::UI::Checked::Blocks::Table.new(rows: { {Slack::UI::Checked::Table::RawText.new("Open")} })
     markdown = Slack::UI::Checked::Blocks::Markdown.new("**Open**")
     trash = Slack::UI::Checked::BlockElements::IconButton.new(Slack::UI::Checked::BlockElements::IconButtonIcon::Trash, text: Slack::UI::Checked.plain("Delete"))
     context_actions = Slack::UI::Checked::Blocks::ContextActions.new(elements: {trash})
-    message_blocks = [display_blocks.first, input, file, table, markdown, context_actions] of Slack::UI::Checked::MessageBlock
+    message_blocks = [divider, input, file, table, markdown, context_actions] of Slack::UI::Checked::MessageBlock
     consumer_message = Slack::UI::Checked::Message.new(fallback_text: "Note", blocks: message_blocks)
     Slack::UI::Checked::DisplayModal.new(title: Slack::UI::Checked.plain("Display"), blocks: display_blocks)
     consumer_message.blocks.map { |block| SurfaceConsumer.kind(block) }.should eq(["display", "input", "message-only", "table", "message-only", "message-only"])
