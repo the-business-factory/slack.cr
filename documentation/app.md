@@ -1,6 +1,6 @@
 # App listeners
 
-`Slack::App` routes verified Slack requests to listeners. `Slack::App::HttpReceiver` serves the requests over HTTP. This is the layer that Bolt calls `App`. Socket Mode is not part of this layer yet.
+`Slack::App` routes verified Slack requests to listeners. `Slack::App::HttpReceiver` serves the requests over HTTP, and `Slack::App::SocketModeReceiver` receives them over Socket Mode. This is the layer that Bolt calls `App`. To handle requests without this layer, see [Events and interactions](events-and-interactions.md).
 
 ## Minimal app
 
@@ -247,3 +247,13 @@ The app logs with the standard `Log` module: source `slack.app` for routing, aut
 ## Limits of the offline tests
 
 The specs and the example run requests in memory with synthetic credentials. They do not prove that Slack accepts the responses or the `say` and `respond` posts, the three-second timing on a live network, or retry behavior.
+
+## Examples
+
+| Example | Shows |
+| --- | --- |
+| [`app.cr`](../examples/app.cr) | A signed mention, a button click, and a slash command with `say` and `respond`, through the HTTP receiver |
+| [`socket_mode_app.cr`](../examples/socket_mode_app.cr) | Listeners that answer a slash command and a view submission over Socket Mode |
+| [`custom_step.cr`](../examples/custom_step.cr) | A custom step that waits for a button click, then completes |
+| [`assistant.cr`](../examples/assistant.cr) | An assistant that greets an app thread and streams an answer |
+| [`testing.cr`](../examples/testing.cr) | An offline test of a slash command handler |

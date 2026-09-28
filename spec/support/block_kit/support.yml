@@ -1,6 +1,6 @@
 schema_version: 2
 checked_on: "2026-09-28"
-scope: Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, channel selects, date/time pickers, the datetime picker, video blocks, external selects with block_suggestion option responses, remote file blocks, rich text display blocks, table blocks, data table blocks, data visualization blocks, card and carousel blocks, container blocks, alert blocks, markdown blocks, context actions blocks with feedback and icon buttons, number inputs, file inputs, URL inputs, email inputs, rich text inputs, message workflow buttons, plan and task card blocks, and typed received blocks in messages and views, including Input in Messages, FormModal and Home, modal-only Input children in FormModal, and view-only Input children in FormModal and Home.
+scope: Slack wire contracts that the library sends or reads. Block Kit blocks, elements, composition objects, and the Message, DisplayModal, FormModal, and Home surfaces with their placement rules; typed received blocks in messages and views; message attachments and metadata; Web API requests for chat, streaming, views, files, app threads and agent sessions, workflow functions, apps, auth, emoji, and api.test, with HTTP 429 and transport retries; Events API envelopes and typed events; interaction payloads and acknowledgments; slash command responses; response_url messages; and Socket Mode acknowledgments. Other Web API families (conversations, users, user groups, reactions, pins, bookmarks) are documented in documentation/web-api.md and have no entries here.
 statuses:
   - unsupported
   - partial
@@ -243,7 +243,7 @@ entries:
     fields_supported: [text, value, description]
     parents: [radio_buttons]
     surfaces: [message, modal, home]
-    restrictions: RadioOption accepts plain_text or mrkdwn labels and descriptions up to 75 characters and values up to 150. No URL. Existing static, overflow, and checkbox option types are unchanged. Received SelectedOption exposes value, text, and text_type; description and unknown fields remain raw.
+    restrictions: RadioOption accepts plain_text or mrkdwn labels and descriptions up to 75 characters and values up to 150. No URL. Received SelectedOption exposes value, text, and text_type; description and unknown fields remain raw.
     implementation_status: supported
     inbound_status: partial
     evidence_paths: [src/slack/ui/composition_objects/radio_option.cr, spec/ui/radio_buttons_spec.cr, spec/interactions/radio_buttons_spec.cr]
@@ -452,7 +452,7 @@ entries:
     fields_supported: [type, block_id]
     parents: [message, modal, home]
     surfaces: [message, modal, home]
-    restrictions: The Divider has the complete current outbound contract; the pre-existing short-name placeholder remains unsupported during coexistence. Received blocks decode as ReceivedBlocks::Divider.
+    restrictions: The Divider has the complete current outbound contract. Received blocks decode as ReceivedBlocks::Divider.
     implementation_status: supported
     inbound_status: supported
     evidence_paths: [src/slack/ui/blocks/divider.cr, spec/ui/blocks_spec.cr, spec/ui/message_spec.cr, src/slack/interactions/received_blocks/divider.cr, spec/interactions/received_blocks_spec.cr]

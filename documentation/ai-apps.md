@@ -148,7 +148,7 @@ client.call(Slack::Api::AssistantThreadsSetStatus.new(channel_id: "D123",
 Notes:
 
 - To clear the status, send an empty `status`. Slack also removes the status after two minutes if the app sends no message.
-- Omit `thread_ts` on `AssistantThreadsSetSuggestedPrompts` to set prompts for the latest message in the channel. Slack says `thread_ts` is for the legacy assistant experience. With an agent app, a call with `thread_ts` fails silently.
+- Omit `thread_ts` on `AssistantThreadsSetSuggestedPrompts` to set prompts for the latest message in the channel. Slack says that `thread_ts` is only for the earlier assistant experience. With an agent app, a call with `thread_ts` fails silently.
 - The library does not send a status, title, or prompts automatically. It does not start timers or fibers.
 
 See [examples/assistant_thread.cr](../examples/assistant_thread.cr).
@@ -256,3 +256,13 @@ assistant = Slack::App::Assistant.new(context_store: DatabaseContextStore.new)
 ```
 
 The helper does not call a language model, start fibers, or clear a status for you. Offline specs do not prove that Slack accepts the requests or shows the thread. See [examples/assistant.cr](../examples/assistant.cr).
+
+## Examples
+
+| Example | Shows |
+| --- | --- |
+| [`streaming.cr`](../examples/streaming.cr) | A streamed thread answer with text and plan chunks, stopped with feedback blocks |
+| [`plan.cr`](../examples/plan.cr) | A stream stopped with a Plan block that keeps the finished tasks |
+| [`assistant_thread.cr`](../examples/assistant_thread.cr) | Status, suggested prompts, and a title in an app thread |
+| [`assistant.cr`](../examples/assistant.cr) | The assistant helper greets an app thread and streams an answer |
+| [`assistant_events.cr`](../examples/assistant_events.cr) | Routed app thread and agent session events |

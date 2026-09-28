@@ -102,3 +102,11 @@ Slack::SocketMode::Acknowledgment.new(envelope.envelope_id, errors).to_json
 The payload can be `ModalErrors`, `ModalPush`, `ModalUpdate`, `ModalClear`, `BlockSuggestionResponse`, or `Slack::Commands::Response`. Send a payload only when `accepts_response_payload?` is true.
 
 The specs use synthetic frames. They do not prove live frame shapes, delivery, or timing.
+
+## Examples
+
+| Example | Shows |
+| --- | --- |
+| [`socket_mode_protocol.cr`](../examples/socket_mode_protocol.cr) | Synthetic frames and their acknowledgments, without a connection |
+| [`socket_mode_client.cr`](../examples/socket_mode_client.cr) | A client connected to a local WebSocket server |
+| [`socket_mode_app.cr`](../examples/socket_mode_app.cr) | App listeners that answer a slash command and a view submission |

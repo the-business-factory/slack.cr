@@ -1,8 +1,17 @@
 # Authentication and credentials
 
-Use `require "slack"`. Choose the path that matches the operation: supply a token for a direct Web API call, verify signed HTTP requests before parsing them, or install an app with OAuth and store the returned grants. UI construction needs no credentials.
+Give each credential to the object that uses it. The library has no global settings and reads no environment variables. Block Kit construction needs no credentials.
 
-## Direct tokens and signed requests
+| Credential | Give it to | Use |
+| --- | --- | --- |
+| Bot or user token (`xoxb-`, `xoxp-`) | `Slack::Api::Client.new(token:)` | Web API calls with the token's scopes |
+| Signing secret | `Slack::Webhooks::Verifier.new` | Verify Events API, command, and interaction requests |
+| App-level token (`xapp-`) | `Slack::SocketMode::Client.new` | Open Socket Mode connections; see [Socket Mode](socket-mode.md) |
+| App configuration token (`xoxe.xoxp-`) | `Slack::Api::Client.new(token:)` | Manage apps through their manifests; see [App manifests](#app-manifests) |
+| Client ID, client secret, redirect URI | `Slack::Auth::OAuthConfiguration` | Install the app with OAuth and refresh rotating tokens |
+| Stored installations | `Slack::Auth::InstallationStore` | Select the credential for each request; rotate and revoke grants |
+
+## Direct tokens and the client
 
 A `Slack::Api::Client` sends requests with one token. The token must have the scopes required by each Slack method that you call:
 
@@ -14,24 +23,18 @@ team = client.call(Slack::Api::TeamInfo.new)
 puts team.name
 ```
 
-Direct token callers own token expiry, revocation, and renewal. The client keeps the token as an `Auth::Secret`; `inspect` shows `[REDACTED]`. An unsuccessful API result raises `Slack::Api::Error`. A configured API base URI or transport changes dispatch, not the token's scopes.
+Direct token callers own token expiry, revocation, and renewal. The client keeps the token as an `Auth::Secret`; `inspect` shows `[REDACTED]`. An unsuccessful API result raises `Slack::Api::Error`. A configured API base URI or transport changes dispatch, not the token's scopes. See [Web API](web-api.md) for requests, errors, rate limits, and retries.
 
-For Events API, commands, and interactions, create one `Slack::Webhooks::Verifier` with the app's signing secret. The library has no global settings and reads no environment variables, so the application supplies the secret. Give the original `HTTP::Request` to `Verifier#verify`. It reads the body once, and checks the timestamp and the `v0` signature against the exact bytes. Then give the verified body to the parser for the route:
+## Signed requests and installations
+
+Verify each Events API, command, and interaction request with `Slack::Webhooks::Verifier` before you parse it. The verifier checks the timestamp and the `v0` signature against the exact body bytes. See [Verify the request](events-and-interactions.md#verify-the-request) for the parsers and errors.
 
 ```crystal
 verifier = Slack::Webhooks::Verifier.new(Slack::Auth::Secret.new(signing_secret))
-
-# Events API route: Slack::VerifiedEvent | Slack::UrlVerification | Slack::AppRateLimited
 envelope = Slack::Events.parse(verifier.verify(request).body)
-# Slash command route
-command = Slack::Commands.parse(verifier.verify(request).body)
-# Interactivity route: exactly one `payload` form field
-interaction = Slack::Interactions.parse(verifier.verify(request).body)
 ```
 
-`verify` raises `Slack::Errors::InvalidWebhookRequest` for a missing or malformed header or body, `Slack::Errors::ReplayAttack` for a stale timestamp, and `Slack::Errors::SignatureMismatch` for an incorrect signature. The default `delivery_time_limit` is five minutes in both directions. Pass `delivery_time_limit:` to change it, and `clock:` (a `Slack::Auth::Clock`) to test with a fixed time. A blank secret or a negative limit raises `ContractError` with `InvalidConfiguration`.
-
-Timestamp checks reject stale requests; they do not suppress duplicate deliveries. Keep an application event ID registry if duplicate processing matters. Return Slack's URL verification challenge from `Slack::UrlVerification#response` in your framework's HTTP response.
+Return Slack's URL verification challenge from `Slack::UrlVerification#response` in your framework's HTTP response.
 
 `Slack::Auth::RequestAuthorizer` combines signed request verification with exact installation selection and a stored credential. It uses the verifier on the original bytes before parsing or store access:
 
@@ -48,7 +51,7 @@ context.dispatch("POST", "chat.postMessage", body: request_body)
 
 The selected installation must match exact app, workspace or organization identity, and grant. A workspace key requires a team ID and may have an enterprise ID; an organization key requires an enterprise ID and no team ID. Actor and visible team remain metadata. There is no tenant scan or user-to-bot fallback. If an event names several owners, pass a trusted matching `InstallationKey` or reject it. View interactions use `view.app_installed_team_id` to identify the installed workspace. Missing, contradictory, or duplicate routing fields fail closed.
 
-`RequestContext` retains a credential reference. Its scoped transport checks the current grant immediately before every send, including an allowed retry, then adds the bearer header. Queued work should create a new context when ready to send. An old context cannot silently switch to a replaced grant. `context.auth_test` is optional identity enrichment; its result cannot change the selected owner.
+`RequestContext` keeps a credential reference. Its scoped transport checks the current grant immediately before every send, including an allowed retry, then adds the bearer header. Queued work should create a new context when ready to send. An old context cannot silently switch to a replaced grant. `context.auth_test` is optional identity enrichment; its result cannot change the selected owner.
 
 `RequestContext#client` is a `Slack::Api::Client` without a token. It sends every request through the scoped transport. The client validates and encodes the request, waits for its local pacing, and then the transport checks the current credential and adds the bearer header:
 
@@ -57,41 +60,9 @@ context = authorizer.authorize_event(request, Slack::Auth::GrantKey.new(:bot))
 context.client.call(Slack::Api::ChatPostMessage.new(channel: "C123", message: message))
 ```
 
-A replaced or removed grant stops the send with a `ContractError` before any request bytes leave the process. `RequestContext#dispatch` remains available for fenced raw dispatch.
+A replaced or removed grant stops the send with a `ContractError` before any request bytes leave the process. `RequestContext#dispatch` stays available for fenced raw dispatch. `Slack::App::InstallationAuthorizer` uses the same authorizer for app listeners; see [Authorization](app.md#authorization).
 
-For checkbox interactions, the same signed-request boundary applies. After verification, read `CheckboxesAction#selected_options` or `StateMap#checkboxes_value?`; an empty selection array means the user cleared all choices. See [checkbox handling](block-kit.md#add-checkboxes) and the offline `examples/block_kit_checkboxes.cr` workflow.
-
-For radio interactions, verify the same original signed request before reading `RadioButtonsAction#selected_option` or `StateMap#radio_buttons_value?`. Use `selected_option_presence` to distinguish an absent field from explicit null (no selection). See [radio handling](block-kit.md#add-radio-buttons) and `examples/block_kit_radio_buttons.cr`.
-
-For user selects, verify the original signed request before reading `UsersSelectAction#selected_user`, `MultiUsersSelectAction#selected_users`, or the corresponding StateMap accessors. Presence distinguishes absent and null fields from a present empty multi-selection. See [user selection handling](block-kit.md#select-an-owner-and-reviewers) and `examples/block_kit_users_select.cr`.
-
-For modal business-validation failures, return `Slack::Interactions::ModalErrors#to_json` as the HTTP 200 JSON acknowledgment after verifying the signed submission. It needs no API token. The application owns validation and the three-second acknowledgment deadline. See [modal error handling](block-kit.md#return-modal-validation-errors).
-
-For a modal update on submission, return `Slack::Interactions::ModalUpdate#to_json` as the HTTP 200 JSON acknowledgment after verifying the signed request. It needs no API token; the application owns the three-second deadline. See [modal update acknowledgments](block-kit.md#update-a-modal-in-its-submission-acknowledgment).
-
-For channel selects, verify the original signed request before reading `ChannelsSelectAction#selected_channel`, `MultiChannelsSelectAction#selected_channels`, or the corresponding StateMap accessors. See [channel selection handling](block-kit.md#select-notification-channels) and `examples/block_kit_channels_select.cr`. Modal submission response URLs remain available as raw data; selection does not prove permission to post.
-
-For the next step after a modal submission, return `Slack::Interactions::ModalPush#to_json` as HTTP 200 JSON after verifying the original signed request. No API token or trigger is needed; the application owns the three-second deadline. See [submission push acknowledgments](block-kit.md#push-a-view-in-a-submission-acknowledgment).
-
-For conversation selects, verify the original signed request before reading `ConversationsSelectAction#selected_conversation`, `MultiConversationsSelectAction#selected_conversations`, or their StateMap accessors. See [conversation selection handling](block-kit.md#select-conversations) and `examples/block_kit_conversations_select.cr`. Filters control the displayed list; a selected ID does not prove access or permission to post.
-
-For date/time pickers, verify the original signed request before reading `DatePickerAction`, `TimePickerAction`, or the corresponding StateMap accessors. The received date, time, and optional timezone remain strings. See [picker handling](block-kit.md#choose-a-date-and-time) and `examples/block_kit_date_time_pickers.cr`.
-
-For datetime pickers, verify the original signed request before reading `DatetimePickerAction#selected_date_time` or `StateMap#datetime_picker_value?`. The received value is Unix seconds as `Int64?`. See [instant handling](block-kit.md#choose-an-instant) and `examples/block_kit_datetime_picker.cr`.
-
-For external selects, verify the Options Load URL request with the verifier before `Slack::Interactions.parse` returns the `BlockSuggestion`. Then return `Slack::Interactions::BlockSuggestionResponse#to_json` as HTTP 200 JSON within three seconds. A suggestion or selection does not prove that the user may access the option; check access in your application. See [external option handling](block-kit.md#load-options-from-your-app) and `examples/block_kit_external_select.cr`.
-
-For received rich text, verify the signed event or interaction request before reading `Slack::Interactions::RichText::Block`. Mentions in a received tree are text content; they do not prove membership or permission. See [rich text](block-kit.md#show-rich-text) and `examples/block_kit_rich_text.cr`.
-
-For number inputs, verify the original signed request before reading `NumberInputAction#value` or `StateMap#number_input_value?`. The received number remains a string; parse and check it in the application. See [number input handling](block-kit.md#enter-a-number) and `examples/block_kit_number_input.cr`.
-
-For file inputs, verify the original signed submission before reading `StateMap#file_input_value?`. A received file ID or `url_private` does not prove that the app can read the file; downloads need a token with `files:read`. See [file handling](block-kit.md#collect-uploaded-files) and `examples/block_kit_file_input.cr`.
-
-For URL inputs, verify the original signed request before reading `UrlInputAction#value` or `StateMap#url_input_value?`. A received URL is user input. Check its scheme and host in the application before you store, show, or fetch it. See [URL input handling](block-kit.md#enter-a-url) and `examples/block_kit_url_input.cr`.
-
-For email inputs, verify the original signed request before reading `EmailInputAction#value` or `StateMap#email_input_value?`. The library does not check the received address; check it in the application. See [email input handling](block-kit.md#enter-an-email-address) and `examples/block_kit_email_input.cr`.
-
-For rich text inputs, verify the original signed request before reading `RichTextInputAction#rich_text_value` or `StateMap#rich_text_input_value?`. A malformed tree raises `TypeMismatch`. See [rich text input handling](block-kit.md#enter-formatted-text) and `examples/block_kit_rich_text_input.cr`.
+Values in a verified interaction, such as a selected channel or a file ID, are user input. They do not prove access or permission. See [Read actions and state](events-and-interactions.md#read-actions-and-state).
 
 ## OAuth app installation
 
@@ -254,3 +225,7 @@ client = Slack::Api::Client.new(
 `TransportOptions` also accepts `proxy_uri` and `ca_file`. Proxy use is explicit; environment proxy settings are not inherited. Only HTTP proxy URIs are supported, with CONNECT for HTTPS destinations. Destination and proxy URI validation happens before connection; remote destinations require HTTPS, while local loopback HTTP is allowed for tests. The concrete transport sends once, follows no redirects, closes its connection on success or failure, and distinguishes `TransportFailure` (no application request bytes left) from `UnknownRemoteOutcome` (the request may have been sent). Do not blindly retry an uncertain write. Timeouts and TLS/CA failures use redacted errors. Transport and parser errors do not include token or remote body text.
 
 `Slack::AuthResponse.parse` and `Slack::RefreshResponse.parse` accept a `TransportResponse` or a body with actual status and headers. They read an IO once, require successful HTTP and `ok: true`, reject malformed known fields, and expose safe `ResponseError` codes and retry metadata. `from_json` assumes HTTP 200; use `parse` when the status is known. Parser success does not verify a session or persist credentials.
+
+## Limits of the offline tests
+
+The specs use synthetic credentials, in-memory stores, and local loopback HTTP. They do not prove that Slack accepts an OAuth exchange or a refresh, the scopes of a token, or the timing of `tokens_revoked` and `app_uninstalled` events. Durable adapters need their own tests; see the [storage test instructions](../spec/support/storage/README.md).
