@@ -8,6 +8,8 @@ require "./rate_limits"
 require "./request"
 require "./response"
 require "./generic_request"
+require "./pagination/paginated"
+require "./pagination/page"
 
 module Slack::Api
   # Sends Web API requests with one token, one API base URI, and one transport.
@@ -37,15 +39,29 @@ module Slack::Api
     # Validates, encodes, and sends *request*, then returns its response model.
     # Raises `UI::ValidationError` before dispatch and `Api::Error` for Slack failures.
     def call(request : Request(M)) : M forall M
-      request.validate!
-      body = request.body
-      uri = @configuration.endpoint(request.method_path)
-      @rate_limits.wait(request.method_path, request.tier)
-      transport_response = @transport.execute(
-        Auth::TransportRequest.new("POST", uri, headers(request.content_type), body))
-      response = Response(M).parse(transport_response)
-      log_warnings(request.method_path, response.warnings)
-      response.model
+      execute(request).model
+    end
+
+    # Calls *request* and yields each `Page` in order. After each page, it sends
+    # the request again with the page's `next_cursor`, until Slack returns an
+    # empty, null, or missing cursor. Break from the block to stop early.
+    #
+    # ```
+    # client.each_page(Slack::Api::ConversationsMembers.new("C123", limit: 200)) do |page|
+    #   page.model.members.each { |user_id| puts user_id }
+    # end
+    # ```
+    #
+    # Each page is one `#call`: local pacing applies and errors, including
+    # `RateLimited`, raise from the loop. The client does not wait and retry.
+    def each_page(request : Paginated, &) : Nil
+      loop do
+        response = execute(request)
+        next_cursor = response.next_cursor
+        yield Page.new(response.model, next_cursor)
+        break unless next_cursor
+        request = request.with_cursor(next_cursor)
+      end
     end
 
     # Calls any Web API method with form fields and returns the raw JSON response.
@@ -67,6 +83,18 @@ module Slack::Api
 
     def to_s(io : IO) : Nil
       inspect(io)
+    end
+
+    private def execute(request : Request(M)) : Response(M) forall M
+      request.validate!
+      body = request.body
+      uri = @configuration.endpoint(request.method_path)
+      @rate_limits.wait(request.method_path, request.tier)
+      transport_response = @transport.execute(
+        Auth::TransportRequest.new("POST", uri, headers(request.content_type), body))
+      response = Response(M).parse(transport_response)
+      log_warnings(request.method_path, response.warnings)
+      response
     end
 
     private def headers(content_type : String) : HTTP::Headers

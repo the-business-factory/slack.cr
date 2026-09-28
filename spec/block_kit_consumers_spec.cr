@@ -47,6 +47,7 @@ require "../examples/support/received_blocks_example"
 require "../examples/support/web_api_example"
 require "../examples/support/workflow_step_example"
 require "../examples/support/file_upload_example"
+require "../examples/support/thread_history_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -104,6 +105,20 @@ describe "documented Block Kit workflows" do
       JSON.parse(%({"function_execution_id":"Fx-STEP-1","outputs":{"reviewer_id":"U-REVIEWER"}})),
       JSON.parse(%({"function_execution_id":"Fx-STEP-2","error":"Choose a reviewer."})),
     ]
+  end
+
+  it "reads channel history and a thread across cursor pages" do
+    output = IO::Memory.new
+    OfflineThreadHistoryExample.run(output)
+    output.to_s.should eq(<<-TEXT)
+      1710000300.000100 Deploy finished
+      1710000200.000100 Deploy started
+      1710000100.000100 Morning
+        U2: Deploy started
+        U1: Watching the logs
+        U3: All green
+
+      TEXT
   end
 
   it "posts a button, opens a modal, and reads its signed submission" do

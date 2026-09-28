@@ -1,6 +1,5 @@
+# One page of `conversations.history`. `Client#each_page` reads the next cursor.
 struct Slack::Models::ConversationsHistory < Slack::Model
-  json_record ResponseMetadata, cursor : String? = nil
-
   json_record MessageHistory,
     blocks : Array(Hash(String, JSON::Any))? = nil,
     files : Array(Hash(String, JSON::Any))? = nil,
@@ -18,6 +17,5 @@ struct Slack::Models::ConversationsHistory < Slack::Model
   properties_with_initializer \
     messages : Array(MessageHistory),
     has_more : Bool,
-    pin_count : Int32,
-    response_metadata : ResponseMetadata? = nil
+    pin_count : Int32? = nil
 end

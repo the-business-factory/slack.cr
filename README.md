@@ -51,6 +51,23 @@ Global `Slack.configure` settings for webhook signing and API transport do not c
 
 Sign in with Slack is unavailable as a verified login. `Slack::SignInWithSlack` does not verify OIDC identity and raises `Slack::SignInResponse::VerificationUnavailable` on that path. Keep login separate from app installation.
 
+### Read all pages
+
+List methods return one page at a time. `each_page` sends a paginated request, yields each `Slack::Api::Page`, and sends the request again with the page's `next_cursor`. It stops when Slack returns an empty, null, or missing cursor. Break from the block to stop early:
+
+```crystal
+request = Slack::Api::ConversationsList.new(
+  types: [Slack::Api::ConversationType::PublicChannel, Slack::Api::ConversationType::PrivateChannel],
+  exclude_archived: true, limit: 200)
+client.each_page(request) do |page|
+  page.model.channels.each { |channel| puts channel.id }
+end
+```
+
+Paginated requests are `ConversationsList`, `ConversationsHistory`, `ConversationsReplies`, and `ConversationsMembers`. Each accepts `cursor:` and `limit:`. The client rejects a `limit` outside 1 to 1000 before it sends the request; Slack checks lower method maximums. Slack recommends 100 to 200 items per page. `ConversationsInfo` reads one conversation, with optional `include_locale:` and `include_num_members:`. Conversations read as `PublicChannel`, `PrivateChannel` (also group direct messages), or `IMChat`.
+
+Each page is one call: local pacing applies, and an error such as `RateLimited` raises from the loop. The client does not wait and retry. Since 2025-05-29, Slack limits `conversations.history` and `conversations.replies` to one request per minute and 15 items per page for new apps distributed outside the Slack Marketplace. The client does not enforce this limit. See [pagination](https://docs.slack.dev/apis/web-api/pagination) and [rate limits](https://docs.slack.dev/apis/web-api/rate-limits).
+
 ## Block Kit
 
 Block Kit values validate supported fields and surface placement when built. Constructing them needs no credentials:
@@ -189,6 +206,7 @@ crystal run examples/block_kit_workflow_button.cr
 crystal run examples/block_kit_alert.cr
 crystal run examples/web_api.cr
 crystal run examples/file_upload.cr
+crystal run examples/thread_history.cr
 crystal run examples/event_delivery.cr
 crystal run examples/socket_mode_protocol.cr
 crystal run examples/interaction_context.cr
@@ -197,7 +215,7 @@ crystal run examples/received_blocks.cr
 crystal run examples/workflow_step.cr
 ```
 
-The examples show Web API calls and error codes, a file upload, a remote file share, message construction, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, message workflow buttons, typed blocks of a received message, Socket Mode frames with their acknowledgments, a slash command response with a `response_url` reply, and a custom workflow step that completes or fails its execution. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
+The examples show Web API calls and error codes, channel history and thread replies across cursor pages, a file upload, a remote file share, message construction, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, message workflow buttons, typed blocks of a received message, Socket Mode frames with their acknowledgments, a slash command response with a `response_url` reply, and a custom workflow step that completes or fails its execution. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
 
 ## Contributing
 

@@ -6,8 +6,10 @@ module Slack::Api
     include FormBody
 
     getter channel : String
+    getter? include_locale : Bool
+    getter? include_num_members : Bool
 
-    def initialize(@channel : String)
+    def initialize(@channel : String, *, @include_locale : Bool = false, @include_num_members : Bool = false)
     end
 
     def method_path : String
@@ -19,7 +21,10 @@ module Slack::Api
     end
 
     def form : URI::Params
-      URI::Params{"channel" => @channel}
+      form = URI::Params{"channel" => @channel}
+      form.add "include_locale", "true" if @include_locale
+      form.add "include_num_members", "true" if @include_num_members
+      form
     end
   end
 end
