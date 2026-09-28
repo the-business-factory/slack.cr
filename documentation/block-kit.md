@@ -15,8 +15,8 @@ Use `require "slack"` and `Slack::UI::Checked` to construct validated, immutable
 
 | Parent | Supported children |
 | --- | --- |
-| Section accessory | Button, Image element, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker |
-| Actions elements | Button, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, DatetimePicker (not Home) |
+| Section accessory | Button, Image element, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, WorkflowButton (Message only) |
+| Actions elements | Button, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, DatetimePicker (not Home), WorkflowButton (Message only) |
 | Context elements | PlainText, Mrkdwn, Image element |
 | RichText elements | RichText Section, List, Preformatted, Quote |
 | Table cells | Table::RawText, Table::RawNumber, Blocks::RichText |
@@ -536,6 +536,32 @@ end
 
 Rich text input interactions now decode as `RichTextInputAction` and `RichTextInputValue` instead of unknown types. Extend exhaustive matches on `Interactions::Action`, `StateValue`, `HomeBlock`, and `ModalBlock`. The [offline standup workflow](../examples/block_kit_rich_text_input.cr) publishes a Home composer with a draft, reads text and mentions from a signed dispatched action, and skips a malformed tree.
 
+## Run a workflow from a message
+
+Use `BlockElements::WorkflowButton` to start a workflow through its link trigger. Put it in a Section accessory or an Actions block on a Message. Slack documents it for messages only, so Home, DisplayModal, and FormModal validation raise `home.workflow_button.unsupported_surface` or `modal.workflow_button.unsupported_surface`.
+
+```crystal
+trigger = UI::CompositionObjects::WorkflowTrigger.new(
+  url: "https://slack.com/shortcuts/Ft0123ABC456/xyz",
+  customizable_input_parameters: {
+    UI::CompositionObjects::WorkflowInputParameter.new(name: "incident_id", value: "INC-7"),
+  })
+button = UI::BlockElements::WorkflowButton.new(
+  text: UI.plain("Start postmortem"), action_id: "postmortem.start",
+  workflow: UI::CompositionObjects::Workflow.new(trigger: trigger),
+  style: UI::BlockElements::ButtonStyle::Primary)
+section = UI::Blocks::Section.new(text: UI.mrkdwn("*INC-7* is resolved."), accessory: button)
+# {"type":"workflow_button","text":{"type":"plain_text","text":"Start postmortem"},"action_id":"postmortem.start",
+#  "workflow":{"trigger":{"url":"https://slack.com/shortcuts/Ft0123ABC456/xyz",
+#   "customizable_input_parameters":[{"name":"incident_id","value":"INC-7"}]}},"style":"primary"}
+```
+
+`text` (plain text, 75 characters), `workflow`, and `action_id` (255 characters) are required. `style` and `accessibility_label` (75 characters) are optional. The button has no `confirm`, `url`, or `value`. The trigger needs a `url`; an empty URL is rejected by library policy. Omit `customizable_input_parameters` to send no list. Slack checks that the URL belongs to a valid link trigger and that each parameter name and value match a customizable workflow input. End users can see parameter values, so do not send secrets. See Slack's [workflow button](https://docs.slack.dev/reference/block-kit/block-elements/workflow-button-element/) and [trigger object](https://docs.slack.dev/reference/block-kit/composition-objects/trigger-object/) references.
+
+Slack does not document a `block_actions` payload for a workflow button click. If Slack sends one, it decodes as `UnknownAction` with raw JSON. The [offline incident workflow](../examples/block_kit_workflow_button.cr) posts workflow buttons with trigger inputs and shows the Home rejection. It does not prove that the trigger is valid or that the workflow runs.
+
+Migration: `Blocks::Section::Accessory` and `Blocks::Actions::Element` now include `WorkflowButton`. Extend exhaustive matches on these unions.
+
 ## Build modals and Home
 
 Use `form_modal` for input and `display_modal` for display content. Both have a plain-text title; a form has a required plain-text submit label. A modal can have at most 100 blocks. For a form:
@@ -781,6 +807,7 @@ crystal run examples/block_kit_email_input.cr
 crystal run examples/block_kit_table.cr
 crystal run examples/block_kit_rich_text_input.cr
 crystal run examples/block_kit_markdown.cr
+crystal run examples/block_kit_workflow_button.cr
 ```
 
-The message example builds and prints a request. The modal example posts a button, verifies a signed action, opens a form, and reads a signed submission. The Home example publishes through a stub and reads simulated state. The static choice example posts a single choice, reads a signed selection, opens a grouped multi-choice form, and reads its submission. The overflow example posts action and URL choices and acknowledges a signed URL selection. The checkbox example posts initial choices, reads a signed checkbox action, and reads a cleared selection from a signed submission. The radio example posts an initial choice, reads a signed selection, opens an optional override form, and reads an unselected submission. The message-update example replaces a posted approval button with the completed status and new fallback text. The user-select example assigns an owner and submits multiple reviewers. The video example posts a message with a video block and shows a local rejection of an HTTP video link. The external-select example answers a signed options-load request, then reads a signed selection and submission. The remote-file example prints the unfurls value for an application's own `chat.unfurl` request. The rich text example posts formatted release notes and reads mentions and list items from a signed message event. The file input example opens a receipt form and reads uploaded file IDs. The number and email input examples open modal-only forms from a signed button, read a dispatched value, and reject then accept a signed submission. The table example posts a revenue table built from application records and shows a local rejection of a row with too many cells. The rich text input example publishes a Home standup composer and reads a signed dispatched action. The markdown example posts an LLM answer as markdown and shows a local rejection of markdown text that is too long for one message. Real handlers must acknowledge interactions within Slack's response window.
+The message example builds and prints a request. The modal example posts a button, verifies a signed action, opens a form, and reads a signed submission. The Home example publishes through a stub and reads simulated state. The static choice example posts a single choice, reads a signed selection, opens a grouped multi-choice form, and reads its submission. The overflow example posts action and URL choices and acknowledges a signed URL selection. The checkbox example posts initial choices, reads a signed checkbox action, and reads a cleared selection from a signed submission. The radio example posts an initial choice, reads a signed selection, opens an optional override form, and reads an unselected submission. The message-update example replaces a posted approval button with the completed status and new fallback text. The user-select example assigns an owner and submits multiple reviewers. The video example posts a message with a video block and shows a local rejection of an HTTP video link. The external-select example answers a signed options-load request, then reads a signed selection and submission. The remote-file example prints the unfurls value for an application's own `chat.unfurl` request. The rich text example posts formatted release notes and reads mentions and list items from a signed message event. The file input example opens a receipt form and reads uploaded file IDs. The number and email input examples open modal-only forms from a signed button, read a dispatched value, and reject then accept a signed submission. The table example posts a revenue table built from application records and shows a local rejection of a row with too many cells. The rich text input example publishes a Home standup composer and reads a signed dispatched action. The markdown example posts an LLM answer as markdown and shows a local rejection of markdown text that is too long for one message. The workflow button example posts incident workflow buttons with trigger inputs and shows a local rejection on Home. Real handlers must acknowledge interactions within Slack's response window.

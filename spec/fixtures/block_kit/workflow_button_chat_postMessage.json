@@ -1,0 +1,23 @@
+{
+  "channel": "C-SYNTHETIC",
+  "text": "Incident INC-7 needs a postmortem",
+  "blocks": [
+    {"type": "section", "block_id": "incident",
+     "text": {"type": "mrkdwn", "text": "*INC-7* is resolved."},
+     "accessory": {"type": "workflow_button", "action_id": "postmortem.start",
+       "text": {"type": "plain_text", "text": "Start postmortem"},
+       "style": "primary",
+       "workflow": {"trigger": {"url": "https://slack.com/shortcuts/Ft0SYNTHETIC/postmortem",
+         "customizable_input_parameters": [
+           {"name": "incident_id", "value": "INC-7"},
+           {"name": "severity", "value": "SEV2"}
+         ]}}}},
+    {"type": "actions", "block_id": "incident.more", "elements": [
+      {"type": "button", "action_id": "incident.close", "text": {"type": "plain_text", "text": "Close"}, "value": "INC-7"},
+      {"type": "workflow_button", "action_id": "status.update",
+       "text": {"type": "plain_text", "text": "Post status"},
+       "accessibility_label": "Post a status update for INC-7",
+       "workflow": {"trigger": {"url": "https://slack.com/shortcuts/Ft0SYNTHETIC/status"}}}
+    ]}
+  ]
+}

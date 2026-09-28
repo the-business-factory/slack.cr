@@ -1,6 +1,6 @@
 schema_version: 2
-checked_on: "2026-09-27"
-scope: Checked Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, channel selects, date/time pickers, the datetime picker, video blocks, external selects with block_suggestion option responses, remote file blocks, rich text display blocks, table blocks, markdown blocks, number inputs, file inputs, URL inputs, email inputs, and rich text inputs, including Input in Messages, FormModal and Home, modal-only Input children in FormModal, and view-only Input children in FormModal and Home.
+checked_on: "2026-09-28"
+scope: Checked Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, channel selects, date/time pickers, the datetime picker, video blocks, external selects with block_suggestion option responses, remote file blocks, rich text display blocks, table blocks, markdown blocks, number inputs, file inputs, URL inputs, email inputs, rich text inputs, and message workflow buttons, including Input in Messages, FormModal and Home, modal-only Input children in FormModal, and view-only Input children in FormModal and Home.
 statuses:
   - unsupported
   - partial
@@ -54,7 +54,7 @@ entries:
     kind: composition object
     documentation_url: https://docs.slack.dev/reference/block-kit/composition-objects/text-object/
     fields_supported: [type, text, emoji, verbatim]
-    parents: [button, confirmation, section, input, plain_text_input, modal, header, context, image, video, option, overflow option, checkbox option, radio option, option_group, static_select, multi_static_select, users_select, multi_users_select, channels_select, multi_channels_select, conversations_select, multi_conversations_select, external_select, multi_external_select, datepicker, timepicker, number_input, url_text_input, email_text_input, rich_text_input]
+    parents: [button, confirmation, section, input, plain_text_input, modal, header, context, image, video, option, overflow option, checkbox option, radio option, option_group, static_select, multi_static_select, users_select, multi_users_select, channels_select, multi_channels_select, conversations_select, multi_conversations_select, external_select, multi_external_select, datepicker, timepicker, number_input, url_text_input, email_text_input, rich_text_input, workflow_button]
     surfaces: [message, modal, home]
     restrictions: Immutable checked outbound values have fixed discriminators and format-specific options; legacy field-specific values remain mutable for compatibility.
     implementation_status: supported
@@ -721,6 +721,28 @@ entries:
     inbound_status: unsupported
     evidence_paths: [src/slack/ui/checked/blocks/markdown.cr, src/slack/ui/checked/surfaces/message.cr, spec/ui/checked/markdown_block_spec.cr, spec/fixtures/block_kit/markdown_message.json, examples/support/markdown_example.cr, spec/block_kit_consumers_spec.cr]
 
+  - wire_type: workflow_button
+    kind: block element
+    documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/workflow-button-element/
+    fields_supported: [type, text, workflow, action_id, style, accessibility_label]
+    parents: [section, actions]
+    surfaces: [message]
+    restrictions: Checked WorkflowButton requires a plain-text label (75), a Workflow, and action_id (255). Optional ButtonStyle and accessibility_label (75). No confirm, url, or value. It compiles in Section accessories and Actions blocks, and Home and modal validation raise the workflow_button.unsupported_surface issue because Slack lists Messages only. No Input placement. Slack documents no block_actions payload for a click, so a received workflow_button action stays UnknownAction with raw JSON. Offline tests do not prove that the trigger URL is valid or that the workflow runs.
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/checked/block_elements/workflow_button.cr, src/slack/ui/checked/workflow_button_placement.cr, spec/ui/checked/workflow_button_spec.cr, spec/fixtures/block_kit/workflow_button.json, examples/support/workflow_button_example.cr, spec/block_kit_consumers_spec.cr]
+
+  - wire_type: workflow, trigger, input parameter
+    kind: composition object
+    documentation_url: https://docs.slack.dev/reference/block-kit/composition-objects/workflow-object/
+    fields_supported: [trigger, url, customizable_input_parameters, name, value]
+    parents: [workflow_button]
+    surfaces: [message]
+    restrictions: "Workflow requires a WorkflowTrigger. The trigger requires url and has optional customizable_input_parameters; omission and an empty supplied list stay distinct. Parameters are copied once from the yielded values. WorkflowInputParameter has string name and value. A nonempty url is library policy. Slack checks remotely that the url is a valid link trigger and that each name and value match a customizable workflow input. End users can see parameter values."
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/checked/composition_objects/workflow.cr, src/slack/ui/checked/composition_objects/workflow_trigger.cr, src/slack/ui/checked/composition_objects/workflow_input_parameter.cr, spec/ui/checked/workflow_button_spec.cr]
+
 # Classification is independent of support status. Missing features are not invalid Slack payloads.
 review_policy:
   cadence: Before each release and at least every 90 days.
@@ -1341,3 +1363,17 @@ rules:
     source_section: "Fields: text and block_id"
     reviewed_on: "2026-09-28"
     evidence_paths: [spec/ui/checked/markdown_block_spec.cr]
+  - id: workflow_button_fields
+    classification: slack_requirement
+    requirement: "Required plain-text text (75), workflow and action_id (255); optional primary or danger style and accessibility_label (75). Section and Actions blocks in Messages only. The trigger object requires url and has optional customizable_input_parameters of name and value."
+    source_url: https://docs.slack.dev/reference/block-kit/block-elements/workflow-button-element/
+    source_section: "Fields, Markdown placement metadata, and the workflow and trigger object references"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/ui/checked/workflow_button_spec.cr, spec/block_kit_consumers_spec.cr]
+  - id: workflow_button_policy
+    classification: library_policy
+    requirement: "Home and modal validation reject workflow_button in Section and Actions; the trigger url is not empty; parameter values are strings; received clicks stay UnknownAction because Slack documents no payload shape."
+    source_url: https://docs.slack.dev/reference/block-kit/composition-objects/trigger-object/
+    source_section: "Fields: url, customizable_input_parameters"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/ui/checked/workflow_button_spec.cr]

@@ -34,6 +34,7 @@ module Slack::UI::Checked::ModalContent
     end
     BlockValidation.validate(@blocks, issues, "modal.block_id.duplicate", "Block IDs must be unique within a view.")
     issues.concat(Slack::UI::Checked::ViewFocus.validate(@blocks, "modal"))
+    issues.concat(Slack::UI::Checked::WorkflowButtonPlacement.validate(@blocks, "modal"))
     issues
   end
 
