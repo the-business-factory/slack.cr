@@ -99,6 +99,7 @@ crystal run examples/block_kit_external_select.cr
 crystal run examples/block_kit_rich_text.cr
 crystal run examples/block_kit_number_input.cr
 crystal run examples/block_kit_file_input.cr
+crystal run examples/block_kit_url_input.cr
 ```
 
 The examples show checked message construction, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, and uploaded files. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).

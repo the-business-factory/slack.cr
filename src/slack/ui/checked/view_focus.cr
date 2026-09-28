@@ -35,7 +35,7 @@ module Slack::UI::Checked::ViewFocus
 
   private def self.focused?(element : (Blocks::Section::Accessory | Blocks::Actions::Element | Blocks::ModalInputElement)?) : Bool
     case element
-    when BlockElements::NumberInput, BlockElements::DatePicker, BlockElements::TimePicker, BlockElements::DatetimePicker, BlockElements::StaticSelect, BlockElements::MultiStaticSelect, BlockElements::ExternalSelect, BlockElements::MultiExternalSelect, BlockElements::Checkboxes, BlockElements::RadioButtons, BlockElements::UsersSelect, BlockElements::MultiUsersSelect, BlockElements::ConversationsSelect, BlockElements::MultiConversationsSelect, BlockElements::ChannelsSelect, BlockElements::MultiChannelsSelect
+    when BlockElements::NumberInput, BlockElements::UrlInput, BlockElements::DatePicker, BlockElements::TimePicker, BlockElements::DatetimePicker, BlockElements::StaticSelect, BlockElements::MultiStaticSelect, BlockElements::ExternalSelect, BlockElements::MultiExternalSelect, BlockElements::Checkboxes, BlockElements::RadioButtons, BlockElements::UsersSelect, BlockElements::MultiUsersSelect, BlockElements::ConversationsSelect, BlockElements::MultiConversationsSelect, BlockElements::ChannelsSelect, BlockElements::MultiChannelsSelect
       element.focus_on_load == true
     else
       false

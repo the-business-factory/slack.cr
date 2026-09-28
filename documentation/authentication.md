@@ -64,6 +64,8 @@ For number inputs, verify the original signed request before reading `NumberInpu
 
 For file inputs, verify the original signed submission before reading `StateMap#file_input_value?`. A received file ID or `url_private` does not prove that the app can read the file; downloads need a token with `files:read`. See [file handling](block-kit.md#collect-uploaded-files) and `examples/block_kit_file_input.cr`.
 
+For URL inputs, verify the original signed request before reading `UrlInputAction#value` or `StateMap#url_input_value?`. A received URL is user input. Check its scheme and host in the application before you store, show, or fetch it. See [URL input handling](block-kit.md#enter-a-url) and `examples/block_kit_url_input.cr`.
+
 ## OAuth app installation
 
 `Slack::AuthHandler` installs an app; it does not authenticate a human login. Give it explicit configuration, state storage, and transport. Global `Slack.configure` client credentials or scopes do not configure this handler.
