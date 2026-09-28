@@ -129,6 +129,28 @@ HTTP::Server.new([Slack::App::HttpReceiver.new(app, verifier), HealthCheckHandle
 
 The receiver does not remove duplicate event deliveries. Use `ctx.envelope.event_id` and `ctx.delivery` for that.
 
+## Socket Mode receiver
+
+`SocketModeReceiver` gives the same app its payloads over Socket Mode. The `Slack::SocketMode::Client` owns the connection; see [Socket Mode](socket-mode.md).
+
+```crystal
+socket = Slack::SocketMode::Client.new(Slack::Auth::Secret.new(ENV["SLACK_APP_TOKEN"]))
+receiver = Slack::App::SocketModeReceiver.new(app, socket)
+receiver.run # Returns after receiver.close or when Slack turns Socket Mode off.
+```
+
+Slack authenticates the WebSocket with the app-level token. The receiver does not verify signatures, and it needs no signing secret.
+
+For each envelope, the receiver:
+
+1. Decodes the payload: `events_api` as an Events API request, `interactive` as an interaction, `slash_commands` as a slash command.
+2. Calls `App#dispatch`. An event listener gets `ctx.delivery` from the envelope `retry_attempt` and `retry_reason`. A first delivery has neither.
+3. Acknowledges with the listener's `ack` body, for example `{"envelope_id":"...","payload":{"response_action":"errors",...}}`. An envelope that does not accept a response payload gets a plain acknowledgment, and the receiver logs a warning.
+
+Envelopes of an unknown type and envelopes without an event get a plain acknowledgment. The receiver does not acknowledge an envelope when its payload does not decode, the authorizer raises, or a listener raises before `ack`. Slack can then send it again. The HTTP receiver answers these cases with 400, 401, or 500.
+
+The receiver logs with source `slack.app.socket_mode_receiver`. The logs contain envelope IDs, types, and exception classes, but no payloads or tokens.
+
 ## Logging
 
 The app logs with the standard `Log` module: source `slack.app` for routing, authorization, and listeners, and `slack.app.receiver` for rejected requests. Logs contain payload kinds, IDs such as the command name, and exception classes. They never contain bodies, headers, or tokens.

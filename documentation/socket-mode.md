@@ -43,6 +43,16 @@ The client keeps one connection. Slack allows up to 10 for an app and can send e
 
 The offline specs use a local WebSocket server. They do not prove live Slack delivery, reconnect timing, or acceptance of acknowledgments.
 
+## App receiver
+
+To route envelopes to `Slack::App` listeners, give the client to `Slack::App::SocketModeReceiver`. The receiver acknowledges each envelope with the listener's `ack` body. See [App listeners](app.md#socket-mode-receiver).
+
+```crystal
+Slack::App::SocketModeReceiver.new(app, Slack::SocketMode::Client.new(ENV["SLACK_APP_TOKEN"])).run
+```
+
+Socket Mode needs no request signature verification. Slack authenticates the WebSocket connection with the app-level token.
+
 ## Frames
 
 `Slack::SocketMode::Frame.parse` decodes one text frame into one of four types:

@@ -63,6 +63,7 @@ require "../examples/support/assistant_events_example"
 require "../examples/support/incident_triage_example"
 require "../examples/support/app_manifest_example"
 require "../examples/support/custom_step_example"
+require "../examples/support/socket_mode_app_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -802,6 +803,24 @@ describe "documented Block Kit workflows" do
     result.calls.should eq [
       OfflineCustomStepExample::Call.new("chat.postMessage", "Bearer xwfp-synthetic-step", posted),
       OfflineCustomStepExample::Call.new("functions.completeSuccess", "Bearer xwfp-synthetic-click", completed),
+    ]
+  end
+
+  it "runs app listeners over Socket Mode and acknowledges with their responses" do
+    output = IO::Memory.new
+    finished = Channel(Array(String)).new(1)
+    spawn { finished.send(OfflineSocketModeAppExample.run(output)) }
+    acks = select
+    when received = finished.receive
+      received
+    when timeout(5.seconds)
+      fail "the Socket Mode app example did not stop"
+    end
+    output.to_s.lines.should eq ["Acknowledged 2 envelopes; Socket Mode is off"]
+    # Authored from the Socket Mode, slash command response, and response_action references.
+    acks.map { |ack| JSON.parse(ack) }.should eq [
+      JSON.parse(%({"envelope_id":"E-DEPLOY","payload":{"response_type":"ephemeral","text":"Deploying api."}})),
+      JSON.parse(%({"envelope_id":"E-SUBMIT","payload":{"response_action":"errors","errors":{"reason":"Enter at least 5 characters."}}})),
     ]
   end
 end
