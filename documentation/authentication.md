@@ -36,6 +36,8 @@ The selected installation must match exact app, workspace or organization identi
 
 Base endpoint wrappers that expose a `.tokenless` constructor can use a scoped transport. Supply both `transport:` and `limiter:`; the endpoint waits for the limiter, then the transport checks the current credential and adds the bearer header. `Slack::Api::ConversationsInfo.tokenless` is one such wrapper. Checked `CheckedChatPostMessage`, `CheckedViewsOpen`, and `CheckedViewsPublish` constructors still require a `String` token; they do not expose this tokenless path. Use `RequestContext#dispatch` for fenced raw dispatch, or supply a token under your own lifecycle policy.
 
+For checkbox interactions, the same signed-request boundary applies. After verification, read `CheckboxesAction#selected_options` or `StateMap#checkboxes_value?`; an empty selection array means the user cleared all choices. See [checkbox handling](block-kit.md#add-checkboxes) and the offline `examples/block_kit_checkboxes.cr` workflow.
+
 ## OAuth app installation
 
 `Slack::AuthHandler` installs an app; it does not authenticate a human login. Give it explicit configuration, state storage, and transport. Global `Slack.configure` client credentials or scopes do not configure this handler.
