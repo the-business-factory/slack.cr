@@ -21,6 +21,7 @@ describe "Block Kit construction diagnostics" do
     "form_submit"            => ["FormModal.new", "missing argument: submit", "submit :"],
     "display_input"          => ["DisplayModal", "Input", "FormModal with submit"],
     "select_sources"         => ["StaticSelect.new", "options :", "option_groups :"],
+    "datetime_accessory"     => ["Section.new", "accessory", "DatetimePicker"],
   }.each do |name, fragments|
     it "explains #{name}" do
       result = CompileContracts.compile(root, "spec/fixtures/compile/fail/#{name}.cr")

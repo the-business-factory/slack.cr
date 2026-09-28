@@ -1,4 +1,4 @@
-alias Slack::Interactions::Action = Slack::Interactions::ButtonAction | Slack::Interactions::StaticSelectAction | Slack::Interactions::MultiStaticSelectAction | Slack::Interactions::OverflowAction | Slack::Interactions::CheckboxesAction | Slack::Interactions::RadioButtonsAction | Slack::Interactions::UsersSelectAction | Slack::Interactions::MultiUsersSelectAction | Slack::Interactions::ConversationsSelectAction | Slack::Interactions::MultiConversationsSelectAction | Slack::Interactions::ChannelsSelectAction | Slack::Interactions::MultiChannelsSelectAction | Slack::Interactions::DatePickerAction | Slack::Interactions::TimePickerAction | Slack::Interactions::UnknownAction
+alias Slack::Interactions::Action = Slack::Interactions::ButtonAction | Slack::Interactions::StaticSelectAction | Slack::Interactions::MultiStaticSelectAction | Slack::Interactions::OverflowAction | Slack::Interactions::CheckboxesAction | Slack::Interactions::RadioButtonsAction | Slack::Interactions::UsersSelectAction | Slack::Interactions::MultiUsersSelectAction | Slack::Interactions::ConversationsSelectAction | Slack::Interactions::MultiConversationsSelectAction | Slack::Interactions::ChannelsSelectAction | Slack::Interactions::MultiChannelsSelectAction | Slack::Interactions::DatePickerAction | Slack::Interactions::TimePickerAction | Slack::Interactions::DatetimePickerAction | Slack::Interactions::UnknownAction
 
 module Slack::Interactions::ActionDecoder
   def self.decode(raw : JSON::Any?) : Array(Action)
@@ -22,6 +22,8 @@ module Slack::Interactions::ActionDecoder
       DatePickerAction.new(item, path)
     when "timepicker"
       TimePickerAction.new(item, path)
+    when "datetimepicker"
+      DatetimePickerAction.new(item, path)
     when "channels_select"
       ChannelsSelectAction.new(item, path)
     when "multi_channels_select"
