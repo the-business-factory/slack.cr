@@ -39,7 +39,8 @@ module OfflineModalExample
         text: UI.plain("Add reason"), action_id: "request.open", value: "42"
       )])
     end
-    Slack::Api::ChatPostMessage.new(transport: OfflineExample::WebMockTransport.new, token: "xoxb-synthetic-message", channel: "C-SYNTHETIC", message: message).call
+    client = Slack::Api::Client.new(token: "xoxb-synthetic-message", transport: OfflineExample::WebMockTransport.new)
+    client.call(Slack::Api::ChatPostMessage.new(channel: "C-SYNTHETIC", message: message))
 
     # Simulate Slack returning the IDs and value from the posted button.
     button = JSON.parse(message.to_json)["blocks"][0]["elements"][0]
@@ -59,7 +60,8 @@ module OfflineModalExample
           builder.input(label: UI.plain("Reason"), block_id: "request.reason", optional: true,
             element: UI::BlockElements::PlainTextInput.new(action_id: "reason", multiline: true, max_length: 3000))
         end
-        opened = Slack::Api::ViewsOpen.new(transport: OfflineExample::WebMockTransport.new, token: "xoxb-synthetic-modal", trigger_id: trigger, view: view).call
+        client = Slack::Api::Client.new(token: "xoxb-synthetic-modal", transport: OfflineExample::WebMockTransport.new)
+        opened = client.call(Slack::Api::ViewsOpen.new(trigger_id: trigger, view: view))
         submit(opened.view, output)
       else
         raise "Expected button action"

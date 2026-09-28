@@ -1,27 +1,19 @@
 require "../spec_helper"
-require "../support/auth/webmock_transport"
+require "../support/api/webmock_client"
 
 describe Slack::Api::ChatDelete do
-  describe "#call" do
-    it "should post a chat message with one block" do
-      token = ENV.fetch("SLACK_TEAM_AUTH_TOKEN")
-      ts = "1652805073.079609"
+  it "sends the channel and message timestamp as JSON" do
+    WebMock.stub(:post, "https://slack.com/api/chat.delete")
+      .with(headers: {"Authorization" => "Bearer xoxb-synthetic",
+                      "Content-Type"  => "application/json; charset=utf-8"})
+      .to_return do |request|
+        JSON.parse(request.body || fail("Expected a JSON request body"))
+          .should eq JSON.parse(%({"channel":"C03B5PUPDSQ","ts":"1652805073.079609"}))
+        HTTP::Client::Response.new(200, body: File.read("spec/fixtures/api/chat-delete-success.json"))
+      end
 
-      WebMock.stub(:post, "https://slack.com/api/chat.delete")
-        .with(headers: {"Authorization" => "Bearer #{ENV.fetch("SLACK_TEAM_AUTH_TOKEN")}"})
-        .to_return do |request|
-          payload = JSON.parse(request.body || fail("Expected a JSON request body"))
-          payload["channel"].as_s.should eq "C03B5PUPDSQ"
-          payload["ts"].as_s.should eq ts
-          HTTP::Client::Response.new(200, body: File.read("spec/fixtures/api/chat-delete-success.json"))
-        end
+    response = ApiSupport.client.call(Slack::Api::ChatDelete.new(channel: "C03B5PUPDSQ", ts: "1652805073.079609"))
 
-      response = Slack::Api::ChatDelete
-        .new(token: token, channel: "C03B5PUPDSQ", ts: ts, transport: AuthSupport::WebMockTransport.new)
-        .call
-        .should be_a(Slack::Models::Chat::Delete)
-
-      response.ts.should eq ts
-    end
+    response.ts.should eq "1652805073.079609"
   end
 end

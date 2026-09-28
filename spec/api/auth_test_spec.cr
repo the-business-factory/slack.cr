@@ -1,10 +1,16 @@
 require "../spec_helper"
+require "../support/auth/fakes"
 require "../support/request_authorizer/fakes"
 
-private def auth_test_error(reason : Symbol, &)
-  error = expect_raises(Slack::Api::AuthTestError) { yield }
-  error.reason.should eq(reason)
-  error
+private def auth_context(configuration_uri : String = "https://api.example.test/api/")
+  store = RequestAuthorizerSupport::Store.new(RequestAuthorizerSupport::Clock.new)
+  transport = RequestAuthorizerSupport::Transport.new
+  key = RequestAuthorizerSupport.workspace_key("T1", "E1")
+  record = RequestAuthorizerSupport.seed(store, key)
+  query = Slack::Auth::InstallationQuery.new(key, Slack::Auth::GrantKey.new(:user, "U_ACTOR"))
+  context = Slack::Auth::RequestContext.new(query, store.acquire(query), store, transport,
+    Slack::Auth::APIConfiguration.new(URI.parse(configuration_uri)))
+  {context, transport, store, record}
 end
 
 describe Slack::Api::AuthTest do
@@ -22,97 +28,70 @@ describe Slack::Api::AuthTest do
     }
     JSON
 
-  it "parses String and IO success bodies once with nullable organization fields" do
-    string_result = Slack::Api::AuthTest.parse(success)
-    io_result = Slack::Api::AuthTest.parse(IO::Memory.new(success))
-    string_result.should eq(io_result)
-    string_result.user_id.should eq("U_ACTOR")
-    string_result.bot_id.should eq("B1")
-    string_result.enterprise_id.should eq("E1")
-
-    org = Slack::Api::AuthTest.parse(<<-JSON)
-      {
-        "ok": true,
-        "url": "https://enterprise.slack.com/",
-        "user": "org-bot",
-        "team_id": null,
-        "team": null,
-        "user_id": "U_ORG_BOT",
-        "enterprise_id": "E_ORG",
-        "is_enterprise_install": true
-      }
+  it "reads identity fields, including null organization fields" do
+    transport = AuthSupport::RecordingTransport.new
+    transport.enqueue(Slack::Auth::TransportResponse.new(200, HTTP::Headers.new, success))
+    transport.enqueue(Slack::Auth::TransportResponse.new(200, HTTP::Headers.new, <<-JSON))
+      {"ok":true,"url":"https://enterprise.slack.com/","user":"org-bot","team_id":null,"team":null,
+       "user_id":"U_ORG_BOT","enterprise_id":"E_ORG","is_enterprise_install":true}
       JSON
-    org.team_id.should be_nil
-    org.team.should be_nil
-    org.enterprise_id.should eq("E_ORG")
+    client = Slack::Api::Client.new(token: "xoxb-synthetic", transport: transport)
+
+    workspace = client.call(Slack::Api::AuthTest.new)
+    workspace.user_id.should eq "U_ACTOR"
+    workspace.bot_id.should eq "B1"
+    workspace.enterprise_id.should eq "E1"
+    organization = client.call(Slack::Api::AuthTest.new)
+    organization.team_id.should be_nil
+    organization.enterprise_id.should eq "E_ORG"
+    organization.is_enterprise_install.should be_true
   end
 
-  it "rejects malformed success data without retaining response content" do
-    [
-      %({"ok":true}),
-      %({"ok":true,"user_id":17}),
-      %({"ok":true,"user_id":"U1","team_id":false}),
-      %({"ok":true,"user_id":"U1","is_enterprise_install":"true"}),
-      %({"ok":"true","user_id":"U1"}),
-      "{canary-response",
-    ].each do |body|
-      error = auth_test_error(:invalid_response) { Slack::Api::AuthTest.parse(body) }
-      error.message.to_s.should_not contain("canary")
-      error.inspect.should_not contain("canary")
-    end
-    closed = IO::Memory.new(success)
-    closed.close
-    auth_test_error(:invalid_response) { Slack::Api::AuthTest.parse(closed) }
-  end
-
-  it "maps allowlisted API failures without exposing arbitrary remote errors" do
-    reauthorization = auth_test_error(:reauthorization_required) do
-      Slack::Api::AuthTest.parse(%({"ok":false,"error":"token_revoked","detail":"canary-secret"}))
-    end
-    reauthorization.code.should eq(Slack::Auth::ErrorCode::ReauthorizationRequired)
-    reauthorization.message.to_s.should_not contain("canary")
-
-    auth_test_error(:missing_scope) do
-      Slack::Api::AuthTest.parse(%({"ok":false,"error":"missing_scope"}))
-    end
-    unknown = auth_test_error(:api_error) do
-      Slack::Api::AuthTest.parse(%({"ok":false,"error":"canary-untrusted-code"}))
-    end
-    unknown.message.to_s.should_not contain("canary")
-  end
-
-  it "maps rate limiting and server failures without parsing unsafe bodies" do
-    limited = auth_test_error(:rate_limited) do
-      Slack::Api::AuthTest.parse("canary-body", 429, HTTP::Headers{"Retry-After" => "7"})
-    end
-    limited.http_status.should eq(429)
-    limited.retry_after.should eq(7.seconds)
-    limited.message.to_s.should_not contain("canary")
-
-    server = auth_test_error(:server_error) { Slack::Api::AuthTest.parse("<h1>canary</h1>", 503) }
-    server.http_status.should eq(503)
-    auth_test_error(:http_error) { Slack::Api::AuthTest.parse("canary", 404) }
-  end
-
-  it "posts to the configured endpoint with a fenced bearer header and no token body" do
-    clock = RequestAuthorizerSupport::Clock.new
-    store = RequestAuthorizerSupport::Store.new(clock)
-    transport = RequestAuthorizerSupport::Transport.new
-    key = RequestAuthorizerSupport.workspace_key("T1", "E1")
-    RequestAuthorizerSupport.seed(store, key)
-    query = Slack::Auth::InstallationQuery.new(key, Slack::Auth::GrantKey.new(:user, "U_ACTOR"))
-    context = Slack::Auth::RequestContext.new(query, store.acquire(query), store, transport,
-      Slack::Auth::APIConfiguration.new(URI.parse("https://gov.example/slack/api/")))
+  it "posts an empty form to the configured endpoint with the fenced bearer header" do
+    context, transport, _store, _record = auth_context("https://gov.example/slack/api/")
     transport.enqueue(success)
 
-    result = context.auth_test
-    result.user_id.should eq("U_ACTOR")
+    context.auth_test.user_id.should eq "U_ACTOR"
+
     request = transport.requests.first
-    request.method.should eq("POST")
-    request.uri.to_s.should eq("https://gov.example/slack/api/auth.test")
-    request.headers["Authorization"].should eq("Bearer actor-token")
-    request.body.should be_nil
-    request.headers["Content-Type"].should eq("application/x-www-form-urlencoded")
+    request.method.should eq "POST"
+    request.uri.to_s.should eq "https://gov.example/slack/api/auth.test"
+    request.headers["Authorization"].should eq "Bearer actor-token"
+    request.headers["Content-Type"].should eq "application/x-www-form-urlencoded"
+    request.body.to_s.should be_empty
+  end
+
+  it "maps Slack failures to allowlisted auth errors without remote text" do
+    context, transport, _store, _record = auth_context
+    {
+      {Slack::Auth::ErrorCode::ReauthorizationRequired, %({"ok":false,"error":"token_revoked","detail":"canary"})},
+      {Slack::Auth::ErrorCode::ReauthorizationRequired, %({"ok":false,"error":"invalid_auth"})},
+      {Slack::Auth::ErrorCode::ReauthorizationRequired, %({"ok":false,"error":"account_inactive"})},
+      {Slack::Auth::ErrorCode::InvalidResponse, %({"ok":false,"error":"missing_scope"})},
+      {Slack::Auth::ErrorCode::InvalidResponse, %({"ok":false,"error":"canary-untrusted-code"})},
+      {Slack::Auth::ErrorCode::InvalidResponse, %({"ok":true})},
+      {Slack::Auth::ErrorCode::InvalidResponse, %({"ok":true,"user_id":17})},
+      {Slack::Auth::ErrorCode::InvalidResponse, "{canary-response"},
+    }.each do |code, body|
+      transport.enqueue(body)
+      error = expect_raises(Slack::Auth::ContractError) { context.auth_test }
+      error.should_not be_a(Slack::Auth::RequestAuthorizationError)
+      error.code.should eq code
+      error.http_status.should eq 200
+      error.message.to_s.should_not contain("canary")
+    end
+  end
+
+  it "maps rate limiting to an invalid response with the retry delay" do
+    context, transport, _store, _record = auth_context
+    transport.enqueue("canary-body", 429, HTTP::Headers{"Retry-After" => "7"})
+
+    error = expect_raises(Slack::Auth::ContractError) { context.auth_test }
+
+    error.code.should eq Slack::Auth::ErrorCode::InvalidResponse
+    error.http_status.should eq 429
+    error.retry_after.should eq 7.seconds
+    error.message.to_s.should_not contain("canary")
   end
 
   it "validates selected user, workspace, enterprise, and organization identity without reselection" do

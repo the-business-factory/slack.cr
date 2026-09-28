@@ -31,8 +31,8 @@ module OfflineDataTableExample
       builder.data_table(caption: "Open support tickets", header: header, rows: ticket_rows(TICKETS),
         page_size: 2, block_id: "support.open")
     end
-    result = Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic-data-table", channel: "C-SYNTHETIC",
-      message: message, transport: OfflineExample::WebMockTransport.new).call
+    client = Slack::Api::Client.new(token: "xoxb-synthetic-data-table", transport: OfflineExample::WebMockTransport.new)
+    result = client.call(Slack::Api::ChatPostMessage.new(channel: "C-SYNTHETIC", message: message))
     output.puts "Posted #{TICKETS.size} tickets to #{result.channel}/#{result.ts}"
 
     begin

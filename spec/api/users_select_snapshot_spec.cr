@@ -1,5 +1,5 @@
 require "../spec_helper"
-require "../support/auth/webmock_transport"
+require "../support/api/webmock_client"
 
 module UsersSelectSnapshotSpec
   alias UI = Slack::UI
@@ -28,8 +28,9 @@ module UsersSelectSnapshotSpec
     builder.section(UI.plain("Owner"), accessory: single, block_id: "assignment")
     builder.input(label: UI.plain("Reviewers"), element: multi, block_id: "review",
       optional: true, dispatch_action: false)
-    request = Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC",
-      message: builder.build, unfurl_links: false, transport: AuthSupport::WebMockTransport.new)
+    client = ApiSupport.client("xoxb-synthetic")
+    request = Slack::Api::ChatPostMessage.new(channel: "C-SYNTHETIC",
+      message: builder.build, unfurl_links: false)
     ids.clear
     copy = multi
     copy.initial_users.should_not(be_nil).clear
@@ -50,7 +51,7 @@ module UsersSelectSnapshotSpec
       JSON.parse(http_request.body || fail("Missing body")).should eq expected
       HTTP::Client::Response.new(200, body: %({"ok":true,"channel":"C-SYNTHETIC","ts":"1710000000.000001","message":{}}))
     end
-    request.call.channel.should eq "C-SYNTHETIC"
+    client.call(request).channel.should eq "C-SYNTHETIC"
     sent.should eq 1
   end
 end

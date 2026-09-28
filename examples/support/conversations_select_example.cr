@@ -23,8 +23,8 @@ module OfflineConversationsSelectExample
         accessory: UI::BlockElements::ConversationsSelect.new(action_id: "notification", initial_conversation: "D-NOTIFY",
           filter: UI::CompositionObjects::ConversationFilter.new(include: {"public", "private", "im"}, exclude_bot_users: true)))
     end
-    Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC",
-      message: message, transport: OfflineExample::WebMockTransport.new).call
+    client = Slack::Api::Client.new(token: "xoxb-synthetic", transport: OfflineExample::WebMockTransport.new)
+    client.call(Slack::Api::ChatPostMessage.new(channel: "C-SYNTHETIC", message: message))
 
     # Independently authored Slack payloads, not derived from outbound values.
     payload = %({"type":"block_actions","team":null,"trigger_id":"synthetic-trigger","actions":[{"type":"conversations_select","block_id":"notifications","action_id":"notification","selected_conversation":"D-NOTIFY"}]})
@@ -45,8 +45,7 @@ module OfflineConversationsSelectExample
               default_to_current_conversation: false,
               filter: UI::CompositionObjects::ConversationFilter.new(exclude_external_shared_channels: true)))
         end
-        Slack::Api::ViewsOpen.new(token: "xoxb-synthetic", trigger_id: trigger,
-          view: view, transport: OfflineExample::WebMockTransport.new).call
+        client.call(Slack::Api::ViewsOpen.new(trigger_id: trigger, view: view))
       else
         raise "Expected notification selection"
       end

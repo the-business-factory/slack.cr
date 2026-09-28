@@ -1,13 +1,13 @@
 require "../spec_helper"
-require "../support/auth/webmock_transport"
+require "../support/api/webmock_client"
 
 describe Slack::Api::ChatPostMessage do
-  it "posts one structured message snapshot through result" do
+  it "posts one structured message snapshot" do
     token = "xoxb-synthetic-post"
     message = sample_message("Result")
 
     WebMock.stub(:post, "https://slack.com/api/chat.postMessage")
-      .with(headers: {"Authorization" => "Bearer #{token}"})
+      .with(headers: {"Authorization" => "Bearer #{token}", "Content-Type" => "application/json; charset=utf-8"})
       .to_return do |request|
         payload = JSON.parse(request.body || fail("Expected a JSON request body"))
         payload["channel"].as_s.should eq "C-POST"
@@ -24,9 +24,6 @@ describe Slack::Api::ChatPostMessage do
       end
 
     request = Slack::Api::ChatPostMessage.new(
-
-      transport: AuthSupport::WebMockTransport.new,
-      token: token,
       channel: "C-POST",
       message: message,
       thread_ts: "1710000000.000001",
@@ -34,7 +31,7 @@ describe Slack::Api::ChatPostMessage do
       unfurl_links: false,
       unfurl_media: false
     )
-    request.result.status_code.should eq 200
+    ApiSupport.client(token).call(request).ts.should eq "1652892819.911709"
   end
 
   it "posts a Message Input as a structured block with explicit false flags" do
@@ -52,22 +49,18 @@ describe Slack::Api::ChatPostMessage do
         HTTP::Client::Response.new(200, body: File.read("spec/fixtures/api/chat-post-success-section.json"))
       end
     request = Slack::Api::ChatPostMessage.new(
-      transport: AuthSupport::WebMockTransport.new, token: "xoxb-synthetic-input",
       channel: "C-INPUT", message: message, unfurl_links: false)
-    request.result.status_code.should eq 200
+    ApiSupport.client("xoxb-synthetic-input").call(request)
   end
 
   it "parses a successful request through call" do
     WebMock.stub(:post, "https://slack.com/api/chat.postMessage")
       .to_return(body: File.read("spec/fixtures/api/chat-post-success-section.json"))
 
-    response = Slack::Api::ChatPostMessage.new(
-
-      transport: AuthSupport::WebMockTransport.new,
-      token: "xoxb-synthetic-call",
+    response = ApiSupport.client.call(Slack::Api::ChatPostMessage.new(
       channel: "C-CALL",
       message: sample_message("Call")
-    ).call
+    ))
 
     response.should be_a(Slack::Models::Chat::PostMessage)
     response.ok?.should be_true
@@ -80,8 +73,6 @@ describe Slack::Api::ChatPostMessage do
       )]
     )
     request = Slack::Api::ChatPostMessage.new(
-      transport: AuthSupport::WebMockTransport.new,
-      token: "xoxb-synthetic-derived",
       channel: "C-DERIVED",
       message: message
     )
@@ -96,144 +87,132 @@ describe Slack::Api::ChatPostMessage do
         )
       end
 
-    request.result.status_code.should eq 200
+    ApiSupport.client.call(request)
   end
 
-  ["result", "call"].each do |method|
-    ["1710000000.000001", "1710000000.000000", "999999999.123456", "10000000000.123456", "1710000000.1", "1710000000.123456789"].each do |timestamp|
-      it "preserves timestamp #{timestamp} and broadcasts through #{method}" do
-        requests = 0
-        WebMock.stub(:post, "https://slack.com/api/chat.postMessage").to_return do |http_request|
-          requests += 1
-          payload = JSON.parse(http_request.body || fail("Expected a JSON request body"))
-          payload["thread_ts"].as_s.should eq timestamp
-          payload["reply_broadcast"].as_bool.should be_true
-          HTTP::Client::Response.new(
-            200,
-            body: File.read("spec/fixtures/api/chat-post-success-section.json")
-          )
-        end
-        request = Slack::Api::ChatPostMessage.new(
-          transport: AuthSupport::WebMockTransport.new,
-          token: "xoxb-synthetic-thread",
-          channel: "C-THREAD",
-          message: sample_message("Thread"),
-          thread_ts: timestamp,
-          reply_broadcast: true
-        )
-
-        request.validate.should be_empty
-        method == "result" ? request.result.status_code.should(eq 200) : request.call.ok?.should(be_true)
-        requests.should eq 1
-      end
-    end
-
-    [nil, false].each do |broadcast|
-      it "omits an absent timestamp with reply_broadcast #{broadcast.inspect} through #{method}" do
-        requests = 0
-        WebMock.stub(:post, "https://slack.com/api/chat.postMessage").to_return do |http_request|
-          requests += 1
-          payload = JSON.parse(http_request.body || fail("Expected a JSON request body"))
-          payload.as_h.has_key?("thread_ts").should be_false
-          if broadcast.nil?
-            payload.as_h.has_key?("reply_broadcast").should be_false
-          else
-            payload["reply_broadcast"].as_bool.should be_false
-          end
-          HTTP::Client::Response.new(
-            200,
-            body: File.read("spec/fixtures/api/chat-post-success-section.json")
-          )
-        end
-        request = Slack::Api::ChatPostMessage.new(
-          transport: AuthSupport::WebMockTransport.new,
-          token: "xoxb-synthetic-thread",
-          channel: "C-THREAD",
-          message: sample_message("Thread"),
-          reply_broadcast: broadcast
-        )
-
-        method == "result" ? request.result.status_code.should(eq 200) : request.call.ok?.should(be_true)
-        requests.should eq 1
-      end
-    end
-
-    ["", " ", "not-a-timestamp", "1710000000", "1710000000.", ".000001",
-     "-1710000000.000001", "+1710000000.000001", "1.71e9", "1710000000..000001",
-     " 1710000000.000001", "1710000000.000001\n", "１７１０００００００.000001"].each do |timestamp|
-      it "rejects malformed timestamp #{timestamp.inspect} before HTTP through #{method}" do
-        requests = 0
-        WebMock.stub(:post, "https://slack.com/api/chat.postMessage").to_return do |_request|
-          requests += 1
-          HTTP::Client::Response.new(500)
-        end
-
-        [nil, false, true].each do |broadcast|
-          request = Slack::Api::ChatPostMessage.new(
-            transport: AuthSupport::WebMockTransport.new,
-            token: "xoxb-synthetic-thread",
-            channel: "C-THREAD",
-            message: sample_message("Thread"),
-            thread_ts: timestamp,
-            reply_broadcast: broadcast
-          )
-
-          request.validate.map { |issue| {issue.code, issue.path} }.should eq [
-            {"chat_post_message.thread_ts.invalid", "thread_ts"},
-          ]
-          error = expect_raises(Slack::UI::ValidationError) do
-            method == "result" ? request.result : request.call
-          end
-          error.issues.map { |issue| {issue.code, issue.path} }.should eq [
-            {"chat_post_message.thread_ts.invalid", "thread_ts"},
-          ]
-          requests.should eq 0
-        end
-      end
-    end
-
-    it "rejects an empty channel before HTTP through #{method}" do
+  ["1710000000.000001", "1710000000.000000", "999999999.123456", "10000000000.123456", "1710000000.1", "1710000000.123456789"].each do |timestamp|
+    it "preserves timestamp #{timestamp} and broadcasts" do
       requests = 0
-      WebMock.stub(:post, "https://slack.com/api/chat.postMessage").to_return do |_request|
+      WebMock.stub(:post, "https://slack.com/api/chat.postMessage").to_return do |http_request|
         requests += 1
-        HTTP::Client::Response.new(500)
+        payload = JSON.parse(http_request.body || fail("Expected a JSON request body"))
+        payload["thread_ts"].as_s.should eq timestamp
+        payload["reply_broadcast"].as_bool.should be_true
+        HTTP::Client::Response.new(
+          200,
+          body: File.read("spec/fixtures/api/chat-post-success-section.json")
+        )
       end
       request = Slack::Api::ChatPostMessage.new(
-        transport: AuthSupport::WebMockTransport.new,
-        token: "xoxb-synthetic-invalid",
-        channel: "",
-        message: sample_message("Invalid")
-      )
-
-      error = expect_raises(Slack::UI::ValidationError) do
-        method == "result" ? request.result : request.call
-      end
-      error.issues.map(&.code).should contain("chat_post_message.channel.empty")
-      requests.should eq 0
-    end
-
-    it "requires a thread when reply_broadcast is true through #{method}" do
-      requests = 0
-      WebMock.stub(:post, "https://slack.com/api/chat.postMessage").to_return do |_request|
-        requests += 1
-        HTTP::Client::Response.new(500)
-      end
-      request = Slack::Api::ChatPostMessage.new(
-        transport: AuthSupport::WebMockTransport.new,
-        token: "xoxb-synthetic-thread",
         channel: "C-THREAD",
         message: sample_message("Thread"),
+        thread_ts: timestamp,
         reply_broadcast: true
       )
 
-      error = expect_raises(Slack::UI::ValidationError) do
-        method == "result" ? request.result : request.call
-      end
-      error.issues.map { |issue| {issue.code, issue.path} }.should eq [
-        {"chat_post_message.reply_broadcast.thread_required", "reply_broadcast"},
-      ]
-      requests.should eq 0
+      request.validate.should be_empty
+      ApiSupport.client.call(request).ok?.should be_true
+      requests.should eq 1
     end
+  end
+
+  [nil, false].each do |broadcast|
+    it "omits an absent timestamp with reply_broadcast #{broadcast.inspect}" do
+      requests = 0
+      WebMock.stub(:post, "https://slack.com/api/chat.postMessage").to_return do |http_request|
+        requests += 1
+        payload = JSON.parse(http_request.body || fail("Expected a JSON request body"))
+        payload.as_h.has_key?("thread_ts").should be_false
+        if broadcast.nil?
+          payload.as_h.has_key?("reply_broadcast").should be_false
+        else
+          payload["reply_broadcast"].as_bool.should be_false
+        end
+        HTTP::Client::Response.new(
+          200,
+          body: File.read("spec/fixtures/api/chat-post-success-section.json")
+        )
+      end
+      request = Slack::Api::ChatPostMessage.new(
+        channel: "C-THREAD",
+        message: sample_message("Thread"),
+        reply_broadcast: broadcast
+      )
+
+      ApiSupport.client.call(request).ok?.should be_true
+      requests.should eq 1
+    end
+  end
+
+  ["", " ", "not-a-timestamp", "1710000000", "1710000000.", ".000001",
+   "-1710000000.000001", "+1710000000.000001", "1.71e9", "1710000000..000001",
+   " 1710000000.000001", "1710000000.000001\n", "１７１０００００００.000001"].each do |timestamp|
+    it "rejects malformed timestamp #{timestamp.inspect} before HTTP" do
+      requests = 0
+      WebMock.stub(:post, "https://slack.com/api/chat.postMessage").to_return do |_request|
+        requests += 1
+        HTTP::Client::Response.new(500)
+      end
+
+      [nil, false, true].each do |broadcast|
+        request = Slack::Api::ChatPostMessage.new(
+          channel: "C-THREAD",
+          message: sample_message("Thread"),
+          thread_ts: timestamp,
+          reply_broadcast: broadcast
+        )
+
+        request.validate.map { |issue| {issue.code, issue.path} }.should eq [
+          {"chat_post_message.thread_ts.invalid", "thread_ts"},
+        ]
+        error = expect_raises(Slack::UI::ValidationError) do
+          ApiSupport.client.call(request)
+        end
+        error.issues.map { |issue| {issue.code, issue.path} }.should eq [
+          {"chat_post_message.thread_ts.invalid", "thread_ts"},
+        ]
+        requests.should eq 0
+      end
+    end
+  end
+
+  it "rejects an empty channel before HTTP" do
+    requests = 0
+    WebMock.stub(:post, "https://slack.com/api/chat.postMessage").to_return do |_request|
+      requests += 1
+      HTTP::Client::Response.new(500)
+    end
+    request = Slack::Api::ChatPostMessage.new(
+      channel: "",
+      message: sample_message("Invalid")
+    )
+
+    error = expect_raises(Slack::UI::ValidationError) do
+      ApiSupport.client.call(request)
+    end
+    error.issues.map(&.code).should contain("chat_post_message.channel.empty")
+    requests.should eq 0
+  end
+
+  it "requires a thread when reply_broadcast is true" do
+    requests = 0
+    WebMock.stub(:post, "https://slack.com/api/chat.postMessage").to_return do |_request|
+      requests += 1
+      HTTP::Client::Response.new(500)
+    end
+    request = Slack::Api::ChatPostMessage.new(
+      channel: "C-THREAD",
+      message: sample_message("Thread"),
+      reply_broadcast: true
+    )
+
+    error = expect_raises(Slack::UI::ValidationError) do
+      ApiSupport.client.call(request)
+    end
+    error.issues.map { |issue| {issue.code, issue.path} }.should eq [
+      {"chat_post_message.reply_broadcast.thread_required", "reply_broadcast"},
+    ]
+    requests.should eq 0
   end
 
   it "owns a message snapshot separately from caller collections" do
@@ -246,8 +225,6 @@ describe Slack::Api::ChatPostMessage do
       blocks: blocks
     )
     request = Slack::Api::ChatPostMessage.new(
-      transport: AuthSupport::WebMockTransport.new,
-      token: "xoxb-synthetic-snapshot",
       channel: "C-SNAPSHOT",
       message: message
     )
@@ -259,18 +236,14 @@ describe Slack::Api::ChatPostMessage do
     request.to_json.should eq before
   end
 
-  it "preserves Slack API response errors" do
+  it "raises the Slack error code for a rejected message" do
     WebMock.stub(:post, "https://slack.com/api/chat.postMessage")
       .to_return(body: %({"ok":false,"error":"invalid_blocks"}))
 
-    expect_raises(Slack::Errors::Api) do
-      Slack::Api::ChatPostMessage.new(
-        transport: AuthSupport::WebMockTransport.new,
-        token: "xoxb-synthetic-error",
-        channel: "C-ERROR",
-        message: sample_message("Error")
-      ).call
+    error = expect_raises(Slack::Api::Error) do
+      ApiSupport.client.call(Slack::Api::ChatPostMessage.new(channel: "C-ERROR", message: sample_message("Error")))
     end
+    error.code.should eq "invalid_blocks"
   end
 end
 

@@ -23,8 +23,8 @@ module OfflineContextActionsExample
       builder.section(UI.plain("Rotate the signing secret in the app settings."), block_id: "answer")
       builder.context_actions(answer_actions("U-ASKER"), block_id: "answer.actions")
     end
-    Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic-answer", channel: "C-SYNTHETIC",
-      message: message, transport: OfflineExample::WebMockTransport.new).call
+    client = Slack::Api::Client.new(token: "xoxb-synthetic-answer", transport: OfflineExample::WebMockTransport.new)
+    client.call(Slack::Api::ChatPostMessage.new(channel: "C-SYNTHETIC", message: message))
 
     output.puts read_click(signed_click(FEEDBACK_CLICK))
     output.puts read_click(signed_click(DELETE_CLICK))

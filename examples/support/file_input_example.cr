@@ -28,8 +28,8 @@ module OfflineFileInputExample
         builder.input(label: UI.plain("Receipts"), block_id: "receipts",
           element: UI::BlockElements::FileInput.new(action_id: "files", filetypes: {"pdf", "png"}, max_files: 3))
       end
-      Slack::Api::ViewsOpen.new(token: "xoxb-synthetic", trigger_id: trigger,
-        view: view, transport: OfflineExample::WebMockTransport.new).call
+      client = Slack::Api::Client.new(token: "xoxb-synthetic", transport: OfflineExample::WebMockTransport.new)
+      client.call(Slack::Api::ViewsOpen.new(trigger_id: trigger, view: view))
     else
       raise "Expected block action"
     end

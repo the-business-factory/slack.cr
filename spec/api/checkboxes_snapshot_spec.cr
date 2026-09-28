@@ -1,5 +1,5 @@
 require "../spec_helper"
-require "../support/auth/webmock_transport"
+require "../support/api/webmock_client"
 
 module CheckboxesSnapshotSpec
   alias UI = Slack::UI
@@ -27,7 +27,8 @@ module CheckboxesSnapshotSpec
     control = UI::BlockElements::Checkboxes.new(options: choices, initial_options: selections, action_id: "notifications")
     builder = UI::MessageBuilder.new(fallback_text: "Preferences")
     builder.input(label: UI.plain("Notifications"), element: control, block_id: "preferences", optional: true)
-    request = Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC", message: builder.build, transport: AuthSupport::WebMockTransport.new)
+    client = ApiSupport.client("xoxb-synthetic")
+    request = Slack::Api::ChatPostMessage.new(channel: "C-SYNTHETIC", message: builder.build)
     options.clear
     initial.clear
     copy = control
@@ -46,7 +47,7 @@ module CheckboxesSnapshotSpec
       JSON.parse(http_request.body || fail("Missing body")).should eq expected
       HTTP::Client::Response.new(200, body: %({"ok":true,"channel":"C-SYNTHETIC","ts":"1710000000.000001","message":{}}))
     end
-    request.call.channel.should eq "C-SYNTHETIC"
+    client.call(request).channel.should eq "C-SYNTHETIC"
     sent.should eq 1
   end
 
@@ -60,7 +61,7 @@ module CheckboxesSnapshotSpec
       message = UI.message(fallback_text: "Preferences") do |builder|
         builder.input(label: UI.plain("Notifications"), element: UI::BlockElements::Checkboxes.new(options: [] of Option))
       end
-      Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC", message: message, transport: AuthSupport::WebMockTransport.new).call
+      ApiSupport.client.call(Slack::Api::ChatPostMessage.new(channel: "C-SYNTHETIC", message: message))
     end.issues.first.code.should eq "checkboxes.options.size"
     sent.should eq 0
   end

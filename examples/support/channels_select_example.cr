@@ -22,8 +22,8 @@ module OfflineChannelsSelectExample
       builder.section(UI.plain("Notification channel"), block_id: "notifications",
         accessory: UI::BlockElements::ChannelsSelect.new(action_id: "notification", initial_channel: "C-NOTIFY"))
     end
-    Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC",
-      message: message, transport: OfflineExample::WebMockTransport.new).call
+    client = Slack::Api::Client.new(token: "xoxb-synthetic", transport: OfflineExample::WebMockTransport.new)
+    client.call(Slack::Api::ChatPostMessage.new(channel: "C-SYNTHETIC", message: message))
 
     # Independently authored Slack payloads, not derived from outbound values.
     payload = %({"type":"block_actions","team":null,"trigger_id":"synthetic-trigger","actions":[{"type":"channels_select","block_id":"notifications","action_id":"notification","selected_channel":"C-NOTIFY"}]})
@@ -42,8 +42,7 @@ module OfflineChannelsSelectExample
             element: UI::BlockElements::MultiChannelsSelect.new(action_id: "destinations",
               initial_channels: {notification}, max_selected_items: 3))
         end
-        Slack::Api::ViewsOpen.new(token: "xoxb-synthetic", trigger_id: trigger,
-          view: view, transport: OfflineExample::WebMockTransport.new).call
+        client.call(Slack::Api::ViewsOpen.new(trigger_id: trigger, view: view))
       else
         raise "Expected notification selection"
       end

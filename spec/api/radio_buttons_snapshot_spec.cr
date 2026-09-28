@@ -1,5 +1,5 @@
 require "../spec_helper"
-require "../support/auth/webmock_transport"
+require "../support/api/webmock_client"
 
 module RadioButtonsSnapshotSpec
   alias UI = Slack::UI
@@ -28,8 +28,9 @@ module RadioButtonsSnapshotSpec
     builder = UI::MessageBuilder.new(fallback_text: "Delivery preference")
     builder.input(label: UI.plain("Delivery"), element: control, block_id: "preferences",
       optional: true, dispatch_action: true)
-    request = Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC",
-      message: builder.build, unfurl_links: false, transport: AuthSupport::WebMockTransport.new)
+    client = ApiSupport.client("xoxb-synthetic")
+    request = Slack::Api::ChatPostMessage.new(channel: "C-SYNTHETIC",
+      message: builder.build, unfurl_links: false)
     options.clear
     copy = control
     copy.options.clear
@@ -52,7 +53,7 @@ module RadioButtonsSnapshotSpec
       JSON.parse(http_request.body || fail("Missing body")).should eq expected
       HTTP::Client::Response.new(200, body: %({"ok":true,"channel":"C-SYNTHETIC","ts":"1710000000.000001","message":{}}))
     end
-    request.call.channel.should eq "C-SYNTHETIC"
+    client.call(request).channel.should eq "C-SYNTHETIC"
     sent.should eq 1
   end
 end

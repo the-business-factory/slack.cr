@@ -35,8 +35,8 @@ module OfflineRichTextExample
         RT::Preformatted.new(elements: {RT::Text.new("shards update")}, language: "shell"),
       ])
     end
-    Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC",
-      message: message, transport: OfflineExample::WebMockTransport.new).call
+    client = Slack::Api::Client.new(token: "xoxb-synthetic", transport: OfflineExample::WebMockTransport.new)
+    client.call(Slack::Api::ChatPostMessage.new(channel: "C-SYNTHETIC", message: message))
 
     # An independent, signed message event: a user reply written in Slack's composer.
     body = <<-JSON

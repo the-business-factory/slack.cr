@@ -33,8 +33,8 @@ module OfflineTableExample
         UI::Table::ColumnSetting.new(align: UI::Table::ColumnAlignment::Right),
       ])
     end
-    result = Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic-table", channel: "C-SYNTHETIC",
-      message: message, transport: OfflineExample::WebMockTransport.new).call
+    client = Slack::Api::Client.new(token: "xoxb-synthetic-table", transport: OfflineExample::WebMockTransport.new)
+    result = client.call(Slack::Api::ChatPostMessage.new(channel: "C-SYNTHETIC", message: message))
     output.puts "Posted #{REGIONS.size} regions to #{result.channel}/#{result.ts}"
 
     begin

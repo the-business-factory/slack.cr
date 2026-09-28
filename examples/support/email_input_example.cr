@@ -42,8 +42,8 @@ module OfflineEmailInputExample
         element: UI::BlockElements::EmailInput.new(action_id: "email", initial_value: "guest@partner.example",
           dispatch_action_config: config, focus_on_load: true, placeholder: UI.plain("name@partner.example")))
     end
-    Slack::Api::ViewsOpen.new(token: "xoxb-synthetic", trigger_id: trigger,
-      view: view, transport: OfflineExample::WebMockTransport.new).call
+    client = Slack::Api::Client.new(token: "xoxb-synthetic", transport: OfflineExample::WebMockTransport.new)
+    client.call(Slack::Api::ViewsOpen.new(trigger_id: trigger, view: view))
 
     payload = %({"type":"block_actions","team":null,"actions":[{"type":"email_text_input","block_id":"invite.email","action_id":"email","value":"lead@partner.example"}]})
     interaction = receive(payload)

@@ -44,13 +44,13 @@ require "../examples/support/alert_example"
 require "../examples/support/socket_mode_example"
 require "../examples/support/slash_command_example"
 require "../examples/support/received_blocks_example"
+require "../examples/support/web_api_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
     client_id = Slack.settings.client_id
     client_secret = Slack.settings.client_secret
     signing_secret = Slack.settings.signing_secret
-    limiters = Slack::ApiClient.limiters.dup
     allow_net_connect = WebMock.allows_net_connect?
     begin
       Slack.configure do |settings|
@@ -58,7 +58,6 @@ describe "documented Block Kit workflows" do
         settings.client_secret = nil
         settings.signing_secret = nil
       end
-      Slack::ApiClient.limiters.clear
       example.run
     ensure
       Slack.configure do |settings|
@@ -66,8 +65,6 @@ describe "documented Block Kit workflows" do
         settings.client_secret = client_secret
         settings.signing_secret = signing_secret
       end
-      Slack::ApiClient.limiters.clear
-      Slack::ApiClient.limiters.merge!(limiters)
       WebMock.reset
       WebMock.allow_net_connect = allow_net_connect
     end
@@ -82,6 +79,12 @@ describe "documented Block Kit workflows" do
     blocks.map(&.["type"].as_s).should eq(["section", "divider", "actions"])
     blocks[0]["text"]["text"].should eq("*Request 42* from Morgan")
     blocks[2]["elements"][0]["value"].should eq("42")
+  end
+
+  it "calls typed and generic Web API methods and reads a Slack error code" do
+    output = IO::Memory.new
+    OfflineWebApiExample.run(output)
+    output.to_s.should eq("Added :eyes: to C123\nCustom emoji: shipit\nDelete failed: message_not_found\n")
   end
 
   it "posts a button, opens a modal, and reads its signed submission" do

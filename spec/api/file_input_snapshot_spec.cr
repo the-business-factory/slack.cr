@@ -1,5 +1,5 @@
 require "../spec_helper"
-require "../support/auth/webmock_transport"
+require "../support/api/webmock_client"
 
 module FileInputSnapshotSpec
   alias UI = Slack::UI
@@ -11,8 +11,9 @@ module FileInputSnapshotSpec
       element: UI::BlockElements::FileInput.new(action_id: "files", filetypes: extensions, max_files: 3))
     builder.input(label: UI.plain("Note"), block_id: "note", optional: true,
       element: UI::BlockElements::PlainTextInput.new(action_id: "text"))
-    request = Slack::Api::ViewsOpen.new(token: "xoxb-synthetic", trigger_id: "synthetic-trigger",
-      view: builder.build, transport: AuthSupport::WebMockTransport.new)
+    client = ApiSupport.client("xoxb-synthetic")
+    request = Slack::Api::ViewsOpen.new(trigger_id: "synthetic-trigger",
+      view: builder.build)
     extensions << "exe"
     builder.divider
     # Authored from Slack's file_input, input block and views.open contracts, not from the serializer.
@@ -30,7 +31,7 @@ module FileInputSnapshotSpec
       JSON.parse(http_request.body || fail("Missing body")).should eq expected
       HTTP::Client::Response.new(200, body: %({"ok":true,"view":{"id":"V-SYNTHETIC","type":"modal"}}))
     end
-    request.call.view["id"].should eq "V-SYNTHETIC"
+    client.call(request).view["id"].should eq "V-SYNTHETIC"
     sent.should eq 1
   end
 end

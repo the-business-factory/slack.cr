@@ -4,16 +4,17 @@ Use `require "slack"`. Choose the path that matches the operation: supply a toke
 
 ## Direct tokens and signed requests
 
-A direct endpoint takes a token with the scopes required by that Slack method:
+A `Slack::Api::Client` sends requests with one token. The token must have the scopes required by each Slack method that you call:
 
 ```crystal
 require "slack"
 
-team = Slack::Api::TeamInfo.new(token: ENV["SLACK_BOT_TOKEN"]).call
+client = Slack::Api::Client.new(token: ENV["SLACK_BOT_TOKEN"])
+team = client.call(Slack::Api::TeamInfo.new)
 puts team.name
 ```
 
-Direct token callers own token expiry, revocation, and renewal. A `Slack::Errors::Api` reports an unsuccessful API result. A configured API base URI or transport changes dispatch, not the token's scopes.
+Direct token callers own token expiry, revocation, and renewal. The client keeps the token as an `Auth::Secret`; `inspect` shows `[REDACTED]`. An unsuccessful API result raises `Slack::Api::Error`. A configured API base URI or transport changes dispatch, not the token's scopes.
 
 For Events API, commands, and interactions, set the app's signing secret on the trusted HTTP route. Pass the original `HTTP::Request` to `Slack.process_webhook`, `Slack.process_command`, or `Slack.process_interaction`. These verify the signature and timestamp freshness before parsing. Timestamp checks reject stale requests; they do not suppress duplicate deliveries. Keep an application event ID registry if duplicate processing matters. Return Slack's URL verification challenge from `Slack::UrlVerification#response` in your framework's HTTP response.
 
@@ -34,7 +35,14 @@ The selected installation must match exact app, workspace or organization identi
 
 `RequestContext` retains a credential reference. Its scoped transport checks the current grant immediately before every send, including an allowed retry, then adds the bearer header. Queued work should create a new context when ready to send. An old context cannot silently switch to a replaced grant. `context.auth_test` is optional identity enrichment; its result cannot change the selected owner.
 
-Base endpoint wrappers that expose a `.tokenless` constructor can use a scoped transport. Supply both `transport:` and `limiter:`; the endpoint waits for the limiter, then the transport checks the current credential and adds the bearer header. `Slack::Api::ConversationsInfo.tokenless` is one such wrapper. `ChatPostMessage`, `ChatUpdate`, `ViewsOpen`, `ViewsUpdate`, `ViewsPush`, and `ViewsPublish` constructors still require a `String` token; they do not expose this tokenless path. Use `RequestContext#dispatch` for fenced raw dispatch, or supply a token under your own lifecycle policy.
+`RequestContext#client` is a `Slack::Api::Client` without a token. It sends every request through the scoped transport. The client validates and encodes the request, waits for its local pacing, and then the transport checks the current credential and adds the bearer header:
+
+```crystal
+context = authorizer.authorize_event(request, Slack::Auth::GrantKey.new(:bot))
+context.client.call(Slack::Api::ChatPostMessage.new(channel: "C123", message: message))
+```
+
+A replaced or removed grant stops the send with a `ContractError` before any request bytes leave the process. `RequestContext#dispatch` remains available for fenced raw dispatch.
 
 For checkbox interactions, the same signed-request boundary applies. After verification, read `CheckboxesAction#selected_options` or `StateMap#checkboxes_value?`; an empty selection array means the user cleared all choices. See [checkbox handling](block-kit.md#add-checkboxes) and the offline `examples/block_kit_checkboxes.cr` workflow.
 
@@ -172,18 +180,20 @@ Applications own event ID deduplication, delivery history, and queue persistence
 
 ## Transport settings and failures
 
-`APIConfiguration` defaults to `https://slack.com/api/` and supports an explicit alternate base URI. API-only use needs no OAuth client credentials or signing secret. Set global API transport defaults with `Slack.configure` or pass named configuration and transport arguments on supported wrappers:
+`APIConfiguration` defaults to `https://slack.com/api/` and supports an explicit alternate base URI. API-only use needs no OAuth client credentials or signing secret. Pass the configuration and transport to `Slack::Api::Client`. The client does not read `Slack.settings.api_configuration` or `api_transport_options`:
 
 ```crystal
-Slack.configure do |settings|
-  settings.api_configuration = Slack::Auth::APIConfiguration.new(
-    URI.parse("https://api.slack-gov.com/api/")
-  )
-  settings.api_transport_options = Slack::Auth::TransportOptions.new(
+transport = Slack::Auth::HTTPTransportFactory.new.build(
+  Slack::Auth::TransportOptions.new(
     connect_timeout: 5.seconds, read_timeout: 20.seconds,
     write_timeout: 20.seconds
   )
-end
+)
+client = Slack::Api::Client.new(
+  token: ENV["SLACK_BOT_TOKEN"],
+  configuration: Slack::Auth::APIConfiguration.new(URI.parse("https://api.slack-gov.com/api/")),
+  transport: transport
+)
 ```
 
 `TransportOptions` also accepts `proxy_uri` and `ca_file`. Proxy use is explicit; environment proxy settings are not inherited. Only HTTP proxy URIs are supported, with CONNECT for HTTPS destinations. Destination and proxy URI validation happens before connection; remote destinations require HTTPS, while local loopback HTTP is allowed for tests. The concrete transport sends once, follows no redirects, closes its connection on success or failure, and distinguishes `TransportFailure` (no application request bytes left) from `UnknownRemoteOutcome` (the request may have been sent). Do not blindly retry an uncertain write. Timeouts and TLS/CA failures use redacted errors. Transport and parser errors do not include token or remote body text.

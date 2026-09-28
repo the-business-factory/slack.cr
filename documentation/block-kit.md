@@ -55,15 +55,13 @@ message = UI.message(fallback_text: "Request 42 needs approval.") do |builder|
   )])
 end
 
-request = Slack::Api::ChatPostMessage.new(
-  token: ENV["SLACK_BOT_TOKEN"], channel: ENV["SLACK_CHANNEL_ID"],
-  message: message
-)
+client = Slack::Api::Client.new(token: ENV["SLACK_BOT_TOKEN"])
+request = Slack::Api::ChatPostMessage.new(channel: ENV["SLACK_CHANNEL_ID"], message: message)
 puts request.to_pretty_json
-response = request.call
+response = client.call(request)
 ```
 
-`ChatPostMessage` accepts `channel`, `text`/`blocks`, `thread_ts`, `reply_broadcast`, `unfurl_links`, and `unfurl_media`. It copies and validates the message before dispatch and requires a `String` token. `result` and `call` share the same validation boundary. Named `configuration`, `transport`, and `limiter` options can customize dispatch; they are not JSON fields. The wrapper sends through the existing API client and raises `Slack::Api::Error` for API failures. It does not support every `chat.postMessage` field.
+`ChatPostMessage` accepts `channel`, `text`/`blocks`, `thread_ts`, `reply_broadcast`, `unfurl_links`, and `unfurl_media`. It copies the message when you create it. The request holds no token; `Slack::Api::Client#call` validates it before dispatch and raises `Slack::Api::Error` for API failures. It does not support every `chat.postMessage` field.
 
 ## Build a remote file block
 
@@ -88,10 +86,9 @@ updated_message = UI.message(fallback_text: "Request 42 approved.") do |builder|
   builder.section(UI.mrkdwn("*Request 42 approved.*"), block_id: "request.approved")
 end
 channel = response.channel || raise "Missing posted channel"
-updated = Slack::Api::ChatUpdate.new(
-  token: ENV["SLACK_BOT_TOKEN"], channel: channel, ts: response.ts,
-  message: updated_message, as_user: true
-).call
+updated = client.call(Slack::Api::ChatUpdate.new(
+  channel: channel, ts: response.ts, message: updated_message, as_user: true
+))
 puts updated.text
 ```
 
@@ -99,7 +96,7 @@ The supported request fields are `channel`, `ts`, `text`, `blocks`, and optional
 
 This is a content replacement operation, not a partial patch builder. It cannot retain old blocks by omission, clear all blocks, or send a text-only update. Attachments and metadata are omitted and retained by Slack. Parsing and name-linking options are omitted and use Slack's update defaults. Thread, broadcast, unfurl, file, and other method options are outside this adapter. Optional `as_user` preserves omission and explicit false; Slack documents `as_user: true` for updating a bot's own message.
 
-`channel` must not be blank. `ts` must contain digits, a decimal point, and fractional digits; it remains a string without fixed digit counts or rounding. `result`, `call`, and JSON serialization reject invalid local values before dispatch. `result` caches the HTTP response; `call` parses that response as `Slack::Models::Chat::UpdateMessage`, with `channel`, `ts`, `text`, and optional raw `message` JSON. API failures raise `Slack::Errors::Api`. Named `configuration`, `transport`, and `limiter` options reuse the existing dispatch path and are not JSON fields.
+`channel` must not be blank. `ts` must contain digits, a decimal point, and fractional digits; it remains a string without fixed digit counts or rounding. `Client#call` and JSON serialization reject invalid local values before dispatch. `call` returns `Slack::Models::Chat::UpdateMessage`, with `channel`, `ts`, `text`, and optional raw `message` JSON. API failures raise `Slack::Api::Error`.
 
 The token needs `chat:write`, and only messages owned by the authenticated user or bot can be updated. Ephemeral messages are unsupported. Slack checks ownership, permissions, message state, and rendering. See the [chat.update reference](https://docs.slack.dev/reference/methods/chat.update/) and the offline [message-update example](../examples/block_kit_message_update.cr); stubs do not prove live acceptance.
 
@@ -767,9 +764,7 @@ view = UI.form_modal(title: UI.plain("Request reason"), submit: UI.plain("Save")
     element: UI::BlockElements::PlainTextInput.new(action_id: "text", multiline: true))
 end
 
-opened = Slack::Api::ViewsOpen.new(
-  token: ENV["SLACK_BOT_TOKEN"], trigger_id: trigger_id, view: view
-).call
+opened = client.call(Slack::Api::ViewsOpen.new(trigger_id: trigger_id, view: view))
 ```
 
 The open request needs a trigger ID from the interaction and places `external_id` inside the view. A Home view has no title or submit. Its builder accepts the same display blocks and Input. An empty Home is valid; the local maximum is 100 blocks. Publishing needs a user ID. An optional `hash` helps avoid overwriting a newer Home; Slack validates the remote hash and external ID uniqueness.
@@ -781,9 +776,7 @@ home = UI.home(callback_id: "projects") do |builder|
   builder.context(elements: {UI.mrkdwn("*Project 42*"), UI.plain("Ready for review")})
 end
 
-published = Slack::Api::ViewsPublish.new(
-  token: ENV["SLACK_BOT_TOKEN"], user_id: user_id, view: home
-).call
+published = client.call(Slack::Api::ViewsPublish.new(user_id: user_id, view: home))
 ```
 
 Enable the Home tab and install the app with the permissions required for publishing. The publish response exposes the returned view as raw JSON. Slack remains responsible for server access checks and rendering.
@@ -798,19 +791,18 @@ updated_view = UI.form_modal(title: UI.plain("Request reason"), submit: UI.plain
   builder.input(label: UI.plain("Reason"), block_id: "reason", optional: true,
     element: UI::BlockElements::PlainTextInput.new(action_id: "text", multiline: true))
 end
-updated = Slack::Api::ViewsUpdate.new(
-  token: ENV["SLACK_BOT_TOKEN"], view_id: opened.view["id"].as_s,
-  hash: opened.view["hash"].as_s, view: updated_view
-).call
+updated = client.call(Slack::Api::ViewsUpdate.new(
+  view_id: opened.view["id"].as_s, hash: opened.view["hash"].as_s, view: updated_view
+))
 ```
 
 Supply exactly one nonblank target: `view_id:` from Slack or the developer's `external_id:`. This unambiguous selector rule is library policy, not a claim that Slack rejects both. The external selector allows up to 255 characters. A view's nested `external_id` remains metadata: it never supplies, replaces, or overrides the top-level selector. To target a developer ID, use `external_id: "request-42"` instead of `view_id:`. The nested view may have its own independent external ID.
 
-`hash` is optional and opaque. Omission and an explicit empty string stay distinct; the adapter sends supplied hashes unchanged. Slack checks remote view existence, hash freshness, external ID uniqueness, and access. `not_found` and `hash_conflict` raise `Slack::Errors::Api` through `call`; the adapter does not retry or merge conflicts. See the [method reference](https://docs.slack.dev/reference/methods/views.update/).
+`hash` is optional and opaque. Omission and an explicit empty string stay distinct; the adapter sends supplied hashes unchanged. Slack checks remote view existence, hash freshness, external ID uniqueness, and access. `not_found` and `hash_conflict` raise `Slack::Api::Error` through `Client#call`; the adapter does not retry or merge conflicts. See the [method reference](https://docs.slack.dev/reference/methods/views.update/).
 
 Keep each retained input's `block_id` and `action_id` identical to the old view so Slack can preserve entered values. The adapter does not have the old view and cannot validate those matches or migrate state. The [offline open/update workflow](../examples/block_kit_view_update.cr) checks transmitted IDs, not live state preservation. Slack's [modal update guide](https://docs.slack.dev/surfaces/modals/#updating-modal-views) explains input state and hash conflicts.
 
-The constructor owns a view snapshot. JSON serialization, `result`, and `call` validate local values before transport. `result` caches the HTTP response; `call` parses it as `Slack::Models::ViewsUpdate`, exposing `ok?` and raw `view` JSON, including returned IDs, hash, state, and unknown fields. The required String token and named `configuration`, `transport`, and `limiter` options use the existing dispatch path and are not JSON fields. Existing modal placement and submit rules apply. Pushing uses `ViewsPush`; typed error acknowledgments use `ModalErrors`.
+The constructor owns a view snapshot. JSON serialization and `Client#call` validate local values before transport. `call` returns `Slack::Models::ViewsUpdate`, exposing `ok?` and raw `view` JSON, including returned IDs, hash, state, and unknown fields. Existing modal placement and submit rules apply. Pushing uses `ViewsPush`; typed error acknowledgments use `ModalErrors`.
 
 ## Push the next modal view
 
@@ -824,14 +816,12 @@ next_view = UI.form_modal(title: UI.plain("Details"), submit: UI.plain("Save"),
   builder.input(label: UI.plain("Reason"), block_id: "reason",
     element: UI::BlockElements::PlainTextInput.new(action_id: "text"))
 end
-pushed = Slack::Api::ViewsPush.new(
-  token: ENV["SLACK_BOT_TOKEN"], trigger_id: trigger, view: next_view
-).call
+pushed = client.call(Slack::Api::ViewsPush.new(trigger_id: trigger, view: next_view))
 ```
 
-The constructor owns a modal snapshot and preserves the existing FormModal submit and DisplayModal placement rules. Serialization, `result`, and `call` validate local values before transport. A nonblank trigger is library policy; its format is opaque. `result` caches one HTTP response, and `call` parses it as `Slack::Models::ViewsPush` with `ok?` and raw `view` JSON. A String token is required. Named `configuration`, `transport`, and `limiter` options use the existing API transport and are not JSON fields.
+The constructor owns a modal snapshot and preserves the existing FormModal submit and DisplayModal placement rules. Serialization and `Client#call` validate local values before transport. A nonblank trigger is library policy; its format is opaque. `call` sends once and returns `Slack::Models::ViewsPush` with `ok?` and raw `view` JSON.
 
-Slack permits three views in a stack, including the root view. Use the new interaction trigger promptly: triggers expire after three seconds and can be exchanged only once. Acknowledge the interaction separately within Slack's response window. The adapter does not track stack depth, verify trigger age or origin, or automatically retry. API failures such as `expired_trigger_id`, `exchanged_trigger_id`, and `push_limit_reached` raise `Slack::Errors::Api` through `call`. See the [method contract](https://docs.slack.dev/reference/methods/views.push/), [modal fields](https://docs.slack.dev/reference/views/modal-views/), and [modal lifecycle guide](https://docs.slack.dev/surfaces/modals/).
+Slack permits three views in a stack, including the root view. Use the new interaction trigger promptly: triggers expire after three seconds and can be exchanged only once. Acknowledge the interaction separately within Slack's response window. The adapter does not track stack depth, verify trigger age or origin, or automatically retry. API failures such as `expired_trigger_id`, `exchanged_trigger_id`, and `push_limit_reached` raise `Slack::Api::Error` through `Client#call`. See the [method contract](https://docs.slack.dev/reference/methods/views.push/), [modal fields](https://docs.slack.dev/reference/views/modal-views/), and [modal lifecycle guide](https://docs.slack.dev/surfaces/modals/).
 
 The [offline push workflow](../examples/block_kit_view_push.cr) opens a modal, reads a synthetic button interaction from that view, and pushes a form with the fresh trigger. It demonstrates payloads and application flow, not live trigger viability, stack state, permissions, rendering, or handler timing.
 

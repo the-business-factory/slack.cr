@@ -1,29 +1,21 @@
-# Replaces message blocks and explicit fallback text through chat.update.
-class Slack::Api::ChatUpdate
+# Replaces message blocks and explicit fallback text.
+# See https://docs.slack.dev/reference/methods/chat.update.
+struct Slack::Api::ChatUpdate < Slack::Api::Request(Slack::Models::Chat::UpdateMessage)
+  include Slack::Api::JsonBody
+
   @snapshot : Slack::UI::Message
-  @result : HTTP::Client::Response?
 
   getter channel : String
   getter ts : String
   getter as_user : Bool?
 
   def initialize(
-    @token : String,
     @channel : String,
     @ts : String,
     message : Slack::UI::Message,
     @as_user : Bool? = nil,
-    *,
-    @configuration : Slack::Auth::APIConfiguration = Slack.settings.api_configuration,
-    @transport : Slack::Auth::Transport? = nil,
-    @limiter : RateLimiter::LimiterLike? = nil,
   )
     @snapshot = message.snapshot
-    @result = nil
-  end
-
-  def self.from_json(source : String | IO) : NoReturn
-    {% raise "request deserialization is unsupported" %}
   end
 
   def validate : Array(Slack::UI::ValidationIssue)
@@ -50,11 +42,6 @@ class Slack::Api::ChatUpdate
     issues
   end
 
-  def validate! : Nil
-    issues = validate
-    raise Slack::UI::ValidationError.new(issues) unless issues.empty?
-  end
-
   def to_json(json : JSON::Builder) : Nil
     validate!
     json.object do
@@ -68,19 +55,11 @@ class Slack::Api::ChatUpdate
     end
   end
 
-  def result : HTTP::Client::Response
-    validate!
-    @result ||= begin
-      descriptor = JsonBodyRequest(Slack::Models::Chat::UpdateMessage).new(
-        token: @token, method_path: "chat.update", body: to_json,
-        configuration: @configuration, transport: @transport, limiter: @limiter
-      )
-      descriptor.result
-    end
+  def method_path : String
+    "chat.update"
   end
 
-  def call : Slack::Models::Chat::UpdateMessage
-    validate!
-    Slack::Api::ResponseHandler(Slack::Models::Chat::UpdateMessage).from_json(result.body)
+  def tier : Slack::Api::RateLimitTier
+    Slack::Api::RateLimitTier::Tier3
   end
 end

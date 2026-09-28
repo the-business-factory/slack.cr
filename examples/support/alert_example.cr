@@ -27,8 +27,8 @@ module OfflineAlertExample
       end
       builder.section(UI.plain("Fix the failed checks, then deploy again."))
     end
-    Slack::Api::ViewsOpen.new(token: "xoxb-synthetic-alert", trigger_id: "synthetic-trigger",
-      view: modal, transport: OfflineExample::WebMockTransport.new).call
+    client = Slack::Api::Client.new(token: "xoxb-synthetic-alert", transport: OfflineExample::WebMockTransport.new)
+    client.call(Slack::Api::ViewsOpen.new(trigger_id: "synthetic-trigger", view: modal))
     output.puts "Opened deploy status with #{CHECKS.size} alerts"
 
     begin

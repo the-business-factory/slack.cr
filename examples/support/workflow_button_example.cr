@@ -40,8 +40,8 @@ module OfflineWorkflowButtonExample
       builder.section(UI.mrkdwn("*#{incident.id}* is resolved."), block_id: "incident", accessory: postmortem)
       builder.actions({close, status}, block_id: "incident.more")
     end
-    result = Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic-workflow", channel: "C-SYNTHETIC",
-      message: message, transport: OfflineExample::WebMockTransport.new).call
+    client = Slack::Api::Client.new(token: "xoxb-synthetic-workflow", transport: OfflineExample::WebMockTransport.new)
+    result = client.call(Slack::Api::ChatPostMessage.new(channel: "C-SYNTHETIC", message: message))
     output.puts "Posted workflow buttons for #{incident.id} to #{result.channel}/#{result.ts}"
 
     begin

@@ -16,7 +16,8 @@ describe "optional feature credentials" do
       transport = AuthSupport::RecordingTransport.new
       transport.enqueue(Slack::Auth::TransportResponse.new(200, HTTP::Headers.new,
         File.read("spec/fixtures/api/team-info-success.json")))
-      Slack::Api::TeamInfo.new("synthetic-token", transport: transport).call.name.should eq("goalsurfer")
+      client = Slack::Api::Client.new(token: "synthetic-token", transport: transport)
+      client.call(Slack::Api::TeamInfo.new).name.should eq("goalsurfer")
       transport.requests.first.headers["Authorization"].should eq("Bearer synthetic-token")
     ensure
       Slack.configure do |settings|

@@ -1,5 +1,5 @@
 require "../spec_helper"
-require "../support/auth/webmock_transport"
+require "../support/api/webmock_client"
 
 module RichTextSnapshotSpec
   alias UI = Slack::UI
@@ -16,8 +16,9 @@ module RichTextSnapshotSpec
       RT::List.new(RT::ListStyle::Bullet, elements: items),
       RT::Quote.new(elements: {RT::Link.new("https://example.com/changelog", text: "Full changelog")}),
     ])
-    request = Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC",
-      message: builder.build, transport: AuthSupport::WebMockTransport.new)
+    client = ApiSupport.client("xoxb-synthetic")
+    request = Slack::Api::ChatPostMessage.new(channel: "C-SYNTHETIC",
+      message: builder.build)
     items << RT::Section.new(elements: {RT::Text.new("added later")})
     intro.clear
     builder.divider
@@ -38,9 +39,9 @@ module RichTextSnapshotSpec
     WebMock.stub(:post, "https://slack.com/api/chat.postMessage").to_return do |http_request|
       sent += 1
       JSON.parse(http_request.body || fail("Missing body")).should eq expected
-      HTTP::Client::Response.new(200, body: %({"ok":true,"channel":"C-SYNTHETIC","ts":"1710000000.000001"}))
+      HTTP::Client::Response.new(200, body: %({"ok":true,"channel":"C-SYNTHETIC","ts":"1710000000.000001","message":{}}))
     end
-    request.result.status_code.should eq 200
+    client.call(request)
     sent.should eq 1
   end
 

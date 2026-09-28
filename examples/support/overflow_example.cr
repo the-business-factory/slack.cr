@@ -20,7 +20,8 @@ module OfflineOverflowExample
     message = UI.message(fallback_text: "Request 42 actions") do |builder|
       builder.section(UI.plain("Request 42"), block_id: "request", accessory: menu)
     end
-    Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC", message: message, transport: OfflineExample::WebMockTransport.new).call
+    client = Slack::Api::Client.new(token: "xoxb-synthetic", transport: OfflineExample::WebMockTransport.new)
+    client.call(Slack::Api::ChatPostMessage.new(channel: "C-SYNTHETIC", message: message))
 
     # Simulate an independently authored Slack URL-option click.
     payload = %({"type":"block_actions","team":null,"actions":[{"type":"overflow","block_id":"request","action_id":"request.more","selected_option":{"text":{"type":"plain_text","text":"Details"},"value":"details"}}]})

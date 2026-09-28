@@ -1,5 +1,5 @@
 require "../spec_helper"
-require "../support/auth/webmock_transport"
+require "../support/api/webmock_client"
 
 module ConversationsSelectSnapshotSpec
   alias UI = Slack::UI
@@ -32,8 +32,9 @@ module ConversationsSelectSnapshotSpec
     builder.input(label: UI.plain("Notify"), element: single, block_id: "notification")
     builder.input(label: UI.plain("Destinations"), element: multi, block_id: "destinations",
       optional: true, dispatch_action: false)
-    request = Slack::Api::ViewsOpen.new(token: "xoxb-synthetic", trigger_id: "synthetic-trigger",
-      view: builder.build, transport: AuthSupport::WebMockTransport.new)
+    client = ApiSupport.client("xoxb-synthetic")
+    request = Slack::Api::ViewsOpen.new(trigger_id: "synthetic-trigger",
+      view: builder.build)
     ids.clear
     kinds.clear
     filter_copy = filter
@@ -59,7 +60,7 @@ module ConversationsSelectSnapshotSpec
       JSON.parse(http_request.body || fail("Missing body")).should eq expected
       HTTP::Client::Response.new(200, body: %({"ok":true,"view":{"id":"V-SYNTHETIC","type":"modal"}}))
     end
-    request.call.view["id"].should eq "V-SYNTHETIC"
+    client.call(request).view["id"].should eq "V-SYNTHETIC"
     sent.should eq 1
   end
 end

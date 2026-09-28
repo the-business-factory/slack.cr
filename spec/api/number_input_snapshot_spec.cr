@@ -1,5 +1,5 @@
 require "../spec_helper"
-require "../support/auth/webmock_transport"
+require "../support/api/webmock_client"
 
 module NumberInputSnapshotSpec
   alias UI = Slack::UI
@@ -13,8 +13,9 @@ module NumberInputSnapshotSpec
     builder.input(label: UI.plain("Seats"), block_id: "seats", element: seats, dispatch_action: true)
     builder.input(label: UI.plain("Budget"), block_id: "budget", element: budget, optional: true)
     view = builder.build
-    request = Slack::Api::ViewsOpen.new(token: "xoxb-synthetic", trigger_id: "synthetic-trigger",
-      view: view, transport: AuthSupport::WebMockTransport.new)
+    client = ApiSupport.client("xoxb-synthetic")
+    request = Slack::Api::ViewsOpen.new(trigger_id: "synthetic-trigger",
+      view: view)
     builder.divider
     view.blocks.clear
     # Authored from Slack's number input, Input block, and views.open contracts, not from the serializer.
@@ -34,7 +35,7 @@ module NumberInputSnapshotSpec
       JSON.parse(http_request.body || fail("Missing body")).should eq expected
       HTTP::Client::Response.new(200, body: %({"ok":true,"view":{"id":"V-SYNTHETIC","type":"modal"}}))
     end
-    request.call.view["id"].should eq "V-SYNTHETIC"
+    client.call(request).view["id"].should eq "V-SYNTHETIC"
     sent.should eq 1
   end
 end

@@ -29,8 +29,8 @@ module OfflineRichTextInputExample
         element: UI::BlockElements::RichTextInput.new(action_id: "summary", initial_value: draft,
           dispatch_action_config: config, placeholder: UI.plain("Mention the people you work with"), min_lines: 3))
     end
-    Slack::Api::ViewsPublish.new(token: "xoxb-synthetic", user_id: "U-AUTHOR", view: home,
-      transport: OfflineExample::WebMockTransport.new).call
+    client = Slack::Api::Client.new(token: "xoxb-synthetic", transport: OfflineExample::WebMockTransport.new)
+    client.call(Slack::Api::ViewsPublish.new(user_id: "U-AUTHOR", view: home))
 
     # Independent incoming payloads, not derived from the published view.
     summary = %({"type":"rich_text","elements":[{"type":"rich_text_section","elements":[{"type":"text","text":"Yesterday: paired with "},{"type":"user","user_id":"U-PAIR"}]},{"type":"rich_text_list","style":"bullet","elements":[{"type":"rich_text_section","elements":[{"type":"text","text":"Ship the release"}]}]}]})

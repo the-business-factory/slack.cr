@@ -1,6 +1,8 @@
-class Slack::Api::ChatPostMessage
+# Posts a copied, validated message. See https://docs.slack.dev/reference/methods/chat.postMessage.
+struct Slack::Api::ChatPostMessage < Slack::Api::Request(Slack::Models::Chat::PostMessage)
+  include Slack::Api::JsonBody
+
   @snapshot : Slack::UI::Message
-  @result : HTTP::Client::Response?
 
   getter channel : String
   getter thread_ts : String?
@@ -9,24 +11,14 @@ class Slack::Api::ChatPostMessage
   getter unfurl_media : Bool?
 
   def initialize(
-    @token : String,
     @channel : String,
     message : Slack::UI::Message,
     @thread_ts : String? = nil,
     @reply_broadcast : Bool? = nil,
     @unfurl_links : Bool? = nil,
     @unfurl_media : Bool? = nil,
-    *,
-    @configuration : Slack::Auth::APIConfiguration = Slack.settings.api_configuration,
-    @transport : Slack::Auth::Transport? = nil,
-    @limiter : RateLimiter::LimiterLike? = nil,
   )
     @snapshot = message.snapshot
-    @result = nil
-  end
-
-  def self.from_json(source : String | IO) : NoReturn
-    {% raise "request deserialization is unsupported" %}
   end
 
   def validate : Array(Slack::UI::ValidationIssue)
@@ -60,11 +52,6 @@ class Slack::Api::ChatPostMessage
     issues
   end
 
-  def validate! : Nil
-    issues = validate
-    raise Slack::UI::ValidationError.new(issues) unless issues.empty?
-  end
-
   def to_json(json : JSON::Builder) : Nil
     validate!
     json.object do
@@ -80,19 +67,11 @@ class Slack::Api::ChatPostMessage
     end
   end
 
-  def result : HTTP::Client::Response
-    validate!
-    @result ||= begin
-      descriptor = JsonBodyRequest(Slack::Models::Chat::PostMessage).new(
-        token: @token, method_path: "chat.postMessage", body: to_json,
-        configuration: @configuration, transport: @transport, limiter: @limiter
-      )
-      descriptor.result
-    end
+  def method_path : String
+    "chat.postMessage"
   end
 
-  def call : Slack::Models::Chat::PostMessage
-    validate!
-    Slack::Api::ResponseHandler(Slack::Models::Chat::PostMessage).from_json(result.body)
+  def tier : Slack::Api::RateLimitTier
+    Slack::Api::RateLimitTier::Special
   end
 end

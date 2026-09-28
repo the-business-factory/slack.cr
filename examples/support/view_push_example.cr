@@ -23,7 +23,8 @@ module OfflineViewPushExample
       raise "Incorrect opening request" unless JSON.parse(request.body || raise "Missing open request") == expected
       HTTP::Client::Response.new(200, body: %({"ok":true,"view":{"id":"V1","type":"modal"}}))
     end
-    opened = Slack::Api::ViewsOpen.new(token: token, trigger_id: "opening-trigger", view: original, transport: transport).call
+    client = Slack::Api::Client.new(token: token, transport: transport)
+    opened = client.call(Slack::Api::ViewsOpen.new(trigger_id: "opening-trigger", view: original))
 
     # Synthetic, trusted fixture: a new interaction inside the opened modal.
     # Real HTTP handlers must verify the original request with process_interaction.
@@ -57,7 +58,7 @@ module OfflineViewPushExample
         raise "Incorrect push request" unless JSON.parse(request.body || raise "Missing push request") == expected
         HTTP::Client::Response.new(200, body: %({"ok":true,"view":{"id":"V2","type":"modal","root_view_id":"V1","previous_view_id":"V1"}}))
       end
-      pushed = Slack::Api::ViewsPush.new(token: token, trigger_id: trigger, view: next_view, transport: transport).call
+      pushed = client.call(Slack::Api::ViewsPush.new(trigger_id: trigger, view: next_view))
       output.puts "Pushed details #{pushed.view["id"]} onto modal #{pushed.view["root_view_id"]} (acknowledged #{acknowledgement.status_code})."
     else
       raise "Expected modal block action"

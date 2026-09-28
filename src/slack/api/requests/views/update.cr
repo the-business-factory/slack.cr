@@ -1,29 +1,21 @@
-# Updates an owned modal snapshot through the existing API transport.
-class Slack::Api::ViewsUpdate
+# Replaces an open modal with a copied view. See https://docs.slack.dev/reference/methods/views.update.
+struct Slack::Api::ViewsUpdate < Slack::Api::Request(Slack::Models::ViewsUpdate)
+  include Slack::Api::JsonBody
+
   @snapshot : Slack::UI::Modal
-  @result : HTTP::Client::Response?
 
   getter view_id : String?
   getter external_id : String?
   getter hash : String?
 
   def initialize(
-    @token : String,
     view : Slack::UI::Modal,
     @hash : String? = nil,
     *,
     @view_id : String? = nil,
     @external_id : String? = nil,
-    @configuration : Slack::Auth::APIConfiguration = Slack.settings.api_configuration,
-    @transport : Slack::Auth::Transport? = nil,
-    @limiter : RateLimiter::LimiterLike? = nil,
   )
     @snapshot = view.snapshot
-    @result = nil
-  end
-
-  def self.from_json(source : String | IO) : NoReturn
-    {% raise "request deserialization is unsupported" %}
   end
 
   def validate : Array(Slack::UI::ValidationIssue)
@@ -54,11 +46,6 @@ class Slack::Api::ViewsUpdate
     issues
   end
 
-  def validate! : Nil
-    issues = validate
-    raise Slack::UI::ValidationError.new(issues) unless issues.empty?
-  end
-
   def to_json(json : JSON::Builder) : Nil
     validate!
     json.object do
@@ -69,19 +56,11 @@ class Slack::Api::ViewsUpdate
     end
   end
 
-  def result : HTTP::Client::Response
-    validate!
-    @result ||= begin
-      descriptor = JsonBodyRequest(Slack::Models::ViewsUpdate).new(
-        token: @token, method_path: "views.update", body: to_json,
-        configuration: @configuration, transport: @transport, limiter: @limiter
-      )
-      descriptor.result
-    end
+  def method_path : String
+    "views.update"
   end
 
-  def call : Slack::Models::ViewsUpdate
-    validate!
-    Slack::Api::ResponseHandler(Slack::Models::ViewsUpdate).from_json(result.body)
+  def tier : Slack::Api::RateLimitTier
+    Slack::Api::RateLimitTier::Tier4
   end
 end

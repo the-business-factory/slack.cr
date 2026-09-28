@@ -23,8 +23,8 @@ module OfflineDatetimePickerExample
       builder.actions({UI::BlockElements::DatetimePicker.new(action_id: "start", initial_date_time: proposed)},
         block_id: "meeting")
     end
-    Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC",
-      message: message, transport: OfflineExample::WebMockTransport.new).call
+    client = Slack::Api::Client.new(token: "xoxb-synthetic", transport: OfflineExample::WebMockTransport.new)
+    client.call(Slack::Api::ChatPostMessage.new(channel: "C-SYNTHETIC", message: message))
 
     # Independent incoming payloads. A chosen instant does not create a scheduled job.
     payload = %({"type":"block_actions","team":null,"trigger_id":"synthetic-trigger","actions":[{"type":"datetimepicker","block_id":"meeting","action_id":"start","selected_date_time":1835454600}]})
@@ -42,8 +42,7 @@ module OfflineDatetimePickerExample
           builder.input(label: UI.plain("Start"), block_id: "meeting.start",
             element: UI::BlockElements::DatetimePicker.new(action_id: "start", initial_date_time: start, focus_on_load: true))
         end
-        Slack::Api::ViewsOpen.new(token: "xoxb-synthetic", trigger_id: trigger,
-          view: view, transport: OfflineExample::WebMockTransport.new).call
+        client.call(Slack::Api::ViewsOpen.new(trigger_id: trigger, view: view))
       else
         raise "Expected datetime choice"
       end

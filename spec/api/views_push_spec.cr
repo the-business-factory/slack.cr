@@ -1,5 +1,5 @@
 require "../spec_helper"
-require "../support/auth/webmock_transport"
+require "../support/api/webmock_client"
 
 describe Slack::Api::ViewsPush do
   it "pushes an owned form snapshot and parses the cached response" do
@@ -11,8 +11,8 @@ describe Slack::Api::ViewsPush do
     builder.input(label: Slack::UI.plain("Reason"), block_id: "reason", optional: false,
       element: Slack::UI::BlockElements::PlainTextInput.new(action_id: "text", multiline: false))
     view = builder.build
-    request = Slack::Api::ViewsPush.new(token: "xoxb-synthetic-push",
-      trigger_id: "opaque-trigger", view: view, transport: AuthSupport::WebMockTransport.new)
+    client = ApiSupport.client("xoxb-synthetic-push")
+    request = Slack::Api::ViewsPush.new(trigger_id: "opaque-trigger", view: view)
     builder.divider
     view.blocks.clear
     # Independently authored wire contract, not serialized from the view.
@@ -34,8 +34,7 @@ describe Slack::Api::ViewsPush do
         JSON.parse(http_request.body || fail("Expected JSON body")).should eq expected
         HTTP::Client::Response.new(200, body: %({"ok":true,"view":{"id":"V2","type":"modal","root_view_id":"V1","previous_view_id":"V1","hash":"pushed-hash","state":{"values":{}},"future":true}}))
       end
-    request.result.status_code.should eq 200
-    response = request.call
+    response = client.call(request)
     response.ok?.should be_true
     response.view["id"].as_s.should eq "V2"
     response.view["root_view_id"].as_s.should eq "V1"
@@ -43,60 +42,58 @@ describe Slack::Api::ViewsPush do
     response.view["hash"].as_s.should eq "pushed-hash"
     response.view["state"]["values"].as_h.should be_empty
     response.view["future"].as_bool.should be_true
-    request.call
     count.should eq 1
   end
 
-  ["result", "call"].each do |entrypoint|
-    it "rejects blank triggers before #{entrypoint} transport" do
-      count = 0
-      WebMock.stub(:post, "https://slack.com/api/views.push").to_return do |_request|
-        count += 1
-        HTTP::Client::Response.new(500)
-      end
-      view = Slack::UI.display_modal(title: Slack::UI.plain("Status"), &.divider)
-      ["", "  "].each do |trigger|
-        request = Slack::Api::ViewsPush.new(token: "xoxb-synthetic-invalid", trigger_id: trigger,
-          view: view, transport: AuthSupport::WebMockTransport.new)
-        error = expect_raises(Slack::UI::ValidationError) { entrypoint == "result" ? request.result : request.call }
-        error.issues.map { |issue| {issue.code, issue.path} }.should eq [{"views_push.trigger_id.blank", "trigger_id"}]
-        expect_raises(Slack::UI::ValidationError) { request.to_json }
-      end
-      count.should eq 0
+  it "rejects blank triggers before transport" do
+    count = 0
+    WebMock.stub(:post, "https://slack.com/api/views.push").to_return do |_request|
+      count += 1
+      HTTP::Client::Response.new(500)
     end
+    view = Slack::UI.display_modal(title: Slack::UI.plain("Status"), &.divider)
+    ["", "  "].each do |trigger|
+      client = ApiSupport.client("xoxb-synthetic-invalid")
+      request = Slack::Api::ViewsPush.new(trigger_id: trigger,
+        view: view)
+      error = expect_raises(Slack::UI::ValidationError) { client.call(request) }
+      error.issues.map { |issue| {issue.code, issue.path} }.should eq [{"views_push.trigger_id.blank", "trigger_id"}]
+      expect_raises(Slack::UI::ValidationError) { request.to_json }
+    end
+    count.should eq 0
+  end
 
-    it "rejects invalid modal contents before #{entrypoint} transport" do
-      count = 0
-      WebMock.stub(:post, "https://slack.com/api/views.push").to_return do |_request|
-        count += 1
-        HTTP::Client::Response.new(500)
-      end
-      error = expect_raises(Slack::UI::ValidationError) do
-        view = Slack::UI.form_modal(title: Slack::UI.plain("Details"), submit: Slack::UI.plain("Save")) do |builder|
-          builder.input(label: Slack::UI.plain("Reason"), block_id: "reason",
-            element: Slack::UI::BlockElements::PlainTextInput.new(action_id: "text"))
-          builder.divider(block_id: "reason")
-        end
-        request = Slack::Api::ViewsPush.new(token: "xoxb-synthetic-invalid", trigger_id: "trigger", view: view,
-          transport: AuthSupport::WebMockTransport.new)
-        entrypoint == "result" ? request.result : request.call
-      end
-      error.issues.map(&.code).should contain("modal.block_id.duplicate")
-      count.should eq 0
+  it "rejects invalid modal contents before transport" do
+    count = 0
+    WebMock.stub(:post, "https://slack.com/api/views.push").to_return do |_request|
+      count += 1
+      HTTP::Client::Response.new(500)
     end
+    error = expect_raises(Slack::UI::ValidationError) do
+      view = Slack::UI.form_modal(title: Slack::UI.plain("Details"), submit: Slack::UI.plain("Save")) do |builder|
+        builder.input(label: Slack::UI.plain("Reason"), block_id: "reason",
+          element: Slack::UI::BlockElements::PlainTextInput.new(action_id: "text"))
+        builder.divider(block_id: "reason")
+      end
+      client = ApiSupport.client("xoxb-synthetic-invalid")
+      request = Slack::Api::ViewsPush.new(trigger_id: "trigger", view: view)
+      client.call(request)
+    end
+    error.issues.map(&.code).should contain("modal.block_id.duplicate")
+    count.should eq 0
   end
 
   it "pushes a display modal without submit or unrelated envelope fields" do
     view = Slack::UI.display_modal(title: Slack::UI.plain("Status"), &.divider)
-    request = Slack::Api::ViewsPush.new(token: "xoxb-synthetic-display", trigger_id: "display-trigger", view: view,
-      transport: AuthSupport::WebMockTransport.new)
+    client = ApiSupport.client("xoxb-synthetic-display")
+    request = Slack::Api::ViewsPush.new(trigger_id: "display-trigger", view: view)
     expected = JSON.parse(%({"trigger_id":"display-trigger","view":{"type":"modal","title":{"type":"plain_text","text":"Status"},"blocks":[{"type":"divider"}]}}))
     JSON.parse(request.to_json).should eq expected
     WebMock.stub(:post, "https://slack.com/api/views.push").to_return do |http_request|
       JSON.parse(http_request.body || fail("Expected JSON body")).should eq expected
       HTTP::Client::Response.new(200, body: %({"ok":true,"view":{"id":"V2","root_view_id":"V1","previous_view_id":null}}))
     end
-    response = request.call
+    response = client.call(request)
     response.view["id"].as_s.should eq "V2"
     response.view["previous_view_id"].raw.should be_nil
   end
@@ -108,11 +105,10 @@ describe Slack::Api::ViewsPush do
         count += 1
         HTTP::Client::Response.new(200, body: %({"ok":false,"error":"#{failure}"}))
       end
-      request = Slack::Api::ViewsPush.new(token: "xoxb-synthetic-error", trigger_id: "trigger",
-        view: Slack::UI.display_modal(title: Slack::UI.plain("Status"), &.divider),
-        transport: AuthSupport::WebMockTransport.new)
-      2.times { expect_raises(Slack::Errors::Api, failure) { request.call } }
-      JSON.parse(request.result.body)["error"].as_s.should eq failure
+      client = ApiSupport.client("xoxb-synthetic-error")
+      request = Slack::Api::ViewsPush.new(trigger_id: "trigger",
+        view: Slack::UI.display_modal(title: Slack::UI.plain("Status"), &.divider))
+      expect_raises(Slack::Api::Error) { client.call(request) }.code.should eq failure
       count.should eq 1
     end
   end

@@ -80,23 +80,4 @@ describe Slack::Auth::APIConfiguration do
       Slack::Auth::APIConfiguration.new(URI.parse("http://#{rendered_host}:8080/api")).base_uri.scheme.should eq("http")
     end
   end
-
-  it "keeps configuration, transport, and credentials out of endpoint JSON" do
-    transport = AuthSupport::RecordingTransport.new
-    limiter = RateLimiter.new(rate: 1.0)
-    endpoint = Slack::Api::ConversationsInfo.new(
-      token: "canary-token",
-      channel: "C1",
-      configuration: Slack::Auth::APIConfiguration.new(URI.parse("https://api.gov.example/api/")),
-      transport: transport,
-      limiter: limiter
-    )
-
-    serialized = endpoint.to_json
-    serialized.should_not contain("canary-token")
-    serialized.should_not contain("api.gov.example")
-    serialized.should_not contain("limiter")
-    serialized.should_not contain("transport")
-    JSON.parse(serialized)["channel"].as_s.should eq("C1")
-  end
 end

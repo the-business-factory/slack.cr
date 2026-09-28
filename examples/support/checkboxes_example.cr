@@ -31,7 +31,8 @@ module OfflineCheckboxesExample
     message = UI.message(fallback_text: "Choose notifications") do |builder|
       builder.section(UI.plain("Notifications"), block_id: "preferences", accessory: control)
     end
-    Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC", message: message, transport: OfflineExample::WebMockTransport.new).call
+    client = Slack::Api::Client.new(token: "xoxb-synthetic", transport: OfflineExample::WebMockTransport.new)
+    client.call(Slack::Api::ChatPostMessage.new(channel: "C-SYNTHETIC", message: message))
 
     # Independently authored Slack payloads exercise both selecting and clearing.
     payload = %({"type":"block_actions","team":null,"actions":[{"type":"checkboxes","block_id":"preferences","action_id":"notifications","selected_options":[{"text":{"type":"mrkdwn","text":"*Daily digest*"},"value":"digest"}]}]})

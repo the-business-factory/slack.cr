@@ -1,4 +1,4 @@
-require "../api/endpoints/auth_test"
+require "../api"
 require "./scoped_transport"
 
 module Slack::Auth
@@ -7,6 +7,9 @@ module Slack::Auth
     getter query : InstallationQuery
     getter reference : CredentialReference
     getter transport : ScopedTransport
+    # Web API client over `transport`. It holds no token: the scoped transport
+    # checks the fenced credential immediately before each send.
+    getter client : Slack::Api::Client
 
     @expected_subject_id : String
 
@@ -15,6 +18,7 @@ module Slack::Auth
       raise RequestAuthorizationError.new(:reference_mismatch) unless @reference.query == @query
       @expected_subject_id = selected_subject(store)
       @transport = ScopedTransport.new(store, @reference, transport, configuration)
+      @client = Slack::Api::Client.new(token: nil, configuration: @transport.configuration, transport: @transport)
     end
 
     def dispatch(method : String, endpoint : String, headers : HTTP::Headers = HTTP::Headers.new,
@@ -23,9 +27,24 @@ module Slack::Auth
     end
 
     def auth_test : Slack::Models::Auth::Test
-      result = Slack::Api::AuthTest.new(@transport, @transport.configuration).call
+      result = begin
+        @client.call(Slack::Api::AuthTest.new)
+      rescue error : Slack::Api::Error
+        raise auth_test_failure(error)
+      end
       validate_identity(result)
       result
+    end
+
+    # Keeps the auth contract: only allowlisted metadata, never Slack's messages.
+    private def auth_test_failure(error : Slack::Api::Error) : ContractError
+      code = case error.code
+             when "invalid_auth", "token_revoked", "account_inactive"
+               ErrorCode::ReauthorizationRequired
+             else
+               ErrorCode::InvalidResponse
+             end
+      ContractError.new(code, error.http_status, error.retry_after)
     end
 
     private def validate_identity(result : Slack::Models::Auth::Test) : Nil

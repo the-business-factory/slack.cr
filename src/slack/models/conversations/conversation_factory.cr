@@ -18,6 +18,6 @@ abstract struct Slack::Models::ConversationFactory < Slack::Model
       end
     end
 
-    raise Slack::Errors::Api.new(json)
+    raise JSON::ParseException.new("Unknown conversation type", 0, 0)
   end
 end

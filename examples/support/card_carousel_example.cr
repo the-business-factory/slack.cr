@@ -27,8 +27,8 @@ module OfflineCardCarouselExample
     message = UI.message(fallback_text: "Departments open for visits") do |builder|
       builder.carousel(DEPARTMENTS.map { |department| card(department) }, block_id: "departments")
     end
-    result = Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic-carousel", channel: "C-SYNTHETIC",
-      message: message, transport: OfflineExample::WebMockTransport.new).call
+    client = Slack::Api::Client.new(token: "xoxb-synthetic-carousel", transport: OfflineExample::WebMockTransport.new)
+    result = client.call(Slack::Api::ChatPostMessage.new(channel: "C-SYNTHETIC", message: message))
     output.puts "Posted #{DEPARTMENTS.size} cards to #{result.channel}/#{result.ts}"
 
     handle_click(output)

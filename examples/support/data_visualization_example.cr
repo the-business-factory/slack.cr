@@ -33,8 +33,8 @@ module OfflineDataVisualizationExample
       ))
       builder.data_visualization("p95 latency", latency_chart(LATENCY))
     end
-    result = Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic-chart", channel: "C-SYNTHETIC",
-      message: message, transport: OfflineExample::WebMockTransport.new).call
+    client = Slack::Api::Client.new(token: "xoxb-synthetic-chart", transport: OfflineExample::WebMockTransport.new)
+    result = client.call(Slack::Api::ChatPostMessage.new(channel: "C-SYNTHETIC", message: message))
     output.puts "Posted #{DEPLOYS.size} services and #{LATENCY.size} latency points to #{result.channel}/#{result.ts}"
 
     begin

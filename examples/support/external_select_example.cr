@@ -41,8 +41,8 @@ module OfflineExternalSelectExample
         accessory: UI::BlockElements::ExternalSelect.new(action_id: "project",
           placeholder: UI.plain("Find a project"), min_query_length: 2))
     end
-    Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC",
-      message: message, transport: OfflineExample::WebMockTransport.new).call
+    client = Slack::Api::Client.new(token: "xoxb-synthetic", transport: OfflineExample::WebMockTransport.new)
+    client.call(Slack::Api::ChatPostMessage.new(channel: "C-SYNTHETIC", message: message))
 
     # Independently authored Slack payloads, not derived from outbound values.
     suggestion = %({"type":"block_suggestion","team":{"id":"T-SYNTHETIC","domain":"example"},"user":{"id":"U-SYNTHETIC","team_id":"T-SYNTHETIC"},"api_app_id":"A-SYNTHETIC","container":{"type":"message","message_ts":"1710000000.000001","channel_id":"C-SYNTHETIC","is_ephemeral":false},"action_id":"project","block_id":"assignment","value":"a"})
@@ -81,8 +81,8 @@ module OfflineExternalSelectExample
         element: UI::BlockElements::MultiExternalSelect.new(action_id: "projects", max_selected_items: 3,
           initial_options: {UI::CompositionObjects::Option.new(text: UI.plain(project.text), value: project.value)}))
     end
-    Slack::Api::ViewsOpen.new(token: "xoxb-synthetic", trigger_id: trigger,
-      view: view, transport: OfflineExample::WebMockTransport.new).call
+    client = Slack::Api::Client.new(token: "xoxb-synthetic", transport: OfflineExample::WebMockTransport.new)
+    client.call(Slack::Api::ViewsOpen.new(trigger_id: trigger, view: view))
   end
 
   private def self.install_transport : Nil

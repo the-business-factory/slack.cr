@@ -1,5 +1,5 @@
 require "../spec_helper"
-require "../support/auth/webmock_transport"
+require "../support/api/webmock_client"
 
 module OverflowSnapshotSpec
   alias UI = Slack::UI
@@ -12,7 +12,8 @@ module OverflowSnapshotSpec
       actions = UI::Blocks::Actions.new(elements, block_id: "request")
       builder = UI::MessageBuilder.new(fallback_text: "Request actions")
       builder.add(actions)
-      request = Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC", message: builder.build, transport: AuthSupport::WebMockTransport.new)
+      client = ApiSupport.client("xoxb-synthetic")
+      request = Slack::Api::ChatPostMessage.new(channel: "C-SYNTHETIC", message: builder.build)
       options.clear
       menu.options.clear
       elements.clear
@@ -26,8 +27,7 @@ module OverflowSnapshotSpec
         JSON.parse(http_request.body || fail("Missing body")).should eq expected
         HTTP::Client::Response.new(200, body: %({"ok":true,"channel":"C-SYNTHETIC","ts":"1710000000.000001","message":{}}))
       end
-      request.result.status_code.should eq 200
-      request.call.channel.should eq "C-SYNTHETIC"
+      client.call(request).channel.should eq "C-SYNTHETIC"
       sent.should eq 1
     end
   end

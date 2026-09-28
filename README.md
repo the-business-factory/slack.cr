@@ -16,17 +16,26 @@ Run `shards install` and use the full library with `require "slack"`.
 
 ## Web API quickstart
 
-Supply a token with the scope required by the Slack method you call. For example, a bot token with `team:read` can request team information:
+Create one `Slack::Api::Client` with a token. Send typed requests with `call`. The token must have the scope that each Slack method requires. For example, a bot token with `team:read` can request team information:
 
 ```crystal
 require "slack"
 
-token : String = ENV["SLACK_BOT_TOKEN"]
-team = Slack::Api::TeamInfo.new(token: token).call
+client = Slack::Api::Client.new(token: ENV["SLACK_BOT_TOKEN"])
+team = client.call(Slack::Api::TeamInfo.new)
 puts team.name
 ```
 
-Slack API error responses raise `Slack::Errors::Api`. API calls use `https://slack.com/api/` by default. Endpoint constructors accept named `configuration` and `transport` options where supported; see [authentication and transport](documentation/authentication.md).
+A method without a typed request is available through the generic call. It sends form fields and returns the raw JSON. Strings are sent unchanged; other values are sent as JSON text:
+
+```crystal
+emoji = client.call("emoji.list", {include_categories: true})
+emoji["emoji"].as_h.size
+```
+
+An unsuccessful result raises `Slack::Api::Error`. `code` is Slack's error name, such as `channel_not_found`, and `messages` holds `response_metadata.messages`. HTTP 429 raises `Slack::Api::RateLimited`, with `retry_after` from the `Retry-After` header. The error message never contains the response body, headers, or token.
+
+The client paces each method locally at its documented [rate limit tier](https://docs.slack.dev/apis/web-api/rate-limits) and makes exactly one attempt. It does not retry. Local pacing does not guarantee that Slack accepts the call. API calls use `https://slack.com/api/` by default. Pass `configuration:` and `transport:` to the client to change this; see [authentication and transport](documentation/authentication.md).
 
 | Feature | Credentials and setup |
 | --- | --- |
@@ -60,12 +69,11 @@ message = UI.message(fallback_text: "Request 42 needs approval.") do |builder|
   ])
 end
 
-request = Slack::Api::ChatPostMessage.new(
-  token: ENV["SLACK_BOT_TOKEN"],
+client = Slack::Api::Client.new(token: ENV["SLACK_BOT_TOKEN"])
+response = client.call(Slack::Api::ChatPostMessage.new(
   channel: ENV["SLACK_CHANNEL_ID"],
   message: message
-)
-response = request.call
+))
 ```
 
 The send requires a bot token with `chat:write` and a channel the app can post to. Use `message.to_pretty_json` to inspect the payload locally. See [Block Kit](documentation/block-kit.md) for supported blocks, messages, modals, Home, static choices, incoming actions, and validation.
@@ -162,6 +170,7 @@ crystal run examples/block_kit_rich_text_input.cr
 crystal run examples/block_kit_markdown.cr
 crystal run examples/block_kit_workflow_button.cr
 crystal run examples/block_kit_alert.cr
+crystal run examples/web_api.cr
 crystal run examples/event_delivery.cr
 crystal run examples/socket_mode_protocol.cr
 crystal run examples/interaction_context.cr
@@ -169,7 +178,7 @@ crystal run examples/slash_command.cr
 crystal run examples/received_blocks.cr
 ```
 
-The examples show message construction, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, message workflow buttons, typed blocks of a received message, Socket Mode frames with their acknowledgments, and a slash command response with a `response_url` reply. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
+The examples show Web API calls and error codes, message construction, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, message workflow buttons, typed blocks of a received message, Socket Mode frames with their acknowledgments, and a slash command response with a `response_url` reply. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
 
 ## Contributing
 

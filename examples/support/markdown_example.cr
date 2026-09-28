@@ -30,8 +30,8 @@ module OfflineMarkdownExample
       builder.markdown(ANSWER)
       builder.context({UI.plain("Generated answer. Check the steps before you use them.")})
     end
-    result = Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic-markdown", channel: "C-SYNTHETIC",
-      message: message, transport: OfflineExample::WebMockTransport.new).call
+    client = Slack::Api::Client.new(token: "xoxb-synthetic-markdown", transport: OfflineExample::WebMockTransport.new)
+    result = client.call(Slack::Api::ChatPostMessage.new(channel: "C-SYNTHETIC", message: message))
     output.puts "Posted answer to #{result.channel}/#{result.ts}"
 
     # Each block is valid, but together they exceed Slack's 12,000-character

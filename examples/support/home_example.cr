@@ -23,7 +23,8 @@ module OfflineHomeExample
       raise "Incorrect envelope" unless body == JSON.parse({user_id: "U123", view: home}.to_json)
       HTTP::Client::Response.new(200, body: {ok: true, view: {id: "V123", type: "home", hash: "synthetic-hash"}}.to_json)
     end
-    published = Slack::Api::ViewsPublish.new(token: "xoxb-synthetic-home", user_id: "U123", view: home, transport: OfflineExample::WebMockTransport.new).call
+    client = Slack::Api::Client.new(token: "xoxb-synthetic-home", transport: OfflineExample::WebMockTransport.new)
+    published = client.call(Slack::Api::ViewsPublish.new(user_id: "U123", view: home))
     output.puts "Published Home #{published.view["id"]} offline."
 
     # Simulated, already verified JSON. HTTP handlers use Slack.process_interaction.

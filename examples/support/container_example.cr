@@ -25,8 +25,8 @@ module OfflineContainerExample
     message = UI.message(fallback_text: "Bulk update: #{CHANGES.size} records selected") do |builder|
       builder.add(bulk_update(CHANGES))
     end
-    Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic-container", channel: "C-SYNTHETIC",
-      message: message, transport: OfflineExample::WebMockTransport.new).call
+    client = Slack::Api::Client.new(token: "xoxb-synthetic-container", transport: OfflineExample::WebMockTransport.new)
+    client.call(Slack::Api::ChatPostMessage.new(channel: "C-SYNTHETIC", message: message))
 
     # Authored from Slack's block_actions reference: the click names the child block.
     interaction = receive(<<-JSON)

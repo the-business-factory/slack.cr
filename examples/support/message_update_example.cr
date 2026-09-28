@@ -19,8 +19,8 @@ module OfflineMessageUpdateExample
       builder.actions(block_id: "request.controls", elements: [UI::BlockElements::Button.new(
         text: UI.plain("Approve"), action_id: "request.approve", value: "42")])
     end
-    posted = Slack::Api::ChatPostMessage.new(
-      token: token, channel: "C123", message: pending, transport: transport).call
+    client = Slack::Api::Client.new(token: token, transport: transport)
+    posted = client.call(Slack::Api::ChatPostMessage.new(channel: "C123", message: pending))
 
     # Simulate application approval. Use fresh block IDs for the new version.
     approved = UI.message(fallback_text: "Request 42 approved.") do |builder|
@@ -34,9 +34,7 @@ module OfflineMessageUpdateExample
       HTTP::Client::Response.new(200, body: %({"ok":true,"channel":"C123","ts":"1710000000.000001","text":"Request 42 approved."}))
     end
     channel = posted.channel || raise "Missing posted channel"
-    updated = Slack::Api::ChatUpdate.new(
-      token: token, channel: channel, ts: posted.ts, message: approved,
-      as_user: true, transport: transport).call
+    updated = client.call(Slack::Api::ChatUpdate.new(channel: channel, ts: posted.ts, message: approved, as_user: true))
     output.puts "Updated #{updated.channel}/#{updated.ts}: #{updated.text}"
   end
 end

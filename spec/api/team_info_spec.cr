@@ -1,19 +1,16 @@
 require "../spec_helper"
-require "../support/auth/webmock_transport"
+require "../support/api/webmock_client"
 
 describe Slack::Api::TeamInfo do
-  describe "#call" do
-    it "should request the team info resource from the API" do
-      WebMock.stub(:get, "https://slack.com/api/team.info")
-        .with(headers: {"Authorization" => "Bearer #{ENV.fetch("SLACK_TEAM_AUTH_TOKEN")}"})
-        .to_return(body: File.read("spec/fixtures/api/team-info-success.json"))
+  it "posts an empty form and reads the team object" do
+    WebMock.stub(:post, "https://slack.com/api/team.info")
+      .with(headers: {"Authorization" => "Bearer xoxb-synthetic",
+                      "Content-Type"  => "application/x-www-form-urlencoded"})
+      .to_return do |request|
+        request.body.to_s.should be_empty
+        HTTP::Client::Response.new(200, body: File.read("spec/fixtures/api/team-info-success.json"))
+      end
 
-      token = ENV.fetch("SLACK_TEAM_AUTH_TOKEN")
-      response = Slack::Api::TeamInfo
-        .new(token: token, transport: AuthSupport::WebMockTransport.new)
-        .call
-        .should be_a(Slack::Models::Team)
-      response.name.should eq "goalsurfer"
-    end
+    ApiSupport.client.call(Slack::Api::TeamInfo.new).name.should eq "goalsurfer"
   end
 end

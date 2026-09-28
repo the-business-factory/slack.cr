@@ -488,7 +488,7 @@ entries:
     restrictions: The request is partial. It does not send attachments, parse, link_names, mrkdwn, username, icon_emoji, icon_url, metadata, markdown_text, or draft fields.
     implementation_status: partial
     inbound_status: unsupported
-    evidence_paths: [src/slack/api/endpoints/chat_post_message.cr, spec/api/chat_post_message_spec.cr, spec/block_kit_consumers_spec.cr]
+    evidence_paths: [src/slack/api/requests/chat/post_message.cr, spec/api/chat_post_message_spec.cr, spec/block_kit_consumers_spec.cr]
 
   - wire_type: chat.update request
     kind: endpoint
@@ -496,10 +496,10 @@ entries:
     fields_supported: [channel, ts, text, blocks, as_user]
     parents: []
     surfaces: [message]
-    restrictions: Replaces text and nonempty blocks from an owned Message. Explicit fallback of 1–4000 characters is required; generated fallback, partial patches, text-only updates and block clearing are unsupported. Channel must be nonblank; timestamp stays a decimal string without fixed digit counts. Optional as_user preserves false and omission. Attachments and metadata are omitted and retained; parse and link_names use Slack update defaults. Other method fields are unsupported. String token and existing dispatch injection are required as for posting. UpdateMessage exposes channel, ts, text and optional raw message. Slack checks ownership, permissions, non-ephemeral message state and rendering.
+    restrictions: Replaces text and nonempty blocks from an owned Message. Explicit fallback of 1–4000 characters is required; generated fallback, partial patches, text-only updates and block clearing are unsupported. Channel must be nonblank; timestamp stays a decimal string without fixed digit counts. Optional as_user preserves false and omission. Attachments and metadata are omitted and retained; parse and link_names use Slack update defaults. Other method fields are unsupported. Send it with Slack::Api::Client#call. UpdateMessage exposes channel, ts, text and optional raw message. Slack checks ownership, permissions, non-ephemeral message state and rendering.
     implementation_status: partial
     inbound_status: partial
-    evidence_paths: [src/slack/api/endpoints/chat_update.cr, src/slack/models/chat/update_message.cr, spec/api/chat_update_spec.cr, spec/api/transport_injection_spec.cr, examples/block_kit_message_update.cr, spec/block_kit_consumers_spec.cr]
+    evidence_paths: [src/slack/api/requests/chat/update.cr, src/slack/models/chat/update_message.cr, spec/api/chat_update_spec.cr, spec/api/client_spec.cr, examples/block_kit_message_update.cr, spec/block_kit_consumers_spec.cr]
 
   - wire_type: modal view
     kind: surface
@@ -518,10 +518,10 @@ entries:
     fields_supported: [trigger_id, view]
     parents: []
     surfaces: [modal]
-    restrictions: ViewsOpen composes the existing transport and validates result and call. external_id belongs inside view. Trigger-based opening only; interactivity_pointer is deferred. Responses retain the existing ViewsOpen model with raw view JSON.
+    restrictions: ViewsOpen is sent with Slack::Api::Client#call, which validates before dispatch. external_id belongs inside view. Trigger-based opening only; interactivity_pointer is deferred. Responses retain the existing ViewsOpen model with raw view JSON.
     implementation_status: partial
     inbound_status: partial
-    evidence_paths: [src/slack/api/endpoints/views_open.cr, spec/api/views_open_spec.cr, spec/block_kit_consumers_spec.cr]
+    evidence_paths: [src/slack/api/requests/views/open.cr, spec/api/views_open_spec.cr, spec/block_kit_consumers_spec.cr]
 
   - wire_type: views.update request
     kind: endpoint
@@ -532,7 +532,7 @@ entries:
     restrictions: ViewsUpdate owns a FormModal or DisplayModal snapshot. Exactly one nonblank explicit target selector is library policy; external_id allows 255 characters. Top-level external_id selects the target independently of nested view metadata. Optional hash is opaque, including empty string; no automatic conflict retry or state migration. Input block/action IDs are sent unchanged; matching old IDs and live state preservation are not locally verified. Home uses views.publish. ViewsUpdate exposes ok and raw view JSON. Token, configuration, transport and limiter are dispatch options, not JSON fields.
     implementation_status: supported
     inbound_status: partial
-    evidence_paths: [src/slack/api/endpoints/views_update.cr, src/slack/models/views/views_update.cr, spec/api/views_update_spec.cr, spec/api/transport_injection_spec.cr, spec/block_kit_consumers_spec.cr, examples/block_kit_view_update.cr]
+    evidence_paths: [src/slack/api/requests/views/update.cr, src/slack/models/views/views_update.cr, spec/api/views_update_spec.cr, spec/api/client_spec.cr, spec/block_kit_consumers_spec.cr, examples/block_kit_view_update.cr]
 
   - wire_type: views.push request
     kind: endpoint
@@ -540,10 +540,10 @@ entries:
     fields_supported: [trigger_id, view]
     parents: []
     surfaces: [modal]
-    restrictions: ViewsPush owns a FormModal or DisplayModal snapshot and requires a nonblank opaque trigger from an interaction inside the existing modal. Metadata stays inside view; no top-level view_id, external_id or hash. interactivity_pointer is unsupported; typed error acknowledgments use ModalErrors separately. Slack checks trigger origin, expiry, single use and the three-view stack limit; no local stack tracking or automatic retry. result caches the HTTP response; call parses ViewsPush with ok and raw view JSON or raises the established API error. String token, configuration, transport and limiter are dispatch options, not JSON fields.
+    restrictions: ViewsPush owns a FormModal or DisplayModal snapshot and requires a nonblank opaque trigger from an interaction inside the existing modal. Metadata stays inside view; no top-level view_id, external_id or hash. interactivity_pointer is unsupported; typed error acknowledgments use ModalErrors separately. Slack checks trigger origin, expiry, single use and the three-view stack limit; no local stack tracking or automatic retry. Slack::Api::Client#call returns ViewsPush with ok and raw view JSON or raises Slack::Api::Error. The request holds no token or dispatch options.
     implementation_status: partial
     inbound_status: partial
-    evidence_paths: [src/slack/api/endpoints/views_push.cr, src/slack/models/views/views_push.cr, spec/api/views_push_spec.cr, spec/api/transport_injection_spec.cr, examples/block_kit_view_push.cr, spec/block_kit_consumers_spec.cr]
+    evidence_paths: [src/slack/api/requests/views/push.cr, src/slack/models/views/views_push.cr, spec/api/views_push_spec.cr, spec/api/client_spec.cr, examples/block_kit_view_push.cr, spec/block_kit_consumers_spec.cr]
 
   - wire_type: block_actions and view_submission
     kind: interaction payload
@@ -628,10 +628,10 @@ entries:
     fields_supported: [user_id, view, hash, interactivity_pointer]
     parents: []
     surfaces: [home]
-    restrictions: ViewsPublish validates result and call before injected transport and retains an immutable Home snapshot. Token is a transport header; hash and interactivity_pointer are opaque optional request strings. external_id belongs inside view; team-wide uniqueness and remote hash validity are checked by Slack. ViewsPublish response exposes ok and raw view JSON.
+    restrictions: ViewsPublish validates before Slack::Api::Client#call dispatches it and retains an immutable Home snapshot. The client sends the token as a header; hash and interactivity_pointer are opaque optional request strings. external_id belongs inside view; team-wide uniqueness and remote hash validity are checked by Slack. ViewsPublish response exposes ok and raw view JSON.
     implementation_status: supported
     inbound_status: partial
-    evidence_paths: [src/slack/api/endpoints/views_publish.cr, src/slack/models/views/views_publish.cr, spec/api/views_publish_spec.cr, spec/api/transport_injection_spec.cr, spec/fixtures/block_kit/phase_4_views_publish.json]
+    evidence_paths: [src/slack/api/requests/views/publish.cr, src/slack/models/views/views_publish.cr, spec/api/views_publish_spec.cr, spec/api/client_spec.cr, spec/fixtures/block_kit/phase_4_views_publish.json]
 
   - wire_type: plain-text menu option
     kind: composition object
@@ -1246,11 +1246,11 @@ rules:
     evidence_paths: ["spec/api/views_push_spec.cr", "examples/support/view_push_example.cr", "spec/block_kit_consumers_spec.cr"]
   - id: views_push_trigger_policy
     classification: "library_policy"
-    requirement: "Nonblank opaque trigger_id plus an owned Modal snapshot only. interactivity_pointer omitted; local validation precedes dispatch, and the response is cached without automatic retry."
+    requirement: "Nonblank opaque trigger_id plus an owned Modal snapshot only. interactivity_pointer omitted; local validation precedes dispatch, and the client makes one attempt without automatic retry."
     source_url: "https://docs.slack.dev/reference/methods/views.push/"
     source_section: "Arguments; trigger-only scope and nonblank check are library policy"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/api/views_push_spec.cr", "spec/api/transport_injection_spec.cr"]
+    evidence_paths: ["spec/api/views_push_spec.cr", "spec/api/client_spec.cr"]
 
   - id: modal-errors-acknowledgment
     classification: library_support

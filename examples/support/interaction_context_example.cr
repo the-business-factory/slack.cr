@@ -66,8 +66,8 @@ module OfflineInteractionContextExample
       approved = UI.message(fallback_text: "Release 2.0 approved.") do |builder|
         builder.section(UI.mrkdwn("*Release 2.0 approved.*"), block_id: "decision.done")
       end
-      Slack::Api::ChatUpdate.new(token: TOKEN, channel: container.channel_id, ts: container.message_ts,
-        message: approved, transport: OfflineExample::WebMockTransport.new).call
+      client = Slack::Api::Client.new(token: TOKEN, transport: OfflineExample::WebMockTransport.new)
+      client.call(Slack::Api::ChatUpdate.new(channel: container.channel_id, ts: container.message_ts, message: approved))
       output.puts "Approved in ##{channel_name} at #{container.message_ts}"
     else
       output.puts "Ignored click outside a message"

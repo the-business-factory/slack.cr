@@ -21,7 +21,8 @@ module OfflineViewUpdateExample
       raise "Incorrect opening request" unless JSON.parse(request.body || raise "Missing open request") == expected
       HTTP::Client::Response.new(200, body: %({"ok":true,"view":{"id":"V123","type":"modal","hash":"opened-hash"}}))
     end
-    opened = Slack::Api::ViewsOpen.new(token: token, trigger_id: "synthetic-trigger", view: original, transport: transport).call
+    client = Slack::Api::Client.new(token: token, transport: transport)
+    opened = client.call(Slack::Api::ViewsOpen.new(trigger_id: "synthetic-trigger", view: original))
 
     # Change display content while retaining the input's block_id and action_id.
     # The stub checks transmitted IDs, not Slack's preservation of a user's text.
@@ -39,9 +40,7 @@ module OfflineViewUpdateExample
       raise "Incorrect update or changed input IDs" unless JSON.parse(request.body || raise "Missing update request") == expected
       HTTP::Client::Response.new(200, body: %({"ok":true,"view":{"id":"V123","type":"modal","hash":"next-hash"}}))
     end
-    updated = Slack::Api::ViewsUpdate.new(token: token,
-      view_id: opened.view["id"].as_s, hash: opened.view["hash"].as_s,
-      view: updated_view, transport: transport).call
+    updated = client.call(Slack::Api::ViewsUpdate.new(view_id: opened.view["id"].as_s, hash: opened.view["hash"].as_s, view: updated_view))
     output.puts "Updated modal #{updated.view["id"]} with stable reason/text input IDs (hash #{updated.view["hash"]})."
   end
 end

@@ -1,5 +1,5 @@
 require "../spec_helper"
-require "../support/auth/webmock_transport"
+require "../support/api/webmock_client"
 
 module RichTextInputSnapshotSpec
   alias UI = Slack::UI
@@ -14,8 +14,9 @@ module RichTextInputSnapshotSpec
       element: UI::BlockElements::RichTextInput.new(action_id: "summary", initial_value: draft,
         dispatch_action_config: config, placeholder: UI.plain("What are you working on?"), max_lines: 12))
     view = builder.build
-    request = Slack::Api::ViewsPublish.new(token: "xoxb-synthetic", user_id: "U-SYNTHETIC",
-      view: view, transport: AuthSupport::WebMockTransport.new)
+    client = ApiSupport.client("xoxb-synthetic")
+    request = Slack::Api::ViewsPublish.new(user_id: "U-SYNTHETIC",
+      view: view)
     items.clear
     draft.elements.clear
     builder.divider
@@ -37,7 +38,7 @@ module RichTextInputSnapshotSpec
       JSON.parse(http_request.body || fail("Missing body")).should eq expected
       HTTP::Client::Response.new(200, body: %({"ok":true,"view":{"id":"V-SYNTHETIC","type":"home"}}))
     end
-    request.call.view["id"].should eq "V-SYNTHETIC"
+    client.call(request).view["id"].should eq "V-SYNTHETIC"
     sent.should eq 1
   end
 end

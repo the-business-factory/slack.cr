@@ -35,9 +35,8 @@ module OfflineVideoExample
         video_url: "https://videos.example.test/embed/release-4-2",
         provider_name: "Example Video", block_id: "release.video")
     end
-    posted = Slack::Api::ChatPostMessage.new(
-      token: "xoxb-synthetic-video", channel: "C123", message: message,
-      transport: OfflineExample::WebMockTransport.new).call
+    client = Slack::Api::Client.new(token: "xoxb-synthetic-video", transport: OfflineExample::WebMockTransport.new)
+    posted = client.call(Slack::Api::ChatPostMessage.new(channel: "C123", message: message))
     output.puts "Posted video message #{posted.channel}/#{posted.ts}"
 
     begin

@@ -1,46 +1,45 @@
 require "../spec_helper"
-require "../support/auth/webmock_transport"
+require "../support/api/webmock_client"
 
-CHANNEL_CONVERSATION_ID = "C032TLM43GA"
-IM_CONVERSATION_ID      = "D03ATRRQDMH"
+private def stub_conversation(channel : String) : Nil
+  WebMock.stub(:post, "https://slack.com/api/conversations.info")
+    .with(body: "channel=#{channel}", headers: {"Authorization" => "Bearer xoxb-synthetic",
+                                                "Content-Type"  => "application/x-www-form-urlencoded"})
+    .to_return(body: File.read("spec/fixtures/api/conversations-info-#{channel}.json"))
+end
 
 describe Slack::Api::ConversationsInfo do
-  context "IM conversations" do
-    describe "#call" do
-      it "should request the conversation info resource from the API" do
-        WebMock.stub(:get, "https://slack.com/api/conversations.info?channel=#{IM_CONVERSATION_ID}")
-          .with(headers: {"Authorization" => "Bearer #{ENV.fetch("SLACK_TEAM_AUTH_TOKEN")}"})
-          .to_return(body: File.read("spec/fixtures/api/conversations-info-#{IM_CONVERSATION_ID}.json"))
+  it "reads a direct message conversation as an IM" do
+    stub_conversation("D03ATRRQDMH")
 
-        token = ENV.fetch("SLACK_TEAM_AUTH_TOKEN")
-        response = Slack::Api::ConversationsInfo
-          .new(token: token, channel: IM_CONVERSATION_ID, transport: AuthSupport::WebMockTransport.new)
-          .call
-          .should be_a(Slack::Models::IMChat)
+    im = ApiSupport.client.call(Slack::Api::ConversationsInfo.new("D03ATRRQDMH")).should be_a(Slack::Models::IMChat)
 
-        response.latest.user.should eq(response.user)
-      end
-    end
+    im.latest.user.should eq im.user
   end
 
-  context "Channels" do
-    describe "#call" do
-      it "should request the conversation info resource from the API" do
-        WebMock.stub(:get, "https://slack.com/api/conversations.info?channel=#{CHANNEL_CONVERSATION_ID}")
-          .with(headers: {"Authorization" => "Bearer #{ENV.fetch("SLACK_TEAM_AUTH_TOKEN")}"})
-          .to_return(body: File.read("spec/fixtures/api/conversations-info-#{CHANNEL_CONVERSATION_ID}.json"))
+  it "reads a channel as a public channel" do
+    stub_conversation("C032TLM43GA")
 
-        token = ENV.fetch("SLACK_TEAM_AUTH_TOKEN")
-        response = Slack::Api::ConversationsInfo
-          .new(token: token, channel: CHANNEL_CONVERSATION_ID, transport: AuthSupport::WebMockTransport.new)
-          .call
-          .should be_a(Slack::Models::PublicChannel)
+    channel = ApiSupport.client.call(Slack::Api::ConversationsInfo.new("C032TLM43GA"))
+      .should be_a(Slack::Models::PublicChannel)
 
-        response.name.should eq "links"
-      end
-    end
+    channel.name.should eq "links"
   end
 
-  context "MPIM channels" do
+  it "reads a private channel from the channel object" do
+    WebMock.stub(:post, "https://slack.com/api/conversations.info")
+      .to_return(body: %({"ok":true,"channel":{"id":"G1","is_group":true,"created":1449252889}}))
+
+    channel = ApiSupport.client.call(Slack::Api::ConversationsInfo.new("G1")).should be_a(Slack::Models::PrivateChannel)
+
+    channel.created.should eq Time.unix(1449252889)
+  end
+
+  it "reports a response without a channel object as invalid" do
+    WebMock.stub(:post, "https://slack.com/api/conversations.info").to_return(body: %({"ok":true}))
+
+    expect_raises(Slack::Api::Error) do
+      ApiSupport.client.call(Slack::Api::ConversationsInfo.new("C1"))
+    end.code.should eq "invalid_response"
   end
 end

@@ -13,7 +13,7 @@ abstract struct Slack::Model
         pull.skip
       end
     end
-    return_value || raise Slack::Errors::Api.new(json)
+    return_value || raise JSON::ParseException.new("Missing #{find_key} object", 0, 0)
   end
 
   def self.keyed_json_object(json : String | IO, find_key : String)
