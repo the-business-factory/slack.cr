@@ -864,6 +864,17 @@ entries:
     inbound_status: unsupported
     evidence_paths: [src/slack/ui/checked/blocks/container.cr, spec/ui/checked/container_block_spec.cr, spec/fixtures/block_kit/container_message.json, spec/block_kit_diagnostics_spec.cr, examples/support/container_example.cr, spec/block_kit_consumers_spec.cr]
 
+  - wire_type: socket mode acknowledgment
+    kind: socket mode frame
+    documentation_url: https://docs.slack.dev/apis/events-api/using-socket-mode
+    fields_supported: [envelope_id, payload]
+    parents: [events_api, interactive, slash_commands]
+    surfaces: [socket mode]
+    restrictions: "SocketMode::Frame decodes hello, disconnect (warning, refresh_requested, link_disabled, or an unknown reason by name), envelopes of any type, and other frames raw. Envelope#event, #interaction, and #command decode the raw payload bytes with the HTTP-path decoders and raise TypeMismatch for the wrong kind; commands reject duplicate routing fields. retry_attempt and retry_reason are SDK-sourced (Bolt JS socket-mode client) and nilable. Acknowledgment writes envelope_id and adds payload only when given: ModalErrors, ModalPush, ModalUpdate, ModalClear, or BlockSuggestionResponse. Slash command response messages are not supported yet. No WebSocket connection, reconnect, three-second deadline, or accepts_response_payload enforcement. Offline fixtures do not prove live frame shapes or timing."
+    implementation_status: supported
+    inbound_status: supported
+    evidence_paths: [src/slack/socket_mode/frame.cr, src/slack/socket_mode/envelope.cr, src/slack/socket_mode/acknowledgment.cr, spec/socket_mode/frame_spec.cr, spec/socket_mode/acknowledgment_spec.cr, examples/support/socket_mode_example.cr, spec/block_kit_consumers_spec.cr]
+
 # Classification is independent of support status. Missing features are not invalid Slack payloads.
 review_policy:
   cadence: Before each release and at least every 90 days.

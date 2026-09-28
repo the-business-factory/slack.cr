@@ -40,6 +40,7 @@ require "../examples/support/workflow_button_example"
 require "../examples/support/context_actions_example"
 require "../examples/support/event_delivery_example"
 require "../examples/support/alert_example"
+require "../examples/support/socket_mode_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -496,5 +497,22 @@ describe "documented Block Kit workflows" do
     response.status_code.should eq(200)
     response.body.should be_empty
     output.to_s.should eq("Skipped synthetic_future_event Ev-SYNTHETIC (retry 1: http_timeout)\n")
+  end
+
+  it "decodes Socket Mode frames and acknowledges each envelope" do
+    output = IO::Memory.new
+    acks = OfflineSocketModeExample.run(output)
+    output.to_s.lines.should eq [
+      "Connected as A-SYNTHETIC (1 of 10 connections)",
+      "Mentioned in C-SYNTHETIC",
+      "Command /request: test environment",
+      "Rejected short reason",
+      "Disconnect: refresh_requested",
+    ]
+    acks.map { |ack| JSON.parse(ack) }.should eq [
+      JSON.parse(%({"envelope_id":"E-EVENT"})),
+      JSON.parse(%({"envelope_id":"E-COMMAND"})),
+      JSON.parse(%({"envelope_id":"E-SUBMIT","payload":{"response_action":"errors","errors":{"request.reason":"Explain why you need this request (at least 10 characters)."}}})),
+    ]
   end
 end

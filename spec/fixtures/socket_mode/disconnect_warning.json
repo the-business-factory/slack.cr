@@ -1,0 +1,7 @@
+{
+  "type": "disconnect",
+  "reason": "warning",
+  "debug_info": {
+    "host": "wss-synthetic.slack.com"
+  }
+}

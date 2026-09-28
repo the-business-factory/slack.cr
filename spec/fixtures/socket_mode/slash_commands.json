@@ -1,0 +1,20 @@
+{
+  "payload": {
+    "token": "synthetic-verification-token",
+    "team_id": "T-SYNTHETIC",
+    "team_domain": "synthetic",
+    "channel_id": "C-SYNTHETIC",
+    "channel_name": "general",
+    "user_id": "U-SYNTHETIC",
+    "user_name": "synthetic.user",
+    "command": "/deploy",
+    "text": "release-42 <@U0REVIEWER|reviewer>",
+    "api_app_id": "A-SYNTHETIC",
+    "is_enterprise_install": "false",
+    "response_url": "https://hooks.slack.com/commands/T-SYNTHETIC/1/synthetic",
+    "trigger_id": "1710000000.synthetic.trigger"
+  },
+  "envelope_id": "c1a4b5b2-6f0e-4b57-9d0e-0b1f3f3a8d11",
+  "type": "slash_commands",
+  "accepts_response_payload": true
+}

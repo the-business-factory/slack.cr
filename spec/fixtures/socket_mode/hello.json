@@ -1,0 +1,12 @@
+{
+  "type": "hello",
+  "num_connections": 2,
+  "debug_info": {
+    "host": "applink-synthetic-1",
+    "build_number": 54,
+    "approximate_connection_time": 3600
+  },
+  "connection_info": {
+    "app_id": "A-SYNTHETIC"
+  }
+}

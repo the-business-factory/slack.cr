@@ -1,0 +1,45 @@
+{
+  "payload": {
+    "type": "block_actions",
+    "team": {
+      "id": "T-SYNTHETIC",
+      "domain": "synthetic"
+    },
+    "user": {
+      "id": "U-SYNTHETIC",
+      "username": "synthetic.user",
+      "team_id": "T-SYNTHETIC"
+    },
+    "api_app_id": "A-SYNTHETIC",
+    "token": "synthetic-verification-token",
+    "container": {
+      "type": "message",
+      "message_ts": "1710000000.000200",
+      "channel_id": "C-SYNTHETIC",
+      "is_ephemeral": false
+    },
+    "trigger_id": "1710000000.synthetic.trigger",
+    "channel": {
+      "id": "C-SYNTHETIC",
+      "name": "deploys"
+    },
+    "response_url": "https://hooks.slack.com/actions/A-SYNTHETIC/1/synthetic",
+    "actions": [
+      {
+        "action_id": "deploy.approve",
+        "block_id": "deploy.controls",
+        "text": {
+          "type": "plain_text",
+          "text": "Approve",
+          "emoji": true
+        },
+        "value": "release-42",
+        "type": "button",
+        "action_ts": "1710000001.000300"
+      }
+    ]
+  },
+  "envelope_id": "dbdd0ef3-1543-4f94-bfb4-133d0e6c1545",
+  "type": "interactive",
+  "accepts_response_payload": true
+}

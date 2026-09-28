@@ -90,6 +90,22 @@ The envelope also gives `is_ext_shared_channel`, `context_team_id`, `context_ent
 
 Slack retries a delivery up to three times when the app does not return HTTP 2xx within three seconds. To stop retries for a failed delivery, add `Slack::Events::Delivery::NO_RETRY_HEADER` with `NO_RETRY_VALUE` (`X-Slack-No-Retry: 1`) to the non-2xx response. The library does not send responses or remove duplicate deliveries; use `event_id` for that. The offline specs do not prove Slack retry timing or behavior.
 
+## Socket Mode
+
+Decode Socket Mode frames and build acknowledgments offline. The library does not open the WebSocket.
+
+```crystal
+require "slack"
+
+frame = Slack::SocketMode::Frame.parse(text)
+if frame.is_a?(Slack::SocketMode::Envelope)
+  command = frame.command if frame.kind.slash_commands?
+  websocket.send(Slack::SocketMode::Acknowledgment.new(frame.envelope_id).to_json)
+end
+```
+
+See [Socket Mode](documentation/socket-mode.md) for frame types, payload decoding, and acknowledgment payloads.
+
 ## Runnable examples
 
 From a repository checkout, run `shards install` first. The modal, Home, and static choice examples use the development dependency WebMock. They use synthetic credentials and stub HTTP requests; they do not contact Slack.
@@ -132,9 +148,10 @@ crystal run examples/block_kit_markdown.cr
 crystal run examples/block_kit_workflow_button.cr
 crystal run examples/block_kit_alert.cr
 crystal run examples/event_delivery.cr
+crystal run examples/socket_mode_protocol.cr
 ```
 
-The examples show checked message construction, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, and message workflow buttons. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
+The examples show checked message construction, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, message workflow buttons, and Socket Mode frames with their acknowledgments. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
 
 ## Contributing
 

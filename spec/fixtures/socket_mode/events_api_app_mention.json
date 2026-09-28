@@ -1,0 +1,34 @@
+{
+  "envelope_id": "57d6a792-4d35-4d0b-b6aa-3361493e1caf",
+  "payload": {
+    "token": "synthetic-verification-token",
+    "team_id": "T-SYNTHETIC",
+    "api_app_id": "A-SYNTHETIC",
+    "event": {
+      "type": "app_mention",
+      "user": "U-SYNTHETIC",
+      "text": "<@U-BOT> deploy status",
+      "ts": "1710000000.000100",
+      "channel": "C-SYNTHETIC",
+      "event_ts": "1710000000.000100"
+    },
+    "type": "event_callback",
+    "event_id": "Ev-SYNTHETIC",
+    "event_time": 1710000000,
+    "authorizations": [
+      {
+        "enterprise_id": null,
+        "team_id": "T-SYNTHETIC",
+        "user_id": "U-BOT",
+        "is_bot": true,
+        "is_enterprise_install": false
+      }
+    ],
+    "is_ext_shared_channel": false,
+    "event_context": "4-synthetic-context"
+  },
+  "type": "events_api",
+  "accepts_response_payload": false,
+  "retry_attempt": 1,
+  "retry_reason": "timeout"
+}

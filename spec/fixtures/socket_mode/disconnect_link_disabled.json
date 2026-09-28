@@ -1,0 +1,7 @@
+{
+  "type": "disconnect",
+  "reason": "link_disabled",
+  "debug_info": {
+    "host": "wss-synthetic.slack.com"
+  }
+}
