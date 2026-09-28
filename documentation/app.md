@@ -45,6 +45,7 @@ Register listeners before the app receives requests. Each registration method gi
 | `options(action_id)` | `block_suggestion` | `OptionsContext`: `payload` | `ack(BlockSuggestionResponse)` |
 | `view(callback_id)` | `view_submission` | `ViewContext`: `payload` | `ack`, `ack(ModalErrors \| ModalPush \| ModalUpdate \| ModalClear)` |
 | `view_closed(callback_id)` | `view_closed` | `ViewClosedContext`: `payload` | `ack` |
+| `assistant(assistant)` | App thread events and user messages in the app's direct messages | `AssistantContext(E)`: `envelope`, `event`, `say`, `set_status`, `stream` | Automatic, before the handler runs |
 
 Matching rules:
 
@@ -52,6 +53,7 @@ Matching rules:
 - A string `message` pattern matches text that contains it, as in Bolt. A `Regex` matches the text. Nil matches every message.
 - `action` uses the first action of the payload. Slack sends one action for each click.
 - For each request, only the first matching listener runs, in registration order.
+- `assistant` adds the handlers of a `Slack::App::Assistant`. See [Answer app threads with the assistant helper](ai-apps.md#answer-app-threads-with-the-assistant-helper).
 - `ActionContext` and `ViewContext` give `function_execution` for blocks and views that a custom step created. See [Handle a step](workflows.md#handle-a-step).
 
 Every context also gives:

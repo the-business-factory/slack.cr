@@ -21,6 +21,12 @@ struct Slack::Models::Message < Slack::Model
   getter attachments : JSON::Any?
   getter metadata : JSON::Any?
 
+  # A copy of the blocks as Slack sent them, for example to send them back
+  # unchanged with `chat.update`. Nil when the message has no blocks.
+  def blocks_json : JSON::Any?
+    @blocks_raw.try(&.clone)
+  end
+
   # Returns an empty array when the message has no blocks. Raises
   # `Slack::Interactions::TypeMismatch` for a malformed known block.
   def blocks : Array(Slack::Interactions::ReceivedBlock)

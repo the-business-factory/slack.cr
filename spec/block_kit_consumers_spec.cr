@@ -65,6 +65,7 @@ require "../examples/support/incident_triage_example"
 require "../examples/support/app_manifest_example"
 require "../examples/support/custom_step_example"
 require "../examples/support/socket_mode_app_example"
+require "../examples/support/assistant_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -846,5 +847,22 @@ describe "documented Block Kit workflows" do
     response.uri.to_s.should eq "https://hooks.slack.com/commands/T-SYNTHETIC/1/synthetic"
     response.headers["Authorization"]?.should be_nil
     JSON.parse(response.body || "").should eq JSON.parse(%({"text":"Only you can see this: deploy queued."}))
+  end
+
+  it "greets an app thread and streams an answer with the stored thread context" do
+    output = IO::Memory.new
+    requests = OfflineAssistantExample.run(output)
+    output.to_s.lines.should eq ["chat.postMessage", "assistant.threads.setSuggestedPrompts",
+                                 "assistant.threads.setStatus", "conversations.replies", "conversations.replies",
+                                 "chat.startStream", "chat.appendStream", "chat.stopStream"]
+    requests.all? { |request| request.headers["Authorization"] == "Bearer xoxb-synthetic-assistant" }.should be_true
+    bodies = requests.map { |request| request.body || "" }
+    # Authored from the chat.postMessage, assistant.threads.*, and chat.*Stream references, not from the serializer.
+    JSON.parse(bodies[0]).should eq JSON.parse(%({"channel":"D-ASSISTANT","text":"Hi! Ask me about a channel.","thread_ts":"1729999327.187299","metadata":{"event_type":"assistant_thread_context","event_payload":{"channel_id":"C-SALES","team_id":"T-SYNTHETIC"}}}))
+    JSON.parse(bodies[1]).should eq JSON.parse(%({"channel_id":"D-ASSISTANT","prompts":[{"title":"Summarize","message":"Summarize this channel."}]}))
+    JSON.parse(bodies[2]).should eq JSON.parse(%({"channel_id":"D-ASSISTANT","thread_ts":"1729999327.187299","status":"is thinking..."}))
+    JSON.parse(bodies[5]).should eq JSON.parse(%({"channel":"D-ASSISTANT","thread_ts":"1729999327.187299","recipient_user_id":"U-USER","recipient_team_id":"T-SYNTHETIC"}))
+    JSON.parse(bodies[6]).should eq JSON.parse(%({"channel":"D-ASSISTANT","ts":"1729999501.000100","markdown_text":"Summary of <#C-SALES>: sales grew 4%."}))
+    JSON.parse(bodies[7]).should eq JSON.parse(%({"channel":"D-ASSISTANT","ts":"1729999501.000100","session_status":"closed","metadata":{"event_type":"assistant_thread_context","event_payload":{"channel_id":"C-SALES","team_id":"T-SYNTHETIC"}}}))
   end
 end

@@ -4,7 +4,9 @@ struct Slack::Events::Message < Slack::Event
   @[JSON::Field(key: "blocks", emit_null: false)]
   @blocks_raw : JSON::Any?
 
+  # `bot_id` is set on messages that an app or bot posts.
   property attachments : Array(Slack::EventData::Attachment)?,
+    bot_id : String?,
     channel : String?,
     channel_type : String?,
     client_msg_id : String?,

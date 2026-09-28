@@ -2172,3 +2172,10 @@ rules:
     source_section: "tokens_revoked; app_uninstalled"
     reviewed_on: "2026-09-28"
     evidence_paths: [src/slack/app/error_reporting.cr, src/slack/app/lifecycle_routing.cr, src/slack/app/lifecycle_history.cr, src/slack/auth/credential_lifecycle.cr, spec/app/replies_spec.cr]
+  - id: app_assistant
+    classification: library_policy
+    requirement: "Slack::App::Assistant routes assistant_thread_started, assistant_thread_context_changed, and message events with channel_type im, a thread_ts, no subtype, and no bot_id to their handlers, acknowledged before the handler runs; without a thread_context_changed handler it saves the new context. say, set_status, set_title, and stream use the thread channel and thread_ts; set_suggested_prompts omits thread_ts because Slack says a call with it fails silently for agent apps. say and the stop of stream carry the thread context as metadata (event_type assistant_thread_context). MetadataThreadContextStore reads the first four thread messages with conversations.replies and uses the bot user's first message without a subtype; save sends chat.update with that message's text, blocks, and the new metadata, as Bolt's default store does. Offline specs do not prove that Slack accepts the requests."
+    source_url: https://docs.slack.dev/reference/methods/assistant.threads.setSuggestedPrompts
+    source_section: "Arguments: thread_ts; assistant_thread_started and assistant_thread_context_changed events"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [src/slack/app/assistant.cr, src/slack/app/assistant_context.cr, src/slack/app/assistant/metadata_thread_context_store.cr, spec/app/assistant_spec.cr, examples/support/assistant_example.cr, spec/block_kit_consumers_spec.cr]

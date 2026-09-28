@@ -1,6 +1,6 @@
 # AI apps
 
-This guide shows how to stream a message with the Web API. Slack shows the text while the app writes it. See the Slack references for [`chat.startStream`](https://docs.slack.dev/reference/methods/chat.startStream), [`chat.appendStream`](https://docs.slack.dev/reference/methods/chat.appendStream), and [`chat.stopStream`](https://docs.slack.dev/reference/methods/chat.stopStream). All three need the `chat:write` scope.
+This guide shows how to stream a message with the Web API, show a plan with task cards, change app threads and agent sessions, and answer app threads with the `Slack::App::Assistant` helper. Slack shows the text while the app writes it. See the Slack references for [`chat.startStream`](https://docs.slack.dev/reference/methods/chat.startStream), [`chat.appendStream`](https://docs.slack.dev/reference/methods/chat.appendStream), and [`chat.stopStream`](https://docs.slack.dev/reference/methods/chat.stopStream). All three need the `chat:write` scope.
 
 ## Stream a message
 
@@ -176,3 +176,83 @@ renamed.title # => "Bora Bora trip prep"
 - The response fields `status` and `agent_status` are strings, so a new Slack status value does not make a successful call fail.
 
 Offline specs do not prove that Slack accepts or shows a status, prompts, or a title. Slack checks the channel, thread, app type, and permissions.
+
+## Answer app threads with the assistant helper
+
+`Slack::App::Assistant` handles the events of app threads in a `Slack::App`, like Bolt's `Assistant` class. Register handlers, then add the assistant to the app:
+
+```crystal
+assistant = Slack::App::Assistant.new
+
+assistant.thread_started do |ctx|
+  ctx.say("Hi! Ask me about a channel.")
+  ctx.set_suggested_prompts([Slack::Api::SuggestedPrompt.new("Summarize", "Summarize this channel.")])
+end
+
+assistant.user_message do |ctx|
+  ctx.set_status("is thinking...")
+  channel = ctx.thread_context.try(&.channel_id)
+  ctx.stream do |stream|
+    stream.append(ctx.client, markdown_text: answer_for(ctx.event.text, channel)) # your model call
+  end
+end
+
+app.assistant(assistant)
+```
+
+| Handler | Event | Context event (`ctx.event`) |
+| --- | --- | --- |
+| `thread_started` | `assistant_thread_started` | `Events::AssistantThreadStarted` |
+| `thread_context_changed` | `assistant_thread_context_changed` | `Events::AssistantThreadContextChanged` |
+| `user_message` | `message` with `channel_type` `im` and a `thread_ts`, without a subtype or a `bot_id` | `Events::Message` |
+
+Rules:
+
+- The app acknowledges each event before the handler runs. Handler exceptions go to `app.error`.
+- Register the handlers before `app.assistant`. Events without a handler go to the other listeners.
+- The first listener that matches runs. Add the assistant before a `message` or `event("message")` listener for the same messages.
+- Without a `thread_context_changed` handler, the assistant saves the new context. A handler replaces this default; call `ctx.save_thread_context` in it to keep the context.
+- Scopes: `assistant:write`, `chat:write`, and `im:history`. Subscribe to `assistant_thread_started`, `assistant_thread_context_changed`, and `message.im`.
+
+Each utility of `AssistantContext` sends requests to the thread (`ctx.channel_id`, `ctx.thread_ts`) through `ctx.client`:
+
+| Utility | Slack method |
+| --- | --- |
+| `say(text)`, `say(message)` | `chat.postMessage` in the thread, with the thread context as metadata when there is one |
+| `set_status(status, loading_messages)` | `assistant.threads.setStatus`; an empty status clears it |
+| `set_suggested_prompts(prompts, title)` | `assistant.threads.setSuggestedPrompts`, without `thread_ts` (see [App threads](#app-threads)) |
+| `set_title(title)` | `assistant.threads.setTitle` |
+| `thread_context` | The context of a thread event, or the context store |
+| `save_thread_context(context)` | The context store; the default is the context of the thread event |
+| `stream(task_display_mode:, session_status:) { \|stream\| }` | `chat.startStream`, then your `append` calls, then `chat.stopStream` |
+
+`stream` reads the thread context first, so a failed read raises before Slack opens a stream. It then starts the message without content, yields the `Api::MessageStream`, and stops it with `session_status` (default `Closed`) and the thread context as metadata. Your first `append` chooses the content mode (text or chunks). It sends `recipient_user_id` and `recipient_team_id` when the event has a user and a team. When the block raises, the stream is not stopped.
+
+### Thread context
+
+The thread context (`EventData::AssistantThreadContext`) is the channel that the user views. Thread events include it; user messages do not. So the assistant keeps it in a `ThreadContextStore`.
+
+The default, `MetadataThreadContextStore`, works like Bolt's default store. It keeps the context in the metadata (`event_type` `assistant_thread_context`) of the app's first reply in the thread:
+
+- `get` reads the first four messages with `conversations.replies` and uses the first message of the bot user without a subtype. The bot user comes from the event's `authorizations`.
+- `save` sends `chat.update` for that message with its text, its blocks, and the new metadata.
+- Before the app replies, `get` returns nil and `save` does nothing. `say` and `stream` add the metadata, so greet the user in `thread_started`.
+- Each `thread_context` call on a user message reads the store again, and so do `say` and `stream`.
+
+To keep the context somewhere else, subclass `ThreadContextStore` and give it to the assistant:
+
+```crystal
+class DatabaseContextStore < Slack::App::Assistant::ThreadContextStore
+  def get(*, client, channel_id, thread_ts, bot_user_id) : Slack::EventData::AssistantThreadContext?
+    # read your database
+  end
+
+  def save(*, client, channel_id, thread_ts, bot_user_id, context) : Nil
+    # write your database
+  end
+end
+
+assistant = Slack::App::Assistant.new(context_store: DatabaseContextStore.new)
+```
+
+The helper does not call a language model, start fibers, or clear a status for you. Offline specs do not prove that Slack accepts the requests or shows the thread. See [examples/assistant.cr](../examples/assistant.cr).

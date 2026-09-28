@@ -12,6 +12,11 @@ class Slack::App::Router
     end
   end
 
+  # Adds a route that another type builds, such as an `Assistant` route.
+  def add(route : Route) : Nil
+    @routes << route
+  end
+
   def event(type : String, middleware : Array(Middleware), handler : Proc(EventContext, Nil)) : Nil
     @routes << TypedRoute(EventContext).new(middleware, handler, acknowledge_first: true) do |payload, environment|
       if payload.is_a?(Slack::VerifiedEvent) && payload.event.type == type
