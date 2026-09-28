@@ -73,6 +73,8 @@ module SurfaceConsumer
     case block
     in UI::Blocks::Input
       "input"
+    in UI::Blocks::File
+      "message-only"
     in UI::DisplayModalBlock
       "display"
     end
@@ -82,22 +84,27 @@ module SurfaceConsumer
     block.label.text
   end
 
+  def self.caption(block : UI::Blocks::File) : String
+    block.external_id
+  end
+
   def self.caption(block : UI::DisplayModalBlock) : String
     block.type
   end
 end
 
 describe "typed surface consumers" do
-  it "dispatches Input and display blocks through exhaustive cases and overloads" do
+  it "dispatches Input, message-only, and display blocks through exhaustive cases and overloads" do
     input = Slack::UI::Checked::Blocks::Input.new(
       label: Slack::UI::Checked.plain("Note"),
       element: Slack::UI::Checked::BlockElements::PlainTextInput.new
     )
     display_blocks = [Slack::UI::Checked::Blocks::Divider.new] of Slack::UI::Checked::DisplayModalBlock
-    message_blocks = [display_blocks.first, input] of Slack::UI::Checked::MessageBlock
+    file = Slack::UI::Checked::Blocks::File.new(external_id: "ABCD1")
+    message_blocks = [display_blocks.first, input, file] of Slack::UI::Checked::MessageBlock
     consumer_message = Slack::UI::Checked::Message.new(fallback_text: "Note", blocks: message_blocks)
     Slack::UI::Checked::DisplayModal.new(title: Slack::UI::Checked.plain("Display"), blocks: display_blocks)
-    consumer_message.blocks.map { |block| SurfaceConsumer.kind(block) }.should eq(["display", "input"])
-    consumer_message.blocks.map { |block| SurfaceConsumer.caption(block) }.should eq(["divider", "Note"])
+    consumer_message.blocks.map { |block| SurfaceConsumer.kind(block) }.should eq(["display", "input", "message-only"])
+    consumer_message.blocks.map { |block| SurfaceConsumer.caption(block) }.should eq(["divider", "Note", "ABCD1"])
   end
 end
