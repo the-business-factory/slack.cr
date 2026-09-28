@@ -463,7 +463,7 @@ entries:
     fields_supported: [type, external_id, source, block_id]
     parents: [message]
     surfaces: [message]
-    restrictions: File is a message-only block with a nonempty external_id, a fixed "remote" source, and an optional block_id of 255 characters. The nonempty external_id is library policy. Home and modal surfaces reject it at compile time. Slack does not let apps add the block to messages directly; apps share remote files with files.remote.share or place the block in their own chat.unfurl request. No remote-file or unfurl API. Received blocks decode as ReceivedBlocks::File with external_id and source. Slack checks that the remote file exists.
+    restrictions: File is a message-only block with a nonempty external_id, a fixed "remote" source, and an optional block_id of 255 characters. The nonempty external_id is library policy. Home and modal surfaces reject it at compile time. Slack does not let apps add the block to messages directly; apps share remote files with files.remote.share or place the block in their own chat.unfurl request. FilesRemoteAdd and FilesRemoteShare cover the remote-file requests; there is no unfurl API. Received blocks decode as ReceivedBlocks::File with external_id and source. Slack checks that the remote file exists.
     implementation_status: supported
     inbound_status: supported
     evidence_paths: [src/slack/ui/blocks/file.cr, spec/ui/file_block_spec.cr, spec/block_kit_diagnostics_spec.cr, examples/support/remote_file_example.cr, spec/block_kit_consumers_spec.cr, src/slack/interactions/received_blocks/file.cr, spec/interactions/received_blocks_spec.cr]
@@ -632,6 +632,28 @@ entries:
     implementation_status: supported
     inbound_status: partial
     evidence_paths: [src/slack/api/requests/views/publish.cr, src/slack/models/views/views_publish.cr, spec/api/views_publish_spec.cr, spec/api/client_spec.cr, spec/fixtures/block_kit/phase_4_views_publish.json]
+
+  - wire_type: files.getUploadURLExternal and files.completeUploadExternal requests
+    kind: endpoint
+    documentation_url: https://docs.slack.dev/reference/methods/files.completeUploadExternal
+    fields_supported: [filename, length, alt_txt, snippet_type, files, channel_id, channels, thread_ts, initial_comment, blocks, username, icon_url, icon_emoji]
+    parents: []
+    surfaces: [message]
+    restrictions: FileUpload runs the three-step flow for one file; the byte POST uses application/octet-stream, no token, and the transport passed to run, and a non-2xx status raises http_error without completing. The whole file stays in memory; streaming uploads, files.upload, files.list and multipart remote fields are unsupported. alt_txt is limited to 1000 characters and channels to 100 IDs. Library policy rejects channel_id with channels, initial_comment with blocks, icon_url with icon_emoji, and thread_ts without exactly one channel. files and blocks are sent as JSON text in form fields. Slack checks scopes, size limits, malware scanning and channel access.
+    implementation_status: supported
+    inbound_status: partial
+    evidence_paths: [src/slack/api/files/file_upload.cr, src/slack/api/requests/files/get_upload_url_external.cr, src/slack/api/requests/files/complete_upload_external.cr, src/slack/api/requests/files/file_share.cr, src/slack/models/files/file.cr, spec/api/files_spec.cr, examples/support/file_upload_example.cr, spec/block_kit_consumers_spec.cr]
+
+  - wire_type: files.info, files.delete and files.remote requests
+    kind: endpoint
+    documentation_url: https://docs.slack.dev/reference/methods/files.remote.share
+    fields_supported: [file, external_id, external_url, title, filetype, channels]
+    parents: []
+    surfaces: [message]
+    restrictions: FilesInfo reads the file object without comments or comment pagination. FilesRemoteUpdate, FilesRemoteRemove and FilesRemoteShare select the file with RemoteFileTarget.file or RemoteFileTarget.external_id, never both. indexable_file_contents and preview_image are multipart fields and are not sent. File models read id, name, title, mimetype, filetype, size, url_private, permalink, user, created and raw shares; only id is required. Slack checks the remote file and channel access.
+    implementation_status: partial
+    inbound_status: partial
+    evidence_paths: [src/slack/api/requests/files/info.cr, src/slack/api/requests/files/delete.cr, src/slack/api/requests/files/remote_add.cr, src/slack/api/requests/files/remote_update.cr, src/slack/api/requests/files/remote_remove.cr, src/slack/api/requests/files/remote_share.cr, src/slack/api/requests/files/remote_file_target.cr, spec/api/files_spec.cr, examples/support/remote_file_example.cr, spec/block_kit_consumers_spec.cr]
 
   - wire_type: plain-text menu option
     kind: composition object

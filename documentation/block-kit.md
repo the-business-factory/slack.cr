@@ -65,7 +65,7 @@ response = client.call(request)
 
 ## Build a remote file block
 
-A File block shows a remote file. Slack does not let apps add this block to messages directly. To share a remote file, the app adds it with `files.remote.add` and shares it with `files.remote.share`. To show it in a link preview, the app puts the block in its own `chat.unfurl` request. This library does not wrap these methods. Slack shows File blocks in messages that contain remote files.
+A File block shows a remote file. Slack does not let apps add this block to messages directly. To share a remote file, the app adds it with `files.remote.add` and shares it with `files.remote.share`. To show it in a link preview, the app puts the block in its own `chat.unfurl` request. The [files guide](files.md) shows the remote file requests; this library does not wrap `chat.unfurl`. Slack shows File blocks in messages that contain remote files.
 
 ```crystal
 file = UI::Blocks::File.new(external_id: "plan-2026-q4", block_id: "plan.file")

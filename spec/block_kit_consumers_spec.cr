@@ -46,6 +46,7 @@ require "../examples/support/slash_command_example"
 require "../examples/support/received_blocks_example"
 require "../examples/support/web_api_example"
 require "../examples/support/workflow_step_example"
+require "../examples/support/file_upload_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -80,6 +81,12 @@ describe "documented Block Kit workflows" do
     blocks.map(&.["type"].as_s).should eq(["section", "divider", "actions"])
     blocks[0]["text"]["text"].should eq("*Request 42* from Morgan")
     blocks[2]["elements"][0]["value"].should eq("42")
+  end
+
+  it "uploads an in-memory file and shares it to a channel" do
+    output = IO::Memory.new
+    OfflineFileUploadExample.run(output)
+    output.to_s.should eq "Uploaded F123 (Release notes) to C123\n"
   end
 
   it "calls typed and generic Web API methods and reads a Slack error code" do
@@ -137,10 +144,13 @@ describe "documented Block Kit workflows" do
     OfflineMessageUpdateExample.run(output)
     output.to_s.should eq("Updated C123/1710000000.000001: Request 42 approved.\n")
   end
-  it "builds a remote file block for an application's unfurl request" do
+  it "adds and shares a remote file, then builds its block for an unfurl request" do
     output = IO::Memory.new
     OfflineRemoteFileExample.run(output)
-    JSON.parse(output.to_s).should eq JSON.parse(<<-JSON)
+    added, shared, unfurls = output.to_s.lines
+    added.should eq "Added remote file F08EAQ813FW"
+    shared.should eq "Shared plan-2026-q4 to C123"
+    JSON.parse(unfurls).should eq JSON.parse(<<-JSON)
       {"https://docs.example.test/plans/2026-q4":{"blocks":[
         {"type":"file","external_id":"plan-2026-q4","source":"remote","block_id":"plan.file"}]}}
       JSON

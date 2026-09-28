@@ -37,6 +37,8 @@ An unsuccessful result raises `Slack::Api::Error`. `code` is Slack's error name,
 
 The client paces each method locally at its documented [rate limit tier](https://docs.slack.dev/apis/web-api/rate-limits) and makes exactly one attempt. It does not retry. Local pacing does not guarantee that Slack accepts the call. API calls use `https://slack.com/api/` by default. Pass `configuration:` and `transport:` to the client to change this; see [authentication and transport](documentation/authentication.md).
 
+To upload a file or share a remote file, see [files](documentation/files.md). `Slack::Api::FileUpload` runs the three-step upload flow and keeps the file in memory.
+
 | Feature | Credentials and setup |
 | --- | --- |
 | Build or inspect Block Kit values | None. |
@@ -186,6 +188,7 @@ crystal run examples/block_kit_markdown.cr
 crystal run examples/block_kit_workflow_button.cr
 crystal run examples/block_kit_alert.cr
 crystal run examples/web_api.cr
+crystal run examples/file_upload.cr
 crystal run examples/event_delivery.cr
 crystal run examples/socket_mode_protocol.cr
 crystal run examples/interaction_context.cr
@@ -194,7 +197,7 @@ crystal run examples/received_blocks.cr
 crystal run examples/workflow_step.cr
 ```
 
-The examples show Web API calls and error codes, message construction, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, message workflow buttons, typed blocks of a received message, Socket Mode frames with their acknowledgments, a slash command response with a `response_url` reply, and a custom workflow step that completes or fails its execution. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
+The examples show Web API calls and error codes, a file upload, a remote file share, message construction, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, message workflow buttons, typed blocks of a received message, Socket Mode frames with their acknowledgments, a slash command response with a `response_url` reply, and a custom workflow step that completes or fails its execution. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
 
 ## Contributing
 
