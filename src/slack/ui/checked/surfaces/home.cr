@@ -4,6 +4,7 @@ alias Slack::UI::Checked::HomeBlock = Slack::UI::Checked::Blocks::Section |
                                       Slack::UI::Checked::Blocks::Header |
                                       Slack::UI::Checked::Blocks::Context |
                                       Slack::UI::Checked::Blocks::Image |
+                                      Slack::UI::Checked::Blocks::Video |
                                       Slack::UI::Checked::Blocks::Input
 
 struct Slack::UI::Checked::Home

@@ -38,4 +38,24 @@ module Slack::UI::Checked::DisplayBlockHelpers
   def image(*, alt_text : String, slack_file : CompositionObjects::SlackFile, title : CompositionObjects::PlainText? = nil, block_id : String? = nil) : Nil
     add(Blocks::Image.new(alt_text: alt_text, slack_file: slack_file, title: title, block_id: block_id))
   end
+
+  def video(
+    *,
+    alt_text : String,
+    title : CompositionObjects::PlainText,
+    thumbnail_url : String,
+    video_url : String,
+    title_url : String? = nil,
+    description : CompositionObjects::PlainText? = nil,
+    author_name : String? = nil,
+    provider_name : String? = nil,
+    provider_icon_url : String? = nil,
+    block_id : String? = nil,
+  ) : Nil
+    add(Blocks::Video.new(
+      alt_text: alt_text, title: title, thumbnail_url: thumbnail_url, video_url: video_url,
+      title_url: title_url, description: description, author_name: author_name,
+      provider_name: provider_name, provider_icon_url: provider_icon_url, block_id: block_id
+    ))
+  end
 end

@@ -20,6 +20,7 @@ require "../examples/support/conversations_select_example"
 
 require "../examples/support/date_time_pickers_example"
 require "../examples/support/datetime_picker_example"
+require "../examples/support/video_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -205,5 +206,11 @@ describe "documented Block Kit workflows" do
     output = IO::Memory.new
     OfflineDatetimePickerExample.run(output)
     output.to_s.should eq "Proposed start: 2028-02-29T16:30:00Z (acknowledged 200)\nSaved start: 2028-02-29T17:30:00Z (acknowledged 200)\n"
+  end
+
+  it "posts an embedded video and rejects a non-HTTPS video link locally" do
+    output = IO::Memory.new
+    OfflineVideoExample.run(output)
+    output.to_s.should eq "Posted video message C123/1710000000.000100\nRejected before sending: video.video_url.not_https\n"
   end
 end
