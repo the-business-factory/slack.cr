@@ -19,10 +19,11 @@ abstract struct Slack::Interaction
   property is_enterprise_install : Bool?
 
   use_json_discriminator "type", {
-    block_actions:   Slack::Interactions::BlockAction,
-    message_action:  Slack::Interactions::MessageAction,
-    view_submission: Slack::Interactions::ViewSubmission,
-    view_closed:     Slack::Interactions::ViewClosed,
-    shortcut:        Slack::Interactions::Shortcut,
+    block_actions:    Slack::Interactions::BlockAction,
+    block_suggestion: Slack::Interactions::BlockSuggestion,
+    message_action:   Slack::Interactions::MessageAction,
+    view_submission:  Slack::Interactions::ViewSubmission,
+    view_closed:      Slack::Interactions::ViewClosed,
+    shortcut:         Slack::Interactions::Shortcut,
   }
 end

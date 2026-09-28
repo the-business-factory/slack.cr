@@ -56,6 +56,8 @@ For date/time pickers, verify the original signed request before reading `DatePi
 
 For datetime pickers, verify the original signed request before reading `DatetimePickerAction#selected_date_time` or `StateMap#datetime_picker_value?`. The received value is Unix seconds as `Int64?`. See [instant handling](block-kit.md#choose-an-instant) and `examples/block_kit_datetime_picker.cr`.
 
+For external selects, pass the Options Load URL request to `Slack.process_interaction` so the signature and timestamp are verified before the `BlockSuggestion` is parsed. Then return `Slack::Interactions::BlockSuggestionResponse#to_json` as HTTP 200 JSON within three seconds. A suggestion or selection does not prove that the user may access the option; check access in your application. See [external option handling](block-kit.md#load-options-from-your-app) and `examples/block_kit_external_select.cr`.
+
 ## OAuth app installation
 
 `Slack::AuthHandler` installs an app; it does not authenticate a human login. Give it explicit configuration, state storage, and transport. Global `Slack.configure` client credentials or scopes do not configure this handler.

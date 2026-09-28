@@ -21,6 +21,7 @@ require "../examples/support/conversations_select_example"
 require "../examples/support/date_time_pickers_example"
 require "../examples/support/datetime_picker_example"
 require "../examples/support/video_example"
+require "../examples/support/external_select_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -212,5 +213,17 @@ describe "documented Block Kit workflows" do
     output = IO::Memory.new
     OfflineVideoExample.run(output)
     output.to_s.should eq "Posted video message C123/1710000000.000100\nRejected before sending: video.video_url.not_https\n"
+  end
+
+  it "suggests projects for a signed query and reads the signed selections" do
+    output = IO::Memory.new
+    response = OfflineExternalSelectExample.run(output)
+    response.status_code.should eq(200)
+    response.headers["Content-Type"].should eq("application/json")
+    JSON.parse(response.body).should eq(JSON.parse(<<-JSON))
+      {"options":[{"text":{"type":"plain_text","text":"Apollo"},"value":"apollo"},
+        {"text":{"type":"plain_text","text":"Artemis"},"value":"artemis"}]}
+      JSON
+    output.to_s.should eq "Suggested 2 projects (HTTP 200)\nSelected project: artemis (acknowledged 200)\nSaved related projects: artemis, gemini (acknowledged 200)\n"
   end
 end
