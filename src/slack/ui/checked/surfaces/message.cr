@@ -8,6 +8,7 @@ alias Slack::UI::Checked::MessageSourceBlock = Slack::UI::Checked::Blocks::Secti
                                                Slack::UI::Checked::Blocks::File |
                                                Slack::UI::Checked::Blocks::RichText |
                                                Slack::UI::Checked::Blocks::Table |
+                                               Slack::UI::Checked::Blocks::Markdown |
                                                Slack::UI::Checked::Blocks::Input
 
 alias Slack::UI::Checked::MessageBlock = Slack::UI::Checked::MessageSourceBlock
@@ -75,6 +76,7 @@ struct Slack::UI::Checked::Message
     end
 
     BlockValidation.validate(@blocks, issues, "message.block_id.duplicate", "Block IDs must be unique within a message.")
+    markdown_size_issue(issues)
     issues.concat(ChannelResponseUrl.non_modal_inputs(@blocks))
     issues
   end
@@ -98,6 +100,18 @@ struct Slack::UI::Checked::Message
     json.array do
       @blocks.each(&.to_json(json))
     end
+  end
+
+  # Slack limits the text of all markdown blocks in one payload.
+  private def markdown_size_issue(issues : Array(Slack::UI::Checked::ValidationIssue)) : Nil
+    size = @blocks.sum { |block| block.is_a?(Blocks::Markdown) ? block.text.size : 0 }
+    return unless size > Blocks::Markdown::TEXT_MAX_SIZE
+
+    issues << Slack::UI::Checked::ValidationIssue.new(
+      code: "message.markdown.too_long",
+      path: "blocks",
+      message: "The markdown blocks in a message cannot contain more than #{Blocks::Markdown::TEXT_MAX_SIZE} characters in total."
+    )
   end
 
   private def copy_blocks(blocks : Enumerable(T)) : Array(MessageBlock) forall T
