@@ -77,6 +77,8 @@ module SurfaceConsumer
       "message-only"
     in UI::Blocks::Table, UI::Blocks::DataTable
       "table"
+    in UI::Blocks::DataVisualization
+      "chart"
     in UI::DisplayModalBlock
       "display"
     end
@@ -94,7 +96,7 @@ module SurfaceConsumer
     block.text
   end
 
-  def self.caption(block : UI::DisplayModalBlock | UI::Blocks::Table | UI::Blocks::ContextActions | UI::Blocks::DataTable) : String
+  def self.caption(block : UI::DisplayModalBlock | UI::Blocks::Table | UI::Blocks::ContextActions | UI::Blocks::DataTable | UI::Blocks::DataVisualization) : String
     block.type
   end
 end

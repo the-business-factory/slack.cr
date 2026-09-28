@@ -6,10 +6,10 @@ Use `require "slack"` and `Slack::UI::Checked` to construct validated, immutable
 
 | Checked surface | Direct blocks | Input children | Send with |
 | --- | --- | --- | --- |
-| `Message` | Section, Actions, Divider, Header, Context, Image, Video, File, RichText, Table, DataTable, Markdown, ContextActions, Input | PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, DatetimePicker | `Slack::Api::CheckedChatPostMessage`, `Slack::Api::CheckedChatUpdate` |
+| `Message` | Section, Actions, Divider, Header, Context, Image, Video, File, RichText, Table, DataTable, DataVisualization, Markdown, ContextActions, Input | PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, DatetimePicker | `Slack::Api::CheckedChatPostMessage`, `Slack::Api::CheckedChatUpdate` |
 | `DisplayModal` | Section, Actions, Divider, Header, Context, Image, Video, RichText, Alert | None, even if a submit label is supplied | `Slack::Api::CheckedViewsOpen`, `Slack::Api::CheckedViewsUpdate`, `Slack::Api::CheckedViewsPush` |
 | `FormModal` | Section, Actions, Divider, Header, Context, Image, Video, RichText, Alert, Input, ModalInput, ViewInput | PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, DatetimePicker; NumberInput, FileInput, UrlInput, and EmailInput through ModalInput; RichTextInput through ViewInput | `Slack::Api::CheckedViewsOpen`, `Slack::Api::CheckedViewsUpdate`, `Slack::Api::CheckedViewsPush` |
-| `Home` | Section, Actions, Divider, Header, Context, Image, Video, RichText, Table, DataTable, Input, ViewInput | PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker; RichTextInput through ViewInput | `Slack::Api::CheckedViewsPublish` |
+| `Home` | Section, Actions, Divider, Header, Context, Image, Video, RichText, Table, DataTable, DataVisualization, Input, ViewInput | PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker; RichTextInput through ViewInput | `Slack::Api::CheckedViewsPublish` |
 
 `FormModal` always needs a plain-text `submit` label, including forms without Input. `DisplayModal` cannot contain Input. Message and Home need no submit label. A Message can contain Input even though older phase notes excluded it. [Slack's Input reference](https://docs.slack.dev/reference/block-kit/blocks/input-block.md) lists Messages, Modals, and Home. Some Input children are modal-only in Slack. `Blocks::ModalInput` holds these children; only `FormModal` accepts it. Other children are for modals and Home only. `Blocks::ViewInput` holds these children; only `FormModal` and `Home` accept it.
 
@@ -23,11 +23,12 @@ Use `require "slack"` and `Slack::UI::Checked` to construct validated, immutable
 | ContextActions elements (Message only) | FeedbackButtons, IconButton |
 | DataTable header cells | Table::RawText, Table::RawNumber |
 | DataTable row cells | Table::RawText, Table::RawNumber, Blocks::RichText |
+| DataVisualization chart | DataVisualization::PieChart, BarChart, AreaChart, LineChart |
 | Input element | PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, DatetimePicker (not Home) |
 | ModalInput element (FormModal only) | NumberInput, FileInput, UrlInput, EmailInput |
 | ViewInput element (FormModal and Home only) | RichTextInput |
 
-Checked Header, Context, Image, Video, and RichText blocks are display content on all four surfaces. A File block is a message-only representation. Table and DataTable blocks are for messages and Home only. Markdown and ContextActions blocks are for messages only. An Alert block is for modals only. An Image block or element needs alt text and exactly one public `image_url` or `SlackFile` source. `SlackFile` takes an ID or URL. Remote image availability and file access are checked by Slack. Section supports text, fields, and the listed accessory; Actions checks duplicate supplied action IDs within that block.
+Checked Header, Context, Image, Video, and RichText blocks are display content on all four surfaces. A File block is a message-only representation. Table, DataTable, and DataVisualization blocks are for messages and Home only. Markdown and ContextActions blocks are for messages only. An Alert block is for modals only. An Image block or element needs alt text and exactly one public `image_url` or `SlackFile` source. `SlackFile` takes an ID or URL. Remote image availability and file access are checked by Slack. Section supports text, fields, and the listed accessory; Actions checks duplicate supplied action IDs within that block.
 
 Static choices use plain-text `Option` values, optional `OptionGroup` values, and exactly one `options:` or `option_groups:` source. `StaticSelect` has one `initial_option`; `MultiStaticSelect` has `initial_options` and optional `max_selected_items`. Choice values must be unique within a menu, and initial selections must match offered options. Each group can contain up to 100 options. These two types use a **static** source. User, channel, and conversation selects use Slack-provided lists. External selects load options from your app; see [Load options from your app](#load-options-from-your-app).
 
@@ -512,6 +513,47 @@ Slack permits 1 to 200 data rows and 1 to 20 columns. Each data row must have th
 
 `MessageBlock` and `HomeBlock` now contain `Blocks::DataTable`. An exhaustive `case ... in` or overload set over these unions must add a `Blocks::DataTable` branch.
 
+## Show a chart
+
+Use `Blocks::DataVisualization` to show a pie, bar, area, or line chart in a message or on Home. Slack renders the chart. The block has a `title` and one `DataVisualization::Chart`:
+
+- `PieChart` has `Segment` values. Each segment has a label and a value greater than 0.
+- `BarChart`, `AreaChart`, and `LineChart` have `DataSeries` values and one `AxisConfig`. The categories in `AxisConfig` set the x-axis order. Each series must have exactly one `DataPoint` for each category, in any order.
+
+```crystal
+alias DV = Slack::UI::Checked::DataVisualization
+message = UI.message(fallback_text: "Weekly report") do |builder|
+  builder.data_visualization("Deploys by service", DV::PieChart.new({DV::Segment.new("api", 14), DV::Segment.new("web", 9)}))
+  builder.data_visualization("p95 latency", block_id: "latency", chart: DV::LineChart.new(
+    {DV::DataSeries.new("us-east", {DV::DataPoint.new("Mon", 120.5), DV::DataPoint.new("Tue", 98)})},
+    DV::AxisConfig.new({"Mon", "Tue"}, x_label: "Day", y_label: "Latency (ms)")
+  ))
+end
+# {"type":"data_visualization","title":"Deploys by service",
+#  "chart":{"type":"pie","segments":[{"label":"api","value":14},{"label":"web","value":9}]}}
+# {"type":"data_visualization","block_id":"latency","title":"p95 latency",
+#  "chart":{"type":"line","series":[{"name":"us-east","data":[{"label":"Mon","value":120.5},{"label":"Tue","value":98}]}],
+#           "axis_config":{"categories":["Mon","Tue"],"x_label":"Day","y_label":"Latency (ms)"}}}
+```
+
+Slack limits:
+
+| Value | Slack limit |
+| --- | --- |
+| Title | 50 characters |
+| Pie segments | 1 to 12; label 20 characters; value greater than 0 |
+| Series in a bar, area, or line chart | 1 to 12; unique names of 20 characters |
+| Data points in a series | 1 to 20; one for each category; label 20 characters; negative values are permitted |
+| Categories | 20 characters each |
+| `x_label`, `y_label` | 50 characters each |
+| Data visualization blocks in a message | 2 |
+
+The library also requires nonempty text, 1 to 20 unique categories, unique segment labels, and finite values. These checks are library policy. Slack's [rich response guide](https://docs.slack.dev/ai/slackbot-mcp-client/returning-rich-responses) states the uniqueness and minimum lengths; the block reference does not. The block reference examples use series names longer than 20 characters, but its field table gives 20 as the maximum. The library uses the field table.
+
+`Message` rejects a third data visualization block. Slack does not state a count for Home, so `Home` does not check one. `DisplayModal` and `FormModal` reject `Blocks::DataVisualization` at compile time. The block has no inbound payload, and received message blocks are not decoded. Offline checks do not prove that Slack renders a chart. See Slack's [data visualization block](https://docs.slack.dev/reference/block-kit/blocks/data-visualization-block/) reference and the offline [chart example](../examples/block_kit_data_visualization.cr).
+
+`MessageBlock` and `HomeBlock` now contain `Blocks::DataVisualization`. An exhaustive `case ... in` or overload set over these unions must add a `Blocks::DataVisualization` branch.
+
 ## Enter a number
 
 Use `BlockElements::NumberInput` to collect a whole or decimal number in a form modal. Slack supports this element only in an Input block in a modal. Pass it to `FormModalBuilder#input`, or wrap it in `Blocks::ModalInput`. `Message`, `Home`, and `DisplayModal` do not accept it; the compiler rejects that code.
@@ -867,7 +909,7 @@ Text and field lengths count characters. Common limits: top-level Message 50 blo
 
 Checked constructors and builders accept arrays, tuples, and custom enumerables according to the **types actually yielded by `each`**. A broad declared `Enumerable(T?)` is allowed if its `each` yields only supported `T` values. Unsupported yielded values cause a compile error; constructors do no runtime filtering. Inputs are traversed once and copied into owned typed arrays. Getters return snapshots, so changing a caller array, a getter result, or a builder cannot mutate an already built surface or endpoint request.
 
-Use a collection typed for the destination surface. An ordinary `Array(Slack::UI::Checked::MessageBlock)` has an item union that includes Input, File, Table, Markdown, and ContextActions; it cannot be passed to `DisplayModal` even if its present elements happen to be display blocks. Use `Array(Slack::UI::Checked::DisplayModalBlock)` for that surface. An `Array(Slack::UI::Checked::DisplayModalBlock)` includes Alert, so it cannot be passed to `Message` or `Home`. Legacy conversion helpers remain available in the API for supported mutable Section and Actions values; checked values can be built directly from application data.
+Use a collection typed for the destination surface. An ordinary `Array(Slack::UI::Checked::MessageBlock)` has an item union that includes Input, File, Table, DataVisualization, Markdown, and ContextActions; it cannot be passed to `DisplayModal` even if its present elements happen to be display blocks. Use `Array(Slack::UI::Checked::DisplayModalBlock)` for that surface. An `Array(Slack::UI::Checked::DisplayModalBlock)` includes Alert, so it cannot be passed to `Message` or `Home`. Legacy conversion helpers remain available in the API for supported mutable Section and Actions values; checked values can be built directly from application data.
 
 ## Offline examples
 
@@ -903,6 +945,7 @@ crystal run examples/block_kit_url_input.cr
 crystal run examples/block_kit_email_input.cr
 crystal run examples/block_kit_table.cr
 crystal run examples/block_kit_data_table.cr
+crystal run examples/block_kit_data_visualization.cr
 crystal run examples/block_kit_rich_text_input.cr
 crystal run examples/block_kit_markdown.cr
 crystal run examples/block_kit_workflow_button.cr
@@ -910,4 +953,4 @@ crystal run examples/block_kit_context_actions.cr
 crystal run examples/block_kit_alert.cr
 ```
 
-The message example builds and prints a request. The modal example posts a button, verifies a signed action, opens a form, and reads a signed submission. The Home example publishes through a stub and reads simulated state. The static choice example posts a single choice, reads a signed selection, opens a grouped multi-choice form, and reads its submission. The overflow example posts action and URL choices and acknowledges a signed URL selection. The checkbox example posts initial choices, reads a signed checkbox action, and reads a cleared selection from a signed submission. The radio example posts an initial choice, reads a signed selection, opens an optional override form, and reads an unselected submission. The message-update example replaces a posted approval button with the completed status and new fallback text. The user-select example assigns an owner and submits multiple reviewers. The video example posts a message with a video block and shows a local rejection of an HTTP video link. The external-select example answers a signed options-load request, then reads a signed selection and submission. The remote-file example prints the unfurls value for an application's own `chat.unfurl` request. The rich text example posts formatted release notes with a team mention and a canvas link, and reads mentions, list items, and a workflow mention from a signed message event. The file input example opens a receipt form and reads uploaded file IDs. The number and email input examples open modal-only forms from a signed button, read a dispatched value, and reject then accept a signed submission. The table example posts a revenue table built from application records and shows a local rejection of a row with too many cells. The rich text input example publishes a Home standup composer and reads a signed dispatched action. The markdown example posts an LLM answer as markdown and shows a local rejection of markdown text that is too long for one message. The workflow button example posts incident workflow buttons with trigger inputs and shows a local rejection on Home. The context actions example posts an answer with feedback and delete buttons and reads a signed feedback click as `UnknownAction`. The alert example opens a deploy status modal with one alert for each check and shows a local rejection of alert text that is too long. The data table example posts a paged ticket table and shows a local rejection of a row that is narrower than the header. Real handlers must acknowledge interactions within Slack's response window.
+The message example builds and prints a request. The modal example posts a button, verifies a signed action, opens a form, and reads a signed submission. The Home example publishes through a stub and reads simulated state. The static choice example posts a single choice, reads a signed selection, opens a grouped multi-choice form, and reads its submission. The overflow example posts action and URL choices and acknowledges a signed URL selection. The checkbox example posts initial choices, reads a signed checkbox action, and reads a cleared selection from a signed submission. The radio example posts an initial choice, reads a signed selection, opens an optional override form, and reads an unselected submission. The message-update example replaces a posted approval button with the completed status and new fallback text. The user-select example assigns an owner and submits multiple reviewers. The video example posts a message with a video block and shows a local rejection of an HTTP video link. The external-select example answers a signed options-load request, then reads a signed selection and submission. The remote-file example prints the unfurls value for an application's own `chat.unfurl` request. The rich text example posts formatted release notes with a team mention and a canvas link, and reads mentions, list items, and a workflow mention from a signed message event. The file input example opens a receipt form and reads uploaded file IDs. The number and email input examples open modal-only forms from a signed button, read a dispatched value, and reject then accept a signed submission. The table example posts a revenue table built from application records and shows a local rejection of a row with too many cells. The rich text input example publishes a Home standup composer and reads a signed dispatched action. The markdown example posts an LLM answer as markdown and shows a local rejection of markdown text that is too long for one message. The workflow button example posts incident workflow buttons with trigger inputs and shows a local rejection on Home. The context actions example posts an answer with feedback and delete buttons and reads a signed feedback click as `UnknownAction`. The alert example opens a deploy status modal with one alert for each check and shows a local rejection of alert text that is too long. The data table example posts a paged ticket table and shows a local rejection of a row that is narrower than the header. The data visualization example posts deploy and latency charts built from application records and shows a local rejection of a series with a missing category. Real handlers must acknowledge interactions within Slack's response window.

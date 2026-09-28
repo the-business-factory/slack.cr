@@ -11,12 +11,16 @@ alias Slack::UI::Checked::MessageSourceBlock = Slack::UI::Checked::Blocks::Secti
                                                Slack::UI::Checked::Blocks::Markdown |
                                                Slack::UI::Checked::Blocks::ContextActions |
                                                Slack::UI::Checked::Blocks::DataTable |
+                                               Slack::UI::Checked::Blocks::DataVisualization |
                                                Slack::UI::Checked::Blocks::Input
 
 alias Slack::UI::Checked::MessageBlock = Slack::UI::Checked::MessageSourceBlock
 
 struct Slack::UI::Checked::Message
   BLOCKS_MAX_SIZE = 50
+
+  # Slack's data visualization reference permits two of these blocks per message.
+  DATA_VISUALIZATION_BLOCKS_MAX_SIZE = 2
 
   @blocks : Array(MessageBlock)
   @fallback_text : String?
@@ -66,6 +70,14 @@ struct Slack::UI::Checked::Message
         code: "message.blocks.too_many",
         path: "blocks",
         message: "A message cannot contain more than #{BLOCKS_MAX_SIZE} blocks."
+      )
+    end
+
+    if @blocks.count(&.is_a?(Blocks::DataVisualization)) > DATA_VISUALIZATION_BLOCKS_MAX_SIZE
+      issues << Slack::UI::Checked::ValidationIssue.new(
+        code: "message.data_visualization.too_many",
+        path: "blocks",
+        message: "A message cannot contain more than #{DATA_VISUALIZATION_BLOCKS_MAX_SIZE} data visualization blocks."
       )
     end
 

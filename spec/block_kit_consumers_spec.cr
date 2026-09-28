@@ -31,6 +31,7 @@ require "../examples/support/url_input_example"
 require "../examples/support/email_input_example"
 require "../examples/support/table_example"
 require "../examples/support/data_table_example"
+require "../examples/support/data_visualization_example"
 require "../examples/support/rich_text_input_example"
 require "../examples/support/markdown_example"
 require "../examples/support/workflow_button_example"
@@ -356,6 +357,26 @@ describe "documented Block Kit workflows" do
            [{"type":"raw_text","text":"SUP-103"},
             {"type":"rich_text","elements":[{"type":"rich_text_section","elements":[{"type":"user","user_id":"U-ALEX"}]}]},
             {"type":"raw_number","value":1,"text":"1"}]]}]}
+      JSON
+  end
+
+  it "posts deploy and latency charts built from application records" do
+    output = IO::Memory.new
+    posted = OfflineDataVisualizationExample.run(output)
+    output.to_s.should eq "Posted 3 services and 6 latency points to C-SYNTHETIC/1710000000.000400\n" \
+                          "Rejected before sending: line.series.data.missing_category\n"
+    # Authored from Slack's data visualization block and chat.postMessage references, not from the serializer.
+    posted.should eq JSON.parse(<<-JSON)
+      {"channel":"C-SYNTHETIC","text":"Weekly deploy report","blocks":[
+        {"type":"data_visualization","block_id":"deploys","title":"Deploys by service",
+         "chart":{"type":"pie","segments":[
+           {"label":"api","value":14},{"label":"web","value":9},{"label":"worker","value":3}]}},
+        {"type":"data_visualization","title":"p95 latency",
+         "chart":{"type":"line",
+           "series":[
+             {"name":"us-east","data":[{"label":"Mon","value":120.5},{"label":"Tue","value":98.0},{"label":"Wed","value":101.25}]},
+             {"name":"eu-west","data":[{"label":"Mon","value":140.0},{"label":"Tue","value":133.5},{"label":"Wed","value":150.0}]}],
+           "axis_config":{"categories":["Mon","Tue","Wed"],"x_label":"Day","y_label":"Latency (ms)"}}}]}
       JSON
   end
 
