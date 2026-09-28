@@ -6,6 +6,9 @@ module Slack::UI::Checked::DeclaredTypes
       {% if T.union_types.any? { |member| member <= Slack::UI::Checked::Blocks::File } %}
         {% raise "DisplayModal rejects File blocks. Slack shows remote file blocks in messages only." %}
       {% end %}
+      {% if T.union_types.any? { |member| member <= Slack::UI::Checked::Blocks::Table } %}
+        {% raise "DisplayModal rejects Table blocks. Slack shows table blocks in messages and Home tabs only." %}
+      {% end %}
       {% raise "DisplayModal rejects its yielded block item type. For Input, use FormModal with submit." %}
     {% end %}
   end
