@@ -1,6 +1,6 @@
 schema_version: 2
 checked_on: "2026-09-27"
-scope: Checked Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, channel selects, date/time pickers, the datetime picker, video blocks, external selects with block_suggestion option responses, remote file blocks, rich text display blocks, and number inputs, including Input in Messages, FormModal and Home and modal-only Input children in FormModal.
+scope: Checked Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, channel selects, date/time pickers, the datetime picker, video blocks, external selects with block_suggestion option responses, remote file blocks, rich text display blocks, number inputs, and file inputs, including Input in Messages, FormModal and Home and modal-only Input children in FormModal.
 statuses:
   - unsupported
   - partial
@@ -369,6 +369,17 @@ entries:
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/block_elements/datetime_picker.cr, src/slack/ui/checked/surfaces/home.cr, src/slack/interactions/datetime_picker_action.cr, src/slack/interactions/datetime_picker_value.cr, spec/ui/checked/datetime_picker_spec.cr, spec/interactions/datetime_picker_spec.cr, spec/api/datetime_picker_snapshot_spec.cr, spec/block_kit_diagnostics_spec.cr, examples/block_kit_datetime_picker.cr]
 
+  - wire_type: file_input
+    kind: block element
+    documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/file-input-element/
+    fields_supported: [type, action_id, filetypes, max_files]
+    parents: [input]
+    surfaces: [modal]
+    restrictions: Checked FileInput supports optional action ID (255), owned filetypes snapshot and max_files from 1 through 10. It is a ModalInputElement, so only FormModal accepts it; Message, Home and DisplayModal reject it at compile time. ModalInput rejects dispatch_action true when it holds FileInput. An empty filetypes list and blank extensions are rejected as library policy; omit filetypes to accept all. Slack filetypes filtering is a convenience, not application validation. Received FileInputValue exposes files as UploadedFile values (id, name, title, mimetype, filetype, url_private, url_private_download) with absent/null/empty presence; other file fields remain raw. No typed action because Slack does not dispatch file_input. The files:read scope, 100MB limit, downloads and upload completion are remote-only.
+    implementation_status: supported
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/checked/block_elements/file_input.cr, src/slack/ui/checked/blocks/modal_input.cr, src/slack/interactions/file_input_value.cr, src/slack/interactions/uploaded_file.cr, spec/ui/checked/file_input_spec.cr, spec/interactions/file_input_spec.cr, spec/api/file_input_snapshot_spec.cr, examples/block_kit_file_input.cr]
+
   - wire_type: actions
     kind: block
     documentation_url: https://docs.slack.dev/reference/block-kit/blocks/actions-block/
@@ -386,10 +397,10 @@ entries:
     fields_supported: [type, label, element, dispatch_action, block_id, hint, optional]
     parents: [message, modal, home]
     surfaces: [message, modal, home]
-    restrictions: Checked Input accepts PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, and TimePicker in Message, FormModal and Home, and DatetimePicker in Message and FormModal; all Input fields are supported. Checked ModalInput has the same wire type, fields and limits for modal-only children (NumberInput); only FormModal accepts it. Other input element families remain deferred. Legacy Input retains its previous partial contract.
+    restrictions: Checked Input accepts PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, and TimePicker in Message, FormModal and Home, and DatetimePicker in Message and FormModal; all Input fields are supported. Checked ModalInput has the same wire type, fields and limits for modal-only children (NumberInput, FileInput); only FormModal accepts it. ModalInput rejects dispatch_action true for FileInput. Other input element families remain deferred. Legacy Input retains its previous partial contract.
     implementation_status: partial
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/blocks/input.cr, src/slack/ui/checked/blocks/modal_input.cr, spec/ui/checked/input_spec.cr, spec/ui/checked/number_input_spec.cr, spec/interactions/block_kit_spec.cr]
+    evidence_paths: [src/slack/ui/checked/blocks/input.cr, src/slack/ui/checked/blocks/modal_input.cr, spec/ui/checked/input_spec.cr, spec/ui/checked/number_input_spec.cr, spec/ui/checked/file_input_spec.cr, spec/interactions/block_kit_spec.cr]
 
   - wire_type: section
     kind: block
@@ -463,7 +474,7 @@ entries:
     fields_supported: [type, title, submit, close, blocks, private_metadata, callback_id, external_id, clear_on_close, notify_on_close, submit_disabled]
     parents: [views.open, views.update, views.push, push response action, update response action]
     surfaces: [modal]
-    restrictions: Checked DisplayModal excludes Input; FormModal requires submit. The block catalog is limited to Section, Actions, Divider, Header, Context, Image, RichText, and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, user selects, channel selects, conversation selects, or date/time pickers; FormModal also accepts ModalInput containing NumberInput. submit_disabled is for Slack configuration modals only. Typed validation-error, clear, push, and update acknowledgments are listed separately. Legacy Modal keeps its previous contract.
+    restrictions: Checked DisplayModal excludes Input; FormModal requires submit. The block catalog is limited to Section, Actions, Divider, Header, Context, Image, RichText, and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, user selects, channel selects, conversation selects, or date/time pickers; FormModal also accepts ModalInput containing NumberInput or FileInput. submit_disabled is for Slack configuration modals only. Typed validation-error, clear, push, and update acknowledgments are listed separately. Legacy Modal keeps its previous contract.
     implementation_status: partial
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/surfaces/form_modal.cr, src/slack/ui/checked/surfaces/display_modal.cr, spec/ui/checked/modal_spec.cr, examples/block_kit_modal.cr]
@@ -507,7 +518,7 @@ entries:
     fields_supported: [actions, state, view.state.values]
     parents: []
     surfaces: [message, modal, home]
-    restrictions: Typed button, static-select, external-select, overflow, checkbox, radio, user-select, channel-select, conversation-select, date/time-picker, datetime-picker, and number-input actions, plus plain text, static-select, external-select, checkbox, radio, user-select, channel-select, conversation-select, date/time-picker, datetime-picker, and number-input StateMap access through Interaction.from_json and process_interaction. BlockSuggestion is listed separately. Selection fields preserve absent/null/empty. Other known action metadata, view bodies, and dispatched text actions remain raw. UnknownAction and UnknownStateValue retain complete raw JSON. Other incoming families are deferred; outbound validation-error acknowledgments are listed separately.
+    restrictions: Typed button, static-select, external-select, overflow, checkbox, radio, user-select, channel-select, conversation-select, date/time-picker, datetime-picker, and number-input actions, plus plain text, static-select, external-select, checkbox, radio, user-select, channel-select, conversation-select, date/time-picker, datetime-picker, number-input, and file_input StateMap access through Interaction.from_json and process_interaction. BlockSuggestion is listed separately. Selection fields preserve absent/null/empty. Other known action metadata, view bodies, and dispatched text actions remain raw. UnknownAction and UnknownStateValue retain complete raw JSON. Other incoming families are deferred; outbound validation-error acknowledgments are listed separately.
     implementation_status: partial
     inbound_status: partial
     evidence_paths: [src/slack/interactions/action_decoder.cr, src/slack/interactions/state_map.cr, spec/interactions/block_kit_spec.cr, spec/interactions/static_select_spec.cr, examples/block_kit_modal.cr, examples/block_kit_static_select.cr]
@@ -1187,3 +1198,24 @@ rules:
     source_section: "Usage info: whole and decimal numbers"
     reviewed_on: "2026-09-28"
     evidence_paths: [spec/ui/checked/number_input_spec.cr, spec/interactions/number_input_spec.cr]
+  - id: file_input_fields
+    classification: slack_requirement
+    requirement: "Optional action_id 255; optional filetypes string array (all extensions when omitted); optional max_files from 1 through 10, default 10. Input block in modals only. Input dispatch_action is incompatible with file_input."
+    source_url: https://docs.slack.dev/reference/block-kit/block-elements/file-input-element/
+    source_section: Fields, Usage info and Example; input block dispatch_action field
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/ui/checked/file_input_spec.cr, spec/api/file_input_snapshot_spec.cr]
+  - id: file_input_filetypes_policy
+    classification: library_policy
+    requirement: "Reject an empty filetypes list and blank extensions; omission is the documented way to accept all extensions. Extension spelling and received file types are not checked locally."
+    source_url: https://docs.slack.dev/reference/block-kit/block-elements/file-input-element/
+    source_section: "Fields: filetypes"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/ui/checked/file_input_spec.cr]
+  - id: file_input_inbound
+    classification: library_support
+    requirement: "Typed file_input state exposes files as UploadedFile values with a required id, optional common string fields and raw JSON, preserving absent/null/empty. Wrong JSON types raise path-aware TypeMismatch. Unexpected file_input actions stay UnknownAction."
+    source_url: https://docs.slack.dev/reference/interaction-payloads/view-interactions-payload/
+    source_section: "view.state.values"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/interactions/file_input_spec.cr, spec/block_kit_consumers_spec.cr]

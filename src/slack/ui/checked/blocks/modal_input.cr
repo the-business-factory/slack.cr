@@ -1,6 +1,6 @@
 # Slack documents these Input children for modals only. Message, Home, and
 # DisplayModal do not accept this block.
-alias Slack::UI::Checked::Blocks::ModalInputElement = Slack::UI::Checked::BlockElements::NumberInput
+alias Slack::UI::Checked::Blocks::ModalInputElement = Slack::UI::Checked::BlockElements::NumberInput | Slack::UI::Checked::BlockElements::FileInput
 
 # An Input block for elements that Slack supports only in modals. It has the
 # same wire type, fields, and limits as `Input`; only FormModal accepts it.
@@ -23,5 +23,14 @@ struct Slack::UI::Checked::Blocks::ModalInput
     @dispatch_action : Bool? = nil,
   )
     validate!
+  end
+
+  # Slack rejects dispatch_action true for file_input, which never dispatches block actions.
+  def validate : Array(Slack::UI::Checked::ValidationIssue)
+    issues = super
+    if @dispatch_action && @element.is_a?(Slack::UI::Checked::BlockElements::FileInput)
+      issues << Slack::UI::Checked::ValidationIssue.new("input.dispatch_action.unsupported", "dispatch_action", "A file_input element cannot dispatch block actions.")
+    end
+    issues
   end
 end
