@@ -296,7 +296,7 @@ entries:
     kind: surface
     documentation_url: https://docs.slack.dev/reference/views/modal-views/
     fields_supported: [type, title, submit, close, blocks, private_metadata, callback_id, external_id, clear_on_close, notify_on_close, submit_disabled]
-    parents: [views.open, views.update]
+    parents: [views.open, views.update, views.push]
     surfaces: [modal]
     restrictions: Checked DisplayModal excludes Input; FormModal requires submit. The block catalog is limited to Section, Actions, Divider, Header, Context, Image, and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, or user selects. submit_disabled is for Slack configuration modals only. View lifecycle responses remain deferred. Legacy Modal keeps its previous contract.
     implementation_status: partial
@@ -324,6 +324,17 @@ entries:
     implementation_status: supported
     inbound_status: partial
     evidence_paths: [src/slack/api/endpoints/checked_views_update.cr, src/slack/models/views/views_update.cr, spec/api/checked_views_update_spec.cr, spec/api/transport_injection_spec.cr, spec/block_kit_consumers_spec.cr, examples/block_kit_view_update.cr]
+
+  - wire_type: views.push checked adapter
+    kind: endpoint
+    documentation_url: https://docs.slack.dev/reference/methods/views.push/
+    fields_supported: [trigger_id, view]
+    parents: []
+    surfaces: [modal]
+    restrictions: CheckedViewsPush owns a FormModal or DisplayModal snapshot and requires a nonblank opaque trigger from an interaction inside the existing modal. Metadata stays inside view; no top-level view_id, external_id or hash. interactivity_pointer and typed response actions are unsupported. Slack checks trigger origin, expiry, single use and the three-view stack limit; no local stack tracking or automatic retry. result caches the HTTP response; call parses ViewsPush with ok and raw view JSON or raises the established API error. String token, configuration, transport and limiter are dispatch options, not JSON fields.
+    implementation_status: partial
+    inbound_status: partial
+    evidence_paths: [src/slack/api/endpoints/checked_views_push.cr, src/slack/models/views/views_push.cr, spec/api/checked_views_push_spec.cr, spec/api/transport_injection_spec.cr, examples/block_kit_view_push.cr, spec/block_kit_consumers_spec.cr]
 
   - wire_type: block_actions and view_submission
     kind: interaction payload
@@ -750,3 +761,17 @@ rules:
     source_section: "Changes to empty state in all payloads; selected ID fields follow Bolt UsersSelectAction and MultiUsersSelectAction (upstream_evidence)"
     reviewed_on: "2026-09-27"
     evidence_paths: ["spec/interactions/users_select_spec.cr", "spec/block_kit_consumers_spec.cr"]
+  - id: views_push_trigger_and_stack
+    classification: "slack_requirement"
+    requirement: "Push uses a fresh trigger from an interaction inside the existing modal; three views maximum including the root. Trigger validity, expiry, single use and stack depth remain server checks."
+    source_url: "https://docs.slack.dev/reference/methods/views.push/"
+    source_section: "Usage info and Errors; modal lifecycle guide"
+    reviewed_on: "2026-09-27"
+    evidence_paths: ["spec/api/checked_views_push_spec.cr", "examples/support/view_push_example.cr", "spec/block_kit_consumers_spec.cr"]
+  - id: views_push_trigger_policy
+    classification: "library_policy"
+    requirement: "Nonblank opaque trigger_id plus an owned checked Modal snapshot only. interactivity_pointer omitted; local validation precedes dispatch, and the response is cached without automatic retry."
+    source_url: "https://docs.slack.dev/reference/methods/views.push/"
+    source_section: "Arguments; trigger-only scope and nonblank check are library policy"
+    reviewed_on: "2026-09-27"
+    evidence_paths: ["spec/api/checked_views_push_spec.cr", "spec/api/transport_injection_spec.cr"]
