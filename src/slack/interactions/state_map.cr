@@ -1,4 +1,4 @@
-alias Slack::Interactions::StateValue = Slack::Interactions::PlainTextValue | Slack::Interactions::StaticSelectValue | Slack::Interactions::MultiStaticSelectValue | Slack::Interactions::CheckboxesValue | Slack::Interactions::UnknownStateValue
+alias Slack::Interactions::StateValue = Slack::Interactions::PlainTextValue | Slack::Interactions::StaticSelectValue | Slack::Interactions::MultiStaticSelectValue | Slack::Interactions::CheckboxesValue | Slack::Interactions::RadioButtonsValue | Slack::Interactions::UnknownStateValue
 
 # Reads state.values by stable block and action IDs without imposing outbound rules.
 struct Slack::Interactions::StateMap
@@ -24,6 +24,8 @@ struct Slack::Interactions::StateMap
     object = PayloadAccess.object?(item, path)
     type = PayloadAccess.string?(object.try(&.["type"]?), "#{path}.type")
     case type
+    when "radio_buttons"
+      RadioButtonsValue.new(item, path)
     when "checkboxes"
       CheckboxesValue.new(item, path)
     when "plain_text_input"
@@ -44,6 +46,16 @@ struct Slack::Interactions::StateMap
     when PlainTextValue then entry
     else
       raise TypeMismatch.new(entry_path(block_id, action_id), "plain_text_input", entry.type || "null or untyped state value")
+    end
+  end
+
+  def radio_buttons_value?(block_id : String, action_id : String) : RadioButtonsValue?
+    entry = self[block_id, action_id]?
+    case entry
+    when Nil               then nil
+    when RadioButtonsValue then entry
+    else
+      raise TypeMismatch.new(entry_path(block_id, action_id), "radio_buttons", entry.type || "null or untyped state value")
     end
   end
 

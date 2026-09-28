@@ -38,6 +38,8 @@ Base endpoint wrappers that expose a `.tokenless` constructor can use a scoped t
 
 For checkbox interactions, the same signed-request boundary applies. After verification, read `CheckboxesAction#selected_options` or `StateMap#checkboxes_value?`; an empty selection array means the user cleared all choices. See [checkbox handling](block-kit.md#add-checkboxes) and the offline `examples/block_kit_checkboxes.cr` workflow.
 
+For radio interactions, verify the same original signed request before reading `RadioButtonsAction#selected_option` or `StateMap#radio_buttons_value?`. Use `selected_option_presence` to distinguish an absent field from explicit null (no selection). See [radio handling](block-kit.md#add-radio-buttons) and `examples/block_kit_radio_buttons.cr`.
+
 ## OAuth app installation
 
 `Slack::AuthHandler` installs an app; it does not authenticate a human login. Give it explicit configuration, state storage, and transport. Global `Slack.configure` client credentials or scopes do not configure this handler.

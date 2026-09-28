@@ -81,9 +81,10 @@ crystal run examples/block_kit_home.cr
 crystal run examples/block_kit_static_select.cr
 crystal run examples/block_kit_overflow.cr
 crystal run examples/block_kit_checkboxes.cr
+crystal run examples/block_kit_radio_buttons.cr
 ```
 
-The examples show checked message construction, a signed button and form submission, Home publishing and state, static selections, overflow menus, and checkbox selections. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
+The examples show checked message construction, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, and radio selections. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
 
 ## Contributing
 
