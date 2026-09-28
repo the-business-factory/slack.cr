@@ -44,6 +44,8 @@ For user selects, verify the original signed request before reading `UsersSelect
 
 For modal business-validation failures, return `Slack::Interactions::ModalErrors#to_json` as the HTTP 200 JSON acknowledgment after verifying the signed submission. It needs no API token. The application owns validation and the three-second acknowledgment deadline. See [modal error handling](block-kit.md#return-modal-validation-errors).
 
+For a modal update on submission, return `Slack::Interactions::ModalUpdate#to_json` as the HTTP 200 JSON acknowledgment after verifying the signed request. It needs no API token; the application owns the three-second deadline. See [modal update acknowledgments](block-kit.md#update-a-modal-in-its-submission-acknowledgment).
+
 For channel selects, verify the original signed request before reading `ChannelsSelectAction#selected_channel`, `MultiChannelsSelectAction#selected_channels`, or the corresponding StateMap accessors. See [channel selection handling](block-kit.md#select-notification-channels) and `examples/block_kit_channels_select.cr`. Modal submission response URLs remain available as raw data; selection does not prove permission to post.
 
 For the next step after a modal submission, return `Slack::Interactions::ModalPush#to_json` as HTTP 200 JSON after verifying the original signed request. No API token or trigger is needed; the application owns the three-second deadline. See [submission push acknowledgments](block-kit.md#push-a-view-in-a-submission-acknowledgment).

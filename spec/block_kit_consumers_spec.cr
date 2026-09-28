@@ -15,6 +15,8 @@ require "../examples/support/modal_clear_example"
 require "../examples/support/channels_select_example"
 require "../examples/support/modal_push_example"
 
+require "../examples/support/modal_update_example"
+
 describe "documented Block Kit workflows" do
   around_each do |example|
     client_id = Slack.settings.client_id
@@ -146,5 +148,40 @@ describe "documented Block Kit workflows" do
       JSON
     JSON.parse(response.body).should eq(expected)
     output.to_s.should eq("Prepared delivery form from signed submission (HTTP 200).\n")
+  end
+
+  it "acknowledges a signed submission with an updated form and retained input IDs" do
+    output = IO::Memory.new
+    response = OfflineModalUpdateExample.run(output)
+    response.status_code.should eq(200)
+    response.headers["Content-Type"].should eq("application/json")
+    # Complete acknowledgment expected independently of the example's builder.
+    JSON.parse(response.body).should eq(JSON.parse(<<-JSON))
+      {"response_action":"update","view":{"type":"modal",
+        "title":{"type":"plain_text","text":"Review request"},"submit":{"type":"plain_text","text":"Save"},
+        "callback_id":"request.review","private_metadata":"42","blocks":[
+          {"type":"section","text":{"type":"plain_text","text":"Choose an owner for: Need a test environment."}},
+          {"type":"input","block_id":"request.reason","label":{"type":"plain_text","text":"Reason"},
+            "element":{"type":"plain_text_input","action_id":"reason","multiline":true}},
+          {"type":"input","block_id":"request.owner","label":{"type":"plain_text","text":"Owner"},
+            "element":{"type":"users_select","action_id":"owner"}}]}}
+      JSON
+    output.to_s.should eq("Prepared updated form with retained request.reason/reason IDs (HTTP 200).\n")
+  end
+  it "acknowledges a long submitted reason with a bounded display preview" do
+    Slack.configure { |settings| settings.signing_secret = "synthetic-signing-secret" }
+    payload = %({"type":"view_submission","view":{"type":"modal","callback_id":"request.reason","private_metadata":"42","state":{"values":{"request.reason":{"reason":{"type":"plain_text_input","value":"#{"界" * 3000}"}}}}}})
+    body = URI::Params.encode({"payload" => payload})
+    timestamp = Time.utc.to_unix.to_s
+    headers = HTTP::Headers{
+      "Content-Type"              => "application/x-www-form-urlencoded",
+      "X-Slack-Request-Timestamp" => timestamp,
+      "X-Slack-Signature"         => Slack::Webhooks::Signature.new(timestamp, body).compute,
+    }
+    response = OfflineModalUpdateExample.handle(HTTP::Request.new("POST", "/interactions", headers, body))
+    response.status_code.should eq(200)
+    wire = JSON.parse(response.body)
+    wire["response_action"].as_s.should eq("update")
+    wire["view"]["blocks"][0]["text"]["text"].as_s.should eq("Choose an owner for: #{"界" * 200}…")
   end
 end
