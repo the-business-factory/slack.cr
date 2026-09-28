@@ -1,4 +1,4 @@
-alias Slack::Interactions::StateValue = Slack::Interactions::PlainTextValue | Slack::Interactions::StaticSelectValue | Slack::Interactions::MultiStaticSelectValue | Slack::Interactions::ExternalSelectValue | Slack::Interactions::MultiExternalSelectValue | Slack::Interactions::CheckboxesValue | Slack::Interactions::RadioButtonsValue | Slack::Interactions::UsersSelectValue | Slack::Interactions::MultiUsersSelectValue | Slack::Interactions::ConversationsSelectValue | Slack::Interactions::MultiConversationsSelectValue | Slack::Interactions::ChannelsSelectValue | Slack::Interactions::MultiChannelsSelectValue | Slack::Interactions::DatePickerValue | Slack::Interactions::TimePickerValue | Slack::Interactions::DatetimePickerValue | Slack::Interactions::NumberInputValue | Slack::Interactions::UrlInputValue | Slack::Interactions::FileInputValue | Slack::Interactions::UnknownStateValue
+alias Slack::Interactions::StateValue = Slack::Interactions::PlainTextValue | Slack::Interactions::StaticSelectValue | Slack::Interactions::MultiStaticSelectValue | Slack::Interactions::ExternalSelectValue | Slack::Interactions::MultiExternalSelectValue | Slack::Interactions::CheckboxesValue | Slack::Interactions::RadioButtonsValue | Slack::Interactions::UsersSelectValue | Slack::Interactions::MultiUsersSelectValue | Slack::Interactions::ConversationsSelectValue | Slack::Interactions::MultiConversationsSelectValue | Slack::Interactions::ChannelsSelectValue | Slack::Interactions::MultiChannelsSelectValue | Slack::Interactions::DatePickerValue | Slack::Interactions::TimePickerValue | Slack::Interactions::DatetimePickerValue | Slack::Interactions::NumberInputValue | Slack::Interactions::UrlInputValue | Slack::Interactions::FileInputValue | Slack::Interactions::EmailInputValue | Slack::Interactions::UnknownStateValue
 
 # Reads state.values by stable block and action IDs without imposing outbound rules.
 struct Slack::Interactions::StateMap
@@ -30,6 +30,8 @@ struct Slack::Interactions::StateMap
       NumberInputValue.new(item, path)
     when "url_text_input"
       UrlInputValue.new(item, path)
+    when "email_text_input"
+      EmailInputValue.new(item, path)
     when "datepicker"
       DatePickerValue.new(item, path)
     when "timepicker"
@@ -166,6 +168,16 @@ struct Slack::Interactions::StateMap
     when UrlInputValue then entry
     else
       raise TypeMismatch.new(entry_path(block_id, action_id), "url_text_input", entry.type || "null or untyped state value")
+    end
+  end
+
+  def email_input_value?(block_id : String, action_id : String) : EmailInputValue?
+    entry = self[block_id, action_id]?
+    case entry
+    when Nil             then nil
+    when EmailInputValue then entry
+    else
+      raise TypeMismatch.new(entry_path(block_id, action_id), "email_text_input", entry.type || "null or untyped state value")
     end
   end
 

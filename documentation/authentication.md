@@ -66,6 +66,8 @@ For file inputs, verify the original signed submission before reading `StateMap#
 
 For URL inputs, verify the original signed request before reading `UrlInputAction#value` or `StateMap#url_input_value?`. A received URL is user input. Check its scheme and host in the application before you store, show, or fetch it. See [URL input handling](block-kit.md#enter-a-url) and `examples/block_kit_url_input.cr`.
 
+For email inputs, verify the original signed request before reading `EmailInputAction#value` or `StateMap#email_input_value?`. The library does not check the received address; check it in the application. See [email input handling](block-kit.md#enter-an-email-address) and `examples/block_kit_email_input.cr`.
+
 ## OAuth app installation
 
 `Slack::AuthHandler` installs an app; it does not authenticate a human login. Give it explicit configuration, state storage, and transport. Global `Slack.configure` client credentials or scopes do not configure this handler.
