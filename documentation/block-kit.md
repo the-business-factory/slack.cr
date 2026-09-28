@@ -7,8 +7,8 @@ Use `require "slack"` and `Slack::UI::Checked` to construct validated, immutable
 | Checked surface | Direct blocks | Input children | Send with |
 | --- | --- | --- | --- |
 | `Message` | Section, Actions, Divider, Header, Context, Image, Input | PlainTextInput, StaticSelect, MultiStaticSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect | `Slack::Api::CheckedChatPostMessage`, `Slack::Api::CheckedChatUpdate` |
-| `DisplayModal` | Section, Actions, Divider, Header, Context, Image | None, even if a submit label is supplied | `Slack::Api::CheckedViewsOpen`, `Slack::Api::CheckedViewsUpdate` |
-| `FormModal` | Section, Actions, Divider, Header, Context, Image, Input | PlainTextInput, StaticSelect, MultiStaticSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect | `Slack::Api::CheckedViewsOpen`, `Slack::Api::CheckedViewsUpdate` |
+| `DisplayModal` | Section, Actions, Divider, Header, Context, Image | None, even if a submit label is supplied | `Slack::Api::CheckedViewsOpen`, `Slack::Api::CheckedViewsUpdate`, `Slack::Api::CheckedViewsPush` |
+| `FormModal` | Section, Actions, Divider, Header, Context, Image, Input | PlainTextInput, StaticSelect, MultiStaticSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect | `Slack::Api::CheckedViewsOpen`, `Slack::Api::CheckedViewsUpdate`, `Slack::Api::CheckedViewsPush` |
 | `Home` | Section, Actions, Divider, Header, Context, Image, Input | PlainTextInput, StaticSelect, MultiStaticSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect | `Slack::Api::CheckedViewsPublish` |
 
 `FormModal` always needs a plain-text `submit` label, including forms without Input. `DisplayModal` cannot contain Input. Message and Home need no submit label. A Message can contain Input even though older phase notes excluded it. [Slack's Input reference](https://docs.slack.dev/reference/block-kit/blocks/input-block.md) lists Messages, Modals, and Home.
@@ -212,7 +212,30 @@ Supply exactly one nonblank target: `view_id:` from Slack or the developer's `ex
 
 Keep each retained input's `block_id` and `action_id` identical to the old view so Slack can preserve entered values. The adapter does not have the old view and cannot validate those matches or migrate state. The [offline open/update workflow](../examples/block_kit_view_update.cr) checks transmitted IDs, not live state preservation. Slack's [modal update guide](https://docs.slack.dev/surfaces/modals/#updating-modal-views) explains input state and hash conflicts.
 
-The constructor owns a view snapshot. JSON serialization, `result`, and `call` validate local values before transport. `result` caches the HTTP response; `call` parses it as `Slack::Models::ViewsUpdate`, exposing `ok?` and raw `view` JSON, including returned IDs, hash, state, and unknown fields. The required String token and named `configuration`, `transport`, and `limiter` options use the existing dispatch path and are not JSON fields. Existing modal placement and submit rules apply. `views.push` and response actions remain outside this adapter.
+The constructor owns a view snapshot. JSON serialization, `result`, and `call` validate local values before transport. `result` caches the HTTP response; `call` parses it as `Slack::Models::ViewsUpdate`, exposing `ok?` and raw `view` JSON, including returned IDs, hash, state, and unknown fields. The required String token and named `configuration`, `transport`, and `limiter` options use the existing dispatch path and are not JSON fields. Existing modal placement and submit rules apply. Pushing uses `CheckedViewsPush`; typed response actions remain unsupported.
+
+## Push the next modal view
+
+Use `CheckedViewsPush` with a checked `FormModal` or `DisplayModal` and a fresh `trigger_id` from an interaction **inside the existing modal**. The supported JSON fields are exactly `trigger_id` and `view`; `external_id`, callback ID, private metadata, and modal flags stay inside `view`. There is no top-level view selector or hash. The alternate `interactivity_pointer` mechanism is unsupported.
+
+```crystal
+# interaction is a BlockAction received through Slack.process_interaction.
+trigger = interaction.trigger_id || raise "Missing modal trigger"
+next_view = UI.form_modal(title: UI.plain("Details"), submit: UI.plain("Save"),
+  close: UI.plain("Back"), private_metadata: "42") do |builder|
+  builder.input(label: UI.plain("Reason"), block_id: "reason",
+    element: UI::BlockElements::PlainTextInput.new(action_id: "text"))
+end
+pushed = Slack::Api::CheckedViewsPush.new(
+  token: ENV["SLACK_BOT_TOKEN"], trigger_id: trigger, view: next_view
+).call
+```
+
+The constructor owns a modal snapshot and preserves the existing FormModal submit and DisplayModal placement rules. Serialization, `result`, and `call` validate local values before transport. A nonblank trigger is library policy; its format is opaque. `result` caches one HTTP response, and `call` parses it as `Slack::Models::ViewsPush` with `ok?` and raw `view` JSON. A String token is required. Named `configuration`, `transport`, and `limiter` options use the existing API transport and are not JSON fields.
+
+Slack permits three views in a stack, including the root view. Use the new interaction trigger promptly: triggers expire after three seconds and can be exchanged only once. Acknowledge the interaction separately within Slack's response window. The adapter does not track stack depth, verify trigger age or origin, or automatically retry. API failures such as `expired_trigger_id`, `exchanged_trigger_id`, and `push_limit_reached` raise `Slack::Errors::Api` through `call`. See the [method contract](https://docs.slack.dev/reference/methods/views.push/), [modal fields](https://docs.slack.dev/reference/views/modal-views/), and [modal lifecycle guide](https://docs.slack.dev/surfaces/modals/).
+
+The [offline push workflow](../examples/block_kit_view_push.cr) opens a modal, reads a synthetic button interaction from that view, and pushes a form with the fresh trigger. It demonstrates payloads and application flow, not live trigger viability, stack state, permissions, rendering, or handler timing.
 
 ## Read actions and state
 
@@ -252,7 +275,7 @@ Use a collection typed for the destination surface. An ordinary `Array(Slack::UI
 
 ## Offline examples
 
-From a repository checkout, run `shards install` to install development dependencies, including WebMock. All ten commands use synthetic credentials and no Slack network call:
+From a repository checkout, run `shards install` to install development dependencies, including WebMock. All eleven commands use synthetic credentials and no Slack network call:
 
 ```sh
 crystal run examples/block_kit_message.cr
@@ -265,6 +288,7 @@ crystal run examples/block_kit_radio_buttons.cr
 crystal run examples/block_kit_message_update.cr
 crystal run examples/block_kit_view_update.cr
 crystal run examples/block_kit_users_select.cr
+crystal run examples/block_kit_view_push.cr
 ```
 
 The message example builds and prints a request. The modal example posts a button, verifies a signed action, opens a form, and reads a signed submission. The Home example publishes through a stub and reads simulated state. The static choice example posts a single choice, reads a signed selection, opens a grouped multi-choice form, and reads its submission. The overflow example posts action and URL choices and acknowledges a signed URL selection. The checkbox example posts initial choices, reads a signed checkbox action, and reads a cleared selection from a signed submission. The radio example posts an initial choice, reads a signed selection, opens an optional override form, and reads an unselected submission. The message-update example replaces a posted approval button with the completed status and new fallback text. The user-select example assigns an owner and submits multiple reviewers. Real handlers must acknowledge interactions within Slack's response window.
