@@ -1,6 +1,6 @@
 schema_version: 2
 checked_on: "2026-09-27"
-scope: Checked Block Kit values, surface builders, static selections, overflow menus, and checkboxes, including Input in Messages, FormModal and Home.
+scope: Checked Block Kit values, surface builders, static selections, overflow menus, checkboxes, and radio buttons, including Input in Messages, FormModal and Home.
 statuses:
   - unsupported
   - partial
@@ -10,7 +10,7 @@ entries:
     kind: composition object
     documentation_url: https://docs.slack.dev/reference/block-kit/composition-objects/text-object/
     fields_supported: [type, text, emoji, verbatim]
-    parents: [button, confirmation, section, input, plain_text_input, modal, header, context, image, option, overflow option, checkbox option, option_group, static_select, multi_static_select]
+    parents: [button, confirmation, section, input, plain_text_input, modal, header, context, image, option, overflow option, checkbox option, radio option, option_group, static_select, multi_static_select]
     surfaces: [message, modal, home]
     restrictions: Immutable checked outbound values have fixed discriminators and format-specific options; legacy field-specific values remain mutable for compatibility.
     implementation_status: supported
@@ -21,7 +21,7 @@ entries:
     kind: composition object
     documentation_url: https://docs.slack.dev/reference/block-kit/composition-objects/confirmation-dialog-object/
     fields_supported: [title, text, confirm, deny, style]
-    parents: [button, static_select, multi_static_select, overflow, checkboxes]
+    parents: [button, static_select, multi_static_select, overflow, checkboxes, radio_buttons]
     surfaces: [message, modal, home]
     restrictions: Checked outbound values are immutable and validated; the confirmation body accepts plain_text or mrkdwn as used by Slack's official examples. Legacy confirmation values remain mutable.
     implementation_status: supported
@@ -141,13 +141,24 @@ entries:
   - wire_type: radio_buttons
     kind: block element
     documentation_url: https://docs.slack.dev/reference/block-kit/block-elements/radio-button-group-element/
-    fields_supported: [type]
-    parents: []
-    surfaces: []
-    restrictions: Discriminator-only placeholder; no option contract.
-    implementation_status: unsupported
-    inbound_status: unsupported
-    evidence_paths: [src/slack/ui/block_elements/radio_button_group.cr]
+    fields_supported: [type, action_id, options, initial_option, confirm, focus_on_load]
+    parents: [section, actions, input]
+    surfaces: [message, modal, home]
+    restrictions: Checked RadioButtons accepts one to ten RadioOption values with unique values and one exact initial selection. Input remains limited to Message, FormModal and Home. Focus participates in the single-focus rule for views. Typed RadioButtonsAction and RadioButtonsValue retain absent/null/selected options and raw fields without outbound validation. Legacy placeholder remains unsupported.
+    implementation_status: supported
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/checked/block_elements/radio_buttons.cr, src/slack/interactions/radio_buttons_action.cr, src/slack/interactions/radio_buttons_value.cr, spec/ui/checked/radio_buttons_spec.cr, spec/interactions/radio_buttons_spec.cr, spec/api/radio_buttons_snapshot_spec.cr, examples/block_kit_radio_buttons.cr]
+
+  - wire_type: radio option
+    kind: composition object
+    documentation_url: https://docs.slack.dev/reference/block-kit/composition-objects/option-object/
+    fields_supported: [text, value, description]
+    parents: [radio_buttons]
+    surfaces: [message, modal, home]
+    restrictions: RadioOption accepts plain_text or mrkdwn labels and descriptions up to 75 characters and values up to 150. No URL. Existing static, overflow, and checkbox option types are unchanged. Received SelectedOption exposes value, text, and text_type; description and unknown fields remain raw.
+    implementation_status: supported
+    inbound_status: partial
+    evidence_paths: [src/slack/ui/checked/composition_objects/radio_option.cr, spec/ui/checked/radio_buttons_spec.cr, spec/interactions/radio_buttons_spec.cr]
 
   - wire_type: static_select
     kind: block element
@@ -177,7 +188,7 @@ entries:
     fields_supported: [type, block_id, elements]
     parents: [message, modal, home]
     surfaces: [message, modal, home]
-    restrictions: Checked Actions accepts Button, StaticSelect, MultiStaticSelect, Overflow, and Checkboxes; other Slack interactive elements are deferred. Legacy Actions still accepts only Button. Checked collections are immutable snapshots and validate duplicate supplied action IDs.
+    restrictions: Checked Actions accepts Button, StaticSelect, MultiStaticSelect, Overflow, Checkboxes, and RadioButtons; other Slack interactive elements are deferred. Legacy Actions still accepts only Button. Checked collections are immutable snapshots and validate duplicate supplied action IDs.
     implementation_status: partial
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/blocks/actions.cr, spec/ui/checked/blocks_spec.cr, src/slack/ui/blocks/actions.cr]
@@ -188,7 +199,7 @@ entries:
     fields_supported: [type, label, element, dispatch_action, block_id, hint, optional]
     parents: [message, modal, home]
     surfaces: [message, modal, home]
-    restrictions: Checked Input accepts PlainTextInput, StaticSelect, MultiStaticSelect, and Checkboxes in Message, FormModal and Home; all Input fields are supported. Other input element families remain deferred. Legacy Input retains its previous partial contract.
+    restrictions: Checked Input accepts PlainTextInput, StaticSelect, MultiStaticSelect, Checkboxes, and RadioButtons in Message, FormModal and Home; all Input fields are supported. Other input element families remain deferred. Legacy Input retains its previous partial contract.
     implementation_status: partial
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/blocks/input.cr, spec/ui/checked/input_spec.cr, spec/interactions/block_kit_spec.cr]
@@ -199,7 +210,7 @@ entries:
     fields_supported: [type, text, fields, accessory, block_id, expand]
     parents: [message, modal, home]
     surfaces: [message, modal, home]
-    restrictions: Checked Section supports text, fields, block_id, expand, and Button, Image, StaticSelect, MultiStaticSelect, Overflow, or Checkboxes accessories. Other documented accessory element families are deferred and the legacy type still accepts broad mutable children.
+    restrictions: Checked Section supports text, fields, block_id, expand, and Button, Image, StaticSelect, MultiStaticSelect, Overflow, Checkboxes, or RadioButtons accessories. Other documented accessory element families are deferred and the legacy type still accepts broad mutable children.
     implementation_status: partial
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/blocks/section.cr, spec/ui/checked/blocks_spec.cr, src/slack/ui/blocks/section.cr]
@@ -254,7 +265,7 @@ entries:
     fields_supported: [type, title, submit, close, blocks, private_metadata, callback_id, external_id, clear_on_close, notify_on_close, submit_disabled]
     parents: [views.open]
     surfaces: [modal]
-    restrictions: Checked DisplayModal excludes Input; FormModal requires submit. The block catalog is limited to Section, Actions, Divider, Header, Context, Image, and Input containing PlainTextInput, static selects, or Checkboxes. submit_disabled is for Slack configuration modals only. View lifecycle responses remain deferred. Legacy Modal keeps its previous contract.
+    restrictions: Checked DisplayModal excludes Input; FormModal requires submit. The block catalog is limited to Section, Actions, Divider, Header, Context, Image, and Input containing PlainTextInput, static selects, Checkboxes, or RadioButtons. submit_disabled is for Slack configuration modals only. View lifecycle responses remain deferred. Legacy Modal keeps its previous contract.
     implementation_status: partial
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/surfaces/form_modal.cr, src/slack/ui/checked/surfaces/display_modal.cr, spec/ui/checked/modal_spec.cr, examples/block_kit_modal.cr]
@@ -276,7 +287,7 @@ entries:
     fields_supported: [actions, state, view.state.values]
     parents: []
     surfaces: [message, modal, home]
-    restrictions: Typed button, static-select, overflow, and checkbox actions, plus plain text, static-select, and checkbox StateMap access through Interaction.from_json and process_interaction. Selection fields preserve absent/null/empty. Other known action metadata, view bodies, and dispatched text actions remain raw. UnknownAction and UnknownStateValue retain complete raw JSON. Other families and response actions are deferred.
+    restrictions: Typed button, static-select, overflow, checkbox, and radio actions, plus plain text, static-select, checkbox, and radio StateMap access through Interaction.from_json and process_interaction. Selection fields preserve absent/null/empty. Other known action metadata, view bodies, and dispatched text actions remain raw. UnknownAction and UnknownStateValue retain complete raw JSON. Other families and response actions are deferred.
     implementation_status: partial
     inbound_status: partial
     evidence_paths: [src/slack/interactions/action_decoder.cr, src/slack/interactions/state_map.cr, spec/interactions/block_kit_spec.cr, spec/interactions/static_select_spec.cr, examples/block_kit_modal.cr, examples/block_kit_static_select.cr]
@@ -331,7 +342,7 @@ entries:
     fields_supported: [type, blocks, private_metadata, callback_id, external_id]
     parents: [views.publish]
     surfaces: [home]
-    restrictions: Checked Home and HomeBuilder accept Section, Actions, Divider, Header, Context, Image, and Input containing PlainTextInput, static selects, or Checkboxes. At most 100 blocks, unique supplied block IDs, and one focused element per view across Section, Actions, and Input. Modal fields are unavailable. Other block and input families remain deferred. Inbound Home views retain raw JSON; button/static-select/overflow/checkbox actions and plain text/static-select/checkbox state have typed access.
+    restrictions: Checked Home and HomeBuilder accept Section, Actions, Divider, Header, Context, Image, and Input containing PlainTextInput, static selects, Checkboxes, or RadioButtons. At most 100 blocks, unique supplied block IDs, and one focused element per view across Section, Actions, and Input. Modal fields are unavailable. Other block and input families remain deferred. Inbound Home views retain raw JSON; button/static-select/overflow/checkbox/radio actions and plain text/static-select/checkbox/radio state have typed access.
     implementation_status: supported
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/surfaces/home.cr, src/slack/ui/checked/home_builder.cr, spec/ui/checked/home_spec.cr, spec/interactions/home_spec.cr, examples/block_kit_home.cr]
@@ -353,7 +364,7 @@ entries:
     fields_supported: [text, value, description]
     parents: [static_select, multi_static_select, option_group]
     surfaces: [message, modal, home]
-    restrictions: Checked Option has plain-text text and description only (75 characters each), and a value (150). URL belongs to OverflowOption; markdown belongs to CheckboxOption. Radio buttons remain deferred. Received SelectedOption exposes value, text, text_type, and complete raw JSON without outbound validation; emoji and description remain raw.
+    restrictions: Checked Option has plain-text text and description only (75 characters each), and a value (150). URL belongs to OverflowOption; markdown belongs to CheckboxOption and RadioOption. Received SelectedOption exposes value, text, text_type, and complete raw JSON without outbound validation; emoji and description remain raw.
     implementation_status: supported
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/composition_objects/option.cr, src/slack/interactions/selected_option.cr, spec/ui/checked/static_select_spec.cr, spec/interactions/static_select_spec.cr]
@@ -616,3 +627,31 @@ rules:
     source_section: "Changes to empty state in all payloads"
     reviewed_on: "2026-09-27"
     evidence_paths: ["spec/interactions/checkboxes_spec.cr", "spec/block_kit_consumers_spec.cr"]
+  - id: radio_fields
+    classification: "slack_requirement"
+    requirement: "At most ten options, one exact initial option, optional action_id up to 255, confirmation, and focus_on_load. Section/Actions/Input on Messages, Modals and Home."
+    source_url: "https://docs.slack.dev/reference/block-kit/block-elements/radio-button-group-element/"
+    source_section: "Fields and placement example"
+    reviewed_on: "2026-09-27"
+    evidence_paths: ["spec/ui/checked/radio_buttons_spec.cr"]
+  - id: radio_option_fields
+    classification: "slack_requirement"
+    requirement: "Radio labels and descriptions accept plain_text or mrkdwn up to 75 characters; unique values up to 150; no URL."
+    source_url: "https://docs.slack.dev/reference/block-kit/composition-objects/option-object/"
+    source_section: "Fields: text, value, description, url"
+    reviewed_on: "2026-09-27"
+    evidence_paths: ["spec/ui/checked/radio_buttons_spec.cr"]
+  - id: radio_collection_policy
+    classification: "library_policy"
+    requirement: "Nonempty choices; one owned snapshot of supported yielded values. Getter and caller mutations cannot change a built request."
+    source_url: "https://docs.slack.dev/reference/block-kit/block-elements/radio-button-group-element/"
+    source_section: "Local minimum and ownership policy"
+    reviewed_on: "2026-09-27"
+    evidence_paths: ["spec/ui/checked/radio_buttons_spec.cr", "spec/api/radio_buttons_snapshot_spec.cr"]
+  - id: radio_received_selection
+    classification: "library_support"
+    requirement: "Typed radio actions and state preserve absent/null/present selected_option and raw fields. Malformed known fields raise TypeMismatch without outbound validation."
+    source_url: "https://docs.slack.dev/changelog/2020/09/01/full-state-on-view-submisson-and-block-actions/"
+    source_section: "Changes to empty state in all payloads; radio selected_option also follows official Bolt RadioButtonsAction"
+    reviewed_on: "2026-09-27"
+    evidence_paths: ["spec/interactions/radio_buttons_spec.cr", "spec/block_kit_consumers_spec.cr"]

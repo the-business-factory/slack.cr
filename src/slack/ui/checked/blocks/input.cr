@@ -1,4 +1,4 @@
-alias Slack::UI::Checked::Blocks::InputElement = Slack::UI::Checked::BlockElements::PlainTextInput | Slack::UI::Checked::BlockElements::StaticSelect | Slack::UI::Checked::BlockElements::MultiStaticSelect | Slack::UI::Checked::BlockElements::Checkboxes
+alias Slack::UI::Checked::Blocks::InputElement = Slack::UI::Checked::BlockElements::PlainTextInput | Slack::UI::Checked::BlockElements::StaticSelect | Slack::UI::Checked::BlockElements::MultiStaticSelect | Slack::UI::Checked::BlockElements::Checkboxes | Slack::UI::Checked::BlockElements::RadioButtons
 
 struct Slack::UI::Checked::Blocks::Input
   include Slack::UI::Checked::ValueValidation

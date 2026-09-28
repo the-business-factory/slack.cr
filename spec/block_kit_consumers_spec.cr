@@ -5,6 +5,7 @@ require "../examples/support/home_example"
 require "../examples/support/static_select_example"
 require "../examples/support/overflow_example"
 require "../examples/support/checkboxes_example"
+require "../examples/support/radio_buttons_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -71,5 +72,10 @@ describe "documented Block Kit workflows" do
     output = IO::Memory.new
     OfflineCheckboxesExample.run(output)
     output.to_s.should eq "Selected notifications: digest (acknowledged 200)\nSaved notifications: none (acknowledged 200)\n"
+  end
+  it "posts radio buttons and reads signed selection and unselected submission state" do
+    output = IO::Memory.new
+    OfflineRadioButtonsExample.run(output)
+    output.to_s.should eq "Selected delivery: digest (acknowledged 200)\nSaved delivery: none (acknowledged 200)\n"
   end
 end
