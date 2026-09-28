@@ -1,6 +1,6 @@
 schema_version: 2
 checked_on: "2026-09-28"
-scope: Checked Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, channel selects, date/time pickers, the datetime picker, video blocks, external selects with block_suggestion option responses, remote file blocks, rich text display blocks, table blocks, data table blocks, alert blocks, markdown blocks, context actions blocks with feedback and icon buttons, number inputs, file inputs, URL inputs, email inputs, rich text inputs, and message workflow buttons, including Input in Messages, FormModal and Home, modal-only Input children in FormModal, and view-only Input children in FormModal and Home.
+scope: Checked Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, channel selects, date/time pickers, the datetime picker, video blocks, external selects with block_suggestion option responses, remote file blocks, rich text display blocks, table blocks, data table blocks, data visualization blocks, alert blocks, markdown blocks, context actions blocks with feedback and icon buttons, number inputs, file inputs, URL inputs, email inputs, rich text inputs, and message workflow buttons, including Input in Messages, FormModal and Home, modal-only Input children in FormModal, and view-only Input children in FormModal and Home.
 statuses:
   - unsupported
   - partial
@@ -474,7 +474,7 @@ entries:
     fields_supported: [text, blocks]
     parents: [chat.postMessage, chat.update]
     surfaces: [message]
-    restrictions: Supports explicit fallback text or the separately named Slack-generated fallback choice and a checked union of Section, Actions, Divider, Header, Context, Image, RichText, Table, DataTable, Markdown, ContextActions, and Input. The text of all Markdown blocks in one message is at most 12,000 characters. The update adapter requires explicit fallback. Other block families remain unsupported until their slices ship.
+    restrictions: Supports explicit fallback text or the separately named Slack-generated fallback choice and a checked union of Section, Actions, Divider, Header, Context, Image, RichText, Table, DataTable, DataVisualization, Markdown, ContextActions, and Input. At most two DataVisualization blocks per message. The text of all Markdown blocks in one message is at most 12,000 characters. The update adapter requires explicit fallback. Other block families remain unsupported until their slices ship.
     implementation_status: supported
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/surfaces/message.cr, src/slack/ui/checked/message_builder.cr, spec/ui/checked/message_spec.cr, examples/block_kit_message.cr]
@@ -617,7 +617,7 @@ entries:
     fields_supported: [type, blocks, private_metadata, callback_id, external_id]
     parents: [views.publish]
     surfaces: [home]
-    restrictions: Checked Home and HomeBuilder accept Section, Actions, Divider, Header, Context, Image, RichText, Table, DataTable, and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, user selects, channel selects, conversation selects, or date/time pickers, and ViewInput containing RichTextInput. At most 100 blocks, unique supplied block IDs, and one focused element per view across Section, Actions, and Input. Modal fields are unavailable. Other block and input families remain deferred. Inbound Home views retain raw JSON; button/static-select/overflow/checkbox/radio/user-select/channel-select/conversation-select/date-picker/time-picker actions and plain text/static-select/checkbox/radio/user-select/channel-select/conversation-select/date-picker/time-picker/rich-text-input state have typed access; rich-text-input actions are also typed.
+    restrictions: Checked Home and HomeBuilder accept Section, Actions, Divider, Header, Context, Image, RichText, Table, DataTable, DataVisualization, and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, user selects, channel selects, conversation selects, or date/time pickers, and ViewInput containing RichTextInput. At most 100 blocks, unique supplied block IDs, and one focused element per view across Section, Actions, and Input. Modal fields are unavailable. Other block and input families remain deferred. Inbound Home views retain raw JSON; button/static-select/overflow/checkbox/radio/user-select/channel-select/conversation-select/date-picker/time-picker actions and plain text/static-select/checkbox/radio/user-select/channel-select/conversation-select/date-picker/time-picker/rich-text-input state have typed access; rich-text-input actions are also typed.
     implementation_status: supported
     inbound_status: partial
     evidence_paths: [src/slack/ui/checked/surfaces/home.cr, src/slack/ui/checked/home_builder.cr, spec/ui/checked/home_spec.cr, spec/interactions/home_spec.cr, examples/block_kit_home.cr]
@@ -797,6 +797,28 @@ entries:
     implementation_status: supported
     inbound_status: unsupported
     evidence_paths: [src/slack/ui/checked/blocks/data_table.cr, spec/ui/checked/data_table_block_spec.cr, spec/fixtures/block_kit/data_table_message.json, spec/block_kit_diagnostics_spec.cr, examples/support/data_table_example.cr, spec/block_kit_consumers_spec.cr]
+
+  - wire_type: data_visualization
+    kind: block
+    documentation_url: https://docs.slack.dev/reference/block-kit/blocks/data-visualization-block/
+    fields_supported: [type, title, chart, block_id]
+    parents: [message, home]
+    surfaces: [message, home]
+    restrictions: Checked Blocks::DataVisualization has a title of 1 to 50 characters, one DataVisualization::Chart (PieChart, BarChart, AreaChart, or LineChart), and block_id 255. A nonempty title is library policy. Message allows at most two of these blocks, as Slack documents; Home does not check a count because Slack does not state one. Slack lists Messages and Home tabs only, so DisplayModal and FormModal reject it at compile time. Slack renders the chart; offline checks do not prove rendering. The block has no documented inbound payload, and received message blocks are not decoded.
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/checked/blocks/data_visualization.cr, src/slack/ui/checked/surfaces/message.cr, spec/ui/checked/data_visualization_block_spec.cr, spec/fixtures/block_kit/data_visualization_message.json, spec/block_kit_diagnostics_spec.cr, examples/support/data_visualization_example.cr, spec/block_kit_consumers_spec.cr]
+
+  - wire_type: pie, bar, area, line charts; segment, data series, data point, axis_config
+    kind: data visualization composition
+    documentation_url: https://docs.slack.dev/reference/block-kit/blocks/data-visualization-block/
+    fields_supported: [pie.segments, bar.series, bar.axis_config, area.series, area.axis_config, line.series, line.axis_config, segment.label, segment.value, data_series.name, data_series.data, data_point.label, data_point.value, axis_config.categories, axis_config.x_label, axis_config.y_label]
+    parents: [data_visualization]
+    surfaces: [message, home]
+    restrictions: "PieChart has 1 to 12 Segments; a segment label has at most 20 characters and a value greater than 0. BarChart, AreaChart, and LineChart have 1 to 12 DataSeries with unique names of at most 20 characters and one AxisConfig. Each series has 1 to 20 DataPoints and exactly one point for each category; point labels have at most 20 characters. AxisConfig categories have at most 20 characters, and x_label and y_label at most 50. Values are integers or floats sent as JSON numbers. Library policy: nonempty labels, names, and categories; at least one category; at most 20 categories; unique categories; unique segment labels; finite values. Constructors copy collections once and getters return copies."
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/ui/checked/data_visualization/pie_chart.cr, src/slack/ui/checked/data_visualization/series_chart.cr, src/slack/ui/checked/data_visualization/data_series.cr, src/slack/ui/checked/data_visualization/axis_config.cr, spec/ui/checked/data_visualization_block_spec.cr]
 
 # Classification is independent of support status. Missing features are not invalid Slack payloads.
 review_policy:
@@ -1474,3 +1496,17 @@ rules:
     source_section: "Fields: caption and row_header_column_index"
     reviewed_on: "2026-09-28"
     evidence_paths: [spec/ui/checked/data_table_block_spec.cr]
+  - id: data_visualization_block
+    classification: slack_requirement
+    requirement: "title (max 50) and chart are required; chart is pie (1 to 12 segments: label max 20, value greater than 0) or bar, area, or line (1 to 12 series with unique names of max 20, each with 1 to 20 data points; axis_config with categories of max 20 characters and optional x_label and y_label of max 50). Every data point label matches a category, and each series has exactly one point for every category. At most 2 data visualization blocks per message. Available in Messages and Home tabs."
+    source_url: https://docs.slack.dev/reference/block-kit/blocks/data-visualization-block.md
+    source_section: "Fields, Chart-specific fields, Type fields, Validation rules, and available_in_surfaces metadata"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/ui/checked/data_visualization_block_spec.cr, spec/block_kit_consumers_spec.cr, spec/block_kit_diagnostics_spec.cr]
+  - id: data_visualization_policy
+    classification: library_policy
+    requirement: "Title, segment labels, series names, point labels, and categories are nonempty; axis_config has 1 to 20 unique categories; pie segment labels are unique; values are finite. Slack's rich response guide states the 1-character minimums and the uniqueness of categories and segment labels; the block reference does not."
+    source_url: https://docs.slack.dev/ai/slackbot-mcp-client/returning-rich-responses
+    source_section: "Charts (data_visualization)"
+    reviewed_on: "2026-09-28"
+    evidence_paths: [spec/ui/checked/data_visualization_block_spec.cr]

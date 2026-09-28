@@ -1,0 +1,46 @@
+{
+  "text": "Weekly support report",
+  "blocks": [
+    {
+      "type": "data_visualization",
+      "block_id": "tickets.by_channel",
+      "title": "Tickets by channel",
+      "chart": {
+        "type": "pie",
+        "segments": [
+          {"label": "Email", "value": 45},
+          {"label": "Chat", "value": 28.5},
+          {"label": "Phone", "value": 9}
+        ]
+      }
+    },
+    {
+      "type": "data_visualization",
+      "title": "Response time by day",
+      "chart": {
+        "type": "bar",
+        "series": [
+          {
+            "name": "Median",
+            "data": [
+              {"label": "Mon", "value": 12},
+              {"label": "Tue", "value": -3.5}
+            ]
+          },
+          {
+            "name": "P90",
+            "data": [
+              {"label": "Tue", "value": 40},
+              {"label": "Mon", "value": 31}
+            ]
+          }
+        ],
+        "axis_config": {
+          "categories": ["Mon", "Tue"],
+          "x_label": "Day",
+          "y_label": "Minutes"
+        }
+      }
+    }
+  ]
+}

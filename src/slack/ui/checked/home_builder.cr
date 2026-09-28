@@ -30,6 +30,12 @@ class Slack::UI::Checked::HomeBuilder
       row_header_column_index: row_header_column_index, block_id: block_id))
   end
 
+  # Adds a data visualization block. Modal builders do not have this helper
+  # because Slack shows charts in messages and Home tabs only.
+  def data_visualization(title : String, chart : DataVisualization::Chart, block_id : String? = nil) : Nil
+    add(Blocks::DataVisualization.new(title: title, chart: chart, block_id: block_id))
+  end
+
   def add_all(blocks : Enumerable(T)) : Nil forall T
     blocks.each { |block| add(block) }
   end

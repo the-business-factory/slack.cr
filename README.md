@@ -104,6 +104,7 @@ crystal run examples/block_kit_email_input.cr
 crystal run examples/block_kit_table.cr
 crystal run examples/block_kit_context_actions.cr
 crystal run examples/block_kit_data_table.cr
+crystal run examples/block_kit_data_visualization.cr
 crystal run examples/block_kit_rich_text_input.cr
 crystal run examples/block_kit_markdown.cr
 crystal run examples/block_kit_workflow_button.cr
