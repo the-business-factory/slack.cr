@@ -1,5 +1,5 @@
-struct Slack::UI::Checked::CompositionObjects::DispatchActionConfig
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::CompositionObjects::DispatchActionConfig
+  include Slack::UI::ValueValidation
 
   @trigger_actions_on : Array(DispatchTrigger)?
 
@@ -18,15 +18,15 @@ struct Slack::UI::Checked::CompositionObjects::DispatchActionConfig
     @trigger_actions_on.try(&.dup)
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
-    issues = [] of Slack::UI::Checked::ValidationIssue
+  def validate : Array(Slack::UI::ValidationIssue)
+    issues = [] of Slack::UI::ValidationIssue
     if triggers = @trigger_actions_on
       if triggers.empty? || triggers.size > 2 || triggers.uniq.size != triggers.size
-        issues << Slack::UI::Checked::ValidationIssue.new("dispatch_action_config.triggers.invalid", "trigger_actions_on", "Supply one or both distinct dispatch triggers, or omit the field.")
+        issues << Slack::UI::ValidationIssue.new("dispatch_action_config.triggers.invalid", "trigger_actions_on", "Supply one or both distinct dispatch triggers, or omit the field.")
       end
       triggers.each_with_index do |trigger, index|
         unless DispatchTrigger.valid?(trigger)
-          issues << Slack::UI::Checked::ValidationIssue.new("dispatch_action_config.trigger.invalid", "trigger_actions_on[#{index}]", "Unknown dispatch trigger.")
+          issues << Slack::UI::ValidationIssue.new("dispatch_action_config.trigger.invalid", "trigger_actions_on[#{index}]", "Unknown dispatch trigger.")
         end
       end
     end

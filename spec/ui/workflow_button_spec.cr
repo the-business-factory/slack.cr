@@ -1,7 +1,7 @@
-require "../../spec_helper"
+require "../spec_helper"
 
 module WorkflowButtonSpec
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
   alias WorkflowButton = UI::BlockElements::WorkflowButton
   alias Workflow = UI::CompositionObjects::Workflow
   alias Trigger = UI::CompositionObjects::WorkflowTrigger

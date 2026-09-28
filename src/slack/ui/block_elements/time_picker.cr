@@ -1,11 +1,11 @@
-struct Slack::UI::Checked::BlockElements::TimePicker
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::BlockElements::TimePicker
+  include Slack::UI::ValueValidation
 
   getter action_id : String?
   getter initial_time : String?
   getter timezone : String?
-  getter placeholder : Slack::UI::Checked::CompositionObjects::PlainText?
-  getter confirm : Slack::UI::Checked::CompositionObjects::Confirmation?
+  getter placeholder : Slack::UI::CompositionObjects::PlainText?
+  getter confirm : Slack::UI::CompositionObjects::Confirmation?
   getter focus_on_load : Bool?
 
   def initialize(
@@ -13,8 +13,8 @@ struct Slack::UI::Checked::BlockElements::TimePicker
     @action_id : String? = nil,
     @initial_time : String? = nil,
     @timezone : String? = nil,
-    @placeholder : Slack::UI::Checked::CompositionObjects::PlainText? = nil,
-    @confirm : Slack::UI::Checked::CompositionObjects::Confirmation? = nil,
+    @placeholder : Slack::UI::CompositionObjects::PlainText? = nil,
+    @confirm : Slack::UI::CompositionObjects::Confirmation? = nil,
     @focus_on_load : Bool? = nil,
   )
     validate!
@@ -24,8 +24,8 @@ struct Slack::UI::Checked::BlockElements::TimePicker
     "timepicker"
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
-    issues = [] of Slack::UI::Checked::ValidationIssue
+  def validate : Array(Slack::UI::ValidationIssue)
+    issues = [] of Slack::UI::ValidationIssue
     length_issue(issues, @action_id, 255, "#{type}.action_id.too_long", "action_id")
     if placeholder = @placeholder
       placeholder.validate.each { |issue| issues << issue.at("placeholder") }
@@ -35,7 +35,7 @@ struct Slack::UI::Checked::BlockElements::TimePicker
       confirm.validate.each { |issue| issues << issue.at("confirm") }
     end
     if (time = @initial_time) && !/\A(?:[01][0-9]|2[0-3]):[0-5][0-9]\z/.matches?(time)
-      issues << Slack::UI::Checked::ValidationIssue.new("#{type}.initial_time.invalid", "initial_time", "Initial time must use HH:mm from 00:00 through 23:59.")
+      issues << Slack::UI::ValidationIssue.new("#{type}.initial_time.invalid", "initial_time", "Initial time must use HH:mm from 00:00 through 23:59.")
     end
     issues
   end

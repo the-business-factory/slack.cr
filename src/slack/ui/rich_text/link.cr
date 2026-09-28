@@ -1,4 +1,4 @@
-struct Slack::UI::Checked::RichText::Link
+struct Slack::UI::RichText::Link
   include NodeValidation
 
   getter url : String

@@ -1,5 +1,5 @@
 # A workspace or team mention.
-struct Slack::UI::Checked::RichText::Team
+struct Slack::UI::RichText::Team
   include NodeValidation
 
   getter team_id : String

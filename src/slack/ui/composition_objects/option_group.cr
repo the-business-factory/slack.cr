@@ -1,11 +1,11 @@
-struct Slack::UI::Checked::CompositionObjects::OptionGroup
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::CompositionObjects::OptionGroup
+  include Slack::UI::ValueValidation
 
   getter label : PlainText
   @options : Array(Option)
 
   def initialize(*, @label : PlainText, options : Enumerable(T)) forall T
-    @options = Slack::UI::Checked::OptionCollection.copy(options)
+    @options = Slack::UI::OptionCollection.copy(options)
     validate!
   end
 
@@ -13,10 +13,10 @@ struct Slack::UI::Checked::CompositionObjects::OptionGroup
     @options.dup
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
+  def validate : Array(Slack::UI::ValidationIssue)
     issues = @label.validate.map(&.at("label"))
     length_issue(issues, @label.text, 75, "option_group.label.too_long", "label.text")
-    Slack::UI::Checked::OptionCollection.validate(@options, issues, "options", "option_group.options")
+    Slack::UI::OptionCollection.validate(@options, issues, "options", "option_group.options")
     issues
   end
 

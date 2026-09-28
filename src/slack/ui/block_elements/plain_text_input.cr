@@ -1,14 +1,14 @@
-struct Slack::UI::Checked::BlockElements::PlainTextInput
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::BlockElements::PlainTextInput
+  include Slack::UI::ValueValidation
 
   getter action_id : String?
   getter initial_value : String?
   getter multiline : Bool?
   getter min_length : Int32?
   getter max_length : Int32?
-  getter dispatch_action_config : Slack::UI::Checked::CompositionObjects::DispatchActionConfig?
+  getter dispatch_action_config : Slack::UI::CompositionObjects::DispatchActionConfig?
   getter focus_on_load : Bool?
-  getter placeholder : Slack::UI::Checked::CompositionObjects::PlainText?
+  getter placeholder : Slack::UI::CompositionObjects::PlainText?
 
   def initialize(
     @action_id : String? = nil,
@@ -16,9 +16,9 @@ struct Slack::UI::Checked::BlockElements::PlainTextInput
     @multiline : Bool? = nil,
     @min_length : Int32? = nil,
     @max_length : Int32? = nil,
-    @dispatch_action_config : Slack::UI::Checked::CompositionObjects::DispatchActionConfig? = nil,
+    @dispatch_action_config : Slack::UI::CompositionObjects::DispatchActionConfig? = nil,
     @focus_on_load : Bool? = nil,
-    @placeholder : Slack::UI::Checked::CompositionObjects::PlainText? = nil,
+    @placeholder : Slack::UI::CompositionObjects::PlainText? = nil,
   )
     validate!
   end
@@ -27,8 +27,8 @@ struct Slack::UI::Checked::BlockElements::PlainTextInput
     "plain_text_input"
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
-    issues = [] of Slack::UI::Checked::ValidationIssue
+  def validate : Array(Slack::UI::ValidationIssue)
+    issues = [] of Slack::UI::ValidationIssue
     length_issue(issues, @action_id, 255, "plain_text_input.action_id.too_long", "action_id")
     if placeholder = @placeholder
       placeholder.validate.each { |issue| issues << issue.at("placeholder") }
@@ -38,13 +38,13 @@ struct Slack::UI::Checked::BlockElements::PlainTextInput
       config.validate.each { |issue| issues << issue.at("dispatch_action_config") }
     end
     if (minimum = @min_length) && !minimum.in?(0..3000)
-      issues << Slack::UI::Checked::ValidationIssue.new("plain_text_input.min_length.out_of_range", "min_length", "Minimum length must be between 0 and 3000.")
+      issues << Slack::UI::ValidationIssue.new("plain_text_input.min_length.out_of_range", "min_length", "Minimum length must be between 0 and 3000.")
     end
     if (maximum = @max_length) && !maximum.in?(1..3000)
-      issues << Slack::UI::Checked::ValidationIssue.new("plain_text_input.max_length.out_of_range", "max_length", "Maximum length must be between 1 and 3000.")
+      issues << Slack::UI::ValidationIssue.new("plain_text_input.max_length.out_of_range", "max_length", "Maximum length must be between 1 and 3000.")
     end
     if (minimum = @min_length) && (maximum = @max_length) && minimum > maximum
-      issues << Slack::UI::Checked::ValidationIssue.new("plain_text_input.length.inverted", "min_length", "Minimum length cannot exceed maximum length.")
+      issues << Slack::UI::ValidationIssue.new("plain_text_input.length.inverted", "min_length", "Minimum length cannot exceed maximum length.")
     end
     # Slack documents no initial_value limit or relationship with min/max_length.
     issues

@@ -1,5 +1,5 @@
 # A link to a canvas, or to one section of it with `section_id`. `text` is the canvas title.
-struct Slack::UI::Checked::RichText::Canvas
+struct Slack::UI::RichText::Canvas
   include NodeValidation
 
   getter file_id : String

@@ -1,4 +1,4 @@
-struct Slack::UI::Checked::RichText::Quote
+struct Slack::UI::RichText::Quote
   include NodeValidation
 
   @elements : Array(Element)

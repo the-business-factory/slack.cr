@@ -3,7 +3,7 @@ require "webmock"
 require "./webmock_transport"
 
 module OfflineDateTimePickersExample
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   def self.receive(payload : String) : Slack::Interaction
     body = URI::Params.encode({"payload" => payload})
@@ -22,7 +22,7 @@ module OfflineDateTimePickersExample
       builder.section(UI.plain("Choose a date"), block_id: "schedule",
         accessory: UI::BlockElements::DatePicker.new(action_id: "date", initial_date: "2028-02-29"))
     end
-    Slack::Api::CheckedChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC",
+    Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC",
       message: message, transport: OfflineExample::WebMockTransport.new).call
 
     # Independent incoming payloads. These choices do not create a scheduled job.
@@ -43,7 +43,7 @@ module OfflineDateTimePickersExample
             element: UI::BlockElements::TimePicker.new(action_id: "time", initial_time: "09:00",
               timezone: "America/Chicago", focus_on_load: true))
         end
-        Slack::Api::CheckedViewsOpen.new(token: "xoxb-synthetic", trigger_id: trigger,
+        Slack::Api::ViewsOpen.new(token: "xoxb-synthetic", trigger_id: trigger,
           view: view, transport: OfflineExample::WebMockTransport.new).call
       else
         raise "Expected date choice"

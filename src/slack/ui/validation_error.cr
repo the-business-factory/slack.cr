@@ -1,4 +1,4 @@
-class Slack::UI::Checked::ValidationError < Exception
+class Slack::UI::ValidationError < Exception
   @issues : Array(ValidationIssue)
 
   def initialize(issues : Array(ValidationIssue))

@@ -2,7 +2,7 @@ require "../spec_helper"
 require "../support/auth/webmock_transport"
 
 module ChannelsSelectSnapshotSpec
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   class OnePassChannels
     include Enumerable(String?)
@@ -28,7 +28,7 @@ module ChannelsSelectSnapshotSpec
     builder.input(label: UI.plain("Notify"), element: single, block_id: "notification")
     builder.input(label: UI.plain("Destinations"), element: multi, block_id: "destinations",
       optional: true, dispatch_action: false)
-    request = Slack::Api::CheckedViewsOpen.new(token: "xoxb-synthetic", trigger_id: "synthetic-trigger",
+    request = Slack::Api::ViewsOpen.new(token: "xoxb-synthetic", trigger_id: "synthetic-trigger",
       view: builder.build, transport: AuthSupport::WebMockTransport.new)
     ids.clear
     copy = multi

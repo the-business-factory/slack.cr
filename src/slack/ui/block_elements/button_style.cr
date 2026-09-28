@@ -1,4 +1,4 @@
-enum Slack::UI::Checked::BlockElements::ButtonStyle
+enum Slack::UI::BlockElements::ButtonStyle
   Primary
   Danger
 
@@ -9,8 +9,8 @@ enum Slack::UI::Checked::BlockElements::ButtonStyle
     when .danger?
       "danger"
     else
-      raise Slack::UI::Checked::ValidationError.new([
-        Slack::UI::Checked::ValidationIssue.new(
+      raise Slack::UI::ValidationError.new([
+        Slack::UI::ValidationIssue.new(
           code: "button.style.invalid",
           path: "style",
           message: "Style must be primary or danger."

@@ -11,10 +11,10 @@
 # characters. Slack checks this limit; rich text cells have no documented
 # character count. Slack's reference names interactive cells but gives no
 # schema for them, so this block is display only.
-struct Slack::UI::Checked::Blocks::DataTable
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::Blocks::DataTable
+  include Slack::UI::ValueValidation
 
-  alias HeaderCell = Slack::UI::Checked::Table::RawText | Slack::UI::Checked::Table::RawNumber
+  alias HeaderCell = Slack::UI::Table::RawText | Slack::UI::Table::RawNumber
 
   ROWS_MAX_SIZE    = 200
   COLUMNS_MAX_SIZE =  20
@@ -22,7 +22,7 @@ struct Slack::UI::Checked::Blocks::DataTable
 
   getter caption : String
   @header : Array(HeaderCell)
-  @rows : Array(Array(Slack::UI::Checked::Table::Cell))
+  @rows : Array(Array(Slack::UI::Table::Cell))
   getter page_size : Int32?
   getter row_header_column_index : Int32?
   getter block_id : String?
@@ -31,7 +31,7 @@ struct Slack::UI::Checked::Blocks::DataTable
                  @row_header_column_index : Int32? = nil, @block_id : String? = nil) forall H, R
     @header = [] of HeaderCell
     header.each { |cell| append_header_cell(cell) }
-    @rows = [] of Array(Slack::UI::Checked::Table::Cell)
+    @rows = [] of Array(Slack::UI::Table::Cell)
     rows.each { |row| @rows << copy_row(row) }
     validate!
   end
@@ -45,7 +45,7 @@ struct Slack::UI::Checked::Blocks::DataTable
   end
 
   # Data rows, without the header.
-  def rows : Array(Array(Slack::UI::Checked::Table::Cell))
+  def rows : Array(Array(Slack::UI::Table::Cell))
     @rows.map(&.dup)
   end
 
@@ -117,8 +117,8 @@ struct Slack::UI::Checked::Blocks::DataTable
     issues << ValidationIssue.new("data_table.row_header_column_index.out_of_range", "row_header_column_index", "Row header column index must name a header column.")
   end
 
-  private def copy_row(row : Enumerable(T)) : Array(Slack::UI::Checked::Table::Cell) forall T
-    cells = [] of Slack::UI::Checked::Table::Cell
+  private def copy_row(row : Enumerable(T)) : Array(Slack::UI::Table::Cell) forall T
+    cells = [] of Slack::UI::Table::Cell
     row.each { |cell| append_cell(cells, cell) }
     cells
   end
@@ -127,7 +127,7 @@ struct Slack::UI::Checked::Blocks::DataTable
     @header << cell
   end
 
-  private def append_cell(cells : Array(Slack::UI::Checked::Table::Cell), cell : Slack::UI::Checked::Table::Cell) : Nil
+  private def append_cell(cells : Array(Slack::UI::Table::Cell), cell : Slack::UI::Table::Cell) : Nil
     cells << cell
   end
 end

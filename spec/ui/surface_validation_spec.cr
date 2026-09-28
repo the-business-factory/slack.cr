@@ -1,8 +1,8 @@
-require "../../spec_helper"
+require "../spec_helper"
 
-alias SurfaceUI = Slack::UI::Checked
+alias SurfaceUI = Slack::UI
 
-describe "Checked surface validation order" do
+describe "Surface validation order" do
   it "reports every repeated ID, including empty IDs, across block types on each surface" do
     builders = {
       {SurfaceUI::MessageBuilder.new(fallback_text: "Summary"), "message", "message"},

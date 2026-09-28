@@ -1,6 +1,6 @@
 # :nodoc:
 # A supplied response_url_enabled field is supported only in modal Input blocks.
-module Slack::UI::Checked::ChannelResponseUrl
+module Slack::UI::ChannelResponseUrl
   def self.validate(element : T, path : String) : Array(ValidationIssue) forall T
     issues = [] of ValidationIssue
     if element.is_a?(BlockElements::ChannelsSelect) && !element.response_url_enabled.nil?

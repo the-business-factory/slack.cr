@@ -1,4 +1,4 @@
-enum Slack::UI::Checked::RichText::BroadcastRange
+enum Slack::UI::RichText::BroadcastRange
   Here
   Channel
   Everyone

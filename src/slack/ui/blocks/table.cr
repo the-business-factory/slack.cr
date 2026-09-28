@@ -1,6 +1,6 @@
-alias Slack::UI::Checked::Table::Cell = Slack::UI::Checked::Table::RawText |
-                                        Slack::UI::Checked::Table::RawNumber |
-                                        Slack::UI::Checked::Blocks::RichText
+alias Slack::UI::Table::Cell = Slack::UI::Table::RawText |
+                               Slack::UI::Table::RawNumber |
+                               Slack::UI::Blocks::RichText
 
 # Rows of raw text, raw number, or rich text cells. Slack lists messages and
 # Home tabs as its surfaces, so modal unions exclude it.
@@ -8,23 +8,23 @@ alias Slack::UI::Checked::Table::Cell = Slack::UI::Checked::Table::RawText |
 # Slack also limits a table, and all tables in one message, to 10,000
 # characters across all cells. Slack checks this limit; rich text cells have no
 # documented character count.
-struct Slack::UI::Checked::Blocks::Table
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::Blocks::Table
+  include Slack::UI::ValueValidation
 
   ROWS_MAX_SIZE            = 100
   CELLS_MAX_SIZE           =  20
   COLUMN_SETTINGS_MAX_SIZE =  20
 
-  @rows : Array(Array(Slack::UI::Checked::Table::Cell))
-  @column_settings : Array(Slack::UI::Checked::Table::ColumnSetting?)?
+  @rows : Array(Array(Slack::UI::Table::Cell))
+  @column_settings : Array(Slack::UI::Table::ColumnSetting?)?
   getter block_id : String?
 
   # A `nil` column setting sends `null`, which keeps Slack's defaults for that column.
   def initialize(rows : Enumerable(T), column_settings : Enumerable(U)? = nil, @block_id : String? = nil) forall T, U
-    @rows = [] of Array(Slack::UI::Checked::Table::Cell)
+    @rows = [] of Array(Slack::UI::Table::Cell)
     rows.each { |row| @rows << copy_row(row) }
     @column_settings = if column_settings
-                         copied = [] of Slack::UI::Checked::Table::ColumnSetting?
+                         copied = [] of Slack::UI::Table::ColumnSetting?
                          column_settings.each { |setting| append_setting(copied, setting) }
                          copied
                        end
@@ -35,11 +35,11 @@ struct Slack::UI::Checked::Blocks::Table
     "table"
   end
 
-  def rows : Array(Array(Slack::UI::Checked::Table::Cell))
+  def rows : Array(Array(Slack::UI::Table::Cell))
     @rows.map(&.dup)
   end
 
-  def column_settings : Array(Slack::UI::Checked::Table::ColumnSetting?)?
+  def column_settings : Array(Slack::UI::Table::ColumnSetting?)?
     @column_settings.try(&.dup)
   end
 
@@ -69,7 +69,7 @@ struct Slack::UI::Checked::Blocks::Table
   end
 
   # Nonempty rows are library policy; Slack documents only the maximum.
-  private def row_issues(issues : Array(ValidationIssue), row : Array(Slack::UI::Checked::Table::Cell), path : String) : Nil
+  private def row_issues(issues : Array(ValidationIssue), row : Array(Slack::UI::Table::Cell), path : String) : Nil
     if row.empty?
       issues << ValidationIssue.new("table.row.empty", path, "A table row must contain at least one cell.")
     elsif row.size > CELLS_MAX_SIZE
@@ -80,17 +80,17 @@ struct Slack::UI::Checked::Blocks::Table
     end
   end
 
-  private def copy_row(row : Enumerable(T)) : Array(Slack::UI::Checked::Table::Cell) forall T
-    cells = [] of Slack::UI::Checked::Table::Cell
+  private def copy_row(row : Enumerable(T)) : Array(Slack::UI::Table::Cell) forall T
+    cells = [] of Slack::UI::Table::Cell
     row.each { |cell| append_cell(cells, cell) }
     cells
   end
 
-  private def append_cell(cells : Array(Slack::UI::Checked::Table::Cell), cell : Slack::UI::Checked::Table::Cell) : Nil
+  private def append_cell(cells : Array(Slack::UI::Table::Cell), cell : Slack::UI::Table::Cell) : Nil
     cells << cell
   end
 
-  private def append_setting(settings : Array(Slack::UI::Checked::Table::ColumnSetting?), setting : Slack::UI::Checked::Table::ColumnSetting?) : Nil
+  private def append_setting(settings : Array(Slack::UI::Table::ColumnSetting?), setting : Slack::UI::Table::ColumnSetting?) : Nil
     settings << setting
   end
 end

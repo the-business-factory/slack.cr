@@ -1,5 +1,5 @@
 # Icons for `IconButton`. Slack documents `trash` as the only icon.
-enum Slack::UI::Checked::BlockElements::IconButtonIcon
+enum Slack::UI::BlockElements::IconButtonIcon
   Trash
 
   def wire_value : String

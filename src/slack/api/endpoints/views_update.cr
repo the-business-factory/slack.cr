@@ -1,6 +1,6 @@
 # Updates an owned modal snapshot through the existing API transport.
-class Slack::Api::CheckedViewsUpdate
-  @snapshot : Slack::UI::Checked::Modal
+class Slack::Api::ViewsUpdate
+  @snapshot : Slack::UI::Modal
   @result : HTTP::Client::Response?
 
   getter view_id : String?
@@ -9,7 +9,7 @@ class Slack::Api::CheckedViewsUpdate
 
   def initialize(
     @token : String,
-    view : Slack::UI::Checked::Modal,
+    view : Slack::UI::Modal,
     @hash : String? = nil,
     *,
     @view_id : String? = nil,
@@ -23,31 +23,31 @@ class Slack::Api::CheckedViewsUpdate
   end
 
   def self.from_json(source : String | IO) : NoReturn
-    {% raise "checked request deserialization is unsupported" %}
+    {% raise "request deserialization is unsupported" %}
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
+  def validate : Array(Slack::UI::ValidationIssue)
     issues = @snapshot.validate.map(&.at("view"))
     # Exactly one explicit selector is library policy; nested external_id is metadata.
     if @view_id.nil? && @external_id.nil?
-      issues << Slack::UI::Checked::ValidationIssue.new(
+      issues << Slack::UI::ValidationIssue.new(
         "views_update.target.required", "view_id", "Supply a view_id or external_id target.")
     elsif !@view_id.nil? && !@external_id.nil?
-      issues << Slack::UI::Checked::ValidationIssue.new(
+      issues << Slack::UI::ValidationIssue.new(
         "views_update.target.ambiguous", "external_id", "Supply only one target selector.")
     end
     if view_id = @view_id
       if view_id.blank?
-        issues << Slack::UI::Checked::ValidationIssue.new(
+        issues << Slack::UI::ValidationIssue.new(
           "views_update.view_id.blank", "view_id", "View ID must not be blank.")
       end
     end
     if external_id = @external_id
       if external_id.blank?
-        issues << Slack::UI::Checked::ValidationIssue.new(
+        issues << Slack::UI::ValidationIssue.new(
           "views_update.external_id.blank", "external_id", "External ID must not be blank.")
       elsif external_id.size > 255
-        issues << Slack::UI::Checked::ValidationIssue.new(
+        issues << Slack::UI::ValidationIssue.new(
           "views_update.external_id.too_long", "external_id", "External ID cannot exceed 255 characters.")
       end
     end
@@ -56,7 +56,7 @@ class Slack::Api::CheckedViewsUpdate
 
   def validate! : Nil
     issues = validate
-    raise Slack::UI::Checked::ValidationError.new(issues) unless issues.empty?
+    raise Slack::UI::ValidationError.new(issues) unless issues.empty?
   end
 
   def to_json(json : JSON::Builder) : Nil

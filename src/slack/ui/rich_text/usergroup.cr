@@ -1,4 +1,4 @@
-struct Slack::UI::Checked::RichText::Usergroup
+struct Slack::UI::RichText::Usergroup
   include NodeValidation
 
   getter usergroup_id : String

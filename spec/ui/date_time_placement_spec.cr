@@ -1,7 +1,7 @@
-require "../../spec_helper"
+require "../spec_helper"
 
 module DateTimePlacementSpec
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   it "composes both pickers across supported slots and surfaces" do
     date = UI::BlockElements::DatePicker.new(action_id: "date", focus_on_load: true)

@@ -1,8 +1,8 @@
-class Slack::UI::Checked::FormModalBuilder
-  include Slack::UI::Checked::DisplayBlockHelpers
-  include Slack::UI::Checked::InputBlockHelpers
-  include Slack::UI::Checked::ViewInputBlockHelpers
-  include Slack::UI::Checked::ModalInputBlockHelpers
+class Slack::UI::FormModalBuilder
+  include Slack::UI::DisplayBlockHelpers
+  include Slack::UI::InputBlockHelpers
+  include Slack::UI::ViewInputBlockHelpers
+  include Slack::UI::ModalInputBlockHelpers
 
   @blocks = [] of ModalBlock
 

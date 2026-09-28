@@ -1,27 +1,27 @@
 # Display membership is independent of Message: Input in a modal requires submit.
-alias Slack::UI::Checked::DisplayModalBlock = Slack::UI::Checked::Blocks::Section |
-                                              Slack::UI::Checked::Blocks::Actions |
-                                              Slack::UI::Checked::Blocks::Divider |
-                                              Slack::UI::Checked::Blocks::Header |
-                                              Slack::UI::Checked::Blocks::Context |
-                                              Slack::UI::Checked::Blocks::Image |
-                                              Slack::UI::Checked::Blocks::Video |
-                                              Slack::UI::Checked::Blocks::RichText |
-                                              Slack::UI::Checked::Blocks::Alert |
-                                              Slack::UI::Checked::Blocks::Card
-alias Slack::UI::Checked::ModalBlock = Slack::UI::Checked::DisplayModalBlock | Slack::UI::Checked::Blocks::Input | Slack::UI::Checked::Blocks::ModalInput | Slack::UI::Checked::Blocks::ViewInput
-alias Slack::UI::Checked::Modal = Slack::UI::Checked::DisplayModal | Slack::UI::Checked::FormModal
+alias Slack::UI::DisplayModalBlock = Slack::UI::Blocks::Section |
+                                     Slack::UI::Blocks::Actions |
+                                     Slack::UI::Blocks::Divider |
+                                     Slack::UI::Blocks::Header |
+                                     Slack::UI::Blocks::Context |
+                                     Slack::UI::Blocks::Image |
+                                     Slack::UI::Blocks::Video |
+                                     Slack::UI::Blocks::RichText |
+                                     Slack::UI::Blocks::Alert |
+                                     Slack::UI::Blocks::Card
+alias Slack::UI::ModalBlock = Slack::UI::DisplayModalBlock | Slack::UI::Blocks::Input | Slack::UI::Blocks::ModalInput | Slack::UI::Blocks::ViewInput
+alias Slack::UI::Modal = Slack::UI::DisplayModal | Slack::UI::FormModal
 
 # Shared wire and validation rules; each concrete surface owns its child union.
-module Slack::UI::Checked::ModalContent
-  include Slack::UI::Checked::ValueValidation
+module Slack::UI::ModalContent
+  include Slack::UI::ValueValidation
 
   def type : String
     "modal"
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
-    issues = [] of Slack::UI::Checked::ValidationIssue
+  def validate : Array(Slack::UI::ValidationIssue)
+    issues = [] of Slack::UI::ValidationIssue
     {"title" => @title, "submit" => @submit, "close" => @close}.each do |field, text|
       if text
         text.validate.each { |issue| issues << issue.at(field) }
@@ -32,11 +32,11 @@ module Slack::UI::Checked::ModalContent
     length_issue(issues, @callback_id, 255, "modal.callback_id.too_long", "callback_id")
     length_issue(issues, @external_id, 255, "modal.external_id.too_long", "external_id")
     if @blocks.size > 100
-      issues << Slack::UI::Checked::ValidationIssue.new("modal.blocks.too_many", "blocks", "A modal cannot contain more than 100 blocks.")
+      issues << Slack::UI::ValidationIssue.new("modal.blocks.too_many", "blocks", "A modal cannot contain more than 100 blocks.")
     end
     BlockValidation.validate(@blocks, issues, "modal.block_id.duplicate", "Block IDs must be unique within a view.")
-    issues.concat(Slack::UI::Checked::ViewFocus.validate(@blocks, "modal"))
-    issues.concat(Slack::UI::Checked::WorkflowButtonPlacement.validate(@blocks, "modal"))
+    issues.concat(Slack::UI::ViewFocus.validate(@blocks, "modal"))
+    issues.concat(Slack::UI::WorkflowButtonPlacement.validate(@blocks, "modal"))
     issues
   end
 

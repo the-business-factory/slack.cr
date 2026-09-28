@@ -5,7 +5,7 @@ require "./webmock_transport"
 # Posts a carousel of department cards and handles a click on a card button.
 # Card buttons send ordinary block_actions button payloads.
 module OfflineCardCarouselExample
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   record Department, id : String, name : String, summary : String, icon : UI::CompositionObjects::SlackIconName
 
@@ -27,7 +27,7 @@ module OfflineCardCarouselExample
     message = UI.message(fallback_text: "Departments open for visits") do |builder|
       builder.carousel(DEPARTMENTS.map { |department| card(department) }, block_id: "departments")
     end
-    result = Slack::Api::CheckedChatPostMessage.new(token: "xoxb-synthetic-carousel", channel: "C-SYNTHETIC",
+    result = Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic-carousel", channel: "C-SYNTHETIC",
       message: message, transport: OfflineExample::WebMockTransport.new).call
     output.puts "Posted #{DEPARTMENTS.size} cards to #{result.channel}/#{result.ts}"
 

@@ -1,7 +1,7 @@
-require "../../spec_helper"
+require "../spec_helper"
 
 module UrlInputSpec
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
   alias UrlInput = UI::BlockElements::UrlInput
 
   describe UrlInput do

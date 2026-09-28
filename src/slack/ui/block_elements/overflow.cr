@@ -1,15 +1,15 @@
 # A compact menu for actions and links in Section and Actions blocks.
-struct Slack::UI::Checked::BlockElements::Overflow
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::BlockElements::Overflow
+  include Slack::UI::ValueValidation
 
-  alias Option = Slack::UI::Checked::CompositionObjects::OverflowOption
+  alias Option = Slack::UI::CompositionObjects::OverflowOption
 
   @options : Array(Option)
   getter action_id : String?
-  getter confirm : Slack::UI::Checked::CompositionObjects::Confirmation?
+  getter confirm : Slack::UI::CompositionObjects::Confirmation?
 
   def initialize(*, options : Enumerable(T), @action_id : String? = nil,
-                 @confirm : Slack::UI::Checked::CompositionObjects::Confirmation? = nil) forall T
+                 @confirm : Slack::UI::CompositionObjects::Confirmation? = nil) forall T
     @options = [] of Option
     options.each { |option| @options << option }
     validate!
@@ -23,16 +23,16 @@ struct Slack::UI::Checked::BlockElements::Overflow
     @options.dup
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
-    issues = [] of Slack::UI::Checked::ValidationIssue
+  def validate : Array(Slack::UI::ValidationIssue)
+    issues = [] of Slack::UI::ValidationIssue
     if @options.empty? || @options.size > 5
-      issues << Slack::UI::Checked::ValidationIssue.new("overflow.options.size", "options", "Supply one to five options.")
+      issues << Slack::UI::ValidationIssue.new("overflow.options.size", "options", "Supply one to five options.")
     end
     values = Set(String).new
     @options.each_with_index do |option, index|
       option.validate.each { |issue| issues << issue.at("options[#{index}]") }
       unless values.add?(option.value)
-        issues << Slack::UI::Checked::ValidationIssue.new("overflow.options.value.duplicate", "options[#{index}].value", "Option values must be unique within the menu.")
+        issues << Slack::UI::ValidationIssue.new("overflow.options.value.duplicate", "options[#{index}].value", "Option values must be unique within the menu.")
       end
     end
     length_issue(issues, @action_id, 255, "overflow.action_id.too_long", "action_id")

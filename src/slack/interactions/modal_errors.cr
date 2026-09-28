@@ -3,7 +3,7 @@
 # The application must return this JSON in its HTTP 200 response within three
 # seconds and ensure the IDs belong to the submitted view's Input blocks.
 struct Slack::Interactions::ModalErrors
-  include Slack::UI::Checked::ValueValidation
+  include Slack::UI::ValueValidation
 
   @errors : Hash(String, String)
 
@@ -19,14 +19,14 @@ struct Slack::Interactions::ModalErrors
 
   # A nonempty map and nonblank messages are library policies. No original
   # modal is required, so this cannot check Input block membership.
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
-    issues = [] of Slack::UI::Checked::ValidationIssue
+  def validate : Array(Slack::UI::ValidationIssue)
+    issues = [] of Slack::UI::ValidationIssue
     if @errors.empty?
-      issues << Slack::UI::Checked::ValidationIssue.new("modal_errors.empty", "errors", "Supply at least one input error.")
+      issues << Slack::UI::ValidationIssue.new("modal_errors.empty", "errors", "Supply at least one input error.")
     end
     @errors.each do |block_id, message|
       if message.blank?
-        issues << Slack::UI::Checked::ValidationIssue.new("modal_errors.message.blank", "errors[#{block_id.inspect}]", "Error message must not be blank.")
+        issues << Slack::UI::ValidationIssue.new("modal_errors.message.blank", "errors[#{block_id.inspect}]", "Error message must not be blank.")
       end
     end
     issues

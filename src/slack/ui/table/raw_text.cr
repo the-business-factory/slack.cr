@@ -1,7 +1,7 @@
 # A plain text cell for `Blocks::Table` and `Blocks::DataTable`. Nonempty text
 # is library policy.
-struct Slack::UI::Checked::Table::RawText
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::Table::RawText
+  include Slack::UI::ValueValidation
 
   getter text : String
 

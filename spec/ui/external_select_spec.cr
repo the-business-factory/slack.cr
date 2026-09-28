@@ -1,7 +1,7 @@
-require "../../spec_helper"
+require "../spec_helper"
 
 module ExternalSelectSpec
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
   alias Single = UI::BlockElements::ExternalSelect
   alias Multi = UI::BlockElements::MultiExternalSelect
 
@@ -23,7 +23,7 @@ module ExternalSelectSpec
     UI::CompositionObjects::Option.new(text: UI.plain(value.capitalize), value: value)
   end
 
-  describe "checked external selects" do
+  describe "External selects" do
     it "serializes independently authored single and multiple external contracts" do
       confirm = UI::CompositionObjects::Confirmation.new(title: UI.plain("Assign?"),
         text: UI.plain("Assign this project"), confirm: UI.plain("Yes"), deny: UI.plain("No"))
@@ -47,7 +47,7 @@ module ExternalSelectSpec
       JSON.parse(Multi.new.to_json).should eq JSON.parse(%({"type":"multi_external_select"}))
     end
 
-    it "places external selects in Section, Actions and Input on every checked surface" do
+    it "places external selects in Section, Actions and Input on every surface" do
       message = UI.message(fallback_text: "Projects") do |builder|
         builder.section(UI.plain("Project"), block_id: "pick", accessory: Single.new(action_id: "project"))
         builder.actions(block_id: "more", elements: {Multi.new(action_id: "projects")})

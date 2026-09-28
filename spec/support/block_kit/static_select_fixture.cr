@@ -1,7 +1,7 @@
 require "../../../src/slack/ui"
 
 module StaticSelectFixture
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   def self.option(value : String = "red", text : String = "Red") : UI::CompositionObjects::Option
     UI::CompositionObjects::Option.new(text: UI.plain(text, emoji: false), value: value, description: UI.plain("Team color"))

@@ -1,6 +1,6 @@
 # :nodoc:
 # Included only by builders whose surfaces accept view-only input blocks.
-module Slack::UI::Checked::ViewInputBlockHelpers
+module Slack::UI::ViewInputBlockHelpers
   def input(
     label : CompositionObjects::PlainText,
     element : Blocks::ViewInputElement,

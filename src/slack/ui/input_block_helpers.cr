@@ -1,6 +1,6 @@
 # :nodoc:
 # Included only by builders whose surfaces accept input blocks.
-module Slack::UI::Checked::InputBlockHelpers
+module Slack::UI::InputBlockHelpers
   def input(
     label : CompositionObjects::PlainText,
     element : Blocks::InputElement,

@@ -1,11 +1,11 @@
-struct Slack::UI::Checked::BlockElements::MultiUsersSelect
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::BlockElements::MultiUsersSelect
+  include Slack::UI::ValueValidation
 
   @initial_users : Array(String)?
   getter action_id : String?
   getter max_selected_items : Int32?
-  getter placeholder : Slack::UI::Checked::CompositionObjects::PlainText?
-  getter confirm : Slack::UI::Checked::CompositionObjects::Confirmation?
+  getter placeholder : Slack::UI::CompositionObjects::PlainText?
+  getter confirm : Slack::UI::CompositionObjects::Confirmation?
   getter focus_on_load : Bool?
 
   def initialize(
@@ -13,8 +13,8 @@ struct Slack::UI::Checked::BlockElements::MultiUsersSelect
     @action_id : String? = nil,
     initial_users : Enumerable(T)? = nil,
     @max_selected_items : Int32? = nil,
-    @placeholder : Slack::UI::Checked::CompositionObjects::PlainText? = nil,
-    @confirm : Slack::UI::Checked::CompositionObjects::Confirmation? = nil,
+    @placeholder : Slack::UI::CompositionObjects::PlainText? = nil,
+    @confirm : Slack::UI::CompositionObjects::Confirmation? = nil,
     @focus_on_load : Bool? = nil,
   ) forall T
     @initial_users = if initial_users
@@ -33,8 +33,8 @@ struct Slack::UI::Checked::BlockElements::MultiUsersSelect
     @initial_users.try(&.dup)
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
-    issues = [] of Slack::UI::Checked::ValidationIssue
+  def validate : Array(Slack::UI::ValidationIssue)
+    issues = [] of Slack::UI::ValidationIssue
     length_issue(issues, @action_id, 255, "#{type}.action_id.too_long", "action_id")
     if placeholder = @placeholder
       placeholder.validate.each { |issue| issues << issue.at("placeholder") }
@@ -45,22 +45,22 @@ struct Slack::UI::Checked::BlockElements::MultiUsersSelect
     end
     if maximum = @max_selected_items
       if maximum < 1
-        issues << Slack::UI::Checked::ValidationIssue.new("#{type}.max_selected_items.too_small", "max_selected_items", "Maximum selected items must be at least one.")
+        issues << Slack::UI::ValidationIssue.new("#{type}.max_selected_items.too_small", "max_selected_items", "Maximum selected items must be at least one.")
       end
     end
     if initial = @initial_users
       if maximum = @max_selected_items
         if initial.size > maximum
-          issues << Slack::UI::Checked::ValidationIssue.new("#{type}.initial_users.too_many", "initial_users", "Initial selections cannot exceed maximum selected items.")
+          issues << Slack::UI::ValidationIssue.new("#{type}.initial_users.too_many", "initial_users", "Initial selections cannot exceed maximum selected items.")
         end
       end
       users = Set(String).new
       initial.each_with_index do |user, index|
         if user.empty?
-          issues << Slack::UI::Checked::ValidationIssue.new("#{type}.initial_users.empty", "initial_users[#{index}]", "Initial user ID must not be empty.")
+          issues << Slack::UI::ValidationIssue.new("#{type}.initial_users.empty", "initial_users[#{index}]", "Initial user ID must not be empty.")
         end
         unless users.add?(user)
-          issues << Slack::UI::Checked::ValidationIssue.new("#{type}.initial_users.duplicate", "initial_users[#{index}]", "Initial selections must be distinct.")
+          issues << Slack::UI::ValidationIssue.new("#{type}.initial_users.duplicate", "initial_users[#{index}]", "Initial selections must be distinct.")
         end
       end
     end

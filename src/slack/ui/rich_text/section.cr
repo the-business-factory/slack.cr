@@ -1,19 +1,19 @@
-alias Slack::UI::Checked::RichText::Element = Slack::UI::Checked::RichText::Text |
-                                              Slack::UI::Checked::RichText::Link |
-                                              Slack::UI::Checked::RichText::Emoji |
-                                              Slack::UI::Checked::RichText::User |
-                                              Slack::UI::Checked::RichText::Usergroup |
-                                              Slack::UI::Checked::RichText::Channel |
-                                              Slack::UI::Checked::RichText::Broadcast |
-                                              Slack::UI::Checked::RichText::Date |
-                                              Slack::UI::Checked::RichText::Color |
-                                              Slack::UI::Checked::RichText::Team |
-                                              Slack::UI::Checked::RichText::File |
-                                              Slack::UI::Checked::RichText::Canvas |
-                                              Slack::UI::Checked::RichText::WorkflowMention
+alias Slack::UI::RichText::Element = Slack::UI::RichText::Text |
+                                     Slack::UI::RichText::Link |
+                                     Slack::UI::RichText::Emoji |
+                                     Slack::UI::RichText::User |
+                                     Slack::UI::RichText::Usergroup |
+                                     Slack::UI::RichText::Channel |
+                                     Slack::UI::RichText::Broadcast |
+                                     Slack::UI::RichText::Date |
+                                     Slack::UI::RichText::Color |
+                                     Slack::UI::RichText::Team |
+                                     Slack::UI::RichText::File |
+                                     Slack::UI::RichText::Canvas |
+                                     Slack::UI::RichText::WorkflowMention
 
 # A run of inline rich text elements. It is also the only item type of a list.
-struct Slack::UI::Checked::RichText::Section
+struct Slack::UI::RichText::Section
   include NodeValidation
 
   @elements : Array(Element)

@@ -1,8 +1,8 @@
 # One y-axis value for an x-axis category. Slack permits negative values and
 # requires a label of up to 20 characters that matches a category. A nonempty
 # label and a finite value are library policy.
-struct Slack::UI::Checked::DataVisualization::DataPoint
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::DataVisualization::DataPoint
+  include Slack::UI::ValueValidation
 
   LABEL_MAX_SIZE = 20
 

@@ -5,9 +5,9 @@ module OfflineMessageExample
     def initialize(@request_id : String, @requester : String)
     end
 
-    def render : Slack::UI::Checked::Blocks::Section
-      Slack::UI::Checked::Blocks::Section.new(
-        text: Slack::UI::Checked.mrkdwn("*Request #{@request_id}* from #{@requester}"),
+    def render : Slack::UI::Blocks::Section
+      Slack::UI::Blocks::Section.new(
+        text: Slack::UI.mrkdwn("*Request #{@request_id}* from #{@requester}"),
         block_id: "request.summary"
       )
     end
@@ -17,12 +17,12 @@ module OfflineMessageExample
     def initialize(@request_id : String)
     end
 
-    def render_into(builder : Slack::UI::Checked::MessageBuilder) : Nil
-      approve = Slack::UI::Checked::BlockElements::Button.new(
-        text: Slack::UI::Checked.plain("Approve"),
+    def render_into(builder : Slack::UI::MessageBuilder) : Nil
+      approve = Slack::UI::BlockElements::Button.new(
+        text: Slack::UI.plain("Approve"),
         action_id: "request.approve",
         value: @request_id,
-        style: Slack::UI::Checked::BlockElements::ButtonStyle::Primary,
+        style: Slack::UI::BlockElements::ButtonStyle::Primary,
         accessibility_label: "Approve request #{@request_id}"
       )
       builder.actions(elements: [approve], block_id: "request.controls")
@@ -30,7 +30,7 @@ module OfflineMessageExample
   end
 
   def self.run(output : IO = STDOUT) : Nil
-    message = Slack::UI::Checked.message(
+    message = Slack::UI.message(
       fallback_text: "Morgan's request 42 needs approval."
     ) do |builder|
       builder.add(RequestSummary.new("42", "Morgan").render)

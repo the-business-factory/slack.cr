@@ -1,5 +1,5 @@
-class Slack::Api::CheckedChatPostMessage
-  @snapshot : Slack::UI::Checked::Message
+class Slack::Api::ChatPostMessage
+  @snapshot : Slack::UI::Message
   @result : HTTP::Client::Response?
 
   getter channel : String
@@ -11,7 +11,7 @@ class Slack::Api::CheckedChatPostMessage
   def initialize(
     @token : String,
     @channel : String,
-    message : Slack::UI::Checked::Message,
+    message : Slack::UI::Message,
     @thread_ts : String? = nil,
     @reply_broadcast : Bool? = nil,
     @unfurl_links : Bool? = nil,
@@ -26,13 +26,13 @@ class Slack::Api::CheckedChatPostMessage
   end
 
   def self.from_json(source : String | IO) : NoReturn
-    {% raise "checked request deserialization is unsupported" %}
+    {% raise "request deserialization is unsupported" %}
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
+  def validate : Array(Slack::UI::ValidationIssue)
     issues = @snapshot.validate
     if @channel.empty?
-      issues << Slack::UI::Checked::ValidationIssue.new(
+      issues << Slack::UI::ValidationIssue.new(
         code: "chat_post_message.channel.empty",
         path: "channel",
         message: "Channel must not be empty."
@@ -43,7 +43,7 @@ class Slack::Api::CheckedChatPostMessage
       # shape: fixed digit counts are not documented, and Float loses precision.
       # https://docs.slack.dev/changelog/2016/05/31/more-events-timestamps-in-rtm-api/
       unless /\A[0-9]+\.[0-9]+\z/.matches?(timestamp)
-        issues << Slack::UI::Checked::ValidationIssue.new(
+        issues << Slack::UI::ValidationIssue.new(
           code: "chat_post_message.thread_ts.invalid",
           path: "thread_ts",
           message: "Thread timestamp must contain digits, a decimal point, and fractional digits."
@@ -51,7 +51,7 @@ class Slack::Api::CheckedChatPostMessage
       end
     end
     if @reply_broadcast && @thread_ts.nil?
-      issues << Slack::UI::Checked::ValidationIssue.new(
+      issues << Slack::UI::ValidationIssue.new(
         code: "chat_post_message.reply_broadcast.thread_required",
         path: "reply_broadcast",
         message: "Reply broadcast requires a thread timestamp."
@@ -62,7 +62,7 @@ class Slack::Api::CheckedChatPostMessage
 
   def validate! : Nil
     issues = validate
-    raise Slack::UI::Checked::ValidationError.new(issues) unless issues.empty?
+    raise Slack::UI::ValidationError.new(issues) unless issues.empty?
   end
 
   def to_json(json : JSON::Builder) : Nil

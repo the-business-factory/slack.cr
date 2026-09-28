@@ -1,7 +1,7 @@
-require "../../spec_helper"
+require "../spec_helper"
 
 module RichTextInputSpec
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
   alias RT = UI::RichText
   alias RichTextInput = UI::BlockElements::RichTextInput
 

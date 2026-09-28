@@ -1,6 +1,6 @@
 # Accepts uploaded files in a FormModal input. Slack cannot dispatch it as an action.
-struct Slack::UI::Checked::BlockElements::FileInput
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::BlockElements::FileInput
+  include Slack::UI::ValueValidation
 
   MAX_FILES_RANGE = 1..10
 
@@ -31,19 +31,19 @@ struct Slack::UI::Checked::BlockElements::FileInput
     @filetypes.try(&.dup)
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
-    issues = [] of Slack::UI::Checked::ValidationIssue
+  def validate : Array(Slack::UI::ValidationIssue)
+    issues = [] of Slack::UI::ValidationIssue
     length_issue(issues, @action_id, 255, "#{type}.action_id.too_long", "action_id")
     if (maximum = @max_files) && !MAX_FILES_RANGE.includes?(maximum)
-      issues << Slack::UI::Checked::ValidationIssue.new("#{type}.max_files.out_of_range", "max_files", "Maximum files must be from 1 through 10.")
+      issues << Slack::UI::ValidationIssue.new("#{type}.max_files.out_of_range", "max_files", "Maximum files must be from 1 through 10.")
     end
     if filetypes = @filetypes
       if filetypes.empty?
-        issues << Slack::UI::Checked::ValidationIssue.new("#{type}.filetypes.empty", "filetypes", "Omit filetypes to accept all file extensions.")
+        issues << Slack::UI::ValidationIssue.new("#{type}.filetypes.empty", "filetypes", "Omit filetypes to accept all file extensions.")
       end
       filetypes.each_with_index do |filetype, index|
         if filetype.blank?
-          issues << Slack::UI::Checked::ValidationIssue.new("#{type}.filetypes.blank", "filetypes[#{index}]", "File extension must not be blank.")
+          issues << Slack::UI::ValidationIssue.new("#{type}.filetypes.blank", "filetypes[#{index}]", "File extension must not be blank.")
         end
       end
     end

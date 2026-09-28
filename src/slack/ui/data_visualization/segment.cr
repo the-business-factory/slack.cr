@@ -1,7 +1,7 @@
 # One pie chart slice. Slack requires a label of up to 20 characters and a
 # value greater than 0. A nonempty label and a finite value are library policy.
-struct Slack::UI::Checked::DataVisualization::Segment
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::DataVisualization::Segment
+  include Slack::UI::ValueValidation
 
   LABEL_MAX_SIZE = 20
 

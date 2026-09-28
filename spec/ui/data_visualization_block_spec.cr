@@ -1,7 +1,7 @@
-require "../../spec_helper"
+require "../spec_helper"
 
 module DataVisualizationBlockSpec
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
   alias DV = UI::DataVisualization
 
   def self.series(name : String, categories : Enumerable(String), value : Int32 = 1) : DV::DataSeries

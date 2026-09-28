@@ -5,8 +5,8 @@
 # one of them at compile time. When both are sent, Slack shows
 # `rich_text_title`. Slack does not list `container` as a child, so containers
 # do not nest.
-struct Slack::UI::Checked::Blocks::Container
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::Blocks::Container
+  include Slack::UI::ValueValidation
 
   # The child blocks that Slack documents for a container. `Home` also rejects
   # a `File` child, because Slack shows remote file blocks in messages only.

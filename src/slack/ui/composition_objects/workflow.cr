@@ -1,13 +1,13 @@
 # The workflow that a workflow button runs, identified by its link trigger.
-struct Slack::UI::Checked::CompositionObjects::Workflow
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::CompositionObjects::Workflow
+  include Slack::UI::ValueValidation
 
   getter trigger : WorkflowTrigger
 
   def initialize(*, @trigger : WorkflowTrigger)
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
+  def validate : Array(Slack::UI::ValidationIssue)
     @trigger.validate.map(&.at("trigger"))
   end
 

@@ -1,7 +1,7 @@
 # One customizable input for a workflow link trigger. Slack checks that the
 # name matches a customizable workflow input and that the value fits its type.
 # End users can see these values; do not send secrets.
-struct Slack::UI::Checked::CompositionObjects::WorkflowInputParameter
+struct Slack::UI::CompositionObjects::WorkflowInputParameter
   getter name : String
   getter value : String
 

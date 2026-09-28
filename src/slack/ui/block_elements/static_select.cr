@@ -1,5 +1,5 @@
-struct Slack::UI::Checked::BlockElements::StaticSelect
-  include Slack::UI::Checked::BlockElements::StaticSelectContent
+struct Slack::UI::BlockElements::StaticSelect
+  include Slack::UI::BlockElements::StaticSelectContent
 
   getter initial_option : Option?
 
@@ -7,12 +7,12 @@ struct Slack::UI::Checked::BlockElements::StaticSelect
     *,
     options : Enumerable(T),
     @action_id : String? = nil,
-    @placeholder : Slack::UI::Checked::CompositionObjects::PlainText? = nil,
-    @confirm : Slack::UI::Checked::CompositionObjects::Confirmation? = nil,
+    @placeholder : Slack::UI::CompositionObjects::PlainText? = nil,
+    @confirm : Slack::UI::CompositionObjects::Confirmation? = nil,
     @focus_on_load : Bool? = nil,
     @initial_option : Option? = nil,
   ) forall T
-    @options = Slack::UI::Checked::OptionCollection.copy(options)
+    @options = Slack::UI::OptionCollection.copy(options)
     @option_groups = nil
     validate!
   end
@@ -21,8 +21,8 @@ struct Slack::UI::Checked::BlockElements::StaticSelect
     *,
     option_groups : Enumerable(T),
     @action_id : String? = nil,
-    @placeholder : Slack::UI::Checked::CompositionObjects::PlainText? = nil,
-    @confirm : Slack::UI::Checked::CompositionObjects::Confirmation? = nil,
+    @placeholder : Slack::UI::CompositionObjects::PlainText? = nil,
+    @confirm : Slack::UI::CompositionObjects::Confirmation? = nil,
     @focus_on_load : Bool? = nil,
     @initial_option : Option? = nil,
   ) forall T
@@ -35,7 +35,7 @@ struct Slack::UI::Checked::BlockElements::StaticSelect
     "static_select"
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
+  def validate : Array(Slack::UI::ValidationIssue)
     issues = validate_content
     if initial = @initial_option
       validate_initial(initial, issues, "initial_option")

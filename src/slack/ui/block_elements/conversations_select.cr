@@ -1,23 +1,23 @@
-struct Slack::UI::Checked::BlockElements::ConversationsSelect
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::BlockElements::ConversationsSelect
+  include Slack::UI::ValueValidation
 
-  getter filter : Slack::UI::Checked::CompositionObjects::ConversationFilter?
+  getter filter : Slack::UI::CompositionObjects::ConversationFilter?
   getter default_to_current_conversation : Bool?
   getter action_id : String?
   getter initial_conversation : String?
-  getter placeholder : Slack::UI::Checked::CompositionObjects::PlainText?
-  getter confirm : Slack::UI::Checked::CompositionObjects::Confirmation?
+  getter placeholder : Slack::UI::CompositionObjects::PlainText?
+  getter confirm : Slack::UI::CompositionObjects::Confirmation?
   getter response_url_enabled : Bool?
   getter focus_on_load : Bool?
 
   def initialize(
     *,
-    @filter : Slack::UI::Checked::CompositionObjects::ConversationFilter? = nil,
+    @filter : Slack::UI::CompositionObjects::ConversationFilter? = nil,
     @default_to_current_conversation : Bool? = nil,
     @action_id : String? = nil,
     @initial_conversation : String? = nil,
-    @placeholder : Slack::UI::Checked::CompositionObjects::PlainText? = nil,
-    @confirm : Slack::UI::Checked::CompositionObjects::Confirmation? = nil,
+    @placeholder : Slack::UI::CompositionObjects::PlainText? = nil,
+    @confirm : Slack::UI::CompositionObjects::Confirmation? = nil,
     @focus_on_load : Bool? = nil,
     @response_url_enabled : Bool? = nil,
   )
@@ -28,8 +28,8 @@ struct Slack::UI::Checked::BlockElements::ConversationsSelect
     "conversations_select"
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
-    issues = [] of Slack::UI::Checked::ValidationIssue
+  def validate : Array(Slack::UI::ValidationIssue)
+    issues = [] of Slack::UI::ValidationIssue
     length_issue(issues, @action_id, 255, "#{type}.action_id.too_long", "action_id")
     if placeholder = @placeholder
       placeholder.validate.each { |issue| issues << issue.at("placeholder") }
@@ -42,7 +42,7 @@ struct Slack::UI::Checked::BlockElements::ConversationsSelect
       confirm.validate.each { |issue| issues << issue.at("confirm") }
     end
     if @initial_conversation.try(&.empty?)
-      issues << Slack::UI::Checked::ValidationIssue.new("#{type}.initial_conversation.empty", "initial_conversation", "Initial conversation ID must not be empty.")
+      issues << Slack::UI::ValidationIssue.new("#{type}.initial_conversation.empty", "initial_conversation", "Initial conversation ID must not be empty.")
     end
     issues
   end

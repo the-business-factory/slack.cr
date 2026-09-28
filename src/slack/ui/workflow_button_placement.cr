@@ -2,7 +2,7 @@
 # Slack documents workflow_button for messages only. View surfaces use this
 # check for Section accessories and Actions elements, including those in
 # container child blocks.
-module Slack::UI::Checked::WorkflowButtonPlacement
+module Slack::UI::WorkflowButtonPlacement
   def self.validate(blocks : Enumerable(T), surface : String) : Array(ValidationIssue) forall T
     issues = [] of ValidationIssue
     blocks.each_with_index do |block, index|

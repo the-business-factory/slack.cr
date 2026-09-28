@@ -1,11 +1,11 @@
-require "../../spec_helper"
+require "../spec_helper"
 
 module ChannelsSelectSpec
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
   alias Single = UI::BlockElements::ChannelsSelect
   alias Multi = UI::BlockElements::MultiChannelsSelect
 
-  describe "checked channel selects" do
+  describe "Channel selects" do
     it "serializes independently authored single and multiple channel contracts" do
       confirm = UI::CompositionObjects::Confirmation.new(title: UI.plain("Notify?"),
         text: UI.plain("Notify this channel"), confirm: UI.plain("Yes"), deny: UI.plain("No"))

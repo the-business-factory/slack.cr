@@ -1,13 +1,13 @@
-require "../../spec_helper"
-require "../../support/block_kit/static_select_fixture"
+require "../spec_helper"
+require "../support/block_kit/static_select_fixture"
 
-alias ChoiceUI = Slack::UI::Checked
+alias ChoiceUI = Slack::UI
 
 private def choice_error(&block : ->) : Array(Tuple(String, String))
   expect_raises(ChoiceUI::ValidationError) { block.call }.issues.map { |issue| {issue.code, issue.path} }
 end
 
-describe "Checked static choices" do
+describe "Static choices" do
   it "serializes all single and multi fields against wire fixtures" do
     JSON.parse(StaticSelectFixture.single.to_json).should eq JSON.parse(File.read("spec/fixtures/block_kit/phase_5_static_select.json"))
     JSON.parse(StaticSelectFixture.multi.to_json).should eq JSON.parse(File.read("spec/fixtures/block_kit/phase_5_multi_static_select.json"))

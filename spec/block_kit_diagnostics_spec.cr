@@ -33,7 +33,7 @@ describe "Block Kit construction diagnostics" do
     "display_container"          => ["DisplayModal rejects Container blocks", "messages and Home tabs only"],
     "container_title"            => ["Container.new", "title : CompositionObjects::PlainText", "rich_text_title : RichText,"],
     "data_table_rich_header"     => ["DataTable#append_header_cell", "Table::RawText", "Table::RawNumber"],
-    "rich_text_list_item"        => ["RichText::List#append_element", "RichText::Section", "not Slack::UI::Checked::RichText::Text"],
+    "rich_text_list_item"        => ["RichText::List#append_element", "RichText::Section", "not Slack::UI::RichText::Text"],
     "number_input_message"       => ["MessageBuilder#input", "argument 'element'", "NumberInput"],
     "rich_text_in_message"       => ["MessageBuilder#input", "argument 'element'", "RichTextInput"],
   }.each do |name, fragments|

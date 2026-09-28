@@ -1,7 +1,7 @@
-require "../../spec_helper"
+require "../spec_helper"
 
 module MarkdownBlockSpec
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   describe UI::Blocks::Markdown do
     it "serializes standard markdown text in a message" do

@@ -3,7 +3,7 @@ require "webmock"
 require "./webmock_transport"
 
 module OfflineExternalSelectExample
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   PROJECTS = {"apollo" => "Apollo", "artemis" => "Artemis", "gemini" => "Gemini"}
 
@@ -41,7 +41,7 @@ module OfflineExternalSelectExample
         accessory: UI::BlockElements::ExternalSelect.new(action_id: "project",
           placeholder: UI.plain("Find a project"), min_query_length: 2))
     end
-    Slack::Api::CheckedChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC",
+    Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC",
       message: message, transport: OfflineExample::WebMockTransport.new).call
 
     # Independently authored Slack payloads, not derived from outbound values.
@@ -81,7 +81,7 @@ module OfflineExternalSelectExample
         element: UI::BlockElements::MultiExternalSelect.new(action_id: "projects", max_selected_items: 3,
           initial_options: {UI::CompositionObjects::Option.new(text: UI.plain(project.text), value: project.value)}))
     end
-    Slack::Api::CheckedViewsOpen.new(token: "xoxb-synthetic", trigger_id: trigger,
+    Slack::Api::ViewsOpen.new(token: "xoxb-synthetic", trigger_id: trigger,
       view: view, transport: OfflineExample::WebMockTransport.new).call
   end
 

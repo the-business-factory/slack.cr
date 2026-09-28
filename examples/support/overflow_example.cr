@@ -3,7 +3,7 @@ require "webmock"
 require "./webmock_transport"
 
 module OfflineOverflowExample
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   def self.run(output : IO = STDOUT) : Nil
     Slack.configure { |settings| settings.signing_secret = "synthetic-signing-secret" }
@@ -20,7 +20,7 @@ module OfflineOverflowExample
     message = UI.message(fallback_text: "Request 42 actions") do |builder|
       builder.section(UI.plain("Request 42"), block_id: "request", accessory: menu)
     end
-    Slack::Api::CheckedChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC", message: message, transport: OfflineExample::WebMockTransport.new).call
+    Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC", message: message, transport: OfflineExample::WebMockTransport.new).call
 
     # Simulate an independently authored Slack URL-option click.
     payload = %({"type":"block_actions","team":null,"actions":[{"type":"overflow","block_id":"request","action_id":"request.more","selected_option":{"text":{"type":"plain_text","text":"Details"},"value":"details"}}]})

@@ -1,4 +1,4 @@
-struct Slack::UI::Checked::CompositionObjects::PlainText
+struct Slack::UI::CompositionObjects::PlainText
   MAX_LENGTH = 3000
 
   getter text : String
@@ -12,16 +12,16 @@ struct Slack::UI::Checked::CompositionObjects::PlainText
     "plain_text"
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
-    issues = [] of Slack::UI::Checked::ValidationIssue
+  def validate : Array(Slack::UI::ValidationIssue)
+    issues = [] of Slack::UI::ValidationIssue
     if @text.empty?
-      issues << Slack::UI::Checked::ValidationIssue.new(
+      issues << Slack::UI::ValidationIssue.new(
         code: "plain_text.text.empty",
         path: "text",
         message: "Text must not be empty."
       )
     elsif @text.size > MAX_LENGTH
-      issues << Slack::UI::Checked::ValidationIssue.new(
+      issues << Slack::UI::ValidationIssue.new(
         code: "plain_text.text.too_long",
         path: "text",
         message: "Text cannot be longer than #{MAX_LENGTH} characters."
@@ -32,7 +32,7 @@ struct Slack::UI::Checked::CompositionObjects::PlainText
 
   def validate! : Nil
     issues = validate
-    raise Slack::UI::Checked::ValidationError.new(issues) unless issues.empty?
+    raise Slack::UI::ValidationError.new(issues) unless issues.empty?
   end
 
   def to_json(json : JSON::Builder) : Nil

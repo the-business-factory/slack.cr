@@ -1,4 +1,4 @@
-enum Slack::UI::Checked::RichText::ListStyle
+enum Slack::UI::RichText::ListStyle
   Bullet
   Ordered
 

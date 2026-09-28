@@ -1,8 +1,8 @@
 # A pie chart. Slack requires 1 to 12 segments. Unique segment labels are
 # library policy, taken from Slack's rich response guide; the block reference
 # does not state it.
-struct Slack::UI::Checked::DataVisualization::PieChart
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::DataVisualization::PieChart
+  include Slack::UI::ValueValidation
 
   SEGMENTS_MAX_SIZE = 12
 

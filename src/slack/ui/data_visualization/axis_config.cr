@@ -4,8 +4,8 @@
 # points, a chart has at most 20 categories. At least one category, nonempty
 # categories, and unique categories are library policy; a duplicate category
 # would make point labels ambiguous.
-struct Slack::UI::Checked::DataVisualization::AxisConfig
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::DataVisualization::AxisConfig
+  include Slack::UI::ValueValidation
 
   CATEGORIES_MAX_SIZE = 20
   CATEGORY_MAX_SIZE   = 20

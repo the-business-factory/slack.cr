@@ -1,4 +1,4 @@
-struct Slack::UI::Checked::RichText::Channel
+struct Slack::UI::RichText::Channel
   include NodeValidation
 
   getter channel_id : String

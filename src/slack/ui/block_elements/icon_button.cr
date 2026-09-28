@@ -1,7 +1,7 @@
 # A button with an icon. Slack supports this element only in a
 # `Blocks::ContextActions` block.
-struct Slack::UI::Checked::BlockElements::IconButton
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::BlockElements::IconButton
+  include Slack::UI::ValueValidation
 
   getter icon : IconButtonIcon
   getter text : CompositionObjects::PlainText

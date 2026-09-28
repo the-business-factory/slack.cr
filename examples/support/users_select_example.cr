@@ -3,7 +3,7 @@ require "webmock"
 require "./webmock_transport"
 
 module OfflineUsersSelectExample
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   def self.receive(payload : String) : Slack::Interaction
     body = URI::Params.encode({"payload" => payload})
@@ -22,7 +22,7 @@ module OfflineUsersSelectExample
       builder.section(UI.plain("Choose an owner"), block_id: "assignment",
         accessory: UI::BlockElements::UsersSelect.new(action_id: "owner", initial_user: "U-OWNER"))
     end
-    Slack::Api::CheckedChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC",
+    Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC",
       message: message, transport: OfflineExample::WebMockTransport.new).call
 
     # Independently authored Slack payloads, not derived from outbound values.
@@ -42,7 +42,7 @@ module OfflineUsersSelectExample
             element: UI::BlockElements::MultiUsersSelect.new(action_id: "reviewers",
               initial_users: {owner}, max_selected_items: 3))
         end
-        Slack::Api::CheckedViewsOpen.new(token: "xoxb-synthetic", trigger_id: trigger,
+        Slack::Api::ViewsOpen.new(token: "xoxb-synthetic", trigger_id: trigger,
           view: view, transport: OfflineExample::WebMockTransport.new).call
       else
         raise "Expected owner selection"

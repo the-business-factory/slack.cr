@@ -1,18 +1,18 @@
 # Multiple checkbox choices in Section, Actions, or Input blocks.
-struct Slack::UI::Checked::BlockElements::Checkboxes
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::BlockElements::Checkboxes
+  include Slack::UI::ValueValidation
 
-  alias Option = Slack::UI::Checked::CompositionObjects::CheckboxOption
+  alias Option = Slack::UI::CompositionObjects::CheckboxOption
 
   @options : Array(Option)
   @initial_options : Array(Option)?
   getter action_id : String?
-  getter confirm : Slack::UI::Checked::CompositionObjects::Confirmation?
+  getter confirm : Slack::UI::CompositionObjects::Confirmation?
   getter focus_on_load : Bool?
 
   def initialize(*, options : Enumerable(T), initial_options : Enumerable(U)? = nil,
                  @action_id : String? = nil,
-                 @confirm : Slack::UI::Checked::CompositionObjects::Confirmation? = nil,
+                 @confirm : Slack::UI::CompositionObjects::Confirmation? = nil,
                  @focus_on_load : Bool? = nil) forall T, U
     @options = [] of Option
     options.each { |option| @options << option }
@@ -36,16 +36,16 @@ struct Slack::UI::Checked::BlockElements::Checkboxes
     @initial_options.try(&.dup)
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
-    issues = [] of Slack::UI::Checked::ValidationIssue
+  def validate : Array(Slack::UI::ValidationIssue)
+    issues = [] of Slack::UI::ValidationIssue
     if @options.empty? || @options.size > 10
-      issues << Slack::UI::Checked::ValidationIssue.new("checkboxes.options.size", "options", "Supply one to ten options.")
+      issues << Slack::UI::ValidationIssue.new("checkboxes.options.size", "options", "Supply one to ten options.")
     end
     values = Set(String).new
     @options.each_with_index do |option, index|
       option.validate.each { |issue| issues << issue.at("options[#{index}]") }
       unless values.add?(option.value)
-        issues << Slack::UI::Checked::ValidationIssue.new("checkboxes.options.value.duplicate", "options[#{index}].value", "Option values must be unique within the checkbox group.")
+        issues << Slack::UI::ValidationIssue.new("checkboxes.options.value.duplicate", "options[#{index}].value", "Option values must be unique within the checkbox group.")
       end
     end
     if initial = @initial_options
@@ -53,10 +53,10 @@ struct Slack::UI::Checked::BlockElements::Checkboxes
       initial.each_with_index do |option, index|
         option.validate.each { |issue| issues << issue.at("initial_options[#{index}]") }
         unless @options.includes?(option)
-          issues << Slack::UI::Checked::ValidationIssue.new("checkboxes.initial_option.not_found", "initial_options[#{index}]", "Initial option must exactly match an available option.")
+          issues << Slack::UI::ValidationIssue.new("checkboxes.initial_option.not_found", "initial_options[#{index}]", "Initial option must exactly match an available option.")
         end
         unless selected.add?(option.value)
-          issues << Slack::UI::Checked::ValidationIssue.new("checkboxes.initial_options.duplicate", "initial_options[#{index}]", "Initial selections must be distinct.")
+          issues << Slack::UI::ValidationIssue.new("checkboxes.initial_options.duplicate", "initial_options[#{index}]", "Initial selections must be distinct.")
         end
       end
     end

@@ -1,7 +1,7 @@
-require "../../spec_helper"
+require "../spec_helper"
 
 module CheckboxesSpec
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
   alias Option = UI::CompositionObjects::CheckboxOption
   alias Checkboxes = UI::BlockElements::Checkboxes
 

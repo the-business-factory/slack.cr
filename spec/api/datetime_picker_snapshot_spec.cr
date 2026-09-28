@@ -2,7 +2,7 @@ require "../spec_helper"
 require "../support/auth/webmock_transport"
 
 module DatetimePickerSnapshotSpec
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   it "posts an owned message with datetime pickers matching independent request JSON" do
     start = UI::BlockElements::DatetimePicker.new(action_id: "start", initial_date_time: Time.unix(1628633820), focus_on_load: true)
@@ -10,7 +10,7 @@ module DatetimePickerSnapshotSpec
     builder.actions({start}, block_id: "meeting")
     builder.input(label: UI.plain("End"), block_id: "meeting.end", element: UI::BlockElements::DatetimePicker.new(action_id: "end"), optional: true)
     message = builder.build
-    request = Slack::Api::CheckedChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC",
+    request = Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC",
       message: message, transport: AuthSupport::WebMockTransport.new)
     builder.divider
     # Authored from Slack's datetime picker and chat.postMessage contracts, not from the serializer.

@@ -1,9 +1,9 @@
 # Feedback buttons and icon buttons for a message. Slack lists messages as the
 # only surface, so only `MessageSourceBlock` includes it.
-struct Slack::UI::Checked::Blocks::ContextActions
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::Blocks::ContextActions
+  include Slack::UI::ValueValidation
 
-  alias Element = Slack::UI::Checked::BlockElements::FeedbackButtons | Slack::UI::Checked::BlockElements::IconButton
+  alias Element = Slack::UI::BlockElements::FeedbackButtons | Slack::UI::BlockElements::IconButton
 
   ELEMENTS_MAX_SIZE = 5
 

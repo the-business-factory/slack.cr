@@ -3,7 +3,7 @@ require "webmock"
 require "./webmock_transport"
 
 module OfflineViewPushExample
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   def self.run(output : IO = STDOUT) : Nil
     WebMock.allow_net_connect = false
@@ -23,7 +23,7 @@ module OfflineViewPushExample
       raise "Incorrect opening request" unless JSON.parse(request.body || raise "Missing open request") == expected
       HTTP::Client::Response.new(200, body: %({"ok":true,"view":{"id":"V1","type":"modal"}}))
     end
-    opened = Slack::Api::CheckedViewsOpen.new(token: token, trigger_id: "opening-trigger", view: original, transport: transport).call
+    opened = Slack::Api::ViewsOpen.new(token: token, trigger_id: "opening-trigger", view: original, transport: transport).call
 
     # Synthetic, trusted fixture: a new interaction inside the opened modal.
     # Real HTTP handlers must verify the original request with process_interaction.
@@ -57,7 +57,7 @@ module OfflineViewPushExample
         raise "Incorrect push request" unless JSON.parse(request.body || raise "Missing push request") == expected
         HTTP::Client::Response.new(200, body: %({"ok":true,"view":{"id":"V2","type":"modal","root_view_id":"V1","previous_view_id":"V1"}}))
       end
-      pushed = Slack::Api::CheckedViewsPush.new(token: token, trigger_id: trigger, view: next_view, transport: transport).call
+      pushed = Slack::Api::ViewsPush.new(token: token, trigger_id: trigger, view: next_view, transport: transport).call
       output.puts "Pushed details #{pushed.view["id"]} onto modal #{pushed.view["root_view_id"]} (acknowledged #{acknowledgement.status_code})."
     else
       raise "Expected modal block action"

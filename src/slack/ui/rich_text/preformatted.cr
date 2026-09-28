@@ -1,7 +1,7 @@
-alias Slack::UI::Checked::RichText::PreformattedElement = Slack::UI::Checked::RichText::Text | Slack::UI::Checked::RichText::Link
+alias Slack::UI::RichText::PreformattedElement = Slack::UI::RichText::Text | Slack::UI::RichText::Link
 
 # A code block. Slack documents only text and link children.
-struct Slack::UI::Checked::RichText::Preformatted
+struct Slack::UI::RichText::Preformatted
   include NodeValidation
 
   @elements : Array(PreformattedElement)

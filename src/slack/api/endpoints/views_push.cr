@@ -1,6 +1,6 @@
 # Trigger-based views.push adapter. The view snapshot has no Api::Base setters.
-class Slack::Api::CheckedViewsPush
-  @snapshot : Slack::UI::Checked::Modal
+class Slack::Api::ViewsPush
+  @snapshot : Slack::UI::Modal
   @result : HTTP::Client::Response?
 
   getter trigger_id : String
@@ -8,7 +8,7 @@ class Slack::Api::CheckedViewsPush
   def initialize(
     @token : String,
     @trigger_id : String,
-    view : Slack::UI::Checked::Modal,
+    view : Slack::UI::Modal,
     *,
     @configuration : Slack::Auth::APIConfiguration = Slack.settings.api_configuration,
     @transport : Slack::Auth::Transport? = nil,
@@ -19,13 +19,13 @@ class Slack::Api::CheckedViewsPush
   end
 
   def self.from_json(source : String | IO) : NoReturn
-    {% raise "checked request deserialization is unsupported" %}
+    {% raise "request deserialization is unsupported" %}
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
+  def validate : Array(Slack::UI::ValidationIssue)
     issues = @snapshot.validate.map(&.at("view"))
     if @trigger_id.blank?
-      issues << Slack::UI::Checked::ValidationIssue.new(
+      issues << Slack::UI::ValidationIssue.new(
         "views_push.trigger_id.blank", "trigger_id", "Trigger ID must not be blank."
       )
     end
@@ -34,7 +34,7 @@ class Slack::Api::CheckedViewsPush
 
   def validate! : Nil
     issues = validate
-    raise Slack::UI::Checked::ValidationError.new(issues) unless issues.empty?
+    raise Slack::UI::ValidationError.new(issues) unless issues.empty?
   end
 
   def to_json(json : JSON::Builder) : Nil

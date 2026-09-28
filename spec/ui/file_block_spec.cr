@@ -1,6 +1,6 @@
-require "../../spec_helper"
+require "../spec_helper"
 
-private alias FileUI = Slack::UI::Checked
+private alias FileUI = Slack::UI
 
 describe FileUI::Blocks::File do
   it "serializes remote file blocks in a message with and without a block ID" do

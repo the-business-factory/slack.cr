@@ -6,7 +6,7 @@ require "./webmock_transport"
 # limits the characters in all table cells of a message to 20,000; split large
 # reports into separate messages.
 module OfflineDataTableExample
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
   alias RT = UI::RichText
 
   record Ticket, key : String, assignee_id : String, age_days : Int32
@@ -31,7 +31,7 @@ module OfflineDataTableExample
       builder.data_table(caption: "Open support tickets", header: header, rows: ticket_rows(TICKETS),
         page_size: 2, block_id: "support.open")
     end
-    result = Slack::Api::CheckedChatPostMessage.new(token: "xoxb-synthetic-data-table", channel: "C-SYNTHETIC",
+    result = Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic-data-table", channel: "C-SYNTHETIC",
       message: message, transport: OfflineExample::WebMockTransport.new).call
     output.puts "Posted #{TICKETS.size} tickets to #{result.channel}/#{result.ts}"
 

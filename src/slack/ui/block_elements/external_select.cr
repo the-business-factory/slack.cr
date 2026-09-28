@@ -1,23 +1,23 @@
 # Menu whose options Slack loads from the app's Options Load URL through
 # `block_suggestion` requests. The initial option cannot be checked against
 # remote results, so only its own option limits apply here.
-struct Slack::UI::Checked::BlockElements::ExternalSelect
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::BlockElements::ExternalSelect
+  include Slack::UI::ValueValidation
 
   getter action_id : String?
-  getter placeholder : Slack::UI::Checked::CompositionObjects::PlainText?
-  getter initial_option : Slack::UI::Checked::CompositionObjects::Option?
+  getter placeholder : Slack::UI::CompositionObjects::PlainText?
+  getter initial_option : Slack::UI::CompositionObjects::Option?
   getter min_query_length : Int32?
-  getter confirm : Slack::UI::Checked::CompositionObjects::Confirmation?
+  getter confirm : Slack::UI::CompositionObjects::Confirmation?
   getter focus_on_load : Bool?
 
   def initialize(
     *,
     @action_id : String? = nil,
-    @placeholder : Slack::UI::Checked::CompositionObjects::PlainText? = nil,
-    @initial_option : Slack::UI::Checked::CompositionObjects::Option? = nil,
+    @placeholder : Slack::UI::CompositionObjects::PlainText? = nil,
+    @initial_option : Slack::UI::CompositionObjects::Option? = nil,
     @min_query_length : Int32? = nil,
-    @confirm : Slack::UI::Checked::CompositionObjects::Confirmation? = nil,
+    @confirm : Slack::UI::CompositionObjects::Confirmation? = nil,
     @focus_on_load : Bool? = nil,
   )
     validate!
@@ -27,8 +27,8 @@ struct Slack::UI::Checked::BlockElements::ExternalSelect
     "external_select"
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
-    issues = [] of Slack::UI::Checked::ValidationIssue
+  def validate : Array(Slack::UI::ValidationIssue)
+    issues = [] of Slack::UI::ValidationIssue
     length_issue(issues, @action_id, 255, "#{type}.action_id.too_long", "action_id")
     if placeholder = @placeholder
       placeholder.validate.each { |issue| issues << issue.at("placeholder") }
@@ -38,7 +38,7 @@ struct Slack::UI::Checked::BlockElements::ExternalSelect
       initial.validate.each { |issue| issues << issue.at("initial_option") }
     end
     if (minimum = @min_query_length) && minimum < 0
-      issues << Slack::UI::Checked::ValidationIssue.new("#{type}.min_query_length.negative", "min_query_length", "Minimum query length cannot be negative.")
+      issues << Slack::UI::ValidationIssue.new("#{type}.min_query_length.negative", "min_query_length", "Minimum query length cannot be negative.")
     end
     if confirm = @confirm
       confirm.validate.each { |issue| issues << issue.at("confirm") }

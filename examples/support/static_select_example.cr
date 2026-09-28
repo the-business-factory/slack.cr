@@ -3,7 +3,7 @@ require "webmock"
 require "./webmock_transport"
 
 module OfflineStaticSelectExample
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   def self.receive(payload : String) : Slack::Interaction
     body = URI::Params.encode({"payload" => payload})
@@ -43,7 +43,7 @@ module OfflineStaticSelectExample
     message = UI.message(fallback_text: "Choose a color, then choose your notification colors.") do |builder|
       builder.section(UI.plain("Your color"), block_id: "preferences", accessory: single)
     end
-    Slack::Api::CheckedChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC", message: message, transport: OfflineExample::WebMockTransport.new).call
+    Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC", message: message, transport: OfflineExample::WebMockTransport.new).call
 
     # Simulate a signed Slack selection using the option sent above.
     interaction = receive({type: "block_actions", team: nil, trigger_id: "synthetic-trigger",
@@ -60,7 +60,7 @@ module OfflineStaticSelectExample
             element: UI::BlockElements::MultiStaticSelect.new(option_groups: {group}, action_id: "colors",
               initial_options: {red}, max_selected_items: 2, focus_on_load: true))
         end
-        opened = Slack::Api::CheckedViewsOpen.new(token: "xoxb-synthetic", trigger_id: trigger, view: view, transport: OfflineExample::WebMockTransport.new).call
+        opened = Slack::Api::ViewsOpen.new(token: "xoxb-synthetic", trigger_id: trigger, view: view, transport: OfflineExample::WebMockTransport.new).call
         submit(opened.view, output)
       else
         raise "Expected static select action"

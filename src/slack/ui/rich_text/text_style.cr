@@ -1,5 +1,5 @@
 # Style flags for a rich text `text` element. Slack documents `code` only for text.
-struct Slack::UI::Checked::RichText::TextStyle
+struct Slack::UI::RichText::TextStyle
   getter bold : Bool?
   getter italic : Bool?
   getter strike : Bool?

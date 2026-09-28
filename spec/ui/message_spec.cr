@@ -1,13 +1,13 @@
-require "../../spec_helper"
+require "../spec_helper"
 
 module Phase2MessageComponents
   struct Summary
     def initialize(@request_id : String)
     end
 
-    def render : Slack::UI::Checked::Blocks::Section
-      Slack::UI::Checked::Blocks::Section.new(
-        text: Slack::UI::Checked.mrkdwn("*Request #{@request_id}*")
+    def render : Slack::UI::Blocks::Section
+      Slack::UI::Blocks::Section.new(
+        text: Slack::UI.mrkdwn("*Request #{@request_id}*")
       )
     end
   end
@@ -16,9 +16,9 @@ module Phase2MessageComponents
     def initialize(@request_id : String)
     end
 
-    def render_into(builder : Slack::UI::Checked::MessageBuilder) : Nil
-      button = Slack::UI::Checked::BlockElements::Button.new(
-        text: Slack::UI::Checked.plain("Approve"),
+    def render_into(builder : Slack::UI::MessageBuilder) : Nil
+      button = Slack::UI::BlockElements::Button.new(
+        text: Slack::UI.plain("Approve"),
         action_id: "request.approve",
         value: @request_id
       )
@@ -27,12 +27,12 @@ module Phase2MessageComponents
   end
 end
 
-describe Slack::UI::Checked::Message do
+describe Slack::UI::Message do
   it "builds an accessible message with ordinary Crystal components" do
     summary = Phase2MessageComponents::Summary.new("42")
     controls = Phase2MessageComponents::Controls.new("42")
 
-    message = Slack::UI::Checked.message(fallback_text: "Request 42 needs approval.") do |builder|
+    message = Slack::UI.message(fallback_text: "Request 42 needs approval.") do |builder|
       builder.add(summary.render)
       builder.divider
       controls.render_into(builder)
@@ -44,8 +44,8 @@ describe Slack::UI::Checked::Message do
   end
 
   it "offers a separately named Slack-generated accessibility fallback" do
-    message = Slack::UI::Checked.message_with_slack_generated_fallback do |builder|
-      builder.section(Slack::UI::Checked.plain("Slack derives this fallback."))
+    message = Slack::UI.message_with_slack_generated_fallback do |builder|
+      builder.section(Slack::UI.plain("Slack derives this fallback."))
     end
     payload = JSON.parse(message.to_json)
 
@@ -55,13 +55,13 @@ describe Slack::UI::Checked::Message do
   end
 
   it "supports direct construction and mixed block collections" do
-    section = Slack::UI::Checked::Blocks::Section.new(
-      text: Slack::UI::Checked.plain("Summary"),
+    section = Slack::UI::Blocks::Section.new(
+      text: Slack::UI.plain("Summary"),
       block_id: "summary"
     )
-    divider = Slack::UI::Checked::Blocks::Divider.new(block_id: "divider")
+    divider = Slack::UI::Blocks::Divider.new(block_id: "divider")
     blocks = [section, divider]
-    message = Slack::UI::Checked::Message.new(
+    message = Slack::UI::Message.new(
       fallback_text: "Summary",
       blocks: blocks
     )
@@ -71,11 +71,11 @@ describe Slack::UI::Checked::Message do
   end
 
   it "keeps direct and builder snapshots stable" do
-    section = Slack::UI::Checked::Blocks::Section.new(
-      text: Slack::UI::Checked.plain("First")
+    section = Slack::UI::Blocks::Section.new(
+      text: Slack::UI.plain("First")
     )
     caller_blocks = [section]
-    direct = Slack::UI::Checked::Message.new(
+    direct = Slack::UI::Message.new(
       fallback_text: "First",
       blocks: caller_blocks
     )
@@ -84,7 +84,7 @@ describe Slack::UI::Checked::Message do
     direct.blocks.clear
     direct.to_json.should eq direct_json
 
-    builder = Slack::UI::Checked::MessageBuilder.new(fallback_text: "Builder")
+    builder = Slack::UI::MessageBuilder.new(fallback_text: "Builder")
     builder.add(section)
     first = builder.build
     first_json = first.to_json
@@ -95,33 +95,33 @@ describe Slack::UI::Checked::Message do
 
   it "validates block collection bounds" do
     fifty = Array.new(50) do |index|
-      Slack::UI::Checked::Blocks::Divider.new(block_id: "divider-#{index}")
+      Slack::UI::Blocks::Divider.new(block_id: "divider-#{index}")
     end
-    Slack::UI::Checked::Message.new(fallback_text: "Fifty", blocks: fifty)
+    Slack::UI::Message.new(fallback_text: "Fifty", blocks: fifty)
 
-    empty_error = expect_raises(Slack::UI::Checked::ValidationError) do
-      Slack::UI::Checked::Message.new(
+    empty_error = expect_raises(Slack::UI::ValidationError) do
+      Slack::UI::Message.new(
         fallback_text: "Empty",
-        blocks: [] of Slack::UI::Checked::MessageBlock
+        blocks: [] of Slack::UI::MessageBlock
       )
     end
     empty_error.issues.map(&.code).should eq ["message.blocks.empty"]
 
-    count_error = expect_raises(Slack::UI::Checked::ValidationError) do
-      Slack::UI::Checked::Message.new(
+    count_error = expect_raises(Slack::UI::ValidationError) do
+      Slack::UI::Message.new(
         fallback_text: "Too many",
-        blocks: fifty + [Slack::UI::Checked::Blocks::Divider.new]
+        blocks: fifty + [Slack::UI::Blocks::Divider.new]
       )
     end
     count_error.issues.map(&.code).should contain("message.blocks.too_many")
   end
 
   it "validates fallback text and message-scoped block IDs" do
-    first = Slack::UI::Checked::Blocks::Divider.new(block_id: "same")
-    second = Slack::UI::Checked::Blocks::Divider.new(block_id: "same")
+    first = Slack::UI::Blocks::Divider.new(block_id: "same")
+    second = Slack::UI::Blocks::Divider.new(block_id: "same")
 
-    duplicate_error = expect_raises(Slack::UI::Checked::ValidationError) do
-      Slack::UI::Checked::Message.new(
+    duplicate_error = expect_raises(Slack::UI::ValidationError) do
+      Slack::UI::Message.new(
         fallback_text: "Duplicates",
         blocks: [first, second]
       )
@@ -129,16 +129,16 @@ describe Slack::UI::Checked::Message do
     duplicate_error.issues.map(&.code).should eq ["message.block_id.duplicate"]
     duplicate_error.issues.map(&.path).should eq ["blocks[1].block_id"]
 
-    fallback_error = expect_raises(Slack::UI::Checked::ValidationError) do
-      Slack::UI::Checked::Message.new(fallback_text: "", blocks: [first])
+    fallback_error = expect_raises(Slack::UI::ValidationError) do
+      Slack::UI::Message.new(fallback_text: "", blocks: [first])
     end
     fallback_error.issues.map(&.code).should eq ["message.fallback_text.empty"]
   end
 
   it "supports ordinary dynamic builder loops" do
-    message = Slack::UI::Checked.message(fallback_text: "Three sections") do |builder|
+    message = Slack::UI.message(fallback_text: "Three sections") do |builder|
       3.times do |index|
-        builder.section(Slack::UI::Checked.plain("Section #{index}"))
+        builder.section(Slack::UI.plain("Section #{index}"))
       end
     end
 

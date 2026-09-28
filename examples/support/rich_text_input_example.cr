@@ -3,7 +3,7 @@ require "webmock"
 require "./webmock_transport"
 
 module OfflineRichTextInputExample
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
   alias RT = UI::RichText
   alias Received = Slack::Interactions::RichText
 
@@ -29,7 +29,7 @@ module OfflineRichTextInputExample
         element: UI::BlockElements::RichTextInput.new(action_id: "summary", initial_value: draft,
           dispatch_action_config: config, placeholder: UI.plain("Mention the people you work with"), min_lines: 3))
     end
-    Slack::Api::CheckedViewsPublish.new(token: "xoxb-synthetic", user_id: "U-AUTHOR", view: home,
+    Slack::Api::ViewsPublish.new(token: "xoxb-synthetic", user_id: "U-AUTHOR", view: home,
       transport: OfflineExample::WebMockTransport.new).call
 
     # Independent incoming payloads, not derived from the published view.

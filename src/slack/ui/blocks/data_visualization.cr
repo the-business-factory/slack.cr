@@ -1,22 +1,22 @@
-alias Slack::UI::Checked::DataVisualization::Chart = Slack::UI::Checked::DataVisualization::PieChart |
-                                                     Slack::UI::Checked::DataVisualization::BarChart |
-                                                     Slack::UI::Checked::DataVisualization::AreaChart |
-                                                     Slack::UI::Checked::DataVisualization::LineChart
+alias Slack::UI::DataVisualization::Chart = Slack::UI::DataVisualization::PieChart |
+                                            Slack::UI::DataVisualization::BarChart |
+                                            Slack::UI::DataVisualization::AreaChart |
+                                            Slack::UI::DataVisualization::LineChart
 
 # A titled pie, bar, area, or line chart that Slack renders. Slack lists
 # messages and Home tabs as its surfaces, so modal unions exclude it. Slack
 # permits at most two of these blocks in one message; `Message` checks this.
 # A nonempty title is library policy.
-struct Slack::UI::Checked::Blocks::DataVisualization
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::Blocks::DataVisualization
+  include Slack::UI::ValueValidation
 
   TITLE_MAX_SIZE = 50
 
   getter title : String
-  getter chart : Slack::UI::Checked::DataVisualization::Chart
+  getter chart : Slack::UI::DataVisualization::Chart
   getter block_id : String?
 
-  def initialize(@title : String, @chart : Slack::UI::Checked::DataVisualization::Chart, @block_id : String? = nil)
+  def initialize(@title : String, @chart : Slack::UI::DataVisualization::Chart, @block_id : String? = nil)
     validate!
   end
 

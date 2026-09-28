@@ -1,6 +1,6 @@
 # A view has one focus target across Input, Actions, and Section children,
 # including those inside a container.
-module Slack::UI::Checked::ViewFocus
+module Slack::UI::ViewFocus
   def self.validate(blocks : Enumerable(T), surface : String) : Array(ValidationIssue) forall T
     issues = [] of ValidationIssue
     focused = false

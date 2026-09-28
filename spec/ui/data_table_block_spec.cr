@@ -1,7 +1,7 @@
-require "../../spec_helper"
+require "../spec_helper"
 
 module DataTableBlockSpec
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
   alias RT = UI::RichText
 
   def self.raw(text : String) : UI::Table::RawText

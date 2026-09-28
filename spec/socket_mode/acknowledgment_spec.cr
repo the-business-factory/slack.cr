@@ -23,8 +23,8 @@ describe Slack::SocketMode::Acknowledgment do
   end
 
   it "carries block suggestion options as the payload" do
-    option = Slack::UI::Checked::CompositionObjects::Option.new(
-      text: Slack::UI::Checked::CompositionObjects::PlainText.new("Release 42"), value: "release-42")
+    option = Slack::UI::CompositionObjects::Option.new(
+      text: Slack::UI::CompositionObjects::PlainText.new("Release 42"), value: "release-42")
     ack = Slack::SocketMode::Acknowledgment.new("E-SUGGEST", Slack::Interactions::BlockSuggestionResponse.new(options: [option]))
 
     JSON.parse(ack.to_json).should eq(JSON.parse(<<-JSON))

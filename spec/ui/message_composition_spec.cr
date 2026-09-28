@@ -1,9 +1,9 @@
-require "../../spec_helper"
+require "../spec_helper"
 
 module MessageCompositionSpec
   module Phase2CompilePass
-    alias Section = Slack::UI::Checked::Blocks::Section
-    alias Divider = Slack::UI::Checked::Blocks::Divider
+    alias Section = Slack::UI::Blocks::Section
+    alias Divider = Slack::UI::Blocks::Divider
     alias Block = Section | Divider
 
     class AllowedBlocks
@@ -20,14 +20,14 @@ module MessageCompositionSpec
 
     struct Summary
       def render : Section
-        Section.new(text: Slack::UI::Checked.mrkdwn("*Summary*"))
+        Section.new(text: Slack::UI.mrkdwn("*Summary*"))
       end
     end
 
     struct Controls
-      def render_into(builder : Slack::UI::Checked::MessageBuilder) : Nil
-        button = Slack::UI::Checked::BlockElements::Button.new(
-          text: Slack::UI::Checked.plain("Approve"),
+      def render_into(builder : Slack::UI::MessageBuilder) : Nil
+        button = Slack::UI::BlockElements::Button.new(
+          text: Slack::UI.plain("Approve"),
           action_id: "approve"
         )
         builder.actions(elements: {button})
@@ -38,14 +38,14 @@ module MessageCompositionSpec
   describe "message composition" do
     it "executes typed collections and reusable components" do
       section = Phase2CompilePass::Summary.new.render
-      divider = Slack::UI::Checked::Blocks::Divider.new
-      direct = Slack::UI::Checked::Message.new(
+      divider = Slack::UI::Blocks::Divider.new
+      direct = Slack::UI::Message.new(
         fallback_text: "Summary",
         blocks: {section, divider}
       )
       direct.to_json
 
-      builder = Slack::UI::Checked::MessageBuilder.new(fallback_text: "Builder")
+      builder = Slack::UI::MessageBuilder.new(fallback_text: "Builder")
       builder.add_all([section])
       builder.add_all({section, divider})
       builder.add_all(Phase2CompilePass::AllowedBlocks.new(section))
@@ -55,7 +55,7 @@ module MessageCompositionSpec
       payload["blocks"][3]["text"]["text"].should eq "*Summary*"
       payload["blocks"][4]["elements"][0]["action_id"].should eq "approve"
 
-      Slack::UI::Checked.message_with_slack_generated_fallback do |message|
+      Slack::UI.message_with_slack_generated_fallback do |message|
         2.times { message.add(section) }
       end.to_json
     end

@@ -3,7 +3,7 @@ require "webmock"
 require "./webmock_transport"
 
 module OfflineMessageUpdateExample
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   def self.run(output : IO = STDOUT) : Nil
     WebMock.allow_net_connect = false
@@ -19,7 +19,7 @@ module OfflineMessageUpdateExample
       builder.actions(block_id: "request.controls", elements: [UI::BlockElements::Button.new(
         text: UI.plain("Approve"), action_id: "request.approve", value: "42")])
     end
-    posted = Slack::Api::CheckedChatPostMessage.new(
+    posted = Slack::Api::ChatPostMessage.new(
       token: token, channel: "C123", message: pending, transport: transport).call
 
     # Simulate application approval. Use fresh block IDs for the new version.
@@ -34,7 +34,7 @@ module OfflineMessageUpdateExample
       HTTP::Client::Response.new(200, body: %({"ok":true,"channel":"C123","ts":"1710000000.000001","text":"Request 42 approved."}))
     end
     channel = posted.channel || raise "Missing posted channel"
-    updated = Slack::Api::CheckedChatUpdate.new(
+    updated = Slack::Api::ChatUpdate.new(
       token: token, channel: channel, ts: posted.ts, message: approved,
       as_user: true, transport: transport).call
     output.puts "Updated #{updated.channel}/#{updated.ts}: #{updated.text}"

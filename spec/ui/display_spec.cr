@@ -1,8 +1,8 @@
-require "../../spec_helper"
+require "../spec_helper"
 
-private alias DisplayUI = Slack::UI::Checked
+private alias DisplayUI = Slack::UI
 
-describe "Checked display blocks and images" do
+describe "Display blocks and images" do
   it "serializes all display fields and all three image sources" do
     header = DisplayUI::Blocks::Header.new(text: DisplayUI.plain("Overview", emoji: false), block_id: "heading", level: 2)
     file = DisplayUI::CompositionObjects::SlackFile.new(id: "F123")

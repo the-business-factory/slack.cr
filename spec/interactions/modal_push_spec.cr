@@ -2,18 +2,18 @@ require "../spec_helper"
 
 describe Slack::Interactions::ModalPush do
   it "serializes a complete form acknowledgment with owned nested choices" do
-    option = Slack::UI::Checked::CompositionObjects::Option.new(text: Slack::UI::Checked.plain("Email"), value: "email")
+    option = Slack::UI::CompositionObjects::Option.new(text: Slack::UI.plain("Email"), value: "email")
     options = [option]
-    group = Slack::UI::Checked::CompositionObjects::OptionGroup.new(label: Slack::UI::Checked.plain("Delivery"), options: options)
+    group = Slack::UI::CompositionObjects::OptionGroup.new(label: Slack::UI.plain("Delivery"), options: options)
     groups = [group]
     initial = [option]
-    control = Slack::UI::Checked::BlockElements::MultiStaticSelect.new(
+    control = Slack::UI::BlockElements::MultiStaticSelect.new(
       action_id: "delivery", option_groups: groups, initial_options: initial, focus_on_load: false)
-    builder = Slack::UI::Checked::FormModalBuilder.new(
-      title: Slack::UI::Checked.plain("Next step"), submit: Slack::UI::Checked.plain("Save"),
-      close: Slack::UI::Checked.plain("Back"), callback_id: "request.delivery", private_metadata: %({"request":42}),
+    builder = Slack::UI::FormModalBuilder.new(
+      title: Slack::UI.plain("Next step"), submit: Slack::UI.plain("Save"),
+      close: Slack::UI.plain("Back"), callback_id: "request.delivery", private_metadata: %({"request":42}),
       external_id: "request-42-delivery", clear_on_close: false, notify_on_close: true, submit_disabled: false)
-    builder.input(label: Slack::UI::Checked.plain("Delivery"), block_id: "delivery", element: control, optional: false)
+    builder.input(label: Slack::UI.plain("Delivery"), block_id: "delivery", element: control, optional: false)
     view = builder.build
     response = Slack::Interactions::ModalPush.new(view: view)
     copy = response
@@ -27,8 +27,8 @@ describe Slack::Interactions::ModalPush do
     builder.divider
     view.blocks.clear
     copy.view.blocks.clear
-    input = response.view.blocks.first.should be_a(Slack::UI::Checked::Blocks::Input)
-    nested = input.element.should be_a(Slack::UI::Checked::BlockElements::MultiStaticSelect)
+    input = response.view.blocks.first.should be_a(Slack::UI::Blocks::Input)
+    nested = input.element.should be_a(Slack::UI::BlockElements::MultiStaticSelect)
     nested.option_groups.should_not(be_nil).first.options.clear
     nested.initial_options.should_not(be_nil).clear
 
@@ -48,16 +48,16 @@ describe Slack::Interactions::ModalPush do
   end
 
   it "acknowledges with a display modal and omits optional fields" do
-    view = Slack::UI::Checked.display_modal(title: Slack::UI::Checked.plain("Details"), &.divider)
+    view = Slack::UI.display_modal(title: Slack::UI.plain("Details"), &.divider)
     response = Slack::Interactions::ModalPush.new(view)
     response.to_json.should eq(%q({"response_action":"push","view":{"type":"modal","title":{"type":"plain_text","text":"Details"},"blocks":[{"type":"divider"}]}}))
   end
 
   it "rejects invalid next-view composition before producing an acknowledgment" do
-    error = expect_raises(Slack::UI::Checked::ValidationError) do
-      view = Slack::UI::Checked.form_modal(title: Slack::UI::Checked.plain("Details"), submit: Slack::UI::Checked.plain("Save")) do |builder|
-        builder.input(label: Slack::UI::Checked.plain("Reason"), block_id: "reason",
-          element: Slack::UI::Checked::BlockElements::PlainTextInput.new(action_id: "text"))
+    error = expect_raises(Slack::UI::ValidationError) do
+      view = Slack::UI.form_modal(title: Slack::UI.plain("Details"), submit: Slack::UI.plain("Save")) do |builder|
+        builder.input(label: Slack::UI.plain("Reason"), block_id: "reason",
+          element: Slack::UI::BlockElements::PlainTextInput.new(action_id: "text"))
         builder.divider(block_id: "reason")
       end
       Slack::Interactions::ModalPush.new(view).to_json

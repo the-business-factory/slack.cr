@@ -2,7 +2,7 @@ require "../spec_helper"
 require "../support/auth/webmock_transport"
 
 module DateTimePickersSnapshotSpec
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   it "sends an owned scheduling form matching independent request JSON" do
     date = UI::BlockElements::DatePicker.new(action_id: "date", initial_date: "2028-02-29", focus_on_load: true)
@@ -11,7 +11,7 @@ module DateTimePickersSnapshotSpec
     builder.input(label: UI.plain("Date"), block_id: "schedule.date", element: date)
     builder.input(label: UI.plain("Time"), block_id: "schedule.time", element: time, dispatch_action: false)
     view = builder.build
-    request = Slack::Api::CheckedViewsOpen.new(token: "xoxb-synthetic", trigger_id: "synthetic-trigger",
+    request = Slack::Api::ViewsOpen.new(token: "xoxb-synthetic", trigger_id: "synthetic-trigger",
       view: view, transport: AuthSupport::WebMockTransport.new)
     builder.divider
     view.blocks.clear

@@ -1,7 +1,7 @@
-require "../../spec_helper"
+require "../spec_helper"
 
 module ContainerBlockSpec
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
   alias RT = UI::RichText
 
   def self.section(text : String, block_id : String? = nil) : UI::Blocks::Section

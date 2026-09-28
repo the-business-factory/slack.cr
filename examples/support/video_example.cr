@@ -3,7 +3,7 @@ require "webmock"
 require "./webmock_transport"
 
 module OfflineVideoExample
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   def self.run(output : IO = STDOUT) : Nil
     WebMock.allow_net_connect = false
@@ -35,7 +35,7 @@ module OfflineVideoExample
         video_url: "https://videos.example.test/embed/release-4-2",
         provider_name: "Example Video", block_id: "release.video")
     end
-    posted = Slack::Api::CheckedChatPostMessage.new(
+    posted = Slack::Api::ChatPostMessage.new(
       token: "xoxb-synthetic-video", channel: "C123", message: message,
       transport: OfflineExample::WebMockTransport.new).call
     output.puts "Posted video message #{posted.channel}/#{posted.ts}"

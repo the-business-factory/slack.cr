@@ -2,9 +2,9 @@ require "../spec_helper"
 require "../support/auth/webmock_transport"
 
 module OverflowSnapshotSpec
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
-  describe "Overflow at the checked message boundary" do
+  describe "Overflow at the message boundary" do
     it "sends an owned snapshot after callers mutate the options, elements, and builder" do
       options = [UI::CompositionObjects::OverflowOption.new(text: UI.plain("Archive"), value: "archive")]
       menu = UI::BlockElements::Overflow.new(options: options, action_id: "more")
@@ -12,7 +12,7 @@ module OverflowSnapshotSpec
       actions = UI::Blocks::Actions.new(elements, block_id: "request")
       builder = UI::MessageBuilder.new(fallback_text: "Request actions")
       builder.add(actions)
-      request = Slack::Api::CheckedChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC", message: builder.build, transport: AuthSupport::WebMockTransport.new)
+      request = Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC", message: builder.build, transport: AuthSupport::WebMockTransport.new)
       options.clear
       menu.options.clear
       elements.clear

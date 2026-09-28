@@ -1,6 +1,6 @@
 # A built-in Slack icon. Slack accepts this object only in a card block.
-struct Slack::UI::Checked::CompositionObjects::SlackIcon
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::CompositionObjects::SlackIcon
+  include Slack::UI::ValueValidation
 
   getter name : SlackIconName
 

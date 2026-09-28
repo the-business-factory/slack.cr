@@ -1,7 +1,7 @@
-require "../../spec_helper"
+require "../spec_helper"
 
 module ContextActionsSpec
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   def self.feedback(action_id : String? = nil, positive_value : String = "up") : UI::BlockElements::FeedbackButtons
     UI::BlockElements::FeedbackButtons.new(

@@ -30,7 +30,7 @@ Slack API error responses raise `Slack::Errors::Api`. API calls use `https://sla
 
 | Feature | Credentials and setup |
 | --- | --- |
-| Build or inspect checked Block Kit values | None. |
+| Build or inspect Block Kit values | None. |
 | Direct Web API request | Token with the method's required scopes. |
 | Signed Events API, command, or interaction HTTP request | App signing secret for verification. A valid timestamp prevents stale requests; the application handles duplicate deliveries. |
 | OAuth app installation | Client ID, client secret, redirect URI, bot/user scopes, trusted session binding, state store, and application-owned installation store. Pass scopes to `AuthHandler`, not global settings. |
@@ -40,14 +40,14 @@ Global `Slack.configure` settings for webhook signing and API transport do not c
 
 Sign in with Slack is unavailable as a verified login. `Slack::SignInWithSlack` does not verify OIDC identity and raises `Slack::SignInResponse::VerificationUnavailable` on that path. Keep login separate from app installation.
 
-## Checked Block Kit
+## Block Kit
 
-Checked values validate supported fields and surface placement when built. Constructing them needs no credentials:
+Block Kit values validate supported fields and surface placement when built. Constructing them needs no credentials:
 
 ```crystal
 require "slack"
 
-alias UI = Slack::UI::Checked
+alias UI = Slack::UI
 message = UI.message(fallback_text: "Request 42 needs approval.") do |builder|
   builder.section(UI.mrkdwn("*Request 42* needs approval"))
   builder.actions(elements: [
@@ -60,7 +60,7 @@ message = UI.message(fallback_text: "Request 42 needs approval.") do |builder|
   ])
 end
 
-request = Slack::Api::CheckedChatPostMessage.new(
+request = Slack::Api::ChatPostMessage.new(
   token: ENV["SLACK_BOT_TOKEN"],
   channel: ENV["SLACK_CHANNEL_ID"],
   message: message
@@ -152,7 +152,7 @@ crystal run examples/socket_mode_protocol.cr
 crystal run examples/interaction_context.cr
 ```
 
-The examples show checked message construction, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, message workflow buttons, and Socket Mode frames with their acknowledgments. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
+The examples show message construction, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, message workflow buttons, and Socket Mode frames with their acknowledgments. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
 
 ## Contributing
 

@@ -1,21 +1,21 @@
 # Slack's `url_text_input` element. Slack checks the entered URL; the library
 # does not check the format of `initial_value`.
-struct Slack::UI::Checked::BlockElements::UrlInput
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::BlockElements::UrlInput
+  include Slack::UI::ValueValidation
 
   getter action_id : String?
   getter initial_value : String?
-  getter dispatch_action_config : Slack::UI::Checked::CompositionObjects::DispatchActionConfig?
+  getter dispatch_action_config : Slack::UI::CompositionObjects::DispatchActionConfig?
   getter focus_on_load : Bool?
-  getter placeholder : Slack::UI::Checked::CompositionObjects::PlainText?
+  getter placeholder : Slack::UI::CompositionObjects::PlainText?
 
   def initialize(
     *,
     @action_id : String? = nil,
     @initial_value : String? = nil,
-    @dispatch_action_config : Slack::UI::Checked::CompositionObjects::DispatchActionConfig? = nil,
+    @dispatch_action_config : Slack::UI::CompositionObjects::DispatchActionConfig? = nil,
     @focus_on_load : Bool? = nil,
-    @placeholder : Slack::UI::Checked::CompositionObjects::PlainText? = nil,
+    @placeholder : Slack::UI::CompositionObjects::PlainText? = nil,
   )
     validate!
   end
@@ -24,8 +24,8 @@ struct Slack::UI::Checked::BlockElements::UrlInput
     "url_text_input"
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
-    issues = [] of Slack::UI::Checked::ValidationIssue
+  def validate : Array(Slack::UI::ValidationIssue)
+    issues = [] of Slack::UI::ValidationIssue
     length_issue(issues, @action_id, 255, "#{type}.action_id.too_long", "action_id")
     if placeholder = @placeholder
       placeholder.validate.each { |issue| issues << issue.at("placeholder") }

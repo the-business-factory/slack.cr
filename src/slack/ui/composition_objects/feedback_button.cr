@@ -1,7 +1,7 @@
 # One button of a `BlockElements::FeedbackButtons` pair. Slack sends `value`
 # in the interaction payload.
-struct Slack::UI::Checked::CompositionObjects::FeedbackButton
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::CompositionObjects::FeedbackButton
+  include Slack::UI::ValueValidation
 
   getter text : PlainText
   getter value : String

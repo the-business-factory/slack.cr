@@ -6,7 +6,7 @@ require "./webmock_transport"
 # click on a button inside the container. Slack sends the click as an ordinary
 # block_actions payload; the container itself sends no payload.
 module OfflineContainerExample
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   record Change, key : String, from : String, to : String
 
@@ -25,7 +25,7 @@ module OfflineContainerExample
     message = UI.message(fallback_text: "Bulk update: #{CHANGES.size} records selected") do |builder|
       builder.add(bulk_update(CHANGES))
     end
-    Slack::Api::CheckedChatPostMessage.new(token: "xoxb-synthetic-container", channel: "C-SYNTHETIC",
+    Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic-container", channel: "C-SYNTHETIC",
       message: message, transport: OfflineExample::WebMockTransport.new).call
 
     # Authored from Slack's block_actions reference: the click names the child block.

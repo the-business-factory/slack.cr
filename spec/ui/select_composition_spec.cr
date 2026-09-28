@@ -1,7 +1,7 @@
-require "../../spec_helper"
+require "../spec_helper"
 
 module SelectCompositionSpec
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   class MenuOptions
     include Enumerable(UI::CompositionObjects::Option)

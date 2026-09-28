@@ -2,7 +2,7 @@ require "../spec_helper"
 require "../support/auth/webmock_transport"
 
 module RadioButtonsSnapshotSpec
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
   alias Option = UI::CompositionObjects::RadioOption
 
   class OnePassOptions
@@ -28,7 +28,7 @@ module RadioButtonsSnapshotSpec
     builder = UI::MessageBuilder.new(fallback_text: "Delivery preference")
     builder.input(label: UI.plain("Delivery"), element: control, block_id: "preferences",
       optional: true, dispatch_action: true)
-    request = Slack::Api::CheckedChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC",
+    request = Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC",
       message: builder.build, unfurl_links: false, transport: AuthSupport::WebMockTransport.new)
     options.clear
     copy = control

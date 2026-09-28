@@ -1,5 +1,5 @@
 # A bullet or ordered list. Each item is a Section; nest lists with `indent`.
-struct Slack::UI::Checked::RichText::List
+struct Slack::UI::RichText::List
   include NodeValidation
 
   @elements : Array(Section)

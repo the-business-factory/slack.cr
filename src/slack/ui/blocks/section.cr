@@ -1,6 +1,6 @@
-struct Slack::UI::Checked::Blocks::Section
-  alias Text = Slack::UI::Checked::CompositionObjects::Text
-  alias Accessory = Slack::UI::Checked::BlockElements::Button | Slack::UI::Checked::BlockElements::Image | Slack::UI::Checked::BlockElements::StaticSelect | Slack::UI::Checked::BlockElements::MultiStaticSelect | Slack::UI::Checked::BlockElements::ExternalSelect | Slack::UI::Checked::BlockElements::MultiExternalSelect | Slack::UI::Checked::BlockElements::Checkboxes | Slack::UI::Checked::BlockElements::RadioButtons | Slack::UI::Checked::BlockElements::UsersSelect | Slack::UI::Checked::BlockElements::MultiUsersSelect | Slack::UI::Checked::BlockElements::ConversationsSelect | Slack::UI::Checked::BlockElements::MultiConversationsSelect | Slack::UI::Checked::BlockElements::DatePicker | Slack::UI::Checked::BlockElements::TimePicker | Slack::UI::Checked::BlockElements::ChannelsSelect | Slack::UI::Checked::BlockElements::MultiChannelsSelect | Slack::UI::Checked::BlockElements::Overflow | Slack::UI::Checked::BlockElements::WorkflowButton
+struct Slack::UI::Blocks::Section
+  alias Text = Slack::UI::CompositionObjects::Text
+  alias Accessory = Slack::UI::BlockElements::Button | Slack::UI::BlockElements::Image | Slack::UI::BlockElements::StaticSelect | Slack::UI::BlockElements::MultiStaticSelect | Slack::UI::BlockElements::ExternalSelect | Slack::UI::BlockElements::MultiExternalSelect | Slack::UI::BlockElements::Checkboxes | Slack::UI::BlockElements::RadioButtons | Slack::UI::BlockElements::UsersSelect | Slack::UI::BlockElements::MultiUsersSelect | Slack::UI::BlockElements::ConversationsSelect | Slack::UI::BlockElements::MultiConversationsSelect | Slack::UI::BlockElements::DatePicker | Slack::UI::BlockElements::TimePicker | Slack::UI::BlockElements::ChannelsSelect | Slack::UI::BlockElements::MultiChannelsSelect | Slack::UI::BlockElements::Overflow | Slack::UI::BlockElements::WorkflowButton
 
   TEXT_MAX_LENGTH     = 3000
   FIELD_MAX_LENGTH    = 2000
@@ -55,10 +55,10 @@ struct Slack::UI::Checked::Blocks::Section
     @fields.try(&.dup)
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
-    issues = [] of Slack::UI::Checked::ValidationIssue
+  def validate : Array(Slack::UI::ValidationIssue)
+    issues = [] of Slack::UI::ValidationIssue
     if @text.nil? && @fields.nil?
-      issues << Slack::UI::Checked::ValidationIssue.new(
+      issues << Slack::UI::ValidationIssue.new(
         code: "section.content.missing",
         path: "section",
         message: "Text or fields must be present."
@@ -72,13 +72,13 @@ struct Slack::UI::Checked::Blocks::Section
 
     if fields = @fields
       if fields.empty?
-        issues << Slack::UI::Checked::ValidationIssue.new(
+        issues << Slack::UI::ValidationIssue.new(
           code: "section.fields.empty",
           path: "fields",
           message: "Fields must contain at least one text object."
         )
       elsif fields.size > FIELDS_MAX_SIZE
-        issues << Slack::UI::Checked::ValidationIssue.new(
+        issues << Slack::UI::ValidationIssue.new(
           code: "section.fields.too_many",
           path: "fields",
           message: "Fields cannot contain more than #{FIELDS_MAX_SIZE} text objects."
@@ -107,7 +107,7 @@ struct Slack::UI::Checked::Blocks::Section
 
   def validate! : Nil
     issues = validate
-    raise Slack::UI::Checked::ValidationError.new(issues) unless issues.empty?
+    raise Slack::UI::ValidationError.new(issues) unless issues.empty?
   end
 
   def to_json(json : JSON::Builder) : Nil
@@ -128,16 +128,16 @@ struct Slack::UI::Checked::Blocks::Section
     copied
   end
 
-  private def append_field(fields : Array(Text), field : Slack::UI::Checked::CompositionObjects::PlainText) : Nil
+  private def append_field(fields : Array(Text), field : Slack::UI::CompositionObjects::PlainText) : Nil
     fields << field
   end
 
-  private def append_field(fields : Array(Text), field : Slack::UI::Checked::CompositionObjects::Mrkdwn) : Nil
+  private def append_field(fields : Array(Text), field : Slack::UI::CompositionObjects::Mrkdwn) : Nil
     fields << field
   end
 
   private def append_text_length_issue(
-    issues : Array(Slack::UI::Checked::ValidationIssue),
+    issues : Array(Slack::UI::ValidationIssue),
     value : String,
     maximum : Int32,
     code : String,
@@ -145,17 +145,17 @@ struct Slack::UI::Checked::Blocks::Section
   ) : Nil
     return unless value.size > maximum
 
-    issues << Slack::UI::Checked::ValidationIssue.new(
+    issues << Slack::UI::ValidationIssue.new(
       code: code,
       path: path,
       message: "Text cannot be longer than #{maximum} characters."
     )
   end
 
-  private def append_block_id_issue(issues : Array(Slack::UI::Checked::ValidationIssue)) : Nil
+  private def append_block_id_issue(issues : Array(Slack::UI::ValidationIssue)) : Nil
     return unless @block_id.try(&.size.>(BLOCK_ID_MAX_LENGTH))
 
-    issues << Slack::UI::Checked::ValidationIssue.new(
+    issues << Slack::UI::ValidationIssue.new(
       code: "section.block_id.too_long",
       path: "block_id",
       message: "Block ID cannot be longer than #{BLOCK_ID_MAX_LENGTH} characters."

@@ -1,4 +1,4 @@
-record Slack::UI::Checked::ValidationIssue,
+record Slack::UI::ValidationIssue,
   code : String,
   path : String,
   message : String do

@@ -3,7 +3,7 @@ require "webmock"
 require "./webmock_transport"
 
 module OfflineRichTextExample
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
   alias RT = UI::RichText
   alias Received = Slack::Interactions::RichText
 
@@ -35,7 +35,7 @@ module OfflineRichTextExample
         RT::Preformatted.new(elements: {RT::Text.new("shards update")}, language: "shell"),
       ])
     end
-    Slack::Api::CheckedChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC",
+    Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC",
       message: message, transport: OfflineExample::WebMockTransport.new).call
 
     # An independent, signed message event: a user reply written in Slack's composer.

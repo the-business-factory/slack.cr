@@ -1,4 +1,4 @@
-enum Slack::UI::Checked::Table::ColumnAlignment
+enum Slack::UI::Table::ColumnAlignment
   Left
   Center
   Right

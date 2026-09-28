@@ -1,16 +1,16 @@
 require "../spec_helper"
 require "../support/auth/webmock_transport"
 
-describe Slack::Api::CheckedChatPostMessage do
-  it "posts one structured checked snapshot through result" do
-    token = "xoxb-synthetic-checked"
-    message = checked_message("Result")
+describe Slack::Api::ChatPostMessage do
+  it "posts one structured message snapshot through result" do
+    token = "xoxb-synthetic-post"
+    message = sample_message("Result")
 
     WebMock.stub(:post, "https://slack.com/api/chat.postMessage")
       .with(headers: {"Authorization" => "Bearer #{token}"})
       .to_return do |request|
         payload = JSON.parse(request.body || fail("Expected a JSON request body"))
-        payload["channel"].as_s.should eq "C-CHECKED"
+        payload["channel"].as_s.should eq "C-POST"
         payload["text"].as_s.should eq "Result fallback"
         payload["blocks"][0]["text"]["text"].as_s.should eq "Result"
         payload["thread_ts"].as_s.should eq "1710000000.000001"
@@ -23,11 +23,11 @@ describe Slack::Api::CheckedChatPostMessage do
         )
       end
 
-    request = Slack::Api::CheckedChatPostMessage.new(
+    request = Slack::Api::ChatPostMessage.new(
 
       transport: AuthSupport::WebMockTransport.new,
       token: token,
-      channel: "C-CHECKED",
+      channel: "C-POST",
       message: message,
       thread_ts: "1710000000.000001",
       reply_broadcast: false,
@@ -38,9 +38,9 @@ describe Slack::Api::CheckedChatPostMessage do
   end
 
   it "posts a Message Input as a structured block with explicit false flags" do
-    message = Slack::UI::Checked.message(fallback_text: "Note") do |builder|
-      builder.input(label: Slack::UI::Checked.plain("Note"),
-        element: Slack::UI::Checked::BlockElements::PlainTextInput.new(action_id: "note", multiline: false),
+    message = Slack::UI.message(fallback_text: "Note") do |builder|
+      builder.input(label: Slack::UI.plain("Note"),
+        element: Slack::UI::BlockElements::PlainTextInput.new(action_id: "note", multiline: false),
         optional: false, dispatch_action: false)
     end
     WebMock.stub(:post, "https://slack.com/api/chat.postMessage")
@@ -51,22 +51,22 @@ describe Slack::Api::CheckedChatPostMessage do
           JSON
         HTTP::Client::Response.new(200, body: File.read("spec/fixtures/api/chat-post-success-section.json"))
       end
-    request = Slack::Api::CheckedChatPostMessage.new(
+    request = Slack::Api::ChatPostMessage.new(
       transport: AuthSupport::WebMockTransport.new, token: "xoxb-synthetic-input",
       channel: "C-INPUT", message: message, unfurl_links: false)
     request.result.status_code.should eq 200
   end
 
-  it "parses a successful checked request through call" do
+  it "parses a successful request through call" do
     WebMock.stub(:post, "https://slack.com/api/chat.postMessage")
       .to_return(body: File.read("spec/fixtures/api/chat-post-success-section.json"))
 
-    response = Slack::Api::CheckedChatPostMessage.new(
+    response = Slack::Api::ChatPostMessage.new(
 
       transport: AuthSupport::WebMockTransport.new,
       token: "xoxb-synthetic-call",
       channel: "C-CALL",
-      message: checked_message("Call")
+      message: sample_message("Call")
     ).call
 
     response.should be_a(Slack::Models::Chat::PostMessage)
@@ -74,12 +74,12 @@ describe Slack::Api::CheckedChatPostMessage do
   end
 
   it "omits top-level text when Slack generates the accessibility fallback" do
-    message = Slack::UI::Checked::Message.with_slack_generated_fallback(
-      blocks: [Slack::UI::Checked::Blocks::Section.new(
-        text: Slack::UI::Checked.plain("Derived")
+    message = Slack::UI::Message.with_slack_generated_fallback(
+      blocks: [Slack::UI::Blocks::Section.new(
+        text: Slack::UI.plain("Derived")
       )]
     )
-    request = Slack::Api::CheckedChatPostMessage.new(
+    request = Slack::Api::ChatPostMessage.new(
       transport: AuthSupport::WebMockTransport.new,
       token: "xoxb-synthetic-derived",
       channel: "C-DERIVED",
@@ -113,11 +113,11 @@ describe Slack::Api::CheckedChatPostMessage do
             body: File.read("spec/fixtures/api/chat-post-success-section.json")
           )
         end
-        request = Slack::Api::CheckedChatPostMessage.new(
+        request = Slack::Api::ChatPostMessage.new(
           transport: AuthSupport::WebMockTransport.new,
           token: "xoxb-synthetic-thread",
           channel: "C-THREAD",
-          message: checked_message("Thread"),
+          message: sample_message("Thread"),
           thread_ts: timestamp,
           reply_broadcast: true
         )
@@ -145,11 +145,11 @@ describe Slack::Api::CheckedChatPostMessage do
             body: File.read("spec/fixtures/api/chat-post-success-section.json")
           )
         end
-        request = Slack::Api::CheckedChatPostMessage.new(
+        request = Slack::Api::ChatPostMessage.new(
           transport: AuthSupport::WebMockTransport.new,
           token: "xoxb-synthetic-thread",
           channel: "C-THREAD",
-          message: checked_message("Thread"),
+          message: sample_message("Thread"),
           reply_broadcast: broadcast
         )
 
@@ -169,11 +169,11 @@ describe Slack::Api::CheckedChatPostMessage do
         end
 
         [nil, false, true].each do |broadcast|
-          request = Slack::Api::CheckedChatPostMessage.new(
+          request = Slack::Api::ChatPostMessage.new(
             transport: AuthSupport::WebMockTransport.new,
             token: "xoxb-synthetic-thread",
             channel: "C-THREAD",
-            message: checked_message("Thread"),
+            message: sample_message("Thread"),
             thread_ts: timestamp,
             reply_broadcast: broadcast
           )
@@ -181,7 +181,7 @@ describe Slack::Api::CheckedChatPostMessage do
           request.validate.map { |issue| {issue.code, issue.path} }.should eq [
             {"chat_post_message.thread_ts.invalid", "thread_ts"},
           ]
-          error = expect_raises(Slack::UI::Checked::ValidationError) do
+          error = expect_raises(Slack::UI::ValidationError) do
             method == "result" ? request.result : request.call
           end
           error.issues.map { |issue| {issue.code, issue.path} }.should eq [
@@ -198,14 +198,14 @@ describe Slack::Api::CheckedChatPostMessage do
         requests += 1
         HTTP::Client::Response.new(500)
       end
-      request = Slack::Api::CheckedChatPostMessage.new(
+      request = Slack::Api::ChatPostMessage.new(
         transport: AuthSupport::WebMockTransport.new,
         token: "xoxb-synthetic-invalid",
         channel: "",
-        message: checked_message("Invalid")
+        message: sample_message("Invalid")
       )
 
-      error = expect_raises(Slack::UI::Checked::ValidationError) do
+      error = expect_raises(Slack::UI::ValidationError) do
         method == "result" ? request.result : request.call
       end
       error.issues.map(&.code).should contain("chat_post_message.channel.empty")
@@ -218,15 +218,15 @@ describe Slack::Api::CheckedChatPostMessage do
         requests += 1
         HTTP::Client::Response.new(500)
       end
-      request = Slack::Api::CheckedChatPostMessage.new(
+      request = Slack::Api::ChatPostMessage.new(
         transport: AuthSupport::WebMockTransport.new,
         token: "xoxb-synthetic-thread",
         channel: "C-THREAD",
-        message: checked_message("Thread"),
+        message: sample_message("Thread"),
         reply_broadcast: true
       )
 
-      error = expect_raises(Slack::UI::Checked::ValidationError) do
+      error = expect_raises(Slack::UI::ValidationError) do
         method == "result" ? request.result : request.call
       end
       error.issues.map { |issue| {issue.code, issue.path} }.should eq [
@@ -237,15 +237,15 @@ describe Slack::Api::CheckedChatPostMessage do
   end
 
   it "owns a message snapshot separately from caller collections" do
-    section = Slack::UI::Checked::Blocks::Section.new(
-      text: Slack::UI::Checked.plain("Before")
+    section = Slack::UI::Blocks::Section.new(
+      text: Slack::UI.plain("Before")
     )
     blocks = [section]
-    message = Slack::UI::Checked::Message.new(
+    message = Slack::UI::Message.new(
       fallback_text: "Snapshot",
       blocks: blocks
     )
-    request = Slack::Api::CheckedChatPostMessage.new(
+    request = Slack::Api::ChatPostMessage.new(
       transport: AuthSupport::WebMockTransport.new,
       token: "xoxb-synthetic-snapshot",
       channel: "C-SNAPSHOT",
@@ -264,21 +264,21 @@ describe Slack::Api::CheckedChatPostMessage do
       .to_return(body: %({"ok":false,"error":"invalid_blocks"}))
 
     expect_raises(Slack::Errors::Api) do
-      Slack::Api::CheckedChatPostMessage.new(
+      Slack::Api::ChatPostMessage.new(
         transport: AuthSupport::WebMockTransport.new,
         token: "xoxb-synthetic-error",
         channel: "C-ERROR",
-        message: checked_message("Error")
+        message: sample_message("Error")
       ).call
     end
   end
 end
 
-private def checked_message(text : String) : Slack::UI::Checked::Message
-  Slack::UI::Checked::Message.new(
+private def sample_message(text : String) : Slack::UI::Message
+  Slack::UI::Message.new(
     fallback_text: "#{text} fallback",
-    blocks: [Slack::UI::Checked::Blocks::Section.new(
-      text: Slack::UI::Checked.plain(text)
+    blocks: [Slack::UI::Blocks::Section.new(
+      text: Slack::UI.plain(text)
     )]
   )
 end

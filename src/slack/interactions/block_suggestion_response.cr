@@ -3,10 +3,10 @@
 # options, or up to 100 option groups of up to 100 options each. An empty
 # options list shows no results for the query.
 struct Slack::Interactions::BlockSuggestionResponse
-  include Slack::UI::Checked::ValueValidation
+  include Slack::UI::ValueValidation
 
-  alias Option = Slack::UI::Checked::CompositionObjects::Option
-  alias OptionGroup = Slack::UI::Checked::CompositionObjects::OptionGroup
+  alias Option = Slack::UI::CompositionObjects::Option
+  alias OptionGroup = Slack::UI::CompositionObjects::OptionGroup
 
   MAX_SIZE = 100
 
@@ -14,7 +14,7 @@ struct Slack::Interactions::BlockSuggestionResponse
   @option_groups : Array(OptionGroup)?
 
   def initialize(*, options : Enumerable(T)) forall T
-    @options = Slack::UI::Checked::OptionCollection.copy(options)
+    @options = Slack::UI::OptionCollection.copy(options)
     validate!
   end
 
@@ -35,8 +35,8 @@ struct Slack::Interactions::BlockSuggestionResponse
 
   # Values must be unique across the whole response so a selection identifies
   # one option; this is library policy shared with static menus.
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
-    issues = [] of Slack::UI::Checked::ValidationIssue
+  def validate : Array(Slack::UI::ValidationIssue)
+    issues = [] of Slack::UI::ValidationIssue
     if options = @options
       validate_options(options, issues)
     end
@@ -54,29 +54,29 @@ struct Slack::Interactions::BlockSuggestionResponse
     end
   end
 
-  private def validate_options(options : Array(Option), issues : Array(Slack::UI::Checked::ValidationIssue)) : Nil
+  private def validate_options(options : Array(Option), issues : Array(Slack::UI::ValidationIssue)) : Nil
     if options.size > MAX_SIZE
-      issues << Slack::UI::Checked::ValidationIssue.new("block_suggestion_response.options.size", "options", "Supply at most 100 options.")
+      issues << Slack::UI::ValidationIssue.new("block_suggestion_response.options.size", "options", "Supply at most 100 options.")
     end
     values = Set(String).new
     options.each_with_index do |option, index|
       option.validate.each { |issue| issues << issue.at("options[#{index}]") }
       unless values.add?(option.value)
-        issues << Slack::UI::Checked::ValidationIssue.new("block_suggestion_response.options.value.duplicate", "options[#{index}].value", "Option values must be unique within the response.")
+        issues << Slack::UI::ValidationIssue.new("block_suggestion_response.options.value.duplicate", "options[#{index}].value", "Option values must be unique within the response.")
       end
     end
   end
 
-  private def validate_groups(groups : Array(OptionGroup), issues : Array(Slack::UI::Checked::ValidationIssue)) : Nil
+  private def validate_groups(groups : Array(OptionGroup), issues : Array(Slack::UI::ValidationIssue)) : Nil
     if groups.size > MAX_SIZE
-      issues << Slack::UI::Checked::ValidationIssue.new("block_suggestion_response.option_groups.size", "option_groups", "Supply at most 100 option groups.")
+      issues << Slack::UI::ValidationIssue.new("block_suggestion_response.option_groups.size", "option_groups", "Supply at most 100 option groups.")
     end
     values = Set(String).new
     groups.each_with_index do |group, index|
       group.validate.each { |issue| issues << issue.at("option_groups[#{index}]") }
       group.options.each_with_index do |option, option_index|
         unless values.add?(option.value)
-          issues << Slack::UI::Checked::ValidationIssue.new("block_suggestion_response.options.value.duplicate", "option_groups[#{index}].options[#{option_index}].value", "Option values must be unique within the response.")
+          issues << Slack::UI::ValidationIssue.new("block_suggestion_response.options.value.duplicate", "option_groups[#{index}].options[#{option_index}].value", "Option values must be unique within the response.")
         end
       end
     end

@@ -1,22 +1,22 @@
-alias Slack::UI::Checked::HomeBlock = Slack::UI::Checked::Blocks::Section |
-                                      Slack::UI::Checked::Blocks::Actions |
-                                      Slack::UI::Checked::Blocks::Divider |
-                                      Slack::UI::Checked::Blocks::Header |
-                                      Slack::UI::Checked::Blocks::Context |
-                                      Slack::UI::Checked::Blocks::Image |
-                                      Slack::UI::Checked::Blocks::Video |
-                                      Slack::UI::Checked::Blocks::RichText |
-                                      Slack::UI::Checked::Blocks::Table |
-                                      Slack::UI::Checked::Blocks::DataTable |
-                                      Slack::UI::Checked::Blocks::DataVisualization |
-                                      Slack::UI::Checked::Blocks::Card |
-                                      Slack::UI::Checked::Blocks::Carousel |
-                                      Slack::UI::Checked::Blocks::Container |
-                                      Slack::UI::Checked::Blocks::Input |
-                                      Slack::UI::Checked::Blocks::ViewInput
+alias Slack::UI::HomeBlock = Slack::UI::Blocks::Section |
+                             Slack::UI::Blocks::Actions |
+                             Slack::UI::Blocks::Divider |
+                             Slack::UI::Blocks::Header |
+                             Slack::UI::Blocks::Context |
+                             Slack::UI::Blocks::Image |
+                             Slack::UI::Blocks::Video |
+                             Slack::UI::Blocks::RichText |
+                             Slack::UI::Blocks::Table |
+                             Slack::UI::Blocks::DataTable |
+                             Slack::UI::Blocks::DataVisualization |
+                             Slack::UI::Blocks::Card |
+                             Slack::UI::Blocks::Carousel |
+                             Slack::UI::Blocks::Container |
+                             Slack::UI::Blocks::Input |
+                             Slack::UI::Blocks::ViewInput
 
-struct Slack::UI::Checked::Home
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::Home
+  include Slack::UI::ValueValidation
 
   @blocks : Array(HomeBlock)
   getter private_metadata : String?
@@ -57,7 +57,7 @@ struct Slack::UI::Checked::Home
       issues << ValidationIssue.new("home.blocks.too_many", "blocks", "Home cannot contain more than 100 blocks.")
     end
     BlockValidation.validate(@blocks, issues, "home.block_id.duplicate", "Block IDs must be unique within a view.")
-    issues.concat(Slack::UI::Checked::ViewFocus.validate(@blocks, "home"))
+    issues.concat(Slack::UI::ViewFocus.validate(@blocks, "home"))
     issues.concat(ChannelResponseUrl.non_modal_inputs(@blocks))
     issues.concat(WorkflowButtonPlacement.validate(@blocks, "home"))
     datetime_picker_issues(issues)

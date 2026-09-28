@@ -1,4 +1,4 @@
-module Slack::UI::Checked
+module Slack::UI
   def self.plain(text : String, emoji : Bool? = nil) : CompositionObjects::PlainText
     CompositionObjects::PlainText.new(text: text, emoji: emoji)
   end
@@ -20,7 +20,7 @@ module Slack::UI::Checked
   end
 end
 
-module Slack::UI::Checked
+module Slack::UI
   def self.display_modal(
     title : CompositionObjects::PlainText,
     submit : CompositionObjects::PlainText? = nil,
@@ -49,7 +49,7 @@ module Slack::UI::Checked
   end
 end
 
-module Slack::UI::Checked
+module Slack::UI
   def self.form_modal(
     title : CompositionObjects::PlainText,
     submit : CompositionObjects::PlainText,
@@ -78,7 +78,7 @@ module Slack::UI::Checked
   end
 end
 
-module Slack::UI::Checked
+module Slack::UI
   def self.home(
     private_metadata : String? = nil,
     callback_id : String? = nil,

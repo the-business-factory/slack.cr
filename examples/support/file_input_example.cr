@@ -3,7 +3,7 @@ require "webmock"
 require "./webmock_transport"
 
 module OfflineFileInputExample
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   def self.receive(payload : String) : Slack::Interaction
     body = URI::Params.encode({"payload" => payload})
@@ -28,7 +28,7 @@ module OfflineFileInputExample
         builder.input(label: UI.plain("Receipts"), block_id: "receipts",
           element: UI::BlockElements::FileInput.new(action_id: "files", filetypes: {"pdf", "png"}, max_files: 3))
       end
-      Slack::Api::CheckedViewsOpen.new(token: "xoxb-synthetic", trigger_id: trigger,
+      Slack::Api::ViewsOpen.new(token: "xoxb-synthetic", trigger_id: trigger,
         view: view, transport: OfflineExample::WebMockTransport.new).call
     else
       raise "Expected block action"

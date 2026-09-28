@@ -1,6 +1,6 @@
 # Plain-text overflow option, optionally opening a URL in the browser.
-struct Slack::UI::Checked::CompositionObjects::OverflowOption
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::CompositionObjects::OverflowOption
+  include Slack::UI::ValueValidation
 
   getter text : PlainText
   getter value : String
@@ -11,7 +11,7 @@ struct Slack::UI::Checked::CompositionObjects::OverflowOption
     validate!
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
+  def validate : Array(Slack::UI::ValidationIssue)
     issues = @text.validate.map(&.at("text"))
     length_issue(issues, @text.text, 75, "overflow_option.text.too_long", "text.text")
     length_issue(issues, @value, 150, "overflow_option.value.too_long", "value")

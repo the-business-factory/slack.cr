@@ -5,7 +5,7 @@ require "./webmock_transport"
 # Posts an assistant reply that is already standard markdown, such as LLM
 # output. Slack translates the markdown block into its own blocks.
 module OfflineMarkdownExample
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   ANSWER = <<-MARKDOWN
     ## Rotate the signing secret
@@ -30,7 +30,7 @@ module OfflineMarkdownExample
       builder.markdown(ANSWER)
       builder.context({UI.plain("Generated answer. Check the steps before you use them.")})
     end
-    result = Slack::Api::CheckedChatPostMessage.new(token: "xoxb-synthetic-markdown", channel: "C-SYNTHETIC",
+    result = Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic-markdown", channel: "C-SYNTHETIC",
       message: message, transport: OfflineExample::WebMockTransport.new).call
     output.puts "Posted answer to #{result.channel}/#{result.ts}"
 

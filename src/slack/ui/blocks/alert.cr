@@ -2,18 +2,18 @@
 # the modal unions contain it; Message and Home reject it at compile time.
 #
 # A `nil` level omits the field, and Slack then shows the default level.
-struct Slack::UI::Checked::Blocks::Alert
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::Blocks::Alert
+  include Slack::UI::ValueValidation
 
   TEXT_MAX_LENGTH = 200
 
-  getter text : Slack::UI::Checked::CompositionObjects::Text
-  getter level : Slack::UI::Checked::Blocks::AlertLevel?
+  getter text : Slack::UI::CompositionObjects::Text
+  getter level : Slack::UI::Blocks::AlertLevel?
   getter block_id : String?
 
   def initialize(
-    @text : Slack::UI::Checked::CompositionObjects::Text,
-    @level : Slack::UI::Checked::Blocks::AlertLevel? = nil,
+    @text : Slack::UI::CompositionObjects::Text,
+    @level : Slack::UI::Blocks::AlertLevel? = nil,
     @block_id : String? = nil,
   )
     validate!

@@ -1,18 +1,18 @@
-struct Slack::UI::Checked::BlockElements::DatePicker
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::BlockElements::DatePicker
+  include Slack::UI::ValueValidation
 
   getter action_id : String?
   getter initial_date : String?
-  getter placeholder : Slack::UI::Checked::CompositionObjects::PlainText?
-  getter confirm : Slack::UI::Checked::CompositionObjects::Confirmation?
+  getter placeholder : Slack::UI::CompositionObjects::PlainText?
+  getter confirm : Slack::UI::CompositionObjects::Confirmation?
   getter focus_on_load : Bool?
 
   def initialize(
     *,
     @action_id : String? = nil,
     @initial_date : String? = nil,
-    @placeholder : Slack::UI::Checked::CompositionObjects::PlainText? = nil,
-    @confirm : Slack::UI::Checked::CompositionObjects::Confirmation? = nil,
+    @placeholder : Slack::UI::CompositionObjects::PlainText? = nil,
+    @confirm : Slack::UI::CompositionObjects::Confirmation? = nil,
     @focus_on_load : Bool? = nil,
   )
     validate!
@@ -22,8 +22,8 @@ struct Slack::UI::Checked::BlockElements::DatePicker
     "datepicker"
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
-    issues = [] of Slack::UI::Checked::ValidationIssue
+  def validate : Array(Slack::UI::ValidationIssue)
+    issues = [] of Slack::UI::ValidationIssue
     length_issue(issues, @action_id, 255, "#{type}.action_id.too_long", "action_id")
     if placeholder = @placeholder
       placeholder.validate.each { |issue| issues << issue.at("placeholder") }
@@ -33,7 +33,7 @@ struct Slack::UI::Checked::BlockElements::DatePicker
       confirm.validate.each { |issue| issues << issue.at("confirm") }
     end
     if (date = @initial_date) && !valid_date?(date)
-      issues << Slack::UI::Checked::ValidationIssue.new("#{type}.initial_date.invalid", "initial_date", "Initial date must be a valid YYYY-MM-DD calendar date (years 0001–9999).")
+      issues << Slack::UI::ValidationIssue.new("#{type}.initial_date.invalid", "initial_date", "Initial date must be a valid YYYY-MM-DD calendar date (years 0001–9999).")
     end
     issues
   end

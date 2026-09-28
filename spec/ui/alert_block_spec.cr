@@ -1,7 +1,7 @@
-require "../../spec_helper"
+require "../spec_helper"
 
 module AlertBlockSpec
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   describe UI::Blocks::Alert do
     it "serializes alert levels and text formats in a display modal" do

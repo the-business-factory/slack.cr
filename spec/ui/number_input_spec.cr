@@ -1,7 +1,7 @@
-require "../../spec_helper"
+require "../spec_helper"
 
 module NumberInputSpec
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
   alias NumberInput = UI::BlockElements::NumberInput
 
   describe NumberInput do

@@ -4,7 +4,7 @@ require "./webmock_transport"
 
 # Reads where each signed interaction happened and uses that context to reply.
 module OfflineInteractionContextExample
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   TOKEN = "xoxb-synthetic-interaction-context"
 
@@ -66,7 +66,7 @@ module OfflineInteractionContextExample
       approved = UI.message(fallback_text: "Release 2.0 approved.") do |builder|
         builder.section(UI.mrkdwn("*Release 2.0 approved.*"), block_id: "decision.done")
       end
-      Slack::Api::CheckedChatUpdate.new(token: TOKEN, channel: container.channel_id, ts: container.message_ts,
+      Slack::Api::ChatUpdate.new(token: TOKEN, channel: container.channel_id, ts: container.message_ts,
         message: approved, transport: OfflineExample::WebMockTransport.new).call
       output.puts "Approved in ##{channel_name} at #{container.message_ts}"
     else

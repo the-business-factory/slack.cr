@@ -1,15 +1,15 @@
 # Shared static-source fields; the two elements keep separate selection contracts.
-module Slack::UI::Checked::BlockElements::StaticSelectContent
-  include Slack::UI::Checked::ValueValidation
+module Slack::UI::BlockElements::StaticSelectContent
+  include Slack::UI::ValueValidation
 
-  alias Option = Slack::UI::Checked::CompositionObjects::Option
-  alias OptionGroup = Slack::UI::Checked::CompositionObjects::OptionGroup
+  alias Option = Slack::UI::CompositionObjects::Option
+  alias OptionGroup = Slack::UI::CompositionObjects::OptionGroup
 
   @options : Array(Option)?
   @option_groups : Array(OptionGroup)?
   getter action_id : String?
-  getter placeholder : Slack::UI::Checked::CompositionObjects::PlainText?
-  getter confirm : Slack::UI::Checked::CompositionObjects::Confirmation?
+  getter placeholder : Slack::UI::CompositionObjects::PlainText?
+  getter confirm : Slack::UI::CompositionObjects::Confirmation?
   getter focus_on_load : Bool?
 
   def options : Array(Option)?
@@ -30,8 +30,8 @@ module Slack::UI::Checked::BlockElements::StaticSelectContent
     @options || @option_groups.try(&.flat_map(&.options)) || [] of Option
   end
 
-  private def validate_content : Array(Slack::UI::Checked::ValidationIssue)
-    issues = [] of Slack::UI::Checked::ValidationIssue
+  private def validate_content : Array(Slack::UI::ValidationIssue)
+    issues = [] of Slack::UI::ValidationIssue
     length_issue(issues, @action_id, 255, "#{type}.action_id.too_long", "action_id")
     if placeholder = @placeholder
       placeholder.validate.each { |issue| issues << issue.at("placeholder") }
@@ -41,18 +41,18 @@ module Slack::UI::Checked::BlockElements::StaticSelectContent
       confirm.validate.each { |issue| issues << issue.at("confirm") }
     end
     if options = @options
-      Slack::UI::Checked::OptionCollection.validate(options, issues, "options", "#{type}.options")
+      Slack::UI::OptionCollection.validate(options, issues, "options", "#{type}.options")
     end
     if groups = @option_groups
       if groups.empty? || groups.size > 100
-        issues << Slack::UI::Checked::ValidationIssue.new("#{type}.option_groups.size", "option_groups", "Supply one to 100 option groups.")
+        issues << Slack::UI::ValidationIssue.new("#{type}.option_groups.size", "option_groups", "Supply one to 100 option groups.")
       end
       values = Set(String).new
       groups.each_with_index do |group, index|
         group.validate.each { |issue| issues << issue.at("option_groups[#{index}]") }
         group.options.each_with_index do |option, option_index|
           unless values.add?(option.value)
-            issues << Slack::UI::Checked::ValidationIssue.new("#{type}.options.value.duplicate", "option_groups[#{index}].options[#{option_index}].value", "Option values must be unique within the menu.")
+            issues << Slack::UI::ValidationIssue.new("#{type}.options.value.duplicate", "option_groups[#{index}].options[#{option_index}].value", "Option values must be unique within the menu.")
           end
         end
       end
@@ -60,10 +60,10 @@ module Slack::UI::Checked::BlockElements::StaticSelectContent
     issues
   end
 
-  private def validate_initial(option : Option, issues : Array(Slack::UI::Checked::ValidationIssue), path : String) : Nil
+  private def validate_initial(option : Option, issues : Array(Slack::UI::ValidationIssue), path : String) : Nil
     option.validate.each { |issue| issues << issue.at(path) }
     unless available_options.includes?(option)
-      issues << Slack::UI::Checked::ValidationIssue.new("#{type}.initial_option.not_found", path, "Initial option must exactly match an available option.")
+      issues << Slack::UI::ValidationIssue.new("#{type}.initial_option.not_found", path, "Initial option must exactly match an available option.")
     end
   end
 

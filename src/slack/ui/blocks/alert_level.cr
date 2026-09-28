@@ -1,5 +1,5 @@
 # Slack shows `Default` when an alert omits its level.
-enum Slack::UI::Checked::Blocks::AlertLevel
+enum Slack::UI::Blocks::AlertLevel
   Default
   Info
   Warning

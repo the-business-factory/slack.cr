@@ -5,7 +5,7 @@ require "./webmock_transport"
 # Posts a resolved incident with workflow buttons that start link-trigger
 # workflows. Slack shows workflow buttons in messages only.
 module OfflineWorkflowButtonExample
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   record Incident, id : String, severity : String
 
@@ -40,7 +40,7 @@ module OfflineWorkflowButtonExample
       builder.section(UI.mrkdwn("*#{incident.id}* is resolved."), block_id: "incident", accessory: postmortem)
       builder.actions({close, status}, block_id: "incident.more")
     end
-    result = Slack::Api::CheckedChatPostMessage.new(token: "xoxb-synthetic-workflow", channel: "C-SYNTHETIC",
+    result = Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic-workflow", channel: "C-SYNTHETIC",
       message: message, transport: OfflineExample::WebMockTransport.new).call
     output.puts "Posted workflow buttons for #{incident.id} to #{result.channel}/#{result.ts}"
 

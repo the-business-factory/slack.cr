@@ -1,15 +1,15 @@
-# Checked Block Kit
+# Block Kit
 
-Use `require "slack"` and `Slack::UI::Checked` to construct validated, immutable outbound values. Construction and JSON inspection need no Slack credentials. Sending needs a token with the relevant Slack API scope, and signed interaction handling needs the app signing secret. The [README](../README.md) has a complete message example and commands for offline workflows.
+Use `require "slack"` and `Slack::UI` to construct validated, immutable outbound values. Construction and JSON inspection need no Slack credentials. Sending needs a token with the relevant Slack API scope, and signed interaction handling needs the app signing secret. The [README](../README.md) has a complete message example and commands for offline workflows.
 
 ## Supported surfaces and placement
 
-| Checked surface | Direct blocks | Input children | Send with |
+| Surface | Direct blocks | Input children | Send with |
 | --- | --- | --- | --- |
-| `Message` | Section, Actions, Divider, Header, Context, Image, Video, File, RichText, Table, DataTable, DataVisualization, Card, Carousel, Container, Markdown, ContextActions, Input | PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, DatetimePicker | `Slack::Api::CheckedChatPostMessage`, `Slack::Api::CheckedChatUpdate` |
-| `DisplayModal` | Section, Actions, Divider, Header, Context, Image, Video, RichText, Alert, Card | None, even if a submit label is supplied | `Slack::Api::CheckedViewsOpen`, `Slack::Api::CheckedViewsUpdate`, `Slack::Api::CheckedViewsPush` |
-| `FormModal` | Section, Actions, Divider, Header, Context, Image, Video, RichText, Alert, Card, Input, ModalInput, ViewInput | PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, DatetimePicker; NumberInput, FileInput, UrlInput, and EmailInput through ModalInput; RichTextInput through ViewInput | `Slack::Api::CheckedViewsOpen`, `Slack::Api::CheckedViewsUpdate`, `Slack::Api::CheckedViewsPush` |
-| `Home` | Section, Actions, Divider, Header, Context, Image, Video, RichText, Table, DataTable, DataVisualization, Card, Carousel, Container, Input, ViewInput | PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker; RichTextInput through ViewInput | `Slack::Api::CheckedViewsPublish` |
+| `Message` | Section, Actions, Divider, Header, Context, Image, Video, File, RichText, Table, DataTable, DataVisualization, Card, Carousel, Container, Markdown, ContextActions, Input | PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, DatetimePicker | `Slack::Api::ChatPostMessage`, `Slack::Api::ChatUpdate` |
+| `DisplayModal` | Section, Actions, Divider, Header, Context, Image, Video, RichText, Alert, Card | None, even if a submit label is supplied | `Slack::Api::ViewsOpen`, `Slack::Api::ViewsUpdate`, `Slack::Api::ViewsPush` |
+| `FormModal` | Section, Actions, Divider, Header, Context, Image, Video, RichText, Alert, Card, Input, ModalInput, ViewInput | PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, DatetimePicker; NumberInput, FileInput, UrlInput, and EmailInput through ModalInput; RichTextInput through ViewInput | `Slack::Api::ViewsOpen`, `Slack::Api::ViewsUpdate`, `Slack::Api::ViewsPush` |
+| `Home` | Section, Actions, Divider, Header, Context, Image, Video, RichText, Table, DataTable, DataVisualization, Card, Carousel, Container, Input, ViewInput | PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker; RichTextInput through ViewInput | `Slack::Api::ViewsPublish` |
 
 `FormModal` always needs a plain-text `submit` label, including forms without Input. `DisplayModal` cannot contain Input. Message and Home need no submit label. A Message can contain Input even though older phase notes excluded it. [Slack's Input reference](https://docs.slack.dev/reference/block-kit/blocks/input-block.md) lists Messages, Modals, and Home. Some Input children are modal-only in Slack. `Blocks::ModalInput` holds these children; only `FormModal` accepts it. Other children are for modals and Home only. `Blocks::ViewInput` holds these children; only `FormModal` and `Home` accept it.
 
@@ -31,11 +31,11 @@ Use `require "slack"` and `Slack::UI::Checked` to construct validated, immutable
 | ModalInput element (FormModal only) | NumberInput, FileInput, UrlInput, EmailInput |
 | ViewInput element (FormModal and Home only) | RichTextInput |
 
-Checked Header, Context, Image, Video, and RichText blocks are display content on all four surfaces. A File block is a message-only representation. Table, DataTable, DataVisualization, and Container blocks are for messages and Home only. Markdown and ContextActions blocks are for messages only. An Alert block is for modals only. A Card block is display content on all four surfaces; a Carousel block is for messages and Home only. An Image block or element needs alt text and exactly one public `image_url` or `SlackFile` source. `SlackFile` takes an ID or URL. Remote image availability and file access are checked by Slack. Section supports text, fields, and the listed accessory; Actions checks duplicate supplied action IDs within that block.
+Header, Context, Image, Video, and RichText blocks are display content on all four surfaces. A File block is a message-only representation. Table, DataTable, DataVisualization, and Container blocks are for messages and Home only. Markdown and ContextActions blocks are for messages only. An Alert block is for modals only. A Card block is display content on all four surfaces; a Carousel block is for messages and Home only. An Image block or element needs alt text and exactly one public `image_url` or `SlackFile` source. `SlackFile` takes an ID or URL. Remote image availability and file access are checked by Slack. Section supports text, fields, and the listed accessory; Actions checks duplicate supplied action IDs within that block.
 
 Static choices use plain-text `Option` values, optional `OptionGroup` values, and exactly one `options:` or `option_groups:` source. `StaticSelect` has one `initial_option`; `MultiStaticSelect` has `initial_options` and optional `max_selected_items`. Choice values must be unique within a menu, and initial selections must match offered options. Each group can contain up to 100 options. These two types use a **static** source. User, channel, and conversation selects use Slack-provided lists. External selects load options from your app; see [Load options from your app](#load-options-from-your-app).
 
-Placeholder or mutable types elsewhere in the library do not extend the checked placement matrix. The checked endpoints cover only their documented request fields; they are not complete wrappers for every Slack method field or view lifecycle action.
+Placeholder or mutable types elsewhere in the library do not extend the placement matrix. The endpoints cover only their documented request fields; they are not complete wrappers for every Slack method field or view lifecycle action.
 
 The machine-readable [support manifest](../spec/support/block_kit/support.yml) records detailed wire fields, upstream references, and repository evidence. Evidence paths in it are relative to the repository root.
 
@@ -46,7 +46,7 @@ Give a message an explicit top-level fallback for screen readers. `message_with_
 ```crystal
 require "slack"
 
-alias UI = Slack::UI::Checked
+alias UI = Slack::UI
 message = UI.message(fallback_text: "Request 42 needs approval.") do |builder|
   builder.section(UI.mrkdwn("*Request 42* needs approval"))
   builder.actions(elements: [UI::BlockElements::Button.new(
@@ -55,7 +55,7 @@ message = UI.message(fallback_text: "Request 42 needs approval.") do |builder|
   )])
 end
 
-request = Slack::Api::CheckedChatPostMessage.new(
+request = Slack::Api::ChatPostMessage.new(
   token: ENV["SLACK_BOT_TOKEN"], channel: ENV["SLACK_CHANNEL_ID"],
   message: message
 )
@@ -63,7 +63,7 @@ puts request.to_pretty_json
 response = request.call
 ```
 
-`CheckedChatPostMessage` accepts `channel`, checked `text`/`blocks`, `thread_ts`, `reply_broadcast`, `unfurl_links`, and `unfurl_media`. It copies and validates the message before dispatch and requires a `String` token. `result` and `call` share the same validation boundary. Named `configuration`, `transport`, and `limiter` options can customize dispatch; they are not JSON fields. The wrapper sends through the existing API client and raises `Slack::Api::Error` for API failures. It does not support every `chat.postMessage` field.
+`ChatPostMessage` accepts `channel`, `text`/`blocks`, `thread_ts`, `reply_broadcast`, `unfurl_links`, and `unfurl_media`. It copies and validates the message before dispatch and requires a `String` token. `result` and `call` share the same validation boundary. Named `configuration`, `transport`, and `limiter` options can customize dispatch; they are not JSON fields. The wrapper sends through the existing API client and raises `Slack::Api::Error` for API failures. It does not support every `chat.postMessage` field.
 
 ## Build a remote file block
 
@@ -75,27 +75,27 @@ file.to_json
 # {"type":"file","external_id":"plan-2026-q4","source":"remote","block_id":"plan.file"}
 ```
 
-The block always sends `source: "remote"`. The `external_id` must not be empty, and `block_id` is limited to 255 characters. A checked `Message` can contain the block because Slack lists messages as its only surface; `DisplayModal`, `FormModal`, and `Home` reject `Blocks::File` at compile time. This placement does not make `chat.postMessage` or `chat.update` a supported way to share a file. Slack checks that the remote file exists. Received message blocks are not decoded. See the [file block reference](https://docs.slack.dev/reference/block-kit/blocks/file-block/), the [remote file guide](https://docs.slack.dev/messaging/working-with-files/), and the offline [remote-file example](../examples/block_kit_remote_file.cr).
+The block always sends `source: "remote"`. The `external_id` must not be empty, and `block_id` is limited to 255 characters. A `Message` can contain the block because Slack lists messages as its only surface; `DisplayModal`, `FormModal`, and `Home` reject `Blocks::File` at compile time. This placement does not make `chat.postMessage` or `chat.update` a supported way to share a file. Slack checks that the remote file exists. Received message blocks are not decoded. See the [file block reference](https://docs.slack.dev/reference/block-kit/blocks/file-block/), the [remote file guide](https://docs.slack.dev/messaging/working-with-files/), and the offline [remote-file example](../examples/block_kit_remote_file.cr).
 
 `MessageBlock` now contains `Blocks::File`. An exhaustive `case ... in` or overload set over `MessageBlock` must add a `Blocks::File` branch. Before this change, `Blocks::Input` and `DisplayModalBlock` were sufficient.
 
 ## Update a message
 
-Use `CheckedChatUpdate` to replace the blocks and fallback text of an existing message. Pass the channel ID and exact timestamp string returned when posting. For a direct message, use its conversation ID, not a user ID.
+Use `ChatUpdate` to replace the blocks and fallback text of an existing message. Pass the channel ID and exact timestamp string returned when posting. For a direct message, use its conversation ID, not a user ID.
 
 ```crystal
 updated_message = UI.message(fallback_text: "Request 42 approved.") do |builder|
   builder.section(UI.mrkdwn("*Request 42 approved.*"), block_id: "request.approved")
 end
 channel = response.channel || raise "Missing posted channel"
-updated = Slack::Api::CheckedChatUpdate.new(
+updated = Slack::Api::ChatUpdate.new(
   token: ENV["SLACK_BOT_TOKEN"], channel: channel, ts: response.ts,
   message: updated_message, as_user: true
 ).call
 puts updated.text
 ```
 
-The supported request fields are `channel`, `ts`, `text`, `blocks`, and optional `as_user`. The adapter always sends both text and nonempty blocks from an owned checked Message snapshot. It requires explicit fallback text of 1–4000 characters. A Message created with Slack-generated fallback is rejected: text omission on an update does not promise a new accessibility fallback. This is a library policy. Use fresh block IDs for each message version.
+The supported request fields are `channel`, `ts`, `text`, `blocks`, and optional `as_user`. The adapter always sends both text and nonempty blocks from an owned Message snapshot. It requires explicit fallback text of 1–4000 characters. A Message created with Slack-generated fallback is rejected: text omission on an update does not promise a new accessibility fallback. This is a library policy. Use fresh block IDs for each message version.
 
 This is a content replacement operation, not a partial patch builder. It cannot retain old blocks by omission, clear all blocks, or send a text-only update. Attachments and metadata are omitted and retained by Slack. Parsing and name-linking options are omitted and use Slack's update defaults. Thread, broadcast, unfurl, file, and other method options are outside this adapter. Optional `as_user` preserves omission and explicit false; Slack documents `as_user: true` for updating a bot's own message.
 
@@ -105,7 +105,7 @@ The token needs `chat:write`, and only messages owned by the authenticated user 
 
 ## Add an overflow menu
 
-Use `BlockElements::Overflow` in a Section accessory or Actions block on any checked surface. It accepts one to five `CompositionObjects::OverflowOption` values, optional `action_id`, and optional `confirm`. Overflow cannot be an Input element.
+Use `BlockElements::Overflow` in a Section accessory or Actions block on any surface. It accepts one to five `CompositionObjects::OverflowOption` values, optional `action_id`, and optional `confirm`. Overflow cannot be an Input element.
 
 ```crystal
 menu = UI::BlockElements::Overflow.new(action_id: "request.more", options: {
@@ -122,7 +122,7 @@ On receipt, `OverflowAction#selected_option` exposes the selected value and text
 
 ## Add checkboxes
 
-Use `BlockElements::Checkboxes` with one to ten `CompositionObjects::CheckboxOption` values. Section and Actions support checkboxes on all checked surfaces; Input supports Message, FormModal, and Home. Checkbox labels and descriptions accept plain text or Markdown, up to 75 characters. Values allow 150 characters and must be unique. URL options remain exclusive to Overflow.
+Use `BlockElements::Checkboxes` with one to ten `CompositionObjects::CheckboxOption` values. Section and Actions support checkboxes on all surfaces; Input supports Message, FormModal, and Home. Checkbox labels and descriptions accept plain text or Markdown, up to 75 characters. Values allow 150 characters and must be unique. URL options remain exclusive to Overflow.
 
 ```crystal
 digest = UI::CompositionObjects::CheckboxOption.new(
@@ -141,7 +141,7 @@ Existing raw checkbox handlers must move from `UnknownAction` or `UnknownStateVa
 
 ## Add radio buttons
 
-Use `BlockElements::RadioButtons` with one to ten `CompositionObjects::RadioOption` values. Section and Actions support radio buttons on all checked surfaces; Input supports Message, FormModal, and Home. Labels and descriptions accept plain text or Markdown, up to 75 characters. Values allow 150 characters and must be unique. Radio options do not accept URLs.
+Use `BlockElements::RadioButtons` with one to ten `CompositionObjects::RadioOption` values. Section and Actions support radio buttons on all surfaces; Input supports Message, FormModal, and Home. Labels and descriptions accept plain text or Markdown, up to 75 characters. Values allow 150 characters and must be unique. Radio options do not accept URLs.
 
 ```crystal
 digest = UI::CompositionObjects::RadioOption.new(
@@ -158,11 +158,11 @@ control = UI::BlockElements::RadioButtons.new(
 
 Read `RadioButtonsAction#selected_option` or `state_map.radio_buttons_value?(block_id, action_id)`. A selection is a received `SelectedOption`. Both an absent field and explicit null return nil; `selected_option_presence` distinguishes Absent, Null, and Present. A present option can have an empty string value. Unknown fields remain in `raw`, and outbound limits do not apply to received data. Malformed known fields raise `TypeMismatch`. Set `dispatch_action: true` on an Input block to receive selection changes; submissions also include state.
 
-Radio interactions now decode as `RadioButtonsAction` and `RadioButtonsValue` instead of `UnknownAction` and `UnknownStateValue`. Move existing raw radio handlers to these typed branches. Exhaustive matches on `Interactions::Action`, `StateValue`, and the checked placement unions must include the new types. Existing static, overflow, and checkbox option contracts are unchanged.
+Radio interactions now decode as `RadioButtonsAction` and `RadioButtonsValue` instead of `UnknownAction` and `UnknownStateValue`. Move existing raw radio handlers to these typed branches. Exhaustive matches on `Interactions::Action`, `StateValue`, and the placement unions must include the new types. Existing static, overflow, and checkbox option contracts are unchanged.
 
 ## Select an owner and reviewers
 
-Use `BlockElements::UsersSelect` for one user and `MultiUsersSelect` for several users. Both work in Section and Actions on all checked surfaces, and in Input on Message, FormModal, and Home. Slack supplies the users visible to the person using the menu.
+Use `BlockElements::UsersSelect` for one user and `MultiUsersSelect` for several users. Both work in Section and Actions on all surfaces, and in Input on Message, FormModal, and Home. Slack supplies the users visible to the person using the menu.
 
 ```crystal
 owner = UI::BlockElements::UsersSelect.new(
@@ -181,11 +181,11 @@ The library rejects empty initial IDs, repeated initial users, and an initial co
 
 Read `UsersSelectAction#selected_user` (`String?`) and `MultiUsersSelectAction#selected_users` (`Array(String)?`), or use `state_map.users_select_value?` and `state_map.multi_users_select_value?` with block/action IDs. The corresponding `selected_user_presence` and `selected_users_presence` distinguish Absent, Null, and Present. A cleared single selection is null; a cleared multi-selection is a present empty array. A missing state entry returns nil. Received IDs have no outbound validation; malformed known values raise path-aware `TypeMismatch`, including the index of a malformed array item. Complete raw JSON remains available, and selected-array getters return copies. Input blocks can set `dispatch_action: true` for selection changes; submissions also carry state.
 
-User interactions now decode as `UsersSelectAction`/`MultiUsersSelectAction` and `UsersSelectValue`/`MultiUsersSelectValue` instead of unknown types. Move raw user-select handlers to these typed branches and extend exhaustive matches on `Interactions::Action`, `StateValue`, and the checked placement unions. The [offline workflow](../examples/block_kit_users_select.cr) assigns an owner, opens a reviewer form, and verifies signed submission state.
+User interactions now decode as `UsersSelectAction`/`MultiUsersSelectAction` and `UsersSelectValue`/`MultiUsersSelectValue` instead of unknown types. Move raw user-select handlers to these typed branches and extend exhaustive matches on `Interactions::Action`, `StateValue`, and the placement unions. The [offline workflow](../examples/block_kit_users_select.cr) assigns an owner, opens a reviewer form, and verifies signed submission state.
 
 ## Select notification channels
 
-Use `BlockElements::ChannelsSelect` for one public channel and `MultiChannelsSelect` for several. Slack supplies public channels visible to the person using the menu. Both controls work in Section and Actions on all checked surfaces, and in Input on Message, FormModal, and Home.
+Use `BlockElements::ChannelsSelect` for one public channel and `MultiChannelsSelect` for several. Slack supplies public channels visible to the person using the menu. Both controls work in Section and Actions on all surfaces, and in Input on Message, FormModal, and Home.
 
 ```crystal
 notification = UI::BlockElements::ChannelsSelect.new(
@@ -202,15 +202,15 @@ Both support optional `action_id` (255 characters), plain-text `placeholder` (15
 
 Empty initial IDs, repeated initial channels, and an initial count above a supplied maximum are rejected as library policy. There are no ID-prefix, ID-length, static-membership, or remote-existence checks. Conversation filters and default-to-current-conversation fields are not part of these controls. See the [single-channel fields](https://docs.slack.dev/reference/block-kit/block-elements/select-menu-element/#channels_select) and [multi-channel fields](https://docs.slack.dev/reference/block-kit/block-elements/multi-select-menu-element/#channel_multi_select).
 
-Only `ChannelsSelect` accepts `response_url_enabled`. Slack documents it for Input blocks in modals. The checked library rejects any supplied value, including `false`, outside that placement; this field-presence restriction is library policy. Omit the field elsewhere. In modal Input, omitted, `false`, and `true` remain distinct. With `true`, Slack can return `response_urls` on submission; read them from `ViewSubmission#response_urls` (see [Read interaction context](#read-interaction-context)). This adds no response-URL transport or delivery guarantee.
+Only `ChannelsSelect` accepts `response_url_enabled`. Slack documents it for Input blocks in modals. The library rejects any supplied value, including `false`, outside that placement; this field-presence restriction is library policy. Omit the field elsewhere. In modal Input, omitted, `false`, and `true` remain distinct. With `true`, Slack can return `response_urls` on submission; read them from `ViewSubmission#response_urls` (see [Read interaction context](#read-interaction-context)). This adds no response-URL transport or delivery guarantee.
 
 Read `ChannelsSelectAction#selected_channel` (`String?`) and `MultiChannelsSelectAction#selected_channels` (`Array(String)?`), or use `state_map.channels_select_value?` and `state_map.multi_channels_select_value?`. Their `selected_channel_presence` and `selected_channels_presence` distinguish Absent, Null, and Present. A cleared single selection is null; a cleared multi-selection is a present empty array. Missing state entries return nil. Received IDs have no outbound limits; malformed known fields raise path-aware `TypeMismatch`. Raw unknown fields are retained, and selected-array getters return copies. Input can set `dispatch_action: true` for selection changes.
 
-Channel interactions now decode as `ChannelsSelectAction`/`MultiChannelsSelectAction` and `ChannelsSelectValue`/`MultiChannelsSelectValue` instead of unknown types. Move raw channel handlers to these typed branches and extend exhaustive matches on `Interactions::Action`, `StateValue`, and checked placement unions. The [offline workflow](../examples/block_kit_channels_select.cr) selects a notification channel, opens a destination form, and reads signed submission state.
+Channel interactions now decode as `ChannelsSelectAction`/`MultiChannelsSelectAction` and `ChannelsSelectValue`/`MultiChannelsSelectValue` instead of unknown types. Move raw channel handlers to these typed branches and extend exhaustive matches on `Interactions::Action`, `StateValue`, and placement unions. The [offline workflow](../examples/block_kit_channels_select.cr) selects a notification channel, opens a destination form, and reads signed submission state.
 
 ## Select conversations
 
-Use `BlockElements::ConversationsSelect` for one conversation and `MultiConversationsSelect` for several. Slack supplies public and private channels, direct messages, and group direct messages visible to the user. Both controls work in Section and Actions on all checked surfaces, and in Input on Message, FormModal, and Home.
+Use `BlockElements::ConversationsSelect` for one conversation and `MultiConversationsSelect` for several. Slack supplies public and private channels, direct messages, and group direct messages visible to the user. Both controls work in Section and Actions on all surfaces, and in Input on Message, FormModal, and Home.
 
 ```crystal
 filter = UI::CompositionObjects::ConversationFilter.new(
@@ -242,7 +242,7 @@ These controls decode as `ConversationsSelectAction`/`MultiConversationsSelectAc
 
 ## Choose a date and time
 
-Use separate `BlockElements::DatePicker` and `TimePicker` controls in Section or Actions on all checked surfaces, or in Input on Message, FormModal, and Home. These are calendar and clock choices; they do not represent an instant or create a scheduled job.
+Use separate `BlockElements::DatePicker` and `TimePicker` controls in Section or Actions on all surfaces, or in Input on Message, FormModal, and Home. These are calendar and clock choices; they do not represent an instant or create a scheduled job.
 
 ```crystal
 date = UI::BlockElements::DatePicker.new(
@@ -285,12 +285,12 @@ Datetime picker interactions now decode as `DatetimePickerAction` and `DatetimeP
 A Video block shows an embedded player in a message, modal, or Home tab. It needs `alt_text`, a plain-text `title`, `thumbnail_url`, and `video_url`. Slack prefers `title_url` and `description`.
 
 ```crystal
-message = Slack::UI::Checked.message(fallback_text: "Release 4.2 walkthrough video") do |builder|
+message = Slack::UI.message(fallback_text: "Release 4.2 walkthrough video") do |builder|
   builder.video(
     alt_text: "Release 4.2 walkthrough",
-    title: Slack::UI::Checked.plain("Release 4.2 walkthrough"),
+    title: Slack::UI.plain("Release 4.2 walkthrough"),
     title_url: "https://videos.example.test/watch/release-4-2",
-    description: Slack::UI::Checked.plain("Five minutes on what changed."),
+    description: Slack::UI.plain("Five minutes on what changed."),
     thumbnail_url: "https://videos.example.test/thumbs/release-4-2.jpg",
     video_url: "https://videos.example.test/embed/release-4-2",
     provider_name: "Example Video")
@@ -301,7 +301,7 @@ Local checks: title and description text fewer than 200 characters, `author_name
 
 ## Load options from your app
 
-Use `BlockElements::ExternalSelect` for one choice and `MultiExternalSelect` for several. Slack gets the options from your app. Both controls work in Section and Actions on all checked surfaces, and in Input on Message, FormModal, and Home.
+Use `BlockElements::ExternalSelect` for one choice and `MultiExternalSelect` for several. Slack gets the options from your app. Both controls work in Section and Actions on all surfaces, and in Input on Message, FormModal, and Home.
 
 Before you use them, set the **Options Load URL** under **Interactivity & Shortcuts** in the app settings. Slack sends a signed `block_suggestion` request to that URL when the menu opens and when the user types. `min_query_length` sets the minimum number of typed characters before Slack sends a request. Slack uses 3 if you omit it.
 
@@ -341,7 +341,7 @@ Read `ExternalSelectAction#selected_option` (`SelectedOption?`) and `MultiExtern
 
 ## Show rich text
 
-Use `Blocks::RichText` for formatted display text. Build it from the `Slack::UI::Checked::RichText` types. The block holds containers, and the containers hold inline elements. The types enforce the parent rules that Slack documents:
+Use `Blocks::RichText` for formatted display text. Build it from the `Slack::UI::RichText` types. The block holds containers, and the containers hold inline elements. The types enforce the parent rules that Slack documents:
 
 | Container | Children |
 | --- | --- |
@@ -350,7 +350,7 @@ Use `Blocks::RichText` for formatted display text. Build it from the `Slack::UI:
 | `RichText::List` | `RichText::Section` only |
 
 ```crystal
-alias RT = Slack::UI::Checked::RichText
+alias RT = Slack::UI::RichText
 message = UI.message(fallback_text: "Release 2.0 is live") do |builder|
   builder.rich_text(block_id: "notes", elements: [
     RT::Section.new(elements: [
@@ -406,7 +406,7 @@ Received `team`, `file`, `canvas`, and `workflow_mention` nodes decode as `RichT
 Use `Blocks::Table` to show rows of cells in a message or on Home. A cell is a `Table::RawText`, a `Table::RawNumber`, or a `Blocks::RichText` for mentions, links, and styles. `RawNumber` sends the number as `value` and shows `text`. Use a `Table::ColumnSetting` to set `align` and `is_wrapped` for a column. Use `nil` to keep the defaults for a column (Slack receives `null`).
 
 ```crystal
-alias RT = Slack::UI::Checked::RichText
+alias RT = Slack::UI::RichText
 owner = UI::Blocks::RichText.new(elements: {RT::Section.new(elements: {RT::User.new("U123")})})
 message = UI.message(fallback_text: "Q3 revenue by region") do |builder|
   builder.table(block_id: "q3.revenue", rows: [
@@ -499,7 +499,7 @@ Slack shows alert blocks only in modals. `Message` and `Home` reject `Blocks::Al
 Use `Blocks::DataTable` to show a table that Slack can page and sort, in a message or on Home. Give a `caption`, a `header`, and data `rows`. Slack receives the header as the first row. A header cell is a `Table::RawText` or a `Table::RawNumber`; the compiler rejects a `Blocks::RichText` header cell. A data cell can also be a `Blocks::RichText`.
 
 ```crystal
-alias RT = Slack::UI::Checked::RichText
+alias RT = Slack::UI::RichText
 assignee = UI::Blocks::RichText.new(elements: {RT::Section.new(elements: {RT::User.new("U123")})})
 message = UI.message(fallback_text: "Open support tickets") do |builder|
   builder.data_table(caption: "Open support tickets", page_size: 10,
@@ -524,7 +524,7 @@ Use `Blocks::DataVisualization` to show a pie, bar, area, or line chart in a mes
 - `BarChart`, `AreaChart`, and `LineChart` have `DataSeries` values and one `AxisConfig`. The categories in `AxisConfig` set the x-axis order. Each series must have exactly one `DataPoint` for each category, in any order.
 
 ```crystal
-alias DV = Slack::UI::Checked::DataVisualization
+alias DV = Slack::UI::DataVisualization
 message = UI.message(fallback_text: "Weekly report") do |builder|
   builder.data_visualization("Deploys by service", DV::PieChart.new({DV::Segment.new("api", 14), DV::Segment.new("web", 9)}))
   builder.data_visualization("p95 latency", block_id: "latency", chart: DV::LineChart.new(
@@ -715,7 +715,7 @@ home = UI.home do |builder|
 end
 ```
 
-Slack requires `action_id` (255 characters) for this element. As library policy, it must not be empty. `initial_value` is a checked `Blocks::RichText`; see [Show rich text](#show-rich-text). Other optional fields are `dispatch_action_config`, `focus_on_load`, a plain-text `placeholder` (150 characters), `min_lines`, and `max_lines`. Each line count must be from 1 to 100. Slack documents no rule between the two counts, so the library does not compare them. Slack also lists the Table block as a parent; the library does not support that placement.
+Slack requires `action_id` (255 characters) for this element. As library policy, it must not be empty. `initial_value` is a `Blocks::RichText`; see [Show rich text](#show-rich-text). Other optional fields are `dispatch_action_config`, `focus_on_load`, a plain-text `placeholder` (150 characters), `min_lines`, and `max_lines`. Each line count must be from 1 to 100. Slack documents no rule between the two counts, so the library does not compare them. Slack also lists the Table block as a parent; the library does not support that placement.
 
 Read `state_map.rich_text_input_value?(block_id, action_id)` in a submission or a Home action. With `dispatch_action_config` and `dispatch_action: true` on the block, Slack sends a `RichTextInputAction`. Both expose `rich_text_value : Slack::Interactions::RichText::Block?` and `value_presence` (Absent, Null, or Present). The received tree uses the parser from [Show rich text](#show-rich-text), without outbound rules. A malformed tree or a wrong JSON type raises `TypeMismatch` with the JSON path, and `raw` keeps the complete JSON.
 
@@ -766,36 +766,36 @@ Slack does not document a `block_actions` payload for a workflow button click. I
 Use `form_modal` for input and `display_modal` for display content. Both have a plain-text title; a form has a required plain-text submit label. A modal can have at most 100 blocks. For a form:
 
 ```crystal
-alias UI = Slack::UI::Checked
+alias UI = Slack::UI
 view = UI.form_modal(title: UI.plain("Request reason"), submit: UI.plain("Save")) do |builder|
   builder.input(label: UI.plain("Reason"), block_id: "reason", optional: true,
     element: UI::BlockElements::PlainTextInput.new(action_id: "text", multiline: true))
 end
 
-opened = Slack::Api::CheckedViewsOpen.new(
+opened = Slack::Api::ViewsOpen.new(
   token: ENV["SLACK_BOT_TOKEN"], trigger_id: trigger_id, view: view
 ).call
 ```
 
-The checked open request needs a trigger ID from the interaction and places `external_id` inside the view. A Home view has no title or submit. Its builder accepts the same display blocks and Input. An empty Home is valid; the local maximum is 100 blocks. Publishing needs a user ID. An optional `hash` helps avoid overwriting a newer Home; Slack validates the remote hash and external ID uniqueness.
+The open request needs a trigger ID from the interaction and places `external_id` inside the view. A Home view has no title or submit. Its builder accepts the same display blocks and Input. An empty Home is valid; the local maximum is 100 blocks. Publishing needs a user ID. An optional `hash` helps avoid overwriting a newer Home; Slack validates the remote hash and external ID uniqueness.
 
 ```crystal
-alias UI = Slack::UI::Checked
+alias UI = Slack::UI
 home = UI.home(callback_id: "projects") do |builder|
   builder.header(text: UI.plain("Your projects"), level: 1)
   builder.context(elements: {UI.mrkdwn("*Project 42*"), UI.plain("Ready for review")})
 end
 
-published = Slack::Api::CheckedViewsPublish.new(
+published = Slack::Api::ViewsPublish.new(
   token: ENV["SLACK_BOT_TOKEN"], user_id: user_id, view: home
 ).call
 ```
 
-Enable the Home tab and install the app with the permissions required for publishing. The checked publish response exposes the returned view as raw JSON. Slack remains responsible for server access checks and rendering.
+Enable the Home tab and install the app with the permissions required for publishing. The publish response exposes the returned view as raw JSON. Slack remains responsible for server access checks and rendering.
 
 ## Update a modal
 
-Use `CheckedViewsUpdate` with a checked `FormModal` or `DisplayModal` to replace an existing modal view. The supported request fields are `view`, `view_id`, `external_id`, and optional `hash`. Home updates use `CheckedViewsPublish`; the [modal reference](https://docs.slack.dev/reference/views/modal-views/) lists `views.update`, while the [Home reference](https://docs.slack.dev/reference/views/home-tab-views/) lists `views.publish`.
+Use `ViewsUpdate` with a `FormModal` or `DisplayModal` to replace an existing modal view. The supported request fields are `view`, `view_id`, `external_id`, and optional `hash`. Home updates use `ViewsPublish`; the [modal reference](https://docs.slack.dev/reference/views/modal-views/) lists `views.update`, while the [Home reference](https://docs.slack.dev/reference/views/home-tab-views/) lists `views.publish`.
 
 ```crystal
 updated_view = UI.form_modal(title: UI.plain("Request reason"), submit: UI.plain("Save")) do |builder|
@@ -803,7 +803,7 @@ updated_view = UI.form_modal(title: UI.plain("Request reason"), submit: UI.plain
   builder.input(label: UI.plain("Reason"), block_id: "reason", optional: true,
     element: UI::BlockElements::PlainTextInput.new(action_id: "text", multiline: true))
 end
-updated = Slack::Api::CheckedViewsUpdate.new(
+updated = Slack::Api::ViewsUpdate.new(
   token: ENV["SLACK_BOT_TOKEN"], view_id: opened.view["id"].as_s,
   hash: opened.view["hash"].as_s, view: updated_view
 ).call
@@ -815,11 +815,11 @@ Supply exactly one nonblank target: `view_id:` from Slack or the developer's `ex
 
 Keep each retained input's `block_id` and `action_id` identical to the old view so Slack can preserve entered values. The adapter does not have the old view and cannot validate those matches or migrate state. The [offline open/update workflow](../examples/block_kit_view_update.cr) checks transmitted IDs, not live state preservation. Slack's [modal update guide](https://docs.slack.dev/surfaces/modals/#updating-modal-views) explains input state and hash conflicts.
 
-The constructor owns a view snapshot. JSON serialization, `result`, and `call` validate local values before transport. `result` caches the HTTP response; `call` parses it as `Slack::Models::ViewsUpdate`, exposing `ok?` and raw `view` JSON, including returned IDs, hash, state, and unknown fields. The required String token and named `configuration`, `transport`, and `limiter` options use the existing dispatch path and are not JSON fields. Existing modal placement and submit rules apply. Pushing uses `CheckedViewsPush`; typed error acknowledgments use `ModalErrors`.
+The constructor owns a view snapshot. JSON serialization, `result`, and `call` validate local values before transport. `result` caches the HTTP response; `call` parses it as `Slack::Models::ViewsUpdate`, exposing `ok?` and raw `view` JSON, including returned IDs, hash, state, and unknown fields. The required String token and named `configuration`, `transport`, and `limiter` options use the existing dispatch path and are not JSON fields. Existing modal placement and submit rules apply. Pushing uses `ViewsPush`; typed error acknowledgments use `ModalErrors`.
 
 ## Push the next modal view
 
-Use `CheckedViewsPush` with a checked `FormModal` or `DisplayModal` and a fresh `trigger_id` from an interaction **inside the existing modal**. The supported JSON fields are exactly `trigger_id` and `view`; `external_id`, callback ID, private metadata, and modal flags stay inside `view`. There is no top-level view selector or hash. The alternate `interactivity_pointer` mechanism is unsupported.
+Use `ViewsPush` with a `FormModal` or `DisplayModal` and a fresh `trigger_id` from an interaction **inside the existing modal**. The supported JSON fields are exactly `trigger_id` and `view`; `external_id`, callback ID, private metadata, and modal flags stay inside `view`. There is no top-level view selector or hash. The alternate `interactivity_pointer` mechanism is unsupported.
 
 ```crystal
 # interaction is a BlockAction received through Slack.process_interaction.
@@ -829,7 +829,7 @@ next_view = UI.form_modal(title: UI.plain("Details"), submit: UI.plain("Save"),
   builder.input(label: UI.plain("Reason"), block_id: "reason",
     element: UI::BlockElements::PlainTextInput.new(action_id: "text"))
 end
-pushed = Slack::Api::CheckedViewsPush.new(
+pushed = Slack::Api::ViewsPush.new(
   token: ENV["SLACK_BOT_TOKEN"], trigger_id: trigger, view: next_view
 ).call
 ```
@@ -867,7 +867,7 @@ end
 
 The route must configure the signing secret and handle other callbacks, interaction types, and verification failures. Return the acknowledgment within Slack's three-second window. An empty HTTP 200 acknowledgment closes the submitted view. The library does not send the acknowledgment or enforce its deadline.
 
-`ModalErrors` copies the supplied map; `errors` returns a copy. Construction rejects an empty map or blank messages with `Slack::UI::Checked::ValidationError`. These are library policies so the response contains useful feedback. `validate` and `validate!` use the existing checked validation conventions. No message length or block-ID format restriction is added. The application owns business rules and must ensure each key identifies an Input block in the submitted view; no original modal is required or checked.
+`ModalErrors` copies the supplied map; `errors` returns a copy. Construction rejects an empty map or blank messages with `Slack::UI::ValidationError`. These are library policies so the response contains useful feedback. `validate` and `validate!` use the existing validation conventions. No message length or block-ID format restriction is added. The application owns business rules and must ensure each key identifies an Input block in the submitted view; no original modal is required or checked.
 
 This outbound value needs no token and makes no API request. It is separate from `views.update` and API failure responses. The [offline example](../examples/block_kit_modal_errors.cr) verifies signed invalid and corrected submissions and prepares their HTTP responses. Ordinary consumer specs check the complete error body and JSON content type; they do not prove live rendering or handler timing.
 
@@ -888,7 +888,7 @@ The application must send the response within three seconds. `clear` closes **al
 
 ## Push a view in a submission acknowledgment
 
-Use `Slack::Interactions::ModalPush.new(view: next_view)` after verifying and routing a `view_submission`. It accepts a checked `FormModal` or `DisplayModal` and serializes `response_action: "push"` with the new `view`. Return that JSON as the HTTP 200 acknowledgment within three seconds. See [Slack's push acknowledgment guidance](https://docs.slack.dev/surfaces/modals/#add-a-new-view-via-response_action).
+Use `Slack::Interactions::ModalPush.new(view: next_view)` after verifying and routing a `view_submission`. It accepts a `FormModal` or `DisplayModal` and serializes `response_action: "push"` with the new `view`. Return that JSON as the HTTP 200 acknowledgment within three seconds. See [Slack's push acknowledgment guidance](https://docs.slack.dev/surfaces/modals/#add-a-new-view-via-response_action).
 
 ```crystal
 # In the handler for a verified and routed view_submission:
@@ -903,15 +903,15 @@ context.response.content_type = "application/json"
 context.response.print(acknowledgment.to_json)
 ```
 
-`ModalPush` owns a modal snapshot; `view` returns a snapshot. Existing placement, submit, focus, and validation rules apply. `validate` and `validate!` use the checked validation conventions. Callback ID, private metadata, `external_id`, and flags stay inside `view`; Slack checks external-ID uniqueness. `submit_disabled` remains specific to configuration modals.
+`ModalPush` owns a modal snapshot; `view` returns a snapshot. Existing placement, submit, focus, and validation rules apply. `validate` and `validate!` use the validation conventions. Callback ID, private metadata, `external_id`, and flags stay inside `view`; Slack checks external-ID uniqueness. `submit_disabled` remains specific to configuration modals.
 
-The application owns HTTP delivery and timing. This value needs no token or trigger and makes no Web API call. Slack owns the stack and permits at most three views; the library does not track stack depth, retry, or enforce the deadline. For a button interaction inside a modal, use the separate `CheckedViewsPush` API adapter described above.
+The application owns HTTP delivery and timing. This value needs no token or trigger and makes no Web API call. Slack owns the stack and permits at most three views; the library does not track stack depth, retry, or enforce the deadline. For a button interaction inside a modal, use the separate `ViewsPush` API adapter described above.
 
 The [offline submission-push example](../examples/block_kit_modal_push.cr) verifies an independently authored signed submission, reads its reason and metadata, and returns the next form as HTTP 200 JSON. Its consumer spec checks the complete acknowledgment body. Offline checks do not prove live stack state, Slack acceptance, rendering, or response timing.
 
 ## Update a modal in its submission acknowledgment
 
-Use `Slack::Interactions::ModalUpdate` to replace the currently visible submitted view. Pass an existing checked `FormModal` or `DisplayModal`; the acknowledgment owns a snapshot and `view` returns a snapshot. Existing modal validation, placement, and submit rules apply. `validate` and `validate!` use the checked validation conventions.
+Use `Slack::Interactions::ModalUpdate` to replace the currently visible submitted view. Pass an existing `FormModal` or `DisplayModal`; the acknowledgment owns a snapshot and `view` returns a snapshot. Existing modal validation, placement, and submit rules apply. `validate` and `validate!` use the validation conventions.
 
 ```crystal
 updated_view = UI.form_modal(title: UI.plain("Review request"), submit: UI.plain("Save"),
@@ -929,7 +929,7 @@ context.response.content_type = "application/json"
 context.response.print(acknowledgment.to_json)
 ```
 
-The JSON contains only `response_action: "update"` and `view`. Modal metadata, including `external_id`, stays inside `view`. This acknowledgment needs no token, target selector, trigger, or hash and performs no API call. `CheckedViewsUpdate` is the separate Web API operation for updating a selected view.
+The JSON contains only `response_action: "update"` and `view`. Modal metadata, including `external_id`, stays inside `view`. This acknowledgment needs no token, target selector, trigger, or hash and performs no API call. `ViewsUpdate` is the separate Web API operation for updating a selected view.
 
 Verify the original signed request with `Slack.process_interaction`, route the expected `ViewSubmission` callback, and return HTTP 200 JSON within three seconds. The application owns response delivery, timing, and handling later submissions. Keep retained input `block_id` and `action_id` values stable. No previous modal is required, so the library cannot check ID matches or preserve remote input state itself. See [Slack's update acknowledgment guidance](https://docs.slack.dev/surfaces/modals/#update-a-view-via-response_action) and [modal fields](https://docs.slack.dev/reference/views/modal-views/).
 
@@ -991,17 +991,17 @@ Constructors check supported local values, and the complete surface checks place
 
 ```crystal
 begin
-  Slack::UI::Checked::Blocks::Divider.new(block_id: "x" * 256)
-rescue error : Slack::UI::Checked::ValidationError
+  Slack::UI::Blocks::Divider.new(block_id: "x" * 256)
+rescue error : Slack::UI::ValidationError
   puts error.issues.first.path # block_id
 end
 ```
 
 Text and field lengths count characters. Common limits: top-level Message 50 blocks, modal/Home 100 blocks, Actions 25 elements, Context 10 elements, a Section 10 fields, block/action IDs 255 characters, Header text 150, and modal title/submit/close labels 24. PlainTextInput supports `min_length`, `max_length`, multiline, and dispatch settings. View surfaces permit only one `focus_on_load: true` element across Section, Actions, and Input, including those in a Container. These checks do not prove Slack will accept a remote payload or image.
 
-Checked constructors and builders accept arrays, tuples, and custom enumerables according to the **types actually yielded by `each`**. A broad declared `Enumerable(T?)` is allowed if its `each` yields only supported `T` values. Unsupported yielded values cause a compile error; constructors do no runtime filtering. Inputs are traversed once and copied into owned typed arrays. Getters return snapshots, so changing a caller array, a getter result, or a builder cannot mutate an already built surface or endpoint request.
+Constructors and builders accept arrays, tuples, and custom enumerables according to the **types actually yielded by `each`**. A broad declared `Enumerable(T?)` is allowed if its `each` yields only supported `T` values. Unsupported yielded values cause a compile error; constructors do no runtime filtering. Inputs are traversed once and copied into owned typed arrays. Getters return snapshots, so changing a caller array, a getter result, or a builder cannot mutate an already built surface or endpoint request.
 
-Use a collection typed for the destination surface. An ordinary `Array(Slack::UI::Checked::MessageBlock)` has an item union that includes Input, File, Table, DataVisualization, Carousel, Container, Markdown, and ContextActions; it cannot be passed to `DisplayModal` even if its present elements happen to be display blocks. Use `Array(Slack::UI::Checked::DisplayModalBlock)` for that surface. An `Array(Slack::UI::Checked::DisplayModalBlock)` includes Alert, so it cannot be passed to `Message` or `Home`.
+Use a collection typed for the destination surface. An ordinary `Array(Slack::UI::MessageBlock)` has an item union that includes Input, File, Table, DataVisualization, Carousel, Container, Markdown, and ContextActions; it cannot be passed to `DisplayModal` even if its present elements happen to be display blocks. Use `Array(Slack::UI::DisplayModalBlock)` for that surface. An `Array(Slack::UI::DisplayModalBlock)` includes Alert, so it cannot be passed to `Message` or `Home`.
 
 ## Offline examples
 

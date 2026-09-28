@@ -1,4 +1,4 @@
-struct Slack::UI::Checked::BlockElements::Button
+struct Slack::UI::BlockElements::Button
   TEXT_MAX_LENGTH                =   75
   ACTION_ID_MAX_LENGTH           =  255
   URL_MAX_LENGTH                 = 3000
@@ -6,22 +6,22 @@ struct Slack::UI::Checked::BlockElements::Button
   ACCESSIBILITY_LABEL_MAX_LENGTH =   75
   AGENT_PROMPT_MAX_LENGTH        = 4000
 
-  getter text : Slack::UI::Checked::CompositionObjects::PlainText
+  getter text : Slack::UI::CompositionObjects::PlainText
   getter action_id : String?
   getter url : String?
   getter value : String?
   getter style : ButtonStyle?
-  getter confirm : Slack::UI::Checked::CompositionObjects::Confirmation?
+  getter confirm : Slack::UI::CompositionObjects::Confirmation?
   getter accessibility_label : String?
   getter agent_prompt : String?
 
   def initialize(
-    @text : Slack::UI::Checked::CompositionObjects::PlainText,
+    @text : Slack::UI::CompositionObjects::PlainText,
     @action_id : String? = nil,
     @url : String? = nil,
     @value : String? = nil,
     @style : ButtonStyle? = nil,
-    @confirm : Slack::UI::Checked::CompositionObjects::Confirmation? = nil,
+    @confirm : Slack::UI::CompositionObjects::Confirmation? = nil,
     @accessibility_label : String? = nil,
     @agent_prompt : String? = nil,
   )
@@ -32,7 +32,7 @@ struct Slack::UI::Checked::BlockElements::Button
     "button"
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
+  def validate : Array(Slack::UI::ValidationIssue)
     issues = @text.validate.map(&.at("text"))
     append_length_issue(issues, @text.text, TEXT_MAX_LENGTH, "button.text.too_long", "text.text")
     append_optional_length_issue(issues, @action_id, ACTION_ID_MAX_LENGTH, "button.action_id.too_long", "action_id")
@@ -50,7 +50,7 @@ struct Slack::UI::Checked::BlockElements::Button
       confirmation.validate.each { |issue| issues << issue.at("confirm") }
     end
     if (style = @style) && !ButtonStyle.valid?(style)
-      issues << Slack::UI::Checked::ValidationIssue.new(
+      issues << Slack::UI::ValidationIssue.new(
         code: "button.style.invalid",
         path: "style",
         message: "Style must be primary or danger."
@@ -61,7 +61,7 @@ struct Slack::UI::Checked::BlockElements::Button
 
   def validate! : Nil
     issues = validate
-    raise Slack::UI::Checked::ValidationError.new(issues) unless issues.empty?
+    raise Slack::UI::ValidationError.new(issues) unless issues.empty?
   end
 
   def to_json(json : JSON::Builder) : Nil
@@ -80,7 +80,7 @@ struct Slack::UI::Checked::BlockElements::Button
   end
 
   private def append_optional_length_issue(
-    issues : Array(Slack::UI::Checked::ValidationIssue),
+    issues : Array(Slack::UI::ValidationIssue),
     value : String?,
     maximum : Int32,
     code : String,
@@ -92,7 +92,7 @@ struct Slack::UI::Checked::BlockElements::Button
   end
 
   private def append_length_issue(
-    issues : Array(Slack::UI::Checked::ValidationIssue),
+    issues : Array(Slack::UI::ValidationIssue),
     value : String,
     maximum : Int32,
     code : String,
@@ -100,7 +100,7 @@ struct Slack::UI::Checked::BlockElements::Button
   ) : Nil
     return unless value.size > maximum
 
-    issues << Slack::UI::Checked::ValidationIssue.new(
+    issues << Slack::UI::ValidationIssue.new(
       code: code,
       path: path,
       message: "Value cannot be longer than #{maximum} characters."

@@ -1,5 +1,5 @@
 module HomeFixture
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   def self.builder : UI::HomeBuilder
     builder = UI::HomeBuilder.new(private_metadata: "", callback_id: "dashboard", external_id: "dashboard-U123")

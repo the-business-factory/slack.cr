@@ -5,7 +5,7 @@ require "./webmock_transport"
 # Opens a deploy status modal with one alert for each check result. Slack shows
 # alert blocks in modals only; messages and Home tabs reject them at compile time.
 module OfflineAlertExample
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   record Check, name : String, passed : Bool
 
@@ -27,7 +27,7 @@ module OfflineAlertExample
       end
       builder.section(UI.plain("Fix the failed checks, then deploy again."))
     end
-    Slack::Api::CheckedViewsOpen.new(token: "xoxb-synthetic-alert", trigger_id: "synthetic-trigger",
+    Slack::Api::ViewsOpen.new(token: "xoxb-synthetic-alert", trigger_id: "synthetic-trigger",
       view: modal, transport: OfflineExample::WebMockTransport.new).call
     output.puts "Opened deploy status with #{CHECKS.size} alerts"
 

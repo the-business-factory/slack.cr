@@ -1,6 +1,6 @@
 require "../../../../src/slack/ui"
 
-alias UI = Slack::UI::Checked
+alias UI = Slack::UI
 
 label = UI.plain("Input")
 input = UI::Blocks::Input.new(label: label, element: UI::BlockElements::PlainTextInput.new)

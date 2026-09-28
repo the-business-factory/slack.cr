@@ -3,7 +3,7 @@ require "webmock"
 require "./webmock_transport"
 
 module OfflineConversationsSelectExample
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   def self.receive(payload : String) : Slack::Interaction
     body = URI::Params.encode({"payload" => payload})
@@ -23,7 +23,7 @@ module OfflineConversationsSelectExample
         accessory: UI::BlockElements::ConversationsSelect.new(action_id: "notification", initial_conversation: "D-NOTIFY",
           filter: UI::CompositionObjects::ConversationFilter.new(include: {"public", "private", "im"}, exclude_bot_users: true)))
     end
-    Slack::Api::CheckedChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC",
+    Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC",
       message: message, transport: OfflineExample::WebMockTransport.new).call
 
     # Independently authored Slack payloads, not derived from outbound values.
@@ -45,7 +45,7 @@ module OfflineConversationsSelectExample
               default_to_current_conversation: false,
               filter: UI::CompositionObjects::ConversationFilter.new(exclude_external_shared_channels: true)))
         end
-        Slack::Api::CheckedViewsOpen.new(token: "xoxb-synthetic", trigger_id: trigger,
+        Slack::Api::ViewsOpen.new(token: "xoxb-synthetic", trigger_id: trigger,
           view: view, transport: OfflineExample::WebMockTransport.new).call
       else
         raise "Expected notification selection"

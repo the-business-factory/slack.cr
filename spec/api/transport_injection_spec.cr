@@ -31,45 +31,45 @@ end
 
 describe "API transport injection" do
   {"chat.postMessage", "chat.update", "views.open", "views.publish", "views.update", "views.push"}.each do |method_path|
-    it "preserves checked #{method_path} envelopes with injected dispatch settings" do
+    it "preserves #{method_path} envelopes with injected dispatch settings" do
       transport = AuthSupport::RecordingTransport.new
       transport.enqueue(Slack::Auth::TransportResponse.new(200, HTTP::Headers.new, %({"ok":true})))
       limiter = OrderingLimiter.new
       configuration = Slack::Auth::APIConfiguration.new(URI.parse("https://api.example.test/custom/"))
       request = if method_path == "chat.postMessage"
-                  message = Slack::UI::Checked.message(fallback_text: "Details", &.divider)
-                  Slack::Api::CheckedChatPostMessage.new(
-                    token: "synthetic-checked-dispatch", channel: "C123", message: message,
+                  message = Slack::UI.message(fallback_text: "Details", &.divider)
+                  Slack::Api::ChatPostMessage.new(
+                    token: "synthetic-request-dispatch", channel: "C123", message: message,
                     configuration: configuration, transport: transport, limiter: limiter
                   )
                 elsif method_path == "chat.update"
-                  message = Slack::UI::Checked.message(fallback_text: "Details", &.divider)
-                  Slack::Api::CheckedChatUpdate.new(
-                    token: "synthetic-checked-dispatch", channel: "C123", ts: "1.1", message: message,
+                  message = Slack::UI.message(fallback_text: "Details", &.divider)
+                  Slack::Api::ChatUpdate.new(
+                    token: "synthetic-request-dispatch", channel: "C123", ts: "1.1", message: message,
                     configuration: configuration, transport: transport, limiter: limiter
                   )
                 elsif method_path == "views.open"
-                  view = Slack::UI::Checked.display_modal(title: Slack::UI::Checked.plain("Details")) { |builder| builder.divider }
-                  Slack::Api::CheckedViewsOpen.new(
-                    token: "synthetic-checked-dispatch", trigger_id: "trigger", view: view,
+                  view = Slack::UI.display_modal(title: Slack::UI.plain("Details")) { |builder| builder.divider }
+                  Slack::Api::ViewsOpen.new(
+                    token: "synthetic-request-dispatch", trigger_id: "trigger", view: view,
                     configuration: configuration, transport: transport, limiter: limiter
                   )
                 elsif method_path == "views.push"
-                  view = Slack::UI::Checked.display_modal(title: Slack::UI::Checked.plain("Details"), &.divider)
-                  Slack::Api::CheckedViewsPush.new(
-                    token: "synthetic-checked-dispatch", trigger_id: "trigger", view: view,
+                  view = Slack::UI.display_modal(title: Slack::UI.plain("Details"), &.divider)
+                  Slack::Api::ViewsPush.new(
+                    token: "synthetic-request-dispatch", trigger_id: "trigger", view: view,
                     configuration: configuration, transport: transport, limiter: limiter
                   )
                 elsif method_path == "views.update"
-                  view = Slack::UI::Checked.display_modal(title: Slack::UI::Checked.plain("Details"), &.divider)
-                  Slack::Api::CheckedViewsUpdate.new(
-                    token: "synthetic-checked-dispatch", view_id: "V123", view: view,
+                  view = Slack::UI.display_modal(title: Slack::UI.plain("Details"), &.divider)
+                  Slack::Api::ViewsUpdate.new(
+                    token: "synthetic-request-dispatch", view_id: "V123", view: view,
                     configuration: configuration, transport: transport, limiter: limiter
                   )
                 else
-                  view = Slack::UI::Checked.home(&.divider)
-                  Slack::Api::CheckedViewsPublish.new(
-                    token: "synthetic-checked-dispatch", user_id: "U123", view: view,
+                  view = Slack::UI.home(&.divider)
+                  Slack::Api::ViewsPublish.new(
+                    token: "synthetic-request-dispatch", user_id: "U123", view: view,
                     configuration: configuration, transport: transport, limiter: limiter
                   )
                 end
@@ -81,21 +81,21 @@ describe "API transport injection" do
       transport.requests.size.should eq 1
       recorded = transport.requests.first
       recorded.uri.to_s.should eq "https://api.example.test/custom/#{method_path}"
-      recorded.headers["Authorization"].should eq "Bearer synthetic-checked-dispatch"
-      JSON.parse(recorded.body || fail("Expected checked envelope")).should eq expected_body
+      recorded.headers["Authorization"].should eq "Bearer synthetic-request-dispatch"
+      JSON.parse(recorded.body || fail("Expected request envelope")).should eq expected_body
     end
   end
 
-  it "keeps a separate default limiter for each checked Slack method" do
-    token = "synthetic-checked-limiter"
+  it "keeps a separate default limiter for each Slack method" do
+    token = "synthetic-request-limiter"
     transport = AuthSupport::RecordingTransport.new
     2.times { transport.enqueue(Slack::Auth::TransportResponse.new(200, HTTP::Headers.new, %({"ok":true}))) }
-    message = Slack::UI::Checked.message(fallback_text: "Details", &.divider)
-    view = Slack::UI::Checked.display_modal(title: Slack::UI::Checked.plain("Details"), &.divider)
+    message = Slack::UI.message(fallback_text: "Details", &.divider)
+    view = Slack::UI.display_modal(title: Slack::UI.plain("Details"), &.divider)
 
     begin
-      Slack::Api::CheckedChatPostMessage.new(token: token, channel: "C123", message: message, transport: transport).result
-      Slack::Api::CheckedViewsOpen.new(token: token, trigger_id: "trigger", view: view, transport: transport).result
+      Slack::Api::ChatPostMessage.new(token: token, channel: "C123", message: message, transport: transport).result
+      Slack::Api::ViewsOpen.new(token: token, trigger_id: "trigger", view: view, transport: transport).result
 
       limiters = Slack::ApiClient.limiters.select { |key, _limiter| key.starts_with?("#{token}:") }
       limiters.size.should eq 2
@@ -140,17 +140,17 @@ describe "API transport injection" do
     transport.executed_after_limit?.should be_true
   end
 
-  it "sends the checked views.open envelope through injected transport and configuration" do
+  it "sends the views.open envelope through injected transport and configuration" do
     transport = AuthSupport::RecordingTransport.new
     transport.enqueue(Slack::Auth::TransportResponse.new(200, HTTP::Headers.new,
       %({"ok":true,"view":{}})))
     configuration = Slack::Auth::APIConfiguration.new(URI.parse("https://api.gov.example/custom/"))
-    view = Slack::UI::Checked.display_modal(
-      title: Slack::UI::Checked.plain("Title"),
-      close: Slack::UI::Checked.plain("Close")
+    view = Slack::UI.display_modal(
+      title: Slack::UI.plain("Title"),
+      close: Slack::UI.plain("Close")
     ) { |builder| builder.divider }
 
-    Slack::Api::CheckedViewsOpen.new(
+    Slack::Api::ViewsOpen.new(
       token: "synthetic-token",
       trigger_id: "trigger",
       view: view,

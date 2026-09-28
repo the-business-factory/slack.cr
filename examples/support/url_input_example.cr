@@ -3,7 +3,7 @@ require "webmock"
 require "./webmock_transport"
 
 module OfflineUrlInputExample
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   def self.receive(payload : String) : Slack::Interaction
     body = URI::Params.encode({"payload" => payload})
@@ -34,7 +34,7 @@ module OfflineUrlInputExample
         element: UI::BlockElements::UrlInput.new(action_id: "page", placeholder: UI.plain("https://"),
           dispatch_action_config: config, focus_on_load: true))
     end
-    Slack::Api::CheckedViewsOpen.new(token: "xoxb-synthetic", trigger_id: trigger,
+    Slack::Api::ViewsOpen.new(token: "xoxb-synthetic", trigger_id: trigger,
       view: view, transport: OfflineExample::WebMockTransport.new).call
 
     payload = %({"type":"block_actions","team":null,"actions":[{"type":"url_text_input","block_id":"bug.link","action_id":"page","value":"http://intranet.example/wiki"}]})

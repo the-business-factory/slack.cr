@@ -2,7 +2,7 @@ require "../spec_helper"
 require "../support/auth/webmock_transport"
 
 module FileInputSnapshotSpec
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   it "sends an owned upload form matching independent request JSON" do
     extensions = ["pdf", "png"]
@@ -11,7 +11,7 @@ module FileInputSnapshotSpec
       element: UI::BlockElements::FileInput.new(action_id: "files", filetypes: extensions, max_files: 3))
     builder.input(label: UI.plain("Note"), block_id: "note", optional: true,
       element: UI::BlockElements::PlainTextInput.new(action_id: "text"))
-    request = Slack::Api::CheckedViewsOpen.new(token: "xoxb-synthetic", trigger_id: "synthetic-trigger",
+    request = Slack::Api::ViewsOpen.new(token: "xoxb-synthetic", trigger_id: "synthetic-trigger",
       view: builder.build, transport: AuthSupport::WebMockTransport.new)
     extensions << "exe"
     builder.divider

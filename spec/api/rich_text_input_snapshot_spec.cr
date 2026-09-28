@@ -2,7 +2,7 @@ require "../spec_helper"
 require "../support/auth/webmock_transport"
 
 module RichTextInputSnapshotSpec
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
   alias RT = UI::RichText
 
   it "publishes an owned Home rich text input matching independent request JSON" do
@@ -14,7 +14,7 @@ module RichTextInputSnapshotSpec
       element: UI::BlockElements::RichTextInput.new(action_id: "summary", initial_value: draft,
         dispatch_action_config: config, placeholder: UI.plain("What are you working on?"), max_lines: 12))
     view = builder.build
-    request = Slack::Api::CheckedViewsPublish.new(token: "xoxb-synthetic", user_id: "U-SYNTHETIC",
+    request = Slack::Api::ViewsPublish.new(token: "xoxb-synthetic", user_id: "U-SYNTHETIC",
       view: view, transport: AuthSupport::WebMockTransport.new)
     items.clear
     draft.elements.clear

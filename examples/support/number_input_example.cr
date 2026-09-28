@@ -3,7 +3,7 @@ require "webmock"
 require "./webmock_transport"
 
 module OfflineNumberInputExample
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   def self.receive(payload : String) : Slack::Interaction
     body = URI::Params.encode({"payload" => payload})
@@ -34,7 +34,7 @@ module OfflineNumberInputExample
       builder.input(label: UI.plain("Budget"), block_id: "booking.budget", optional: true,
         element: UI::BlockElements::NumberInput.new(is_decimal_allowed: true, action_id: "budget"))
     end
-    Slack::Api::CheckedViewsOpen.new(token: "xoxb-synthetic", trigger_id: trigger,
+    Slack::Api::ViewsOpen.new(token: "xoxb-synthetic", trigger_id: trigger,
       view: view, transport: OfflineExample::WebMockTransport.new).call
 
     payload = %({"type":"block_actions","team":null,"actions":[{"type":"number_input","block_id":"booking.seats","action_id":"seats","value":"14"}]})

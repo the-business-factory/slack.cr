@@ -1,6 +1,6 @@
 schema_version: 2
 checked_on: "2026-09-28"
-scope: Checked Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, channel selects, date/time pickers, the datetime picker, video blocks, external selects with block_suggestion option responses, remote file blocks, rich text display blocks, table blocks, data table blocks, data visualization blocks, card and carousel blocks, container blocks, alert blocks, markdown blocks, context actions blocks with feedback and icon buttons, number inputs, file inputs, URL inputs, email inputs, rich text inputs, and message workflow buttons, including Input in Messages, FormModal and Home, modal-only Input children in FormModal, and view-only Input children in FormModal and Home.
+scope: Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, channel selects, date/time pickers, the datetime picker, video blocks, external selects with block_suggestion option responses, remote file blocks, rich text display blocks, table blocks, data table blocks, data visualization blocks, card and carousel blocks, container blocks, alert blocks, markdown blocks, context actions blocks with feedback and icon buttons, number inputs, file inputs, URL inputs, email inputs, rich text inputs, and message workflow buttons, including Input in Messages, FormModal and Home, modal-only Input children in FormModal, and view-only Input children in FormModal and Home.
 statuses:
   - unsupported
   - partial
@@ -23,7 +23,7 @@ entries:
     fields_supported: [response_action, view]
     parents: [view_submission]
     surfaces: [modal]
-    restrictions: ModalPush owns a checked FormModal or DisplayModal snapshot and returns a snapshot accessor. Existing modal validation and placement rules apply. Metadata and external_id stay inside view. Applications return HTTP 200 JSON within three seconds; Slack owns stack state and the three-view limit. No token, trigger, hash, API dispatch, retry or deadline enforcement.
+    restrictions: ModalPush owns a FormModal or DisplayModal snapshot and returns a snapshot accessor. Existing modal validation and placement rules apply. Metadata and external_id stay inside view. Applications return HTTP 200 JSON within three seconds; Slack owns stack state and the three-view limit. No token, trigger, hash, API dispatch, retry or deadline enforcement.
     implementation_status: supported
     inbound_status: unsupported
     evidence_paths: [src/slack/interactions/modal_push.cr, spec/interactions/modal_push_spec.cr, examples/support/modal_push_example.cr, spec/block_kit_consumers_spec.cr]
@@ -34,7 +34,7 @@ entries:
     fields_supported: [response_action, view]
     parents: [view_submission]
     surfaces: [modal]
-    restrictions: ModalUpdate owns a checked FormModal or DisplayModal snapshot and exposes a snapshot accessor. Existing modal validation and placement apply. Only the currently visible submitted view can be updated this way. Applications verify signed submissions and return HTTP 200 JSON within three seconds. No token, target selector, trigger, hash, transport, or remote state tracking. Retained input IDs are application-owned; metadata stays inside view.
+    restrictions: ModalUpdate owns a FormModal or DisplayModal snapshot and exposes a snapshot accessor. Existing modal validation and placement apply. Only the currently visible submitted view can be updated this way. Applications verify signed submissions and return HTTP 200 JSON within three seconds. No token, target selector, trigger, hash, transport, or remote state tracking. Retained input IDs are application-owned; metadata stays inside view.
     implementation_status: supported
     inbound_status: unsupported
     evidence_paths: [src/slack/interactions/modal_update.cr, spec/interactions/modal_update_spec.cr, examples/support/modal_update_example.cr, spec/block_kit_consumers_spec.cr]
@@ -56,10 +56,10 @@ entries:
     fields_supported: [type, text, emoji, verbatim]
     parents: [button, confirmation, section, input, plain_text_input, modal, header, context, image, video, option, overflow option, checkbox option, radio option, option_group, static_select, multi_static_select, users_select, multi_users_select, channels_select, multi_channels_select, conversations_select, multi_conversations_select, external_select, multi_external_select, datepicker, timepicker, number_input, url_text_input, email_text_input, rich_text_input, workflow_button]
     surfaces: [message, modal, home]
-    restrictions: Immutable checked outbound values have fixed discriminators and format-specific options.
+    restrictions: Immutable outbound values have fixed discriminators and format-specific options.
     implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/checked/composition_objects/plain_text.cr, src/slack/ui/checked/composition_objects/mrkdwn.cr, spec/ui/checked/composition_objects_spec.cr]
+    evidence_paths: [src/slack/ui/composition_objects/plain_text.cr, src/slack/ui/composition_objects/mrkdwn.cr, spec/ui/composition_objects_spec.cr]
 
   - wire_type: confirmation
     kind: composition object
@@ -67,10 +67,10 @@ entries:
     fields_supported: [title, text, confirm, deny, style]
     parents: [button, static_select, multi_static_select, overflow, checkboxes, radio_buttons, users_select, multi_users_select, channels_select, multi_channels_select, conversations_select, multi_conversations_select, external_select, multi_external_select, datepicker, timepicker, datetimepicker]
     surfaces: [message, modal, home]
-    restrictions: Checked outbound values are immutable and validated; the confirmation body accepts plain_text or mrkdwn as used by Slack's official examples.
+    restrictions: Outbound values are immutable and validated; the confirmation body accepts plain_text or mrkdwn as used by Slack's official examples.
     implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/checked/composition_objects/confirmation.cr, spec/ui/checked/composition_objects_spec.cr]
+    evidence_paths: [src/slack/ui/composition_objects/confirmation.cr, spec/ui/composition_objects_spec.cr]
 
   - wire_type: dispatch_action_config
     kind: composition object
@@ -78,10 +78,10 @@ entries:
     fields_supported: [trigger_actions_on]
     parents: [plain_text_input, number_input, url_text_input, email_text_input, rich_text_input]
     surfaces: [message, modal, home]
-    restrictions: Checked immutable dispatch configuration permits omission or one or both distinct typed triggers.
+    restrictions: Immutable dispatch configuration permits omission or one or both distinct typed triggers.
     implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/checked/composition_objects/dispatch_action_config.cr, spec/ui/checked/input_spec.cr, spec/api/number_input_snapshot_spec.cr, spec/ui/checked/url_input_spec.cr, spec/ui/checked/email_input_spec.cr, spec/api/rich_text_input_snapshot_spec.cr]
+    evidence_paths: [src/slack/ui/composition_objects/dispatch_action_config.cr, spec/ui/input_spec.cr, spec/api/number_input_snapshot_spec.cr, spec/ui/url_input_spec.cr, spec/ui/email_input_spec.cr, spec/api/rich_text_input_snapshot_spec.cr]
 
   - wire_type: button
     kind: block element
@@ -89,10 +89,10 @@ entries:
     fields_supported: [type, text, action_id, url, value, style, confirm, accessibility_label, agent_prompt]
     parents: [actions, section, card]
     surfaces: [message, modal, home]
-    restrictions: Checked outbound values cover all documented fields with optional action_id. Inbound ButtonAction exposes IDs, value, and action_ts; other fields remain in raw JSON.
+    restrictions: Outbound values cover all documented fields with optional action_id. Inbound ButtonAction exposes IDs, value, and action_ts; other fields remain in raw JSON.
     implementation_status: supported
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/block_elements/button.cr, src/slack/interactions/button_action.cr, spec/interactions/block_kit_spec.cr, examples/block_kit_modal.cr]
+    evidence_paths: [src/slack/ui/block_elements/button.cr, src/slack/interactions/button_action.cr, spec/interactions/block_kit_spec.cr, examples/block_kit_modal.cr]
 
   - wire_type: plain_text_input
     kind: block element
@@ -100,10 +100,10 @@ entries:
     fields_supported: [type, action_id, initial_value, multiline, focus_on_load, min_length, max_length, dispatch_action_config, placeholder]
     parents: [input]
     surfaces: [message, modal, home]
-    restrictions: Complete checked outbound field contract in Message, FormModal and Home Input blocks. Plain text submission values have typed access with absent/null/empty distinction. Dispatched input actions remain UnknownAction; their state has typed access.
+    restrictions: Complete outbound field contract in Message, FormModal and Home Input blocks. Plain text submission values have typed access with absent/null/empty distinction. Dispatched input actions remain UnknownAction; their state has typed access.
     implementation_status: supported
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/block_elements/plain_text_input.cr, spec/ui/checked/input_spec.cr, spec/interactions/block_kit_spec.cr, examples/block_kit_modal.cr]
+    evidence_paths: [src/slack/ui/block_elements/plain_text_input.cr, spec/ui/input_spec.cr, spec/interactions/block_kit_spec.cr, examples/block_kit_modal.cr]
 
   - wire_type: number_input
     kind: block element
@@ -111,10 +111,10 @@ entries:
     fields_supported: [type, is_decimal_allowed, action_id, initial_value, min_value, max_value, dispatch_action_config, focus_on_load, placeholder]
     parents: [input]
     surfaces: [modal]
-    restrictions: Checked NumberInput requires is_decimal_allowed and sends numbers as strings unchanged. Slack requires min_value <= max_value; the library compares exact decimal strings. Library policy requires plain decimal strings (optional minus, digits, optional fraction) and whole numbers when decimals are not allowed. An initial value outside the range is not checked locally. Only FormModal accepts it, through the modal-only ModalInput block; Message, Home and DisplayModal reject it at compile time. Typed NumberInputAction and NumberInputValue keep value strings with absent/null/empty presence and without numeric parsing; wrong JSON types raise TypeMismatch.
+    restrictions: NumberInput requires is_decimal_allowed and sends numbers as strings unchanged. Slack requires min_value <= max_value; the library compares exact decimal strings. Library policy requires plain decimal strings (optional minus, digits, optional fraction) and whole numbers when decimals are not allowed. An initial value outside the range is not checked locally. Only FormModal accepts it, through the modal-only ModalInput block; Message, Home and DisplayModal reject it at compile time. Typed NumberInputAction and NumberInputValue keep value strings with absent/null/empty presence and without numeric parsing; wrong JSON types raise TypeMismatch.
     implementation_status: supported
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/block_elements/number_input.cr, src/slack/ui/checked/blocks/modal_input.cr, src/slack/interactions/number_input_action.cr, src/slack/interactions/number_input_value.cr, spec/ui/checked/number_input_spec.cr, spec/interactions/number_input_spec.cr, spec/api/number_input_snapshot_spec.cr, spec/block_kit_diagnostics_spec.cr, examples/block_kit_number_input.cr]
+    evidence_paths: [src/slack/ui/block_elements/number_input.cr, src/slack/ui/blocks/modal_input.cr, src/slack/interactions/number_input_action.cr, src/slack/interactions/number_input_value.cr, spec/ui/number_input_spec.cr, spec/interactions/number_input_spec.cr, spec/api/number_input_snapshot_spec.cr, spec/block_kit_diagnostics_spec.cr, examples/block_kit_number_input.cr]
 
   - wire_type: url_text_input
     kind: block element
@@ -122,10 +122,10 @@ entries:
     fields_supported: [type, action_id, initial_value, dispatch_action_config, focus_on_load, placeholder]
     parents: [input]
     surfaces: [modal]
-    restrictions: Checked UrlInput checks action_id (255) and plain placeholder (150) limits and sends initial_value unchanged; Slack documents no format rule for it. Only FormModal accepts it, through the modal-only ModalInput block; Message, Home and DisplayModal reject it at compile time. Typed UrlInputAction and UrlInputValue keep the entered string with absent/null/present presence; Slack checks URL format in the client and the library does not check it again. Wrong JSON types raise TypeMismatch.
+    restrictions: UrlInput checks action_id (255) and plain placeholder (150) limits and sends initial_value unchanged; Slack documents no format rule for it. Only FormModal accepts it, through the modal-only ModalInput block; Message, Home and DisplayModal reject it at compile time. Typed UrlInputAction and UrlInputValue keep the entered string with absent/null/present presence; Slack checks URL format in the client and the library does not check it again. Wrong JSON types raise TypeMismatch.
     implementation_status: supported
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/block_elements/url_input.cr, src/slack/ui/checked/blocks/modal_input.cr, src/slack/interactions/url_input_action.cr, src/slack/interactions/url_input_value.cr, spec/ui/checked/url_input_spec.cr, spec/interactions/url_input_spec.cr, spec/block_kit_consumers_spec.cr, examples/block_kit_url_input.cr]
+    evidence_paths: [src/slack/ui/block_elements/url_input.cr, src/slack/ui/blocks/modal_input.cr, src/slack/interactions/url_input_action.cr, src/slack/interactions/url_input_value.cr, spec/ui/url_input_spec.cr, spec/interactions/url_input_spec.cr, spec/block_kit_consumers_spec.cr, examples/block_kit_url_input.cr]
 
   - wire_type: email_text_input
     kind: block element
@@ -133,10 +133,10 @@ entries:
     fields_supported: [type, action_id, initial_value, dispatch_action_config, focus_on_load, placeholder]
     parents: [input]
     surfaces: [modal]
-    restrictions: Checked EmailInput checks action_id and placeholder limits and sends initial_value unchanged; Slack documents no address syntax rule, so the library checks none. Only FormModal accepts it, through the modal-only ModalInput block; Message, Home and DisplayModal reject it at compile time. Typed EmailInputAction and EmailInputValue keep value strings with absent/null/empty presence and without address checks; wrong JSON types raise TypeMismatch.
+    restrictions: EmailInput checks action_id and placeholder limits and sends initial_value unchanged; Slack documents no address syntax rule, so the library checks none. Only FormModal accepts it, through the modal-only ModalInput block; Message, Home and DisplayModal reject it at compile time. Typed EmailInputAction and EmailInputValue keep value strings with absent/null/empty presence and without address checks; wrong JSON types raise TypeMismatch.
     implementation_status: supported
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/block_elements/email_input.cr, src/slack/ui/checked/blocks/modal_input.cr, src/slack/interactions/email_input_action.cr, src/slack/interactions/email_input_value.cr, spec/ui/checked/email_input_spec.cr, spec/interactions/email_input_spec.cr, examples/block_kit_email_input.cr]
+    evidence_paths: [src/slack/ui/block_elements/email_input.cr, src/slack/ui/blocks/modal_input.cr, src/slack/interactions/email_input_action.cr, src/slack/interactions/email_input_value.cr, spec/ui/email_input_spec.cr, spec/interactions/email_input_spec.cr, examples/block_kit_email_input.cr]
 
   - wire_type: rich_text_input
     kind: block element
@@ -144,10 +144,10 @@ entries:
     fields_supported: [type, action_id, initial_value, dispatch_action_config, focus_on_load, placeholder, min_lines, max_lines]
     parents: [input]
     surfaces: [modal, home]
-    restrictions: Checked RichTextInput requires action_id, as Slack documents; a nonempty action_id is library policy. initial_value is a checked Blocks::RichText. min_lines and max_lines must each be from 1 to 100; Slack documents no rule between them. Only FormModal and Home accept it, through the view-only ViewInput block; Message and DisplayModal reject it at compile time. Slack also lists the Table block as a parent; that placement is not implemented. Typed RichTextInputAction and RichTextInputValue read rich_text_value with the received rich text parser and keep absent/null presence; malformed trees and wrong JSON types raise path-aware TypeMismatch.
+    restrictions: RichTextInput requires action_id, as Slack documents; a nonempty action_id is library policy. initial_value is a Blocks::RichText. min_lines and max_lines must each be from 1 to 100; Slack documents no rule between them. Only FormModal and Home accept it, through the view-only ViewInput block; Message and DisplayModal reject it at compile time. Slack also lists the Table block as a parent; that placement is not implemented. Typed RichTextInputAction and RichTextInputValue read rich_text_value with the received rich text parser and keep absent/null presence; malformed trees and wrong JSON types raise path-aware TypeMismatch.
     implementation_status: supported
     inbound_status: supported
-    evidence_paths: [src/slack/ui/checked/block_elements/rich_text_input.cr, src/slack/ui/checked/blocks/view_input.cr, src/slack/interactions/rich_text_input_action.cr, src/slack/interactions/rich_text_input_value.cr, spec/ui/checked/rich_text_input_spec.cr, spec/interactions/rich_text_input_spec.cr, spec/api/rich_text_input_snapshot_spec.cr, spec/block_kit_diagnostics_spec.cr, examples/block_kit_rich_text_input.cr]
+    evidence_paths: [src/slack/ui/block_elements/rich_text_input.cr, src/slack/ui/blocks/view_input.cr, src/slack/interactions/rich_text_input_action.cr, src/slack/interactions/rich_text_input_value.cr, spec/ui/rich_text_input_spec.cr, spec/interactions/rich_text_input_spec.cr, spec/api/rich_text_input_snapshot_spec.cr, spec/block_kit_diagnostics_spec.cr, examples/block_kit_rich_text_input.cr]
 
   - wire_type: checkboxes
     kind: block element
@@ -155,10 +155,10 @@ entries:
     fields_supported: [type, action_id, options, initial_options, confirm, focus_on_load]
     parents: [section, actions, input]
     surfaces: [message, modal, home]
-    restrictions: Checked Checkboxes accepts one to ten CheckboxOption values with unique values and exact distinct initial selections. Input remains limited to Message, FormModal and Home. Focus participates in the single-focus rule for views. Typed CheckboxesAction and CheckboxesValue retain absent/null/cleared selections and raw fields without outbound validation.
+    restrictions: Checkboxes accepts one to ten CheckboxOption values with unique values and exact distinct initial selections. Input remains limited to Message, FormModal and Home. Focus participates in the single-focus rule for views. Typed CheckboxesAction and CheckboxesValue retain absent/null/cleared selections and raw fields without outbound validation.
     implementation_status: supported
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/block_elements/checkboxes.cr, src/slack/interactions/checkboxes_action.cr, src/slack/interactions/checkboxes_value.cr, spec/ui/checked/checkboxes_spec.cr, spec/interactions/checkboxes_spec.cr, spec/api/checkboxes_snapshot_spec.cr, examples/block_kit_checkboxes.cr]
+    evidence_paths: [src/slack/ui/block_elements/checkboxes.cr, src/slack/interactions/checkboxes_action.cr, src/slack/interactions/checkboxes_value.cr, spec/ui/checkboxes_spec.cr, spec/interactions/checkboxes_spec.cr, spec/api/checkboxes_snapshot_spec.cr, examples/block_kit_checkboxes.cr]
 
   - wire_type: checkbox option
     kind: composition object
@@ -169,7 +169,7 @@ entries:
     restrictions: CheckboxOption accepts plain_text or mrkdwn labels and descriptions up to 75 characters and values up to 150. No URL. Separate from static-select Option and OverflowOption. Received SelectedOption exposes value, text, and text_type; description and unknown fields remain raw.
     implementation_status: supported
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/composition_objects/checkbox_option.cr, spec/ui/checked/checkboxes_spec.cr, spec/interactions/checkboxes_spec.cr]
+    evidence_paths: [src/slack/ui/composition_objects/checkbox_option.cr, spec/ui/checkboxes_spec.cr, spec/interactions/checkboxes_spec.cr]
 
   - wire_type: datepicker
     kind: block element
@@ -177,10 +177,10 @@ entries:
     fields_supported: [type, action_id, initial_date, placeholder, confirm, focus_on_load]
     parents: [section, actions, input]
     surfaces: [message, modal, home]
-    restrictions: Checked DatePicker supports optional initial value, action ID, plain placeholder, confirm and view-wide focus. Exact YYYY-MM-DD and a valid Gregorian date in years 0001–9999 (local year-range policy), without a scheduling window. Input supports Message, FormModal and Home. Typed action/state strings preserve absent/null/empty and malformed-format strings without outbound validation; wrong JSON types raise TypeMismatch. Other fields remain raw. No datetimepicker or instant parsing.
+    restrictions: DatePicker supports optional initial value, action ID, plain placeholder, confirm and view-wide focus. Exact YYYY-MM-DD and a valid Gregorian date in years 0001–9999 (local year-range policy), without a scheduling window. Input supports Message, FormModal and Home. Typed action/state strings preserve absent/null/empty and malformed-format strings without outbound validation; wrong JSON types raise TypeMismatch. Other fields remain raw. No datetimepicker or instant parsing.
     implementation_status: supported
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/block_elements/date_picker.cr, src/slack/interactions/date_picker_action.cr, src/slack/interactions/date_picker_value.cr, spec/ui/checked/date_picker_spec.cr, spec/ui/checked/date_time_placement_spec.cr, spec/interactions/date_time_pickers_spec.cr, spec/api/date_time_pickers_snapshot_spec.cr, examples/block_kit_date_time_pickers.cr]
+    evidence_paths: [src/slack/ui/block_elements/date_picker.cr, src/slack/interactions/date_picker_action.cr, src/slack/interactions/date_picker_value.cr, spec/ui/date_picker_spec.cr, spec/ui/date_time_placement_spec.cr, spec/interactions/date_time_pickers_spec.cr, spec/api/date_time_pickers_snapshot_spec.cr, examples/block_kit_date_time_pickers.cr]
 
   - wire_type: image element
     kind: block element
@@ -188,10 +188,10 @@ entries:
     fields_supported: [type, alt_text, image_url, slack_file]
     parents: [section, context, card]
     surfaces: [message, modal, home]
-    restrictions: Checked immutable image with exactly one public URL or SlackFile source; requires nonempty alt text as library policy. No general element alt-text maximum is documented; Card checks its documented 2000-character alt-text maximum for hero_image and icon. File access and media format remain remote checks.
+    restrictions: Immutable image with exactly one public URL or SlackFile source; requires nonempty alt text as library policy. No general element alt-text maximum is documented; Card checks its documented 2000-character alt-text maximum for hero_image and icon. File access and media format remain remote checks.
     implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/checked/block_elements/image.cr, spec/ui/checked/display_spec.cr]
+    evidence_paths: [src/slack/ui/block_elements/image.cr, spec/ui/display_spec.cr]
 
   - wire_type: multi_static_select
     kind: block element
@@ -199,10 +199,10 @@ entries:
     fields_supported: [type, options, option_groups, action_id, placeholder, initial_options, confirm, focus_on_load, max_selected_items]
     parents: [section, actions, input]
     surfaces: [message, modal, home]
-    restrictions: Checked MultiStaticSelect supports all documented static-source fields. Exactly one nonempty option or group collection; unique values and exact initial membership. Section and Actions support all surfaces; Input supports Message, FormModal and Home. Typed selections and action IDs preserve absent/null/empty; echoed initial options, placeholder, confirm, and extra fields remain raw.
+    restrictions: MultiStaticSelect supports all documented static-source fields. Exactly one nonempty option or group collection; unique values and exact initial membership. Section and Actions support all surfaces; Input supports Message, FormModal and Home. Typed selections and action IDs preserve absent/null/empty; echoed initial options, placeholder, confirm, and extra fields remain raw.
     implementation_status: supported
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/block_elements/multi_static_select.cr, src/slack/interactions/multi_static_select_value.cr, src/slack/interactions/multi_static_select_action.cr, spec/ui/checked/static_select_spec.cr, spec/interactions/static_select_spec.cr, spec/api/static_select_snapshot_spec.cr, examples/block_kit_static_select.cr]
+    evidence_paths: [src/slack/ui/block_elements/multi_static_select.cr, src/slack/interactions/multi_static_select_value.cr, src/slack/interactions/multi_static_select_action.cr, spec/ui/static_select_spec.cr, spec/interactions/static_select_spec.cr, spec/api/static_select_snapshot_spec.cr, examples/block_kit_static_select.cr]
 
   - wire_type: overflow
     kind: block element
@@ -210,10 +210,10 @@ entries:
     fields_supported: [type, options, action_id, confirm]
     parents: [section, actions]
     surfaces: [message, modal, home]
-    restrictions: Checked Overflow accepts one to five OverflowOption values with unique values. No Input placement. Optional action_id and confirm. Received OverflowAction requires selected_option and exposes IDs and optional action_ts; unmodeled fields remain raw. No typed Overflow state.
+    restrictions: Overflow accepts one to five OverflowOption values with unique values. No Input placement. Optional action_id and confirm. Received OverflowAction requires selected_option and exposes IDs and optional action_ts; unmodeled fields remain raw. No typed Overflow state.
     implementation_status: supported
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/block_elements/overflow.cr, src/slack/interactions/overflow_action.cr, spec/ui/checked/overflow_spec.cr, spec/interactions/overflow_spec.cr, spec/api/overflow_snapshot_spec.cr, examples/block_kit_overflow.cr]
+    evidence_paths: [src/slack/ui/block_elements/overflow.cr, src/slack/interactions/overflow_action.cr, spec/ui/overflow_spec.cr, spec/interactions/overflow_spec.cr, spec/api/overflow_snapshot_spec.cr, examples/block_kit_overflow.cr]
 
   - wire_type: overflow option
     kind: composition object
@@ -224,7 +224,7 @@ entries:
     restrictions: Plain-text labels and descriptions only. Required value, optional URL. Separate OverflowOption cannot be passed to static selects. Received SelectedOption exposes value and text and retains URL and other fields in raw JSON without outbound validation.
     implementation_status: supported
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/composition_objects/overflow_option.cr, spec/ui/checked/overflow_spec.cr, spec/block_kit_diagnostics_spec.cr, spec/interactions/overflow_spec.cr]
+    evidence_paths: [src/slack/ui/composition_objects/overflow_option.cr, spec/ui/overflow_spec.cr, spec/block_kit_diagnostics_spec.cr, spec/interactions/overflow_spec.cr]
 
   - wire_type: radio_buttons
     kind: block element
@@ -232,10 +232,10 @@ entries:
     fields_supported: [type, action_id, options, initial_option, confirm, focus_on_load]
     parents: [section, actions, input]
     surfaces: [message, modal, home]
-    restrictions: Checked RadioButtons accepts one to ten RadioOption values with unique values and one exact initial selection. Input remains limited to Message, FormModal and Home. Focus participates in the single-focus rule for views. Typed RadioButtonsAction and RadioButtonsValue retain absent/null/selected options and raw fields without outbound validation.
+    restrictions: RadioButtons accepts one to ten RadioOption values with unique values and one exact initial selection. Input remains limited to Message, FormModal and Home. Focus participates in the single-focus rule for views. Typed RadioButtonsAction and RadioButtonsValue retain absent/null/selected options and raw fields without outbound validation.
     implementation_status: supported
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/block_elements/radio_buttons.cr, src/slack/interactions/radio_buttons_action.cr, src/slack/interactions/radio_buttons_value.cr, spec/ui/checked/radio_buttons_spec.cr, spec/interactions/radio_buttons_spec.cr, spec/api/radio_buttons_snapshot_spec.cr, examples/block_kit_radio_buttons.cr]
+    evidence_paths: [src/slack/ui/block_elements/radio_buttons.cr, src/slack/interactions/radio_buttons_action.cr, src/slack/interactions/radio_buttons_value.cr, spec/ui/radio_buttons_spec.cr, spec/interactions/radio_buttons_spec.cr, spec/api/radio_buttons_snapshot_spec.cr, examples/block_kit_radio_buttons.cr]
 
   - wire_type: radio option
     kind: composition object
@@ -246,7 +246,7 @@ entries:
     restrictions: RadioOption accepts plain_text or mrkdwn labels and descriptions up to 75 characters and values up to 150. No URL. Existing static, overflow, and checkbox option types are unchanged. Received SelectedOption exposes value, text, and text_type; description and unknown fields remain raw.
     implementation_status: supported
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/composition_objects/radio_option.cr, spec/ui/checked/radio_buttons_spec.cr, spec/interactions/radio_buttons_spec.cr]
+    evidence_paths: [src/slack/ui/composition_objects/radio_option.cr, spec/ui/radio_buttons_spec.cr, spec/interactions/radio_buttons_spec.cr]
 
   - wire_type: static_select
     kind: block element
@@ -254,10 +254,10 @@ entries:
     fields_supported: [type, options, option_groups, action_id, placeholder, initial_option, confirm, focus_on_load]
     parents: [section, actions, input]
     surfaces: [message, modal, home]
-    restrictions: Checked StaticSelect supports all documented static-source fields. Exactly one nonempty option or group collection; unique values and exact initial membership. Section and Actions support all surfaces; Input supports Message, FormModal and Home. Typed selections and action IDs preserve absent/null/empty; echoed initial options, placeholder, confirm, and extra fields remain raw.
+    restrictions: StaticSelect supports all documented static-source fields. Exactly one nonempty option or group collection; unique values and exact initial membership. Section and Actions support all surfaces; Input supports Message, FormModal and Home. Typed selections and action IDs preserve absent/null/empty; echoed initial options, placeholder, confirm, and extra fields remain raw.
     implementation_status: supported
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/block_elements/static_select.cr, src/slack/interactions/static_select_value.cr, src/slack/interactions/static_select_action.cr, spec/ui/checked/static_select_spec.cr, spec/interactions/static_select_spec.cr, spec/api/static_select_snapshot_spec.cr, examples/block_kit_static_select.cr]
+    evidence_paths: [src/slack/ui/block_elements/static_select.cr, src/slack/interactions/static_select_value.cr, src/slack/interactions/static_select_action.cr, spec/ui/static_select_spec.cr, spec/interactions/static_select_spec.cr, spec/api/static_select_snapshot_spec.cr, examples/block_kit_static_select.cr]
 
   - wire_type: users_select
     kind: block element
@@ -265,10 +265,10 @@ entries:
     fields_supported: [type, action_id, initial_user, placeholder, confirm, focus_on_load]
     parents: [section, actions, input]
     surfaces: [message, modal, home]
-    restrictions: Checked UsersSelect uses Slack-provided user IDs with no local prefix, length, or remote existence checks. An empty initial ID is rejected as library policy. Input supports Message, FormModal and Home; view focus is unique. Typed selections and action IDs preserve absent/null/empty; other fields remain raw. No conversation filters or response_url_enabled.
+    restrictions: UsersSelect uses Slack-provided user IDs with no local prefix, length, or remote existence checks. An empty initial ID is rejected as library policy. Input supports Message, FormModal and Home; view focus is unique. Typed selections and action IDs preserve absent/null/empty; other fields remain raw. No conversation filters or response_url_enabled.
     implementation_status: supported
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/block_elements/users_select.cr, src/slack/interactions/users_select_action.cr, src/slack/interactions/users_select_value.cr, spec/ui/checked/users_select_spec.cr, spec/interactions/users_select_spec.cr, spec/api/users_select_snapshot_spec.cr, examples/block_kit_users_select.cr]
+    evidence_paths: [src/slack/ui/block_elements/users_select.cr, src/slack/interactions/users_select_action.cr, src/slack/interactions/users_select_value.cr, spec/ui/users_select_spec.cr, spec/interactions/users_select_spec.cr, spec/api/users_select_snapshot_spec.cr, examples/block_kit_users_select.cr]
 
   - wire_type: multi_users_select
     kind: block element
@@ -276,10 +276,10 @@ entries:
     fields_supported: [type, action_id, initial_users, placeholder, confirm, focus_on_load, max_selected_items]
     parents: [section, actions, input]
     surfaces: [message, modal, home]
-    restrictions: Checked MultiUsersSelect uses Slack-provided user IDs with no local prefix, length, or remote existence checks. Empty initial IDs are rejected as library policy; multi initial IDs must be distinct and fit a supplied maximum. Empty initial arrays are preserved. Input supports Message, FormModal and Home; view focus is unique. Typed selections and action IDs preserve absent/null/empty; other fields remain raw. No conversation filters or response_url_enabled.
+    restrictions: MultiUsersSelect uses Slack-provided user IDs with no local prefix, length, or remote existence checks. Empty initial IDs are rejected as library policy; multi initial IDs must be distinct and fit a supplied maximum. Empty initial arrays are preserved. Input supports Message, FormModal and Home; view focus is unique. Typed selections and action IDs preserve absent/null/empty; other fields remain raw. No conversation filters or response_url_enabled.
     implementation_status: supported
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/block_elements/multi_users_select.cr, src/slack/interactions/multi_users_select_action.cr, src/slack/interactions/multi_users_select_value.cr, spec/ui/checked/users_select_spec.cr, spec/interactions/users_select_spec.cr, spec/api/users_select_snapshot_spec.cr, examples/block_kit_users_select.cr]
+    evidence_paths: [src/slack/ui/block_elements/multi_users_select.cr, src/slack/interactions/multi_users_select_action.cr, src/slack/interactions/multi_users_select_value.cr, spec/ui/users_select_spec.cr, spec/interactions/users_select_spec.cr, spec/api/users_select_snapshot_spec.cr, examples/block_kit_users_select.cr]
 
   - wire_type: channels_select
     kind: block element
@@ -287,10 +287,10 @@ entries:
     fields_supported: [type, action_id, initial_channel, placeholder, confirm, focus_on_load, response_url_enabled]
     parents: [section, actions, input]
     surfaces: [message, modal, home]
-    restrictions: Checked ChannelsSelect uses Slack-provided channel IDs with no local prefix, length, or remote existence checks. An empty initial ID is rejected as library policy. Input supports Message, FormModal and Home; view focus is unique. Typed selections and action IDs preserve absent/null/empty; other fields remain raw. No conversation filters. A supplied response_url_enabled is allowed only in modal Input; rejecting false elsewhere is library policy. Submission response_urls decode as typed ResponseUrl values; no response URL transport.
+    restrictions: ChannelsSelect uses Slack-provided channel IDs with no local prefix, length, or remote existence checks. An empty initial ID is rejected as library policy. Input supports Message, FormModal and Home; view focus is unique. Typed selections and action IDs preserve absent/null/empty; other fields remain raw. No conversation filters. A supplied response_url_enabled is allowed only in modal Input; rejecting false elsewhere is library policy. Submission response_urls decode as typed ResponseUrl values; no response URL transport.
     implementation_status: supported
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/block_elements/channels_select.cr, src/slack/interactions/channels_select_action.cr, src/slack/interactions/channels_select_value.cr, spec/ui/checked/channels_select_spec.cr, spec/interactions/channels_select_spec.cr, spec/api/channels_select_snapshot_spec.cr, examples/block_kit_channels_select.cr]
+    evidence_paths: [src/slack/ui/block_elements/channels_select.cr, src/slack/interactions/channels_select_action.cr, src/slack/interactions/channels_select_value.cr, spec/ui/channels_select_spec.cr, spec/interactions/channels_select_spec.cr, spec/api/channels_select_snapshot_spec.cr, examples/block_kit_channels_select.cr]
 
   - wire_type: multi_channels_select
     kind: block element
@@ -298,10 +298,10 @@ entries:
     fields_supported: [type, action_id, initial_channels, placeholder, confirm, focus_on_load, max_selected_items]
     parents: [section, actions, input]
     surfaces: [message, modal, home]
-    restrictions: Checked MultiChannelsSelect uses Slack-provided channel IDs with no local prefix, length, or remote existence checks. Empty initial IDs are rejected as library policy; multi initial IDs must be distinct and fit a supplied maximum. A supplied initial_channels array must contain at least one ID. Input supports Message, FormModal and Home; view focus is unique. Typed selections and action IDs preserve absent/null/empty; other fields remain raw. No conversation filters or response_url_enabled.
+    restrictions: MultiChannelsSelect uses Slack-provided channel IDs with no local prefix, length, or remote existence checks. Empty initial IDs are rejected as library policy; multi initial IDs must be distinct and fit a supplied maximum. A supplied initial_channels array must contain at least one ID. Input supports Message, FormModal and Home; view focus is unique. Typed selections and action IDs preserve absent/null/empty; other fields remain raw. No conversation filters or response_url_enabled.
     implementation_status: supported
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/block_elements/multi_channels_select.cr, src/slack/interactions/multi_channels_select_action.cr, src/slack/interactions/multi_channels_select_value.cr, spec/ui/checked/channels_select_spec.cr, spec/interactions/channels_select_spec.cr, spec/api/channels_select_snapshot_spec.cr, examples/block_kit_channels_select.cr]
+    evidence_paths: [src/slack/ui/block_elements/multi_channels_select.cr, src/slack/interactions/multi_channels_select_action.cr, src/slack/interactions/multi_channels_select_value.cr, spec/ui/channels_select_spec.cr, spec/interactions/channels_select_spec.cr, spec/api/channels_select_snapshot_spec.cr, examples/block_kit_channels_select.cr]
 
   - wire_type: conversation filter
     kind: composition object
@@ -312,7 +312,7 @@ entries:
     restrictions: At least one supplied field; false counts. Include must be nonempty and contain only im, mpim, private, or public. Collections are copied once and getters return copies. Filters do not validate remote membership or initial IDs.
     implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/checked/composition_objects/conversation_filter.cr, spec/ui/checked/conversations_select_spec.cr, spec/api/conversations_select_snapshot_spec.cr]
+    evidence_paths: [src/slack/ui/composition_objects/conversation_filter.cr, spec/ui/conversations_select_spec.cr, spec/api/conversations_select_snapshot_spec.cr]
 
   - wire_type: conversations_select
     kind: block element
@@ -323,7 +323,7 @@ entries:
     restrictions: Slack provides visible public/private channels, DMs and MPIMs. Empty initial IDs are rejected as library policy; no ID-prefix, length, membership or filter-match checks. Initial conversation takes precedence over current-conversation default in Slack; both fields are preserved. Input supports Message, FormModal and Home; view focus is unique. Any supplied response_url_enabled is restricted to modal Input, including false by library policy. Typed selection preserves absent/null/empty and raw fields; response_urls decode as typed ResponseUrl values.
     implementation_status: supported
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/block_elements/conversations_select.cr, src/slack/interactions/conversations_select_action.cr, src/slack/interactions/conversations_select_value.cr, spec/ui/checked/conversations_select_spec.cr, spec/interactions/conversations_select_spec.cr, spec/api/conversations_select_snapshot_spec.cr, examples/block_kit_conversations_select.cr]
+    evidence_paths: [src/slack/ui/block_elements/conversations_select.cr, src/slack/interactions/conversations_select_action.cr, src/slack/interactions/conversations_select_value.cr, spec/ui/conversations_select_spec.cr, spec/interactions/conversations_select_spec.cr, spec/api/conversations_select_snapshot_spec.cr, examples/block_kit_conversations_select.cr]
 
   - wire_type: multi_conversations_select
     kind: block element
@@ -334,7 +334,7 @@ entries:
     restrictions: Initial conversations must contain at least one ID when supplied. Empty IDs, duplicate initial IDs and initial count above maximum are rejected as library policy; no ID-prefix, length, membership or filter-match checks. Slack documents initial_conversations ignored when current-conversation default is also supplied; both fields are preserved. Input supports Message, FormModal and Home; view focus is unique. Typed selections preserve absent/null/empty and raw fields. No response_url_enabled.
     implementation_status: supported
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/block_elements/multi_conversations_select.cr, src/slack/interactions/multi_conversations_select_action.cr, src/slack/interactions/multi_conversations_select_value.cr, spec/ui/checked/conversations_select_spec.cr, spec/interactions/conversations_select_spec.cr, spec/api/conversations_select_snapshot_spec.cr, examples/block_kit_conversations_select.cr]
+    evidence_paths: [src/slack/ui/block_elements/multi_conversations_select.cr, src/slack/interactions/multi_conversations_select_action.cr, src/slack/interactions/multi_conversations_select_value.cr, spec/ui/conversations_select_spec.cr, spec/interactions/conversations_select_spec.cr, spec/api/conversations_select_snapshot_spec.cr, examples/block_kit_conversations_select.cr]
 
   - wire_type: external_select
     kind: block element
@@ -345,7 +345,7 @@ entries:
     restrictions: Options come from the app's Options Load URL through block_suggestion. The initial option is checked only as an Option; membership in remote results cannot be checked. A negative min_query_length is rejected as library policy; Slack defaults to 3. Input supports Message, FormModal and Home; view focus is unique. Typed selection preserves absent/null/present and raw fields.
     implementation_status: supported
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/block_elements/external_select.cr, src/slack/interactions/external_select_action.cr, src/slack/interactions/external_select_value.cr, spec/ui/checked/external_select_spec.cr, spec/interactions/external_select_spec.cr, examples/block_kit_external_select.cr]
+    evidence_paths: [src/slack/ui/block_elements/external_select.cr, src/slack/interactions/external_select_action.cr, src/slack/interactions/external_select_value.cr, spec/ui/external_select_spec.cr, spec/interactions/external_select_spec.cr, examples/block_kit_external_select.cr]
 
   - wire_type: multi_external_select
     kind: block element
@@ -356,7 +356,7 @@ entries:
     restrictions: Options come from the Options Load URL. Supplied initial options are nonempty, distinct by value and within max_selected_items as library policy; remote membership is not checked. max_selected_items is at least one; a negative min_query_length is rejected. Input supports Message, FormModal and Home; view focus is unique. Typed selections preserve absent/null/empty and raw fields; getters return copies.
     implementation_status: supported
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/block_elements/multi_external_select.cr, src/slack/interactions/multi_external_select_action.cr, src/slack/interactions/multi_external_select_value.cr, spec/ui/checked/external_select_spec.cr, spec/interactions/external_select_spec.cr, examples/block_kit_external_select.cr]
+    evidence_paths: [src/slack/ui/block_elements/multi_external_select.cr, src/slack/interactions/multi_external_select_action.cr, src/slack/interactions/multi_external_select_value.cr, spec/ui/external_select_spec.cr, spec/interactions/external_select_spec.cr, examples/block_kit_external_select.cr]
 
   - wire_type: block_suggestion
     kind: interaction payload
@@ -386,10 +386,10 @@ entries:
     fields_supported: [type, action_id, initial_time, placeholder, confirm, focus_on_load, timezone]
     parents: [section, actions, input]
     surfaces: [message, modal, home]
-    restrictions: Checked TimePicker supports optional initial value, action ID, plain placeholder, confirm and view-wide focus. Exact HH:mm from 00:00 through 23:59. Optional IANA timezone hint is sent unchanged without host tzdb validation or conversion; received timezone and its presence are exposed when supplied. Input supports Message, FormModal and Home. Typed action/state strings preserve absent/null/empty and malformed-format strings without outbound validation; wrong JSON types raise TypeMismatch. Other fields remain raw. No datetimepicker or instant parsing.
+    restrictions: TimePicker supports optional initial value, action ID, plain placeholder, confirm and view-wide focus. Exact HH:mm from 00:00 through 23:59. Optional IANA timezone hint is sent unchanged without host tzdb validation or conversion; received timezone and its presence are exposed when supplied. Input supports Message, FormModal and Home. Typed action/state strings preserve absent/null/empty and malformed-format strings without outbound validation; wrong JSON types raise TypeMismatch. Other fields remain raw. No datetimepicker or instant parsing.
     implementation_status: supported
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/block_elements/time_picker.cr, src/slack/interactions/time_picker_action.cr, src/slack/interactions/time_picker_value.cr, spec/ui/checked/time_picker_spec.cr, spec/ui/checked/date_time_placement_spec.cr, spec/interactions/date_time_pickers_spec.cr, spec/api/date_time_pickers_snapshot_spec.cr, examples/block_kit_date_time_pickers.cr]
+    evidence_paths: [src/slack/ui/block_elements/time_picker.cr, src/slack/interactions/time_picker_action.cr, src/slack/interactions/time_picker_value.cr, spec/ui/time_picker_spec.cr, spec/ui/date_time_placement_spec.cr, spec/interactions/date_time_pickers_spec.cr, spec/api/date_time_pickers_snapshot_spec.cr, examples/block_kit_date_time_pickers.cr]
 
   - wire_type: datetimepicker
     kind: block element
@@ -397,10 +397,10 @@ entries:
     fields_supported: [type, action_id, initial_date_time, confirm, focus_on_load]
     parents: [actions, input]
     surfaces: [message, modal]
-    restrictions: Checked DatetimePicker supports optional action ID, Time initial value sent as whole Unix seconds, confirm and view-wide focus. The initial value must be a ten-digit Unix timestamp. Section accessory placement does not compile; Home validation rejects it in Actions or Input. Typed action/state selected_date_time is Int64 Unix seconds and preserves absent/null; non-integer values raise TypeMismatch without outbound range checks. Other fields remain raw. No placeholder, timezone or scheduling.
+    restrictions: DatetimePicker supports optional action ID, Time initial value sent as whole Unix seconds, confirm and view-wide focus. The initial value must be a ten-digit Unix timestamp. Section accessory placement does not compile; Home validation rejects it in Actions or Input. Typed action/state selected_date_time is Int64 Unix seconds and preserves absent/null; non-integer values raise TypeMismatch without outbound range checks. Other fields remain raw. No placeholder, timezone or scheduling.
     implementation_status: supported
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/block_elements/datetime_picker.cr, src/slack/ui/checked/surfaces/home.cr, src/slack/interactions/datetime_picker_action.cr, src/slack/interactions/datetime_picker_value.cr, spec/ui/checked/datetime_picker_spec.cr, spec/interactions/datetime_picker_spec.cr, spec/api/datetime_picker_snapshot_spec.cr, spec/block_kit_diagnostics_spec.cr, examples/block_kit_datetime_picker.cr]
+    evidence_paths: [src/slack/ui/block_elements/datetime_picker.cr, src/slack/ui/surfaces/home.cr, src/slack/interactions/datetime_picker_action.cr, src/slack/interactions/datetime_picker_value.cr, spec/ui/datetime_picker_spec.cr, spec/interactions/datetime_picker_spec.cr, spec/api/datetime_picker_snapshot_spec.cr, spec/block_kit_diagnostics_spec.cr, examples/block_kit_datetime_picker.cr]
 
   - wire_type: file_input
     kind: block element
@@ -408,10 +408,10 @@ entries:
     fields_supported: [type, action_id, filetypes, max_files]
     parents: [input]
     surfaces: [modal]
-    restrictions: Checked FileInput supports optional action ID (255), owned filetypes snapshot and max_files from 1 through 10. It is a ModalInputElement, so only FormModal accepts it; Message, Home and DisplayModal reject it at compile time. ModalInput rejects dispatch_action true when it holds FileInput. An empty filetypes list and blank extensions are rejected as library policy; omit filetypes to accept all. Slack filetypes filtering is a convenience, not application validation. Received FileInputValue exposes files as UploadedFile values (id, name, title, mimetype, filetype, url_private, url_private_download) with absent/null/empty presence; other file fields remain raw. No typed action because Slack does not dispatch file_input. The files:read scope, 100MB limit, downloads and upload completion are remote-only.
+    restrictions: FileInput supports optional action ID (255), owned filetypes snapshot and max_files from 1 through 10. It is a ModalInputElement, so only FormModal accepts it; Message, Home and DisplayModal reject it at compile time. ModalInput rejects dispatch_action true when it holds FileInput. An empty filetypes list and blank extensions are rejected as library policy; omit filetypes to accept all. Slack filetypes filtering is a convenience, not application validation. Received FileInputValue exposes files as UploadedFile values (id, name, title, mimetype, filetype, url_private, url_private_download) with absent/null/empty presence; other file fields remain raw. No typed action because Slack does not dispatch file_input. The files:read scope, 100MB limit, downloads and upload completion are remote-only.
     implementation_status: supported
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/block_elements/file_input.cr, src/slack/ui/checked/blocks/modal_input.cr, src/slack/interactions/file_input_value.cr, src/slack/interactions/uploaded_file.cr, spec/ui/checked/file_input_spec.cr, spec/interactions/file_input_spec.cr, spec/api/file_input_snapshot_spec.cr, examples/block_kit_file_input.cr]
+    evidence_paths: [src/slack/ui/block_elements/file_input.cr, src/slack/ui/blocks/modal_input.cr, src/slack/interactions/file_input_value.cr, src/slack/interactions/uploaded_file.cr, spec/ui/file_input_spec.cr, spec/interactions/file_input_spec.cr, spec/api/file_input_snapshot_spec.cr, examples/block_kit_file_input.cr]
 
   - wire_type: actions
     kind: block
@@ -419,10 +419,10 @@ entries:
     fields_supported: [type, block_id, elements]
     parents: [message, modal, home]
     surfaces: [message, modal, home]
-    restrictions: Checked Actions accepts Button, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, and DatetimePicker (not Home); other Slack interactive elements are deferred. Checked collections are immutable snapshots and validate duplicate supplied action IDs.
+    restrictions: Actions accepts Button, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, and DatetimePicker (not Home); other Slack interactive elements are deferred. Collections are immutable snapshots and validate duplicate supplied action IDs.
     implementation_status: partial
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/blocks/actions.cr, spec/ui/checked/blocks_spec.cr]
+    evidence_paths: [src/slack/ui/blocks/actions.cr, spec/ui/blocks_spec.cr]
 
   - wire_type: input
     kind: block
@@ -430,10 +430,10 @@ entries:
     fields_supported: [type, label, element, dispatch_action, block_id, hint, optional]
     parents: [message, modal, home]
     surfaces: [message, modal, home]
-    restrictions: Checked Input accepts PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, and TimePicker in Message, FormModal and Home, and DatetimePicker in Message and FormModal; all Input fields are supported. Checked ModalInput has the same wire type, fields and limits for modal-only children (NumberInput, FileInput, UrlInput, EmailInput); only FormModal accepts it. Checked ViewInput does the same for view-only children (RichTextInput); only FormModal and Home accept it. ModalInput rejects dispatch_action true for FileInput. Other input element families remain deferred.
+    restrictions: Input accepts PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, and TimePicker in Message, FormModal and Home, and DatetimePicker in Message and FormModal; all Input fields are supported. ModalInput has the same wire type, fields and limits for modal-only children (NumberInput, FileInput, UrlInput, EmailInput); only FormModal accepts it. ViewInput does the same for view-only children (RichTextInput); only FormModal and Home accept it. ModalInput rejects dispatch_action true for FileInput. Other input element families remain deferred.
     implementation_status: partial
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/blocks/input.cr, src/slack/ui/checked/blocks/modal_input.cr, src/slack/ui/checked/blocks/view_input.cr, spec/ui/checked/input_spec.cr, spec/ui/checked/number_input_spec.cr, spec/ui/checked/file_input_spec.cr, spec/ui/checked/url_input_spec.cr, spec/ui/checked/email_input_spec.cr, spec/ui/checked/rich_text_input_spec.cr, spec/interactions/block_kit_spec.cr]
+    evidence_paths: [src/slack/ui/blocks/input.cr, src/slack/ui/blocks/modal_input.cr, src/slack/ui/blocks/view_input.cr, spec/ui/input_spec.cr, spec/ui/number_input_spec.cr, spec/ui/file_input_spec.cr, spec/ui/url_input_spec.cr, spec/ui/email_input_spec.cr, spec/ui/rich_text_input_spec.cr, spec/interactions/block_kit_spec.cr]
 
   - wire_type: section
     kind: block
@@ -441,10 +441,10 @@ entries:
     fields_supported: [type, text, fields, accessory, block_id, expand]
     parents: [message, modal, home]
     surfaces: [message, modal, home]
-    restrictions: Checked Section supports text, fields, block_id, expand, and Button, Image, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, or TimePicker accessories. Other documented accessory element families are deferred.
+    restrictions: Section supports text, fields, block_id, expand, and Button, Image, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Overflow, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, or TimePicker accessories. Other documented accessory element families are deferred.
     implementation_status: partial
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/blocks/section.cr, spec/ui/checked/blocks_spec.cr]
+    evidence_paths: [src/slack/ui/blocks/section.cr, spec/ui/blocks_spec.cr]
 
   - wire_type: divider
     kind: block
@@ -452,10 +452,10 @@ entries:
     fields_supported: [type, block_id]
     parents: [message, modal, home]
     surfaces: [message, modal, home]
-    restrictions: The checked Divider has the complete current outbound contract; the pre-existing short-name placeholder remains unsupported during coexistence.
+    restrictions: The Divider has the complete current outbound contract; the pre-existing short-name placeholder remains unsupported during coexistence.
     implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/checked/blocks/divider.cr, spec/ui/checked/blocks_spec.cr, spec/ui/checked/message_spec.cr]
+    evidence_paths: [src/slack/ui/blocks/divider.cr, spec/ui/blocks_spec.cr, spec/ui/message_spec.cr]
 
   - wire_type: file block
     kind: block
@@ -463,10 +463,10 @@ entries:
     fields_supported: [type, external_id, source, block_id]
     parents: [message]
     surfaces: [message]
-    restrictions: Checked File is a message-only block with a nonempty external_id, a fixed "remote" source, and an optional block_id of 255 characters. The nonempty external_id is library policy. Home and modal surfaces reject it at compile time. Slack does not let apps add the block to messages directly; apps share remote files with files.remote.share or place the block in their own chat.unfurl request. No remote-file or unfurl API and no received-message decoding. Slack checks that the remote file exists.
+    restrictions: File is a message-only block with a nonempty external_id, a fixed "remote" source, and an optional block_id of 255 characters. The nonempty external_id is library policy. Home and modal surfaces reject it at compile time. Slack does not let apps add the block to messages directly; apps share remote files with files.remote.share or place the block in their own chat.unfurl request. No remote-file or unfurl API and no received-message decoding. Slack checks that the remote file exists.
     implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/checked/blocks/file.cr, spec/ui/checked/file_block_spec.cr, spec/block_kit_diagnostics_spec.cr, examples/support/remote_file_example.cr, spec/block_kit_consumers_spec.cr]
+    evidence_paths: [src/slack/ui/blocks/file.cr, spec/ui/file_block_spec.cr, spec/block_kit_diagnostics_spec.cr, examples/support/remote_file_example.cr, spec/block_kit_consumers_spec.cr]
 
   - wire_type: Block Kit message payload
     kind: surface
@@ -474,32 +474,32 @@ entries:
     fields_supported: [text, blocks]
     parents: [chat.postMessage, chat.update]
     surfaces: [message]
-    restrictions: Supports explicit fallback text or the separately named Slack-generated fallback choice and a checked union of Section, Actions, Divider, Header, Context, Image, RichText, Table, DataTable, DataVisualization, Card, Carousel, Container, Markdown, ContextActions, and Input. At most two DataVisualization blocks per message. The text of all Markdown blocks in one message is at most 12,000 characters. The update adapter requires explicit fallback. Other block families remain unsupported until their slices ship.
+    restrictions: Supports explicit fallback text or the separately named Slack-generated fallback choice and a union of Section, Actions, Divider, Header, Context, Image, RichText, Table, DataTable, DataVisualization, Card, Carousel, Container, Markdown, ContextActions, and Input. At most two DataVisualization blocks per message. The text of all Markdown blocks in one message is at most 12,000 characters. The update adapter requires explicit fallback. Other block families remain unsupported until their slices ship.
     implementation_status: supported
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/surfaces/message.cr, src/slack/ui/checked/message_builder.cr, spec/ui/checked/message_spec.cr, examples/block_kit_message.cr]
+    evidence_paths: [src/slack/ui/surfaces/message.cr, src/slack/ui/message_builder.cr, spec/ui/message_spec.cr, examples/block_kit_message.cr]
 
-  - wire_type: chat.postMessage checked adapter
+  - wire_type: chat.postMessage request
     kind: endpoint
     documentation_url: https://docs.slack.dev/reference/methods/chat.postMessage/
     fields_supported: [channel, text, blocks, thread_ts, reply_broadcast, unfurl_links, unfurl_media]
     parents: []
     surfaces: [message]
-    restrictions: The checked request is partial. It does not send attachments, parse, link_names, mrkdwn, username, icon_emoji, icon_url, metadata, markdown_text, or draft fields.
+    restrictions: The request is partial. It does not send attachments, parse, link_names, mrkdwn, username, icon_emoji, icon_url, metadata, markdown_text, or draft fields.
     implementation_status: partial
     inbound_status: unsupported
-    evidence_paths: [src/slack/api/endpoints/checked_chat_post_message.cr, spec/api/checked_chat_post_message_spec.cr, spec/block_kit_consumers_spec.cr]
+    evidence_paths: [src/slack/api/endpoints/chat_post_message.cr, spec/api/chat_post_message_spec.cr, spec/block_kit_consumers_spec.cr]
 
-  - wire_type: chat.update checked adapter
+  - wire_type: chat.update request
     kind: endpoint
     documentation_url: https://docs.slack.dev/reference/methods/chat.update/
     fields_supported: [channel, ts, text, blocks, as_user]
     parents: []
     surfaces: [message]
-    restrictions: Replaces text and nonempty blocks from an owned checked Message. Explicit fallback of 1–4000 characters is required; generated fallback, partial patches, text-only updates and block clearing are unsupported. Channel must be nonblank; timestamp stays a decimal string without fixed digit counts. Optional as_user preserves false and omission. Attachments and metadata are omitted and retained; parse and link_names use Slack update defaults. Other method fields are unsupported. String token and existing dispatch injection are required as for checked posting. UpdateMessage exposes channel, ts, text and optional raw message. Slack checks ownership, permissions, non-ephemeral message state and rendering.
+    restrictions: Replaces text and nonempty blocks from an owned Message. Explicit fallback of 1–4000 characters is required; generated fallback, partial patches, text-only updates and block clearing are unsupported. Channel must be nonblank; timestamp stays a decimal string without fixed digit counts. Optional as_user preserves false and omission. Attachments and metadata are omitted and retained; parse and link_names use Slack update defaults. Other method fields are unsupported. String token and existing dispatch injection are required as for posting. UpdateMessage exposes channel, ts, text and optional raw message. Slack checks ownership, permissions, non-ephemeral message state and rendering.
     implementation_status: partial
     inbound_status: partial
-    evidence_paths: [src/slack/api/endpoints/checked_chat_update.cr, src/slack/models/chat/update_message.cr, spec/api/checked_chat_update_spec.cr, spec/api/transport_injection_spec.cr, examples/block_kit_message_update.cr, spec/block_kit_consumers_spec.cr]
+    evidence_paths: [src/slack/api/endpoints/chat_update.cr, src/slack/models/chat/update_message.cr, spec/api/chat_update_spec.cr, spec/api/transport_injection_spec.cr, examples/block_kit_message_update.cr, spec/block_kit_consumers_spec.cr]
 
   - wire_type: modal view
     kind: surface
@@ -507,43 +507,43 @@ entries:
     fields_supported: [type, title, submit, close, blocks, private_metadata, callback_id, external_id, clear_on_close, notify_on_close, submit_disabled]
     parents: [views.open, views.update, views.push, push response action, update response action]
     surfaces: [modal]
-    restrictions: Checked DisplayModal excludes Input; FormModal requires submit. The block catalog is limited to Section, Actions, Divider, Header, Context, Image, RichText, Alert, Card, and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, user selects, channel selects, conversation selects, or date/time pickers; FormModal also accepts ModalInput containing NumberInput, FileInput, UrlInput, or EmailInput and ViewInput containing RichTextInput. submit_disabled is for Slack configuration modals only. Typed validation-error, clear, push, and update acknowledgments are listed separately.
+    restrictions: DisplayModal excludes Input; FormModal requires submit. The block catalog is limited to Section, Actions, Divider, Header, Context, Image, RichText, Alert, Card, and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, user selects, channel selects, conversation selects, or date/time pickers; FormModal also accepts ModalInput containing NumberInput, FileInput, UrlInput, or EmailInput and ViewInput containing RichTextInput. submit_disabled is for Slack configuration modals only. Typed validation-error, clear, push, and update acknowledgments are listed separately.
     implementation_status: partial
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/surfaces/form_modal.cr, src/slack/ui/checked/surfaces/display_modal.cr, spec/ui/checked/modal_spec.cr, examples/block_kit_modal.cr]
+    evidence_paths: [src/slack/ui/surfaces/form_modal.cr, src/slack/ui/surfaces/display_modal.cr, spec/ui/modal_spec.cr, examples/block_kit_modal.cr]
 
-  - wire_type: views.open checked adapter
+  - wire_type: views.open request
     kind: endpoint
     documentation_url: https://docs.slack.dev/reference/methods/views.open/
     fields_supported: [trigger_id, view]
     parents: []
     surfaces: [modal]
-    restrictions: CheckedViewsOpen composes the existing transport and validates result and call. external_id belongs inside view. Trigger-based opening only; interactivity_pointer is deferred. Responses retain the existing ViewsOpen model with raw view JSON.
+    restrictions: ViewsOpen composes the existing transport and validates result and call. external_id belongs inside view. Trigger-based opening only; interactivity_pointer is deferred. Responses retain the existing ViewsOpen model with raw view JSON.
     implementation_status: partial
     inbound_status: partial
-    evidence_paths: [src/slack/api/endpoints/checked_views_open.cr, spec/api/checked_views_open_spec.cr, spec/block_kit_consumers_spec.cr]
+    evidence_paths: [src/slack/api/endpoints/views_open.cr, spec/api/views_open_spec.cr, spec/block_kit_consumers_spec.cr]
 
-  - wire_type: views.update checked adapter
+  - wire_type: views.update request
     kind: endpoint
     documentation_url: https://docs.slack.dev/reference/methods/views.update/
     fields_supported: [view, view_id, external_id, hash]
     parents: []
     surfaces: [modal]
-    restrictions: CheckedViewsUpdate owns a FormModal or DisplayModal snapshot. Exactly one nonblank explicit target selector is library policy; external_id allows 255 characters. Top-level external_id selects the target independently of nested view metadata. Optional hash is opaque, including empty string; no automatic conflict retry or state migration. Input block/action IDs are sent unchanged; matching old IDs and live state preservation are not locally verified. Home uses views.publish. ViewsUpdate exposes ok and raw view JSON. Token, configuration, transport and limiter are dispatch options, not JSON fields.
+    restrictions: ViewsUpdate owns a FormModal or DisplayModal snapshot. Exactly one nonblank explicit target selector is library policy; external_id allows 255 characters. Top-level external_id selects the target independently of nested view metadata. Optional hash is opaque, including empty string; no automatic conflict retry or state migration. Input block/action IDs are sent unchanged; matching old IDs and live state preservation are not locally verified. Home uses views.publish. ViewsUpdate exposes ok and raw view JSON. Token, configuration, transport and limiter are dispatch options, not JSON fields.
     implementation_status: supported
     inbound_status: partial
-    evidence_paths: [src/slack/api/endpoints/checked_views_update.cr, src/slack/models/views/views_update.cr, spec/api/checked_views_update_spec.cr, spec/api/transport_injection_spec.cr, spec/block_kit_consumers_spec.cr, examples/block_kit_view_update.cr]
+    evidence_paths: [src/slack/api/endpoints/views_update.cr, src/slack/models/views/views_update.cr, spec/api/views_update_spec.cr, spec/api/transport_injection_spec.cr, spec/block_kit_consumers_spec.cr, examples/block_kit_view_update.cr]
 
-  - wire_type: views.push checked adapter
+  - wire_type: views.push request
     kind: endpoint
     documentation_url: https://docs.slack.dev/reference/methods/views.push/
     fields_supported: [trigger_id, view]
     parents: []
     surfaces: [modal]
-    restrictions: CheckedViewsPush owns a FormModal or DisplayModal snapshot and requires a nonblank opaque trigger from an interaction inside the existing modal. Metadata stays inside view; no top-level view_id, external_id or hash. interactivity_pointer is unsupported; typed error acknowledgments use ModalErrors separately. Slack checks trigger origin, expiry, single use and the three-view stack limit; no local stack tracking or automatic retry. result caches the HTTP response; call parses ViewsPush with ok and raw view JSON or raises the established API error. String token, configuration, transport and limiter are dispatch options, not JSON fields.
+    restrictions: ViewsPush owns a FormModal or DisplayModal snapshot and requires a nonblank opaque trigger from an interaction inside the existing modal. Metadata stays inside view; no top-level view_id, external_id or hash. interactivity_pointer is unsupported; typed error acknowledgments use ModalErrors separately. Slack checks trigger origin, expiry, single use and the three-view stack limit; no local stack tracking or automatic retry. result caches the HTTP response; call parses ViewsPush with ok and raw view JSON or raises the established API error. String token, configuration, transport and limiter are dispatch options, not JSON fields.
     implementation_status: partial
     inbound_status: partial
-    evidence_paths: [src/slack/api/endpoints/checked_views_push.cr, src/slack/models/views/views_push.cr, spec/api/checked_views_push_spec.cr, spec/api/transport_injection_spec.cr, examples/block_kit_view_push.cr, spec/block_kit_consumers_spec.cr]
+    evidence_paths: [src/slack/api/endpoints/views_push.cr, src/slack/models/views/views_push.cr, spec/api/views_push_spec.cr, spec/api/transport_injection_spec.cr, examples/block_kit_view_push.cr, spec/block_kit_consumers_spec.cr]
 
   - wire_type: block_actions and view_submission
     kind: interaction payload
@@ -562,10 +562,10 @@ entries:
     fields_supported: [id, url]
     parents: [image block, image element]
     surfaces: [message, modal, home]
-    restrictions: Checked immutable SlackFile accepts exactly one nonempty id or url. The URL can be url_private or permalink. Slack checks image format and posting-user access.
+    restrictions: Immutable SlackFile accepts exactly one nonempty id or url. The URL can be url_private or permalink. Slack checks image format and posting-user access.
     implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/checked/composition_objects/slack_file.cr, spec/ui/checked/display_spec.cr]
+    evidence_paths: [src/slack/ui/composition_objects/slack_file.cr, spec/ui/display_spec.cr]
 
   - wire_type: header
     kind: block
@@ -573,10 +573,10 @@ entries:
     fields_supported: [type, text, block_id, level]
     parents: [message, modal, home]
     surfaces: [message, modal, home]
-    restrictions: Checked plain-text heading supports 150 characters and optional Int32 level from 1 to 4.
+    restrictions: Plain-text heading supports 150 characters and optional Int32 level from 1 to 4.
     implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/checked/blocks/header.cr, spec/ui/checked/display_spec.cr]
+    evidence_paths: [src/slack/ui/blocks/header.cr, spec/ui/display_spec.cr]
 
   - wire_type: context
     kind: block
@@ -584,10 +584,10 @@ entries:
     fields_supported: [type, elements, block_id]
     parents: [message, modal, home]
     surfaces: [message, modal, home]
-    restrictions: Checked Context accepts text objects and image elements only; immutable copied collections contain one to ten elements. The nonempty minimum is library policy.
+    restrictions: Context accepts text objects and image elements only; immutable copied collections contain one to ten elements. The nonempty minimum is library policy.
     implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/checked/blocks/context.cr, spec/ui/checked/display_spec.cr]
+    evidence_paths: [src/slack/ui/blocks/context.cr, spec/ui/display_spec.cr]
 
   - wire_type: image block
     kind: block
@@ -595,10 +595,10 @@ entries:
     fields_supported: [type, alt_text, image_url, slack_file, title, block_id]
     parents: [message, modal, home]
     surfaces: [message, modal, home]
-    restrictions: Checked image block accepts exactly one public URL or SlackFile source; nonempty plain alt text is library policy. Plain-text title and alt text allow 2000 characters; URL allows 3000. Media availability remains a remote check.
+    restrictions: Image block accepts exactly one public URL or SlackFile source; nonempty plain alt text is library policy. Plain-text title and alt text allow 2000 characters; URL allows 3000. Media availability remains a remote check.
     implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/checked/blocks/image.cr, spec/ui/checked/display_spec.cr]
+    evidence_paths: [src/slack/ui/blocks/image.cr, spec/ui/display_spec.cr]
 
   - wire_type: video block
     kind: block
@@ -606,10 +606,10 @@ entries:
     fields_supported: [type, alt_text, title, title_url, description, thumbnail_url, video_url, author_name, provider_name, provider_icon_url, block_id]
     parents: [message, modal, home]
     surfaces: [message, modal, home]
-    restrictions: Checked display block needs alt_text, a plain-text title, thumbnail_url, and video_url. Title and description text must be fewer than 200 characters; author_name fewer than 50. video_url and title_url must be parseable absolute HTTPS URLs. Nonempty alt_text and thumbnail_url are library policy. The links.embed:write scope, unfurl domains, iframe compatibility, reachability, and the non-Slack domain rule are remote checks.
+    restrictions: Display block needs alt_text, a plain-text title, thumbnail_url, and video_url. Title and description text must be fewer than 200 characters; author_name fewer than 50. video_url and title_url must be parseable absolute HTTPS URLs. Nonempty alt_text and thumbnail_url are library policy. The links.embed:write scope, unfurl domains, iframe compatibility, reachability, and the non-Slack domain rule are remote checks.
     implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/checked/blocks/video.cr, spec/ui/checked/video_spec.cr, spec/fixtures/block_kit/video.json, examples/support/video_example.cr, spec/block_kit_consumers_spec.cr]
+    evidence_paths: [src/slack/ui/blocks/video.cr, spec/ui/video_spec.cr, spec/fixtures/block_kit/video.json, examples/support/video_example.cr, spec/block_kit_consumers_spec.cr]
 
   - wire_type: Home view
     kind: surface
@@ -617,21 +617,21 @@ entries:
     fields_supported: [type, blocks, private_metadata, callback_id, external_id]
     parents: [views.publish]
     surfaces: [home]
-    restrictions: Checked Home and HomeBuilder accept Section, Actions, Divider, Header, Context, Image, RichText, Table, DataTable, DataVisualization, Card, Carousel, Container (no File child), and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, user selects, channel selects, conversation selects, or date/time pickers, and ViewInput containing RichTextInput. At most 100 blocks, unique supplied block IDs (including Container children), and one focused element per view across Section, Actions, and Input, including Container children. Modal fields are unavailable. Other block and input families remain deferred. Inbound Home views retain raw JSON; button/static-select/overflow/checkbox/radio/user-select/channel-select/conversation-select/date-picker/time-picker actions and plain text/static-select/checkbox/radio/user-select/channel-select/conversation-select/date-picker/time-picker/rich-text-input state have typed access; rich-text-input actions are also typed.
+    restrictions: Home and HomeBuilder accept Section, Actions, Divider, Header, Context, Image, RichText, Table, DataTable, DataVisualization, Card, Carousel, Container (no File child), and Input containing PlainTextInput, static selects, Checkboxes, RadioButtons, user selects, channel selects, conversation selects, or date/time pickers, and ViewInput containing RichTextInput. At most 100 blocks, unique supplied block IDs (including Container children), and one focused element per view across Section, Actions, and Input, including Container children. Modal fields are unavailable. Other block and input families remain deferred. Inbound Home views retain raw JSON; button/static-select/overflow/checkbox/radio/user-select/channel-select/conversation-select/date-picker/time-picker actions and plain text/static-select/checkbox/radio/user-select/channel-select/conversation-select/date-picker/time-picker/rich-text-input state have typed access; rich-text-input actions are also typed.
     implementation_status: supported
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/surfaces/home.cr, src/slack/ui/checked/home_builder.cr, spec/ui/checked/home_spec.cr, spec/interactions/home_spec.cr, examples/block_kit_home.cr]
+    evidence_paths: [src/slack/ui/surfaces/home.cr, src/slack/ui/home_builder.cr, spec/ui/home_spec.cr, spec/interactions/home_spec.cr, examples/block_kit_home.cr]
 
-  - wire_type: views.publish checked adapter
+  - wire_type: views.publish request
     kind: endpoint
     documentation_url: https://docs.slack.dev/reference/methods/views.publish/
     fields_supported: [user_id, view, hash, interactivity_pointer]
     parents: []
     surfaces: [home]
-    restrictions: CheckedViewsPublish validates result and call before injected transport and retains an immutable Home snapshot. Token is a transport header; hash and interactivity_pointer are opaque optional request strings. external_id belongs inside view; team-wide uniqueness and remote hash validity are checked by Slack. ViewsPublish response exposes ok and raw view JSON.
+    restrictions: ViewsPublish validates result and call before injected transport and retains an immutable Home snapshot. Token is a transport header; hash and interactivity_pointer are opaque optional request strings. external_id belongs inside view; team-wide uniqueness and remote hash validity are checked by Slack. ViewsPublish response exposes ok and raw view JSON.
     implementation_status: supported
     inbound_status: partial
-    evidence_paths: [src/slack/api/endpoints/checked_views_publish.cr, src/slack/models/views/views_publish.cr, spec/api/checked_views_publish_spec.cr, spec/api/transport_injection_spec.cr, spec/fixtures/block_kit/phase_4_views_publish.json]
+    evidence_paths: [src/slack/api/endpoints/views_publish.cr, src/slack/models/views/views_publish.cr, spec/api/views_publish_spec.cr, spec/api/transport_injection_spec.cr, spec/fixtures/block_kit/phase_4_views_publish.json]
 
   - wire_type: plain-text menu option
     kind: composition object
@@ -639,10 +639,10 @@ entries:
     fields_supported: [text, value, description]
     parents: [static_select, multi_static_select, option_group, external_select, multi_external_select, block suggestion options response]
     surfaces: [message, modal, home]
-    restrictions: Checked Option has plain-text text and description only (75 characters each), and a value (150). URL belongs to OverflowOption; markdown belongs to CheckboxOption and RadioOption. Received SelectedOption exposes value, text, text_type, and complete raw JSON without outbound validation; emoji and description remain raw.
+    restrictions: Option has plain-text text and description only (75 characters each), and a value (150). URL belongs to OverflowOption; markdown belongs to CheckboxOption and RadioOption. Received SelectedOption exposes value, text, text_type, and complete raw JSON without outbound validation; emoji and description remain raw.
     implementation_status: supported
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/composition_objects/option.cr, src/slack/interactions/selected_option.cr, spec/ui/checked/static_select_spec.cr, spec/interactions/static_select_spec.cr]
+    evidence_paths: [src/slack/ui/composition_objects/option.cr, src/slack/interactions/selected_option.cr, spec/ui/static_select_spec.cr, spec/interactions/static_select_spec.cr]
 
   - wire_type: plain-text option group
     kind: composition object
@@ -650,10 +650,10 @@ entries:
     fields_supported: [label, options]
     parents: [static_select, multi_static_select, block suggestion options response]
     surfaces: [message, modal, home]
-    restrictions: Checked OptionGroup uses a plain-text label (75 characters) and one to 100 distinct menu options. Nonempty lists are library policy. Selections arrive as individual options; groups have no separate inbound value. BlockSuggestionResponse accepts up to 100 groups with values unique across groups.
+    restrictions: OptionGroup uses a plain-text label (75 characters) and one to 100 distinct menu options. Nonempty lists are library policy. Selections arrive as individual options; groups have no separate inbound value. BlockSuggestionResponse accepts up to 100 groups with values unique across groups.
     implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/checked/composition_objects/option_group.cr, spec/ui/checked/static_select_spec.cr]
+    evidence_paths: [src/slack/ui/composition_objects/option_group.cr, spec/ui/static_select_spec.cr]
 
   - wire_type: rich_text
     kind: block
@@ -661,10 +661,10 @@ entries:
     fields_supported: [type, elements, block_id]
     parents: [message, modal, home]
     surfaces: [message, modal, home]
-    restrictions: Checked Blocks::RichText owns a copied list of one or more RichText Section, List, Preformatted, or Quote containers; the nonempty minimum is library policy. It is display content on all four checked surfaces, including DisplayModal. Slack::Interactions::RichText::Block reads received trees, for example from message event blocks, without outbound policy. Unknown node types stay as RichText::Unknown; unknown fields stay in raw. Known types in the wrong tree position raise path-aware TypeMismatch. rich_text_input is a separate element; its initial_value and received rich_text_value use these types.
+    restrictions: Blocks::RichText owns a copied list of one or more RichText Section, List, Preformatted, or Quote containers; the nonempty minimum is library policy. It is display content on all four surfaces, including DisplayModal. Slack::Interactions::RichText::Block reads received trees, for example from message event blocks, without outbound policy. Unknown node types stay as RichText::Unknown; unknown fields stay in raw. Known types in the wrong tree position raise path-aware TypeMismatch. rich_text_input is a separate element; its initial_value and received rich_text_value use these types.
     implementation_status: supported
     inbound_status: supported
-    evidence_paths: [src/slack/ui/checked/blocks/rich_text.cr, src/slack/interactions/rich_text/block.cr, spec/ui/checked/rich_text_spec.cr, spec/interactions/rich_text_spec.cr, spec/api/rich_text_snapshot_spec.cr, examples/block_kit_rich_text.cr]
+    evidence_paths: [src/slack/ui/blocks/rich_text.cr, src/slack/interactions/rich_text/block.cr, spec/ui/rich_text_spec.cr, spec/interactions/rich_text_spec.cr, spec/api/rich_text_snapshot_spec.cr, examples/block_kit_rich_text.cr]
 
   - wire_type: rich_text_section, rich_text_list, rich_text_preformatted, rich_text_quote
     kind: rich text container
@@ -675,7 +675,7 @@ entries:
     restrictions: Types enforce Slack's documented children. List items are Section only; Preformatted holds Text or Link; Section and Quote hold the supported inline elements. List style is the ListStyle enum. Each container needs one or more children; border is 0 or 1; indent and offset are not negative. These values are library policy. Received containers keep strings and numbers as sent and accept empty children.
     implementation_status: supported
     inbound_status: supported
-    evidence_paths: [src/slack/ui/checked/rich_text/section.cr, src/slack/ui/checked/rich_text/list.cr, src/slack/ui/checked/rich_text/preformatted.cr, src/slack/ui/checked/rich_text/quote.cr, spec/ui/checked/rich_text_spec.cr, spec/block_kit_diagnostics_spec.cr]
+    evidence_paths: [src/slack/ui/rich_text/section.cr, src/slack/ui/rich_text/list.cr, src/slack/ui/rich_text/preformatted.cr, src/slack/ui/rich_text/quote.cr, spec/ui/rich_text_spec.cr, spec/block_kit_diagnostics_spec.cr]
 
   - wire_type: rich text inline elements
     kind: rich text element
@@ -686,7 +686,7 @@ entries:
     restrictions: "Outbound fields: text text/style; link url/text/unsafe/style; emoji name/unicode; user user_id/style; usergroup usergroup_id/style; channel channel_id/tab_id/style; broadcast range/style; date timestamp/format/timezone/url/fallback/style; color value/style; team team_id/style; file file_id/text/url/style; canvas file_id/label/hide_title/section_id/text/url/style; workflow_mention workflow_id/function_trigger_id/text/url/style. Style has bold, italic, strike, highlight, client_highlight, underline, and unlink; only TextStyle has code. Slack omits unlink for date, color, and file; the library does not check this. Required strings must not be empty (library policy). Fields that Slack sets to describe a received node are typed on receipt only: link from_llm/is_slack_url/truncated, user and channel from_llm, file and canvas is_skill_invocation, workflow_mention channel_id/ts. Preformatted still holds only text and link outbound. Unsupported: other documented element types, such as citation, tag, message_mention, and attachment_mention; received values keep them as RichText::Unknown and keep unknown fields in raw."
     implementation_status: partial
     inbound_status: partial
-    evidence_paths: [src/slack/ui/checked/rich_text/text.cr, src/slack/ui/checked/rich_text/style.cr, src/slack/ui/checked/rich_text/workflow_mention.cr, src/slack/interactions/rich_text/decoder.cr, spec/ui/checked/rich_text_spec.cr, spec/interactions/rich_text_spec.cr, examples/support/rich_text_example.cr, spec/block_kit_consumers_spec.cr]
+    evidence_paths: [src/slack/ui/rich_text/text.cr, src/slack/ui/rich_text/style.cr, src/slack/ui/rich_text/workflow_mention.cr, src/slack/interactions/rich_text/decoder.cr, spec/ui/rich_text_spec.cr, spec/interactions/rich_text_spec.cr, examples/support/rich_text_example.cr, spec/block_kit_consumers_spec.cr]
 
   - wire_type: table
     kind: block
@@ -694,10 +694,10 @@ entries:
     fields_supported: [type, rows, column_settings, block_id]
     parents: [message, home]
     surfaces: [message, home]
-    restrictions: Checked Blocks::Table owns copied rows of Table::RawText, Table::RawNumber, or Blocks::RichText cells. At most 100 rows, 20 cells per row, and 20 column settings; block_id 255. One or more rows and one or more cells per row are library policy. A nil column setting sends null to keep that column's defaults. Slack lists Messages and Home tabs only, so DisplayModal and FormModal reject it at compile time. Slack checks the 10,000-character limit per table and per message remotely; rich text cells have no documented character count. Received message tables are not decoded.
+    restrictions: Blocks::Table owns copied rows of Table::RawText, Table::RawNumber, or Blocks::RichText cells. At most 100 rows, 20 cells per row, and 20 column settings; block_id 255. One or more rows and one or more cells per row are library policy. A nil column setting sends null to keep that column's defaults. Slack lists Messages and Home tabs only, so DisplayModal and FormModal reject it at compile time. Slack checks the 10,000-character limit per table and per message remotely; rich text cells have no documented character count. Received message tables are not decoded.
     implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/checked/blocks/table.cr, spec/ui/checked/table_block_spec.cr, spec/fixtures/block_kit/table_message.json, spec/block_kit_diagnostics_spec.cr, examples/support/table_example.cr, spec/block_kit_consumers_spec.cr]
+    evidence_paths: [src/slack/ui/blocks/table.cr, spec/ui/table_block_spec.cr, spec/fixtures/block_kit/table_message.json, spec/block_kit_diagnostics_spec.cr, examples/support/table_example.cr, spec/block_kit_consumers_spec.cr]
 
   - wire_type: raw_text, raw_number, table column_settings
     kind: table composition
@@ -708,7 +708,7 @@ entries:
     restrictions: "RawText needs nonempty text. RawNumber takes an integer or float value, sent as a JSON number, and nonempty display text; the value must be finite. These checks are library policy (the Slack SDKs require text of at least 1 character). ColumnSetting has optional align (ColumnAlignment Left, Center, Right) and is_wrapped; omission and explicit false stay distinct. The raw_number fields come from the Slack SDK type definitions because the table reference names the cell type without a schema."
     implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/checked/table/raw_text.cr, src/slack/ui/checked/table/raw_number.cr, src/slack/ui/checked/table/column_setting.cr, spec/ui/checked/table_block_spec.cr]
+    evidence_paths: [src/slack/ui/table/raw_text.cr, src/slack/ui/table/raw_number.cr, src/slack/ui/table/column_setting.cr, spec/ui/table_block_spec.cr]
 
   - wire_type: markdown
     kind: block
@@ -716,10 +716,10 @@ entries:
     fields_supported: [type, text]
     parents: [message]
     surfaces: [message]
-    restrictions: Checked Blocks::Markdown sends standard markdown text; Slack translates it into one or more blocks. Text is at most 12,000 characters, and Message limits the total text of all its markdown blocks to 12,000 characters. Nonempty text is library policy. Slack ignores and does not keep block_id, so the block does not accept one and its block_id getter is always nil. Slack lists Messages only, so Home and modal surfaces reject it at compile time. Slack checks markdown rendering remotely. Received messages carry Slack's translated blocks, so received markdown blocks are not decoded.
+    restrictions: Blocks::Markdown sends standard markdown text; Slack translates it into one or more blocks. Text is at most 12,000 characters, and Message limits the total text of all its markdown blocks to 12,000 characters. Nonempty text is library policy. Slack ignores and does not keep block_id, so the block does not accept one and its block_id getter is always nil. Slack lists Messages only, so Home and modal surfaces reject it at compile time. Slack checks markdown rendering remotely. Received messages carry Slack's translated blocks, so received markdown blocks are not decoded.
     implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/checked/blocks/markdown.cr, src/slack/ui/checked/surfaces/message.cr, spec/ui/checked/markdown_block_spec.cr, spec/fixtures/block_kit/markdown_message.json, examples/support/markdown_example.cr, spec/block_kit_consumers_spec.cr]
+    evidence_paths: [src/slack/ui/blocks/markdown.cr, src/slack/ui/surfaces/message.cr, spec/ui/markdown_block_spec.cr, spec/fixtures/block_kit/markdown_message.json, examples/support/markdown_example.cr, spec/block_kit_consumers_spec.cr]
 
   - wire_type: workflow_button
     kind: block element
@@ -727,10 +727,10 @@ entries:
     fields_supported: [type, text, workflow, action_id, style, accessibility_label]
     parents: [section, actions]
     surfaces: [message]
-    restrictions: Checked WorkflowButton requires a plain-text label (75), a Workflow, and action_id (255). Optional ButtonStyle and accessibility_label (75). No confirm, url, or value. It compiles in Section accessories and Actions blocks, and Home and modal validation raise the workflow_button.unsupported_surface issue because Slack lists Messages only. No Input placement. Slack documents no block_actions payload for a click, so a received workflow_button action stays UnknownAction with raw JSON. Offline tests do not prove that the trigger URL is valid or that the workflow runs.
+    restrictions: WorkflowButton requires a plain-text label (75), a Workflow, and action_id (255). Optional ButtonStyle and accessibility_label (75). No confirm, url, or value. It compiles in Section accessories and Actions blocks, and Home and modal validation raise the workflow_button.unsupported_surface issue because Slack lists Messages only. No Input placement. Slack documents no block_actions payload for a click, so a received workflow_button action stays UnknownAction with raw JSON. Offline tests do not prove that the trigger URL is valid or that the workflow runs.
     implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/checked/block_elements/workflow_button.cr, src/slack/ui/checked/workflow_button_placement.cr, spec/ui/checked/workflow_button_spec.cr, spec/fixtures/block_kit/workflow_button.json, examples/support/workflow_button_example.cr, spec/block_kit_consumers_spec.cr]
+    evidence_paths: [src/slack/ui/block_elements/workflow_button.cr, src/slack/ui/workflow_button_placement.cr, spec/ui/workflow_button_spec.cr, spec/fixtures/block_kit/workflow_button.json, examples/support/workflow_button_example.cr, spec/block_kit_consumers_spec.cr]
 
   - wire_type: workflow, trigger, input parameter
     kind: composition object
@@ -741,7 +741,7 @@ entries:
     restrictions: "Workflow requires a WorkflowTrigger. The trigger requires url and has optional customizable_input_parameters; omission and an empty supplied list stay distinct. Parameters are copied once from the yielded values. WorkflowInputParameter has string name and value. A nonempty url is library policy. Slack checks remotely that the url is a valid link trigger and that each name and value match a customizable workflow input. End users can see parameter values."
     implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/checked/composition_objects/workflow.cr, src/slack/ui/checked/composition_objects/workflow_trigger.cr, src/slack/ui/checked/composition_objects/workflow_input_parameter.cr, spec/ui/checked/workflow_button_spec.cr]
+    evidence_paths: [src/slack/ui/composition_objects/workflow.cr, src/slack/ui/composition_objects/workflow_trigger.cr, src/slack/ui/composition_objects/workflow_input_parameter.cr, spec/ui/workflow_button_spec.cr]
 
   - wire_type: context_actions
     kind: block
@@ -749,10 +749,10 @@ entries:
     fields_supported: [type, elements, block_id]
     parents: [message]
     surfaces: [message]
-    restrictions: Checked Blocks::ContextActions owns a copied list of one to five FeedbackButtons or IconButton elements; the nonempty minimum is library policy. block_id 255. Supplied action IDs must be unique within the block. Slack lists Messages as the only surface, so Home, DisplayModal, and FormModal reject it at compile time; DisplayModal names the messages-only rule. Received message blocks are not decoded.
+    restrictions: Blocks::ContextActions owns a copied list of one to five FeedbackButtons or IconButton elements; the nonempty minimum is library policy. block_id 255. Supplied action IDs must be unique within the block. Slack lists Messages as the only surface, so Home, DisplayModal, and FormModal reject it at compile time; DisplayModal names the messages-only rule. Received message blocks are not decoded.
     implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/checked/blocks/context_actions.cr, spec/ui/checked/context_actions_spec.cr, spec/fixtures/block_kit/context_actions_message.json, spec/block_kit_diagnostics_spec.cr, examples/support/context_actions_example.cr, spec/block_kit_consumers_spec.cr]
+    evidence_paths: [src/slack/ui/blocks/context_actions.cr, spec/ui/context_actions_spec.cr, spec/fixtures/block_kit/context_actions_message.json, spec/block_kit_diagnostics_spec.cr, examples/support/context_actions_example.cr, spec/block_kit_consumers_spec.cr]
 
   - wire_type: feedback_buttons
     kind: element
@@ -763,7 +763,7 @@ entries:
     restrictions: BlockElements::FeedbackButtons needs a positive and a negative CompositionObjects::FeedbackButton; action_id 255. Each button has plain text of up to 75 characters, a required value of up to 2000, and an optional accessibility_label of up to 75. Received feedback_buttons actions stay UnknownAction with complete raw JSON, because Slack does not document the action shape.
     implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/checked/block_elements/feedback_buttons.cr, src/slack/ui/checked/composition_objects/feedback_button.cr, spec/ui/checked/context_actions_spec.cr, examples/support/context_actions_example.cr]
+    evidence_paths: [src/slack/ui/block_elements/feedback_buttons.cr, src/slack/ui/composition_objects/feedback_button.cr, spec/ui/context_actions_spec.cr, examples/support/context_actions_example.cr]
 
   - wire_type: icon_button
     kind: element
@@ -771,10 +771,10 @@ entries:
     fields_supported: [type, icon, text, action_id, value, confirm, accessibility_label, visible_to_user_ids]
     parents: [context_actions]
     surfaces: [message]
-    restrictions: BlockElements::IconButton takes an IconButtonIcon (Trash is the only documented icon) and plain text of up to 75 characters (library policy that matches Button; the icon button reference gives no text maximum). action_id 255, value 2000, accessibility_label 75, and a checked Confirmation. visible_to_user_ids is copied; when present it must contain one or more nonempty IDs (library policy). Slack checks that the IDs are real users. Received icon_button actions stay UnknownAction with complete raw JSON, because Slack does not document the action shape.
+    restrictions: BlockElements::IconButton takes an IconButtonIcon (Trash is the only documented icon) and plain text of up to 75 characters (library policy that matches Button; the icon button reference gives no text maximum). action_id 255, value 2000, accessibility_label 75, and a Confirmation. visible_to_user_ids is copied; when present it must contain one or more nonempty IDs (library policy). Slack checks that the IDs are real users. Received icon_button actions stay UnknownAction with complete raw JSON, because Slack does not document the action shape.
     implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/checked/block_elements/icon_button.cr, src/slack/ui/checked/block_elements/icon_button_icon.cr, spec/ui/checked/context_actions_spec.cr, examples/support/context_actions_example.cr]
+    evidence_paths: [src/slack/ui/block_elements/icon_button.cr, src/slack/ui/block_elements/icon_button_icon.cr, spec/ui/context_actions_spec.cr, examples/support/context_actions_example.cr]
 
   - wire_type: alert
     kind: block
@@ -782,10 +782,10 @@ entries:
     fields_supported: [type, text, level, block_id]
     parents: [modal]
     surfaces: [modal]
-    restrictions: Checked Blocks::Alert takes a plain_text or mrkdwn text object of at most 200 characters, an optional Blocks::AlertLevel (default, info, warning, error, success), and a block_id of at most 255 characters. A nil level omits the field, and Slack then uses default. Slack lists modals only, so DisplayModal and FormModal accept it; Message and Home reject it at compile time with a modals-only diagnostic. The reference table lists text as String and level as Array; its example and the Slack SDKs send a text object and a single string, and the library follows them. Alerts have no interaction payload.
+    restrictions: Blocks::Alert takes a plain_text or mrkdwn text object of at most 200 characters, an optional Blocks::AlertLevel (default, info, warning, error, success), and a block_id of at most 255 characters. A nil level omits the field, and Slack then uses default. Slack lists modals only, so DisplayModal and FormModal accept it; Message and Home reject it at compile time with a modals-only diagnostic. The reference table lists text as String and level as Array; its example and the Slack SDKs send a text object and a single string, and the library follows them. Alerts have no interaction payload.
     implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/checked/blocks/alert.cr, src/slack/ui/checked/blocks/alert_level.cr, spec/ui/checked/alert_block_spec.cr, spec/fixtures/block_kit/alert_display_modal.json, spec/block_kit_diagnostics_spec.cr, examples/support/alert_example.cr, spec/block_kit_consumers_spec.cr]
+    evidence_paths: [src/slack/ui/blocks/alert.cr, src/slack/ui/blocks/alert_level.cr, spec/ui/alert_block_spec.cr, spec/fixtures/block_kit/alert_display_modal.json, spec/block_kit_diagnostics_spec.cr, examples/support/alert_example.cr, spec/block_kit_consumers_spec.cr]
 
   - wire_type: data_table
     kind: block
@@ -793,10 +793,10 @@ entries:
     fields_supported: [type, rows, caption, page_size, row_header_column_index, block_id]
     parents: [message, home]
     surfaces: [message, home]
-    restrictions: "Checked Blocks::DataTable takes a caption, a header of Table::RawText or Table::RawNumber cells (Blocks::DataTable::HeaderCell), and data rows of Table::Cell values; it sends the header as the first entry of rows. Rich text header cells are rejected at compile time. 1 to 200 data rows, 1 to 20 columns, every data row as wide as the header, page_size 1 to 100, block_id 255. A nonempty caption and a row_header_column_index inside the header are library policy. Slack lists Messages and Home tabs only, so DisplayModal and FormModal reject it at compile time. Slack checks the 20,000-character limit per data table and per message remotely. Interactive cells (action_cell) have no documented schema and are not supported. Received message data tables are not decoded."
+    restrictions: "Blocks::DataTable takes a caption, a header of Table::RawText or Table::RawNumber cells (Blocks::DataTable::HeaderCell), and data rows of Table::Cell values; it sends the header as the first entry of rows. Rich text header cells are rejected at compile time. 1 to 200 data rows, 1 to 20 columns, every data row as wide as the header, page_size 1 to 100, block_id 255. A nonempty caption and a row_header_column_index inside the header are library policy. Slack lists Messages and Home tabs only, so DisplayModal and FormModal reject it at compile time. Slack checks the 20,000-character limit per data table and per message remotely. Interactive cells (action_cell) have no documented schema and are not supported. Received message data tables are not decoded."
     implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/checked/blocks/data_table.cr, spec/ui/checked/data_table_block_spec.cr, spec/fixtures/block_kit/data_table_message.json, spec/block_kit_diagnostics_spec.cr, examples/support/data_table_example.cr, spec/block_kit_consumers_spec.cr]
+    evidence_paths: [src/slack/ui/blocks/data_table.cr, spec/ui/data_table_block_spec.cr, spec/fixtures/block_kit/data_table_message.json, spec/block_kit_diagnostics_spec.cr, examples/support/data_table_example.cr, spec/block_kit_consumers_spec.cr]
 
   - wire_type: data_visualization
     kind: block
@@ -804,10 +804,10 @@ entries:
     fields_supported: [type, title, chart, block_id]
     parents: [message, home]
     surfaces: [message, home]
-    restrictions: Checked Blocks::DataVisualization has a title of 1 to 50 characters, one DataVisualization::Chart (PieChart, BarChart, AreaChart, or LineChart), and block_id 255. A nonempty title is library policy. Message allows at most two of these blocks, as Slack documents; Home does not check a count because Slack does not state one. Slack lists Messages and Home tabs only, so DisplayModal and FormModal reject it at compile time. Slack renders the chart; offline checks do not prove rendering. The block has no documented inbound payload, and received message blocks are not decoded.
+    restrictions: Blocks::DataVisualization has a title of 1 to 50 characters, one DataVisualization::Chart (PieChart, BarChart, AreaChart, or LineChart), and block_id 255. A nonempty title is library policy. Message allows at most two of these blocks, as Slack documents; Home does not check a count because Slack does not state one. Slack lists Messages and Home tabs only, so DisplayModal and FormModal reject it at compile time. Slack renders the chart; offline checks do not prove rendering. The block has no documented inbound payload, and received message blocks are not decoded.
     implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/checked/blocks/data_visualization.cr, src/slack/ui/checked/surfaces/message.cr, spec/ui/checked/data_visualization_block_spec.cr, spec/fixtures/block_kit/data_visualization_message.json, spec/block_kit_diagnostics_spec.cr, examples/support/data_visualization_example.cr, spec/block_kit_consumers_spec.cr]
+    evidence_paths: [src/slack/ui/blocks/data_visualization.cr, src/slack/ui/surfaces/message.cr, spec/ui/data_visualization_block_spec.cr, spec/fixtures/block_kit/data_visualization_message.json, spec/block_kit_diagnostics_spec.cr, examples/support/data_visualization_example.cr, spec/block_kit_consumers_spec.cr]
 
   - wire_type: pie, bar, area, line charts; segment, data series, data point, axis_config
     kind: data visualization composition
@@ -818,7 +818,7 @@ entries:
     restrictions: "PieChart has 1 to 12 Segments; a segment label has at most 20 characters and a value greater than 0. BarChart, AreaChart, and LineChart have 1 to 12 DataSeries with unique names of at most 20 characters and one AxisConfig. Each series has 1 to 20 DataPoints and exactly one point for each category; point labels have at most 20 characters. AxisConfig categories have at most 20 characters, and x_label and y_label at most 50. Values are integers or floats sent as JSON numbers. Library policy: nonempty labels, names, and categories; at least one category; at most 20 categories; unique categories; unique segment labels; finite values. Constructors copy collections once and getters return copies."
     implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/checked/data_visualization/pie_chart.cr, src/slack/ui/checked/data_visualization/series_chart.cr, src/slack/ui/checked/data_visualization/data_series.cr, src/slack/ui/checked/data_visualization/axis_config.cr, spec/ui/checked/data_visualization_block_spec.cr]
+    evidence_paths: [src/slack/ui/data_visualization/pie_chart.cr, src/slack/ui/data_visualization/series_chart.cr, src/slack/ui/data_visualization/data_series.cr, src/slack/ui/data_visualization/axis_config.cr, spec/ui/data_visualization_block_spec.cr]
 
   - wire_type: card
     kind: block
@@ -826,10 +826,10 @@ entries:
     fields_supported: [type, block_id, hero_image, icon, slack_icon, title, subtitle, body, subtext, actions]
     parents: [message, modal, home, carousel]
     surfaces: [message, modal, home]
-    restrictions: Checked Blocks::Card takes one Card::Icon value, an image element (sent as icon) or a SlackIcon (sent as slack_icon), so both cannot be sent. title and subtitle are text objects of at most 150 characters; body and subtext at most 200. hero_image and icon alt_text at most 2000. actions is a copied plain array of 1 to 3 Button elements with unique supplied action IDs; block_id 255. A card needs hero_image, title, actions, or body. The reference types actions as an Actions block, but every Slack example sends a plain button array; the library follows the examples. An empty actions array and duplicate action IDs are library policy. Buttons in a card send ordinary block_actions button payloads; Slack does not document which block_id they carry. Received message cards are not decoded.
+    restrictions: Blocks::Card takes one Card::Icon value, an image element (sent as icon) or a SlackIcon (sent as slack_icon), so both cannot be sent. title and subtitle are text objects of at most 150 characters; body and subtext at most 200. hero_image and icon alt_text at most 2000. actions is a copied plain array of 1 to 3 Button elements with unique supplied action IDs; block_id 255. A card needs hero_image, title, actions, or body. The reference types actions as an Actions block, but every Slack example sends a plain button array; the library follows the examples. An empty actions array and duplicate action IDs are library policy. Buttons in a card send ordinary block_actions button payloads; Slack does not document which block_id they carry. Received message cards are not decoded.
     implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/checked/blocks/card.cr, spec/ui/checked/card_carousel_spec.cr, spec/fixtures/block_kit/card_carousel_message.json, examples/support/card_carousel_example.cr, spec/block_kit_consumers_spec.cr]
+    evidence_paths: [src/slack/ui/blocks/card.cr, spec/ui/card_carousel_spec.cr, spec/fixtures/block_kit/card_carousel_message.json, examples/support/card_carousel_example.cr, spec/block_kit_consumers_spec.cr]
 
   - wire_type: carousel
     kind: block
@@ -837,10 +837,10 @@ entries:
     fields_supported: [type, elements, block_id]
     parents: [message, home]
     surfaces: [message, home]
-    restrictions: Checked Blocks::Carousel owns a copied list of 1 to 10 Blocks::Card values; block_id 255. Card block IDs must be unique within the carousel (library policy); uniqueness against top-level block IDs is not checked because Slack does not document it. Slack lists Messages and Home tabs only, so DisplayModal and FormModal reject it at compile time. Received message carousels are not decoded.
+    restrictions: Blocks::Carousel owns a copied list of 1 to 10 Blocks::Card values; block_id 255. Card block IDs must be unique within the carousel (library policy); uniqueness against top-level block IDs is not checked because Slack does not document it. Slack lists Messages and Home tabs only, so DisplayModal and FormModal reject it at compile time. Received message carousels are not decoded.
     implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/checked/blocks/carousel.cr, spec/ui/checked/card_carousel_spec.cr, spec/block_kit_diagnostics_spec.cr, examples/support/card_carousel_example.cr, spec/block_kit_consumers_spec.cr]
+    evidence_paths: [src/slack/ui/blocks/carousel.cr, spec/ui/card_carousel_spec.cr, spec/block_kit_diagnostics_spec.cr, examples/support/card_carousel_example.cr, spec/block_kit_consumers_spec.cr]
 
   - wire_type: slack icon
     kind: composition object
@@ -848,10 +848,10 @@ entries:
     fields_supported: [type, name]
     parents: [card]
     surfaces: [message, modal, home]
-    restrictions: Checked SlackIcon takes a SlackIconName enum member for each of the 54 documented names and sends its kebab-case name, for example CaretLeft as caret-left. An unnamed enum value, such as SlackIconName.new(99), raises a ValidationError. Only Card accepts it.
+    restrictions: SlackIcon takes a SlackIconName enum member for each of the 54 documented names and sends its kebab-case name, for example CaretLeft as caret-left. An unnamed enum value, such as SlackIconName.new(99), raises a ValidationError. Only Card accepts it.
     implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/checked/composition_objects/slack_icon.cr, src/slack/ui/checked/composition_objects/slack_icon_name.cr, spec/ui/checked/card_carousel_spec.cr]
+    evidence_paths: [src/slack/ui/composition_objects/slack_icon.cr, src/slack/ui/composition_objects/slack_icon_name.cr, spec/ui/card_carousel_spec.cr]
 
   - wire_type: container
     kind: block
@@ -859,10 +859,10 @@ entries:
     fields_supported: [type, title, rich_text_title, subtitle, child_blocks, block_id, width, icon, is_collapsible, default_collapsed, has_header_divider]
     parents: [message, home]
     surfaces: [message, home]
-    restrictions: "Checked Blocks::Container owns a copy of 1 to 10 child blocks of Section, Actions, Context, Divider, File, Header, Image, Input, RichText, Table, or Video; other children, including a nested Container, are compile errors. The constructors require title, rich_text_title, or both at compile time; Slack shows rich_text_title when both are sent. title and subtitle (plain_text or mrkdwn) 150 characters, icon alt_text 2000, block_id 255. width is Container::Width (narrow, standard, wide, full). is_collapsible, default_collapsed, and has_header_divider keep omission and explicit false distinct and are sent as given. One or more children is library policy. Home rejects a File child at runtime as library policy, because the File block is documented for messages only. Child block IDs share the surface's ID space; child focus_on_load, Home datetimepicker, Home workflow_button, and response_url_enabled checks apply as at the top level. DisplayModal and FormModal reject it at compile time. The container has no payload of its own; clicks in children decode as their usual actions. Input state keying inside a container is not documented. Received message containers are not decoded."
+    restrictions: "Blocks::Container owns a copy of 1 to 10 child blocks of Section, Actions, Context, Divider, File, Header, Image, Input, RichText, Table, or Video; other children, including a nested Container, are compile errors. The constructors require title, rich_text_title, or both at compile time; Slack shows rich_text_title when both are sent. title and subtitle (plain_text or mrkdwn) 150 characters, icon alt_text 2000, block_id 255. width is Container::Width (narrow, standard, wide, full). is_collapsible, default_collapsed, and has_header_divider keep omission and explicit false distinct and are sent as given. One or more children is library policy. Home rejects a File child at runtime as library policy, because the File block is documented for messages only. Child block IDs share the surface's ID space; child focus_on_load, Home datetimepicker, Home workflow_button, and response_url_enabled checks apply as at the top level. DisplayModal and FormModal reject it at compile time. The container has no payload of its own; clicks in children decode as their usual actions. Input state keying inside a container is not documented. Received message containers are not decoded."
     implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/checked/blocks/container.cr, spec/ui/checked/container_block_spec.cr, spec/fixtures/block_kit/container_message.json, spec/block_kit_diagnostics_spec.cr, examples/support/container_example.cr, spec/block_kit_consumers_spec.cr]
+    evidence_paths: [src/slack/ui/blocks/container.cr, spec/ui/container_block_spec.cr, spec/fixtures/block_kit/container_message.json, spec/block_kit_diagnostics_spec.cr, examples/support/container_example.cr, spec/block_kit_consumers_spec.cr]
 
   - wire_type: socket mode acknowledgment
     kind: socket mode frame
@@ -898,105 +898,105 @@ rules:
     source_url: "https://docs.slack.dev/reference/block-kit/composition-objects/text-object/"
     source_section: "Fields: type, text, emoji, verbatim"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/ui/checked/composition_objects_spec.cr"]
+    evidence_paths: ["spec/ui/composition_objects_spec.cr"]
   - id: confirmation
     classification: "slack_requirement"
     requirement: "Title/confirm/deny use plain text; title 100, body 300, buttons 30 characters; primary/danger style."
     source_url: "https://docs.slack.dev/reference/block-kit/composition-objects/confirmation-dialog-object/"
     source_section: "Fields and mrkdwn example"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/ui/checked/composition_objects_spec.cr"]
+    evidence_paths: ["spec/ui/composition_objects_spec.cr"]
   - id: button
     classification: "slack_requirement"
     requirement: "Plain text label 75; action_id 255; URL 3000; value 2000; accessibility label 75; agent_prompt 4000; known styles."
     source_url: "https://docs.slack.dev/reference/block-kit/block-elements/button-element/"
     source_section: "Fields"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/ui/checked/button_spec.cr"]
+    evidence_paths: ["spec/ui/button_spec.cr"]
   - id: section
     classification: "slack_requirement"
     requirement: "Text or fields required; at most 10 fields of 2000 characters, text 3000, block_id 255."
     source_url: "https://docs.slack.dev/reference/block-kit/blocks/section-block/"
     source_section: "Fields: text, fields, block_id"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/ui/checked/blocks_spec.cr", "spec/block_kit_diagnostics_spec.cr"]
+    evidence_paths: ["spec/ui/blocks_spec.cr", "spec/block_kit_diagnostics_spec.cr"]
   - id: actions
     classification: "slack_requirement"
     requirement: "At most 25 elements; action IDs unique within block; block_id 255."
     source_url: "https://docs.slack.dev/reference/block-kit/blocks/actions-block/"
     source_section: "Fields: elements, block_id; element action_id fields"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/ui/checked/blocks_spec.cr"]
+    evidence_paths: ["spec/ui/blocks_spec.cr"]
   - id: block_ids
     classification: "slack_requirement"
     requirement: "Supplied block IDs are at most 255 and unique in a message or view."
     source_url: "https://docs.slack.dev/reference/block-kit/blocks/input-block/"
     source_section: "Fields: block_id"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/ui/checked/surface_validation_spec.cr", "spec/ui/checked/message_spec.cr"]
+    evidence_paths: ["spec/ui/surface_validation_spec.cr", "spec/ui/message_spec.cr"]
   - id: input
     classification: "slack_requirement"
     requirement: "Plain text label and hint at most 2000 characters."
     source_url: "https://docs.slack.dev/reference/block-kit/blocks/input-block/"
     source_section: "Fields: label, hint"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/ui/checked/input_spec.cr", "spec/block_kit_diagnostics_spec.cr"]
+    evidence_paths: ["spec/ui/input_spec.cr", "spec/block_kit_diagnostics_spec.cr"]
   - id: input_surfaces
     classification: "library_support"
     requirement: "Slack documents Messages, Modals, Home; the library supports Input in Message, FormModal and Home. DisplayModal membership stays independent to protect the submit requirement."
     source_url: "https://docs.slack.dev/reference/block-kit/blocks/input-block.md"
     source_section: "available_in_surfaces Markdown metadata"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/ui/checked/input_surfaces_spec.cr", "spec/ui/checked/home_spec.cr", "spec/ui/checked/modal_spec.cr"]
+    evidence_paths: ["spec/ui/input_surfaces_spec.cr", "spec/ui/home_spec.cr", "spec/ui/modal_spec.cr"]
   - id: plain_input
     classification: "slack_requirement"
     requirement: "Placeholder 150, action_id 255, min_length 0..3000, max_length 1..3000; minimum cannot exceed maximum."
     source_url: "https://docs.slack.dev/reference/block-kit/block-elements/plain-text-input-element/"
     source_section: "Fields"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/ui/checked/input_spec.cr"]
+    evidence_paths: ["spec/ui/input_spec.cr"]
   - id: dispatch
     classification: "library_policy"
     requirement: "When provided, dispatch triggers are one or both distinct known enum values; no empty or repeated triggers."
     source_url: "https://docs.slack.dev/reference/block-kit/composition-objects/dispatch-action-configuration-object/"
     source_section: "Fields: trigger_actions_on; documented values"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/ui/checked/input_spec.cr"]
+    evidence_paths: ["spec/ui/input_spec.cr"]
   - id: focus
     classification: "slack_requirement"
     requirement: "Only one focus_on_load=true element per view."
     source_url: "https://docs.slack.dev/reference/block-kit/block-elements/plain-text-input-element/"
     source_section: "Fields: focus_on_load"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/ui/checked/modal_spec.cr", "spec/ui/checked/static_select_spec.cr"]
+    evidence_paths: ["spec/ui/modal_spec.cr", "spec/ui/static_select_spec.cr"]
   - id: message
     classification: "slack_requirement"
     requirement: "Messages contain at most 50 blocks; explicit fallback or Slack-generated fallback controls text omission."
     source_url: "https://docs.slack.dev/block-kit/"
     source_section: "Block limits; chat.postMessage text accessibility guidance"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/ui/checked/message_spec.cr", "spec/api/checked_chat_post_message_spec.cr"]
+    evidence_paths: ["spec/ui/message_spec.cr", "spec/api/chat_post_message_spec.cr"]
   - id: modal
     classification: "slack_requirement"
     requirement: "Title/close/submit plain text at most 24; 100 blocks; private_metadata 3000; callback_id 255; Input requires submit."
     source_url: "https://docs.slack.dev/reference/views/modal-views/"
     source_section: "Modal view object fields"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/ui/checked/modal_spec.cr", "spec/block_kit_diagnostics_spec.cr"]
+    evidence_paths: ["spec/ui/modal_spec.cr", "spec/block_kit_diagnostics_spec.cr"]
   - id: display_form
     classification: "library_policy"
     requirement: "DisplayModal excludes Input even with submit; FormModal always requires submit, including when no Input is present."
     source_url: "https://docs.slack.dev/reference/views/modal-views/"
     source_section: "Fields: submit (conditional Slack requirement)"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/block_kit_diagnostics_spec.cr", "spec/ui/checked/modal_spec.cr"]
+    evidence_paths: ["spec/block_kit_diagnostics_spec.cr", "spec/ui/modal_spec.cr"]
   - id: external_id
     classification: "slack_requirement"
     requirement: "views.open limits view external_id to 255. Home has no corresponding local length limit."
     source_url: "https://docs.slack.dev/reference/methods/views.open/"
     source_section: "views.open Usage info: external_id; compare Modal view object fields: external_id"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/ui/checked/modal_spec.cr", "spec/ui/checked/home_spec.cr"]
+    evidence_paths: ["spec/ui/modal_spec.cr", "spec/ui/home_spec.cr"]
     resolution: "Resolved by https://docs.slack.dev/reference/methods/views.open/ Usage info, which explicitly gives 255. The modal field table omits the maximum. No live acceptance test; Home limit remains unestablished."
   - id: home
     classification: "slack_requirement"
@@ -1004,105 +1004,105 @@ rules:
     source_url: "https://docs.slack.dev/reference/views/home-tab-views/"
     source_section: "Home tab view object fields"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/ui/checked/home_spec.cr"]
+    evidence_paths: ["spec/ui/home_spec.cr"]
   - id: header
     classification: "slack_requirement"
     requirement: "Plain text 150 characters; heading level 1..4."
     source_url: "https://docs.slack.dev/reference/block-kit/blocks/header-block/"
     source_section: "Fields: text, level"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/ui/checked/display_spec.cr"]
+    evidence_paths: ["spec/ui/display_spec.cr"]
   - id: context
     classification: "slack_requirement"
     requirement: "At most 10 text or image elements."
     source_url: "https://docs.slack.dev/reference/block-kit/blocks/context-block/"
     source_section: "Fields: elements"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/ui/checked/display_spec.cr"]
+    evidence_paths: ["spec/ui/display_spec.cr"]
   - id: image
     classification: "slack_requirement"
     requirement: "One image_url or slack_file source; URL 3000; block alt text and plain-text title 2000."
     source_url: "https://docs.slack.dev/reference/block-kit/blocks/image-block/"
     source_section: "Fields: image_url, slack_file, alt_text, title"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/ui/checked/display_spec.cr"]
+    evidence_paths: ["spec/ui/display_spec.cr"]
   - id: video
     classification: "slack_requirement"
     requirement: "Required alt_text, plain-text title, thumbnail_url, and video_url; title and description under 200; author_name under 50; HTTPS video_url and title_url."
     source_url: "https://docs.slack.dev/reference/block-kit/blocks/video-block/"
     source_section: "Fields and usage info"
     reviewed_on: "2026-09-28"
-    evidence_paths: ["spec/ui/checked/video_spec.cr"]
+    evidence_paths: ["spec/ui/video_spec.cr"]
   - id: file_block
     classification: "slack_requirement"
     requirement: "Messages only, not added to app surfaces directly (share with files.remote.share or chat.unfurl); required external_id and source \"remote\"; block_id 255."
     source_url: "https://docs.slack.dev/reference/block-kit/blocks/file-block/"
     source_section: "Fields and usage info"
     reviewed_on: "2026-09-28"
-    evidence_paths: ["spec/ui/checked/file_block_spec.cr", "spec/block_kit_diagnostics_spec.cr"]
+    evidence_paths: ["spec/ui/file_block_spec.cr", "spec/block_kit_diagnostics_spec.cr"]
   - id: slack_file
     classification: "slack_requirement"
     requirement: "Exactly one id or url source; remote access and image format cannot be validated offline."
     source_url: "https://docs.slack.dev/reference/block-kit/composition-objects/slack-file-object/"
     source_section: "Fields and usage"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/ui/checked/display_spec.cr"]
+    evidence_paths: ["spec/ui/display_spec.cr"]
   - id: menu_option
     classification: "slack_requirement"
     requirement: "Static option text/description plain text 75, value 150; group label plain text 75; at most 100 options per group."
     source_url: "https://docs.slack.dev/reference/block-kit/composition-objects/option-object/"
     source_section: "Fields: text, value, description; option-group fields"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/ui/checked/static_select_spec.cr"]
+    evidence_paths: ["spec/ui/static_select_spec.cr"]
   - id: static_select
     classification: "slack_requirement"
     requirement: "Exactly one options or option_groups source, at most 100 entries; initial selections exactly match choices; placeholder 150; action_id 255."
     source_url: "https://docs.slack.dev/reference/block-kit/block-elements/select-menu-element/"
     source_section: "Static select Fields: options, option_groups, initial_option, placeholder, action_id"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/ui/checked/static_select_spec.cr", "spec/block_kit_diagnostics_spec.cr"]
+    evidence_paths: ["spec/ui/static_select_spec.cr", "spec/block_kit_diagnostics_spec.cr"]
   - id: multi_select
     classification: "slack_requirement"
     requirement: "max_selected_items at least 1; initial selections cannot exceed it; each initial selection matches a choice."
     source_url: "https://docs.slack.dev/reference/block-kit/block-elements/multi-select-menu-element/"
     source_section: "Static multi-select Fields: initial_options, max_selected_items"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/ui/checked/static_select_spec.cr"]
+    evidence_paths: ["spec/ui/static_select_spec.cr"]
   - id: collection_policy
     classification: "library_policy"
     requirement: "Nonempty Message blocks/fallback, Actions/Context elements, Section fields, option/group lists, image alt text/source and SlackFile source. Choice values and initial selections are unique; immutable snapshots protect ownership."
     source_url: "https://docs.slack.dev/block-kit/"
     source_section: "Local validation stricter than documented maxima; no claim of server rejection"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/ui/checked/message_spec.cr", "spec/ui/checked/blocks_spec.cr", "spec/ui/checked/display_spec.cr", "spec/ui/checked/static_select_spec.cr"]
+    evidence_paths: ["spec/ui/message_spec.cr", "spec/ui/blocks_spec.cr", "spec/ui/display_spec.cr", "spec/ui/static_select_spec.cr"]
   - id: declared_types
     classification: "library_policy"
     requirement: "Collections accept supported yielded values even with a broad Enumerable declaration. Typed append/add boundaries copy once into owned arrays; DisplayModal checks the yielded type to retain the FormModal-with-submit diagnostic. No filtering or casts."
     source_url: "https://docs.slack.dev/block-kit/"
     source_section: "Local construction policy, not a Slack schema restriction"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/ui/checked/yielded_collections_spec.cr", "spec/ui/checked/message_composition_spec.cr", "spec/ui/checked/modal_composition_spec.cr", "spec/ui/checked/display_composition_spec.cr", "spec/ui/checked/select_composition_spec.cr"]
+    evidence_paths: ["spec/ui/yielded_collections_spec.cr", "spec/ui/message_composition_spec.cr", "spec/ui/modal_composition_spec.cr", "spec/ui/display_composition_spec.cr", "spec/ui/select_composition_spec.cr"]
   - id: overflow_fields
     classification: "slack_requirement"
     requirement: "Overflow supports up to five options, optional action_id up to 255 characters, and optional confirm. Only Section and Actions placement."
     source_url: "https://docs.slack.dev/reference/block-kit/block-elements/overflow-menu-element/"
     source_section: "Fields and Example placement"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/ui/checked/overflow_spec.cr", "spec/block_kit_diagnostics_spec.cr"]
+    evidence_paths: ["spec/ui/overflow_spec.cr", "spec/block_kit_diagnostics_spec.cr"]
   - id: overflow_option_fields
     classification: "slack_requirement"
     requirement: "Plain-text label and description up to 75 characters, required unique value up to 150, optional URL up to 3000. URL choices still require interaction acknowledgment."
     source_url: "https://docs.slack.dev/reference/block-kit/composition-objects/option-object/"
     source_section: "Fields: text, value, description, url"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/ui/checked/overflow_spec.cr", "spec/block_kit_consumers_spec.cr"]
+    evidence_paths: ["spec/ui/overflow_spec.cr", "spec/block_kit_consumers_spec.cr"]
   - id: overflow_collection_policy
     classification: "library_policy"
     requirement: "Overflow requires a nonempty option list and takes one owned snapshot of supported yielded values. Getter snapshots cannot change a built request."
     source_url: "https://docs.slack.dev/reference/block-kit/block-elements/overflow-menu-element/"
     source_section: "Local minimum and ownership policy beyond the documented maximum"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/ui/checked/overflow_spec.cr", "spec/api/overflow_snapshot_spec.cr"]
+    evidence_paths: ["spec/ui/overflow_spec.cr", "spec/api/overflow_snapshot_spec.cr"]
   - id: overflow_received_action
     classification: "library_support"
     requirement: "Typed OverflowAction requires selected_option and IDs, permits optional action_ts, preserves raw fields, and reports malformed known data without outbound validation."
@@ -1116,21 +1116,21 @@ rules:
     source_url: "https://docs.slack.dev/reference/block-kit/block-elements/checkboxes-element.md"
     source_section: "Fields and surface/placement metadata"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/ui/checked/checkboxes_spec.cr"]
+    evidence_paths: ["spec/ui/checkboxes_spec.cr"]
   - id: checkbox_option_fields
     classification: "slack_requirement"
     requirement: "Checkbox labels and descriptions accept plain_text or mrkdwn up to 75 characters; values up to 150; no URL."
     source_url: "https://docs.slack.dev/reference/block-kit/composition-objects/option-object/"
     source_section: "Fields: text, value, description, url"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/ui/checked/checkboxes_spec.cr"]
+    evidence_paths: ["spec/ui/checkboxes_spec.cr"]
   - id: checkbox_collection_policy
     classification: "library_policy"
     requirement: "Nonempty choices and distinct initial selections; one owned snapshot of supported yielded values. Empty initial selections remain distinct from omission."
     source_url: "https://docs.slack.dev/reference/block-kit/block-elements/checkboxes-element/"
     source_section: "Local minimum and ownership policy"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/ui/checked/checkboxes_spec.cr", "spec/api/checkboxes_snapshot_spec.cr"]
+    evidence_paths: ["spec/ui/checkboxes_spec.cr", "spec/api/checkboxes_snapshot_spec.cr"]
   - id: checkbox_received_selection
     classification: "library_support"
     requirement: "Typed checkbox actions and state preserve absent/null/empty selections and raw fields. A cleared selection is an empty array. Malformed known fields raise TypeMismatch without outbound validation."
@@ -1144,21 +1144,21 @@ rules:
     source_url: "https://docs.slack.dev/reference/block-kit/block-elements/radio-button-group-element/"
     source_section: "Fields and placement example"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/ui/checked/radio_buttons_spec.cr"]
+    evidence_paths: ["spec/ui/radio_buttons_spec.cr"]
   - id: radio_option_fields
     classification: "slack_requirement"
     requirement: "Radio labels and descriptions accept plain_text or mrkdwn up to 75 characters; unique values up to 150; no URL."
     source_url: "https://docs.slack.dev/reference/block-kit/composition-objects/option-object/"
     source_section: "Fields: text, value, description, url"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/ui/checked/radio_buttons_spec.cr"]
+    evidence_paths: ["spec/ui/radio_buttons_spec.cr"]
   - id: radio_collection_policy
     classification: "library_policy"
     requirement: "Nonempty choices; one owned snapshot of supported yielded values. Getter and caller mutations cannot change a built request."
     source_url: "https://docs.slack.dev/reference/block-kit/block-elements/radio-button-group-element/"
     source_section: "Local minimum and ownership policy"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/ui/checked/radio_buttons_spec.cr", "spec/api/radio_buttons_snapshot_spec.cr"]
+    evidence_paths: ["spec/ui/radio_buttons_spec.cr", "spec/api/radio_buttons_snapshot_spec.cr"]
   - id: radio_received_selection
     classification: "library_support"
     requirement: "Typed radio actions and state preserve absent/null/present selected_option and raw fields. Malformed known fields raise TypeMismatch without outbound validation."
@@ -1168,46 +1168,46 @@ rules:
     evidence_paths: ["spec/interactions/radio_buttons_spec.cr", "spec/block_kit_consumers_spec.cr"]
   - id: chat_update_replacement
     classification: "library_policy"
-    requirement: "Always replace checked nonempty blocks and explicit fallback text; reject generated fallback instead of assuming update omission regenerates accessibility text. No partial patch or clearing API."
+    requirement: "Always replace nonempty blocks and explicit fallback text; reject generated fallback instead of assuming update omission regenerates accessibility text. No partial patch or clearing API."
     source_url: "https://docs.slack.dev/reference/methods/chat.update/"
     source_section: "Usage info: text, blocks or attachments"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/api/checked_chat_update_spec.cr", "spec/block_kit_consumers_spec.cr"]
+    evidence_paths: ["spec/api/chat_update_spec.cr", "spec/block_kit_consumers_spec.cr"]
   - id: chat_update_fields
     classification: "slack_requirement"
     requirement: "Channel and message timestamp select the target; text maximum is 4000 characters. Optional as_user applies to bot-owned updates."
     source_url: "https://docs.slack.dev/reference/methods/chat.update/"
     source_section: "Arguments, Valid message types, Errors: msg_too_long"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/api/checked_chat_update_spec.cr"]
+    evidence_paths: ["spec/api/chat_update_spec.cr"]
   - id: views_update_target_policy
     classification: "library_policy"
     requirement: "Exactly one nonblank explicit view_id or external_id; never infer a target from nested view metadata. Only the existing Modal union is supported."
     source_url: "https://docs.slack.dev/reference/methods/views.update/"
     source_section: "Arguments and Usage info; exclusive selector choice is library policy"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/api/checked_views_update_spec.cr"]
+    evidence_paths: ["spec/api/views_update_spec.cr"]
   - id: views_update_hash_and_inputs
     classification: "slack_requirement"
     requirement: "External target IDs allow 255 characters. Optional hash protects against stale updates; retained input block_id/action_id pairs must match the old view to preserve input state. Local checks prove transmitted IDs, not remote state preservation."
     source_url: "https://docs.slack.dev/reference/methods/views.update/"
     source_section: "Arguments, Preserving input entry, Errors"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/api/checked_views_update_spec.cr", "spec/block_kit_consumers_spec.cr", "examples/support/view_update_example.cr"]
+    evidence_paths: ["spec/api/views_update_spec.cr", "spec/block_kit_consumers_spec.cr", "examples/support/view_update_example.cr"]
   - id: user_select_fields
     classification: "slack_requirement"
     requirement: "User selects support action_id 255, plain-text placeholder 150, confirm, focus_on_load and initial_user or initial_users. Multi-user max_selected_items is at least one. Section/Actions/Input on Messages, Modals and Home."
     source_url: "https://docs.slack.dev/reference/block-kit/block-elements/multi-select-menu-element.md"
     source_section: "User list fields and placement metadata; single fields in select-menu-element.md"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/ui/checked/users_select_spec.cr", "spec/api/users_select_snapshot_spec.cr"]
+    evidence_paths: ["spec/ui/users_select_spec.cr", "spec/api/users_select_snapshot_spec.cr"]
   - id: user_select_initial_policy
     classification: "library_policy"
     requirement: "Initial IDs are nonempty, distinct for multi-select and within a supplied maximum. Empty initial arrays differ from omission. One-pass owned snapshots accept supported yielded strings without ID-prefix, length, membership or remote existence restrictions."
     source_url: "https://docs.slack.dev/reference/block-kit/block-elements/multi-select-menu-element/"
     source_section: "Local policy for initial_users and max_selected_items"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/ui/checked/users_select_spec.cr", "spec/api/users_select_snapshot_spec.cr"]
+    evidence_paths: ["spec/ui/users_select_spec.cr", "spec/api/users_select_snapshot_spec.cr"]
   - id: user_select_received_ids
     classification: "library_support"
     requirement: "Typed selected_user and selected_users actions and state preserve absent/null/empty and raw fields. Malformed known fields raise path-aware TypeMismatch without outbound constraints. Selected array access returns copies."
@@ -1221,14 +1221,14 @@ rules:
     source_url: "https://docs.slack.dev/reference/methods/views.push/"
     source_section: "Usage info and Errors; modal lifecycle guide"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/api/checked_views_push_spec.cr", "examples/support/view_push_example.cr", "spec/block_kit_consumers_spec.cr"]
+    evidence_paths: ["spec/api/views_push_spec.cr", "examples/support/view_push_example.cr", "spec/block_kit_consumers_spec.cr"]
   - id: views_push_trigger_policy
     classification: "library_policy"
-    requirement: "Nonblank opaque trigger_id plus an owned checked Modal snapshot only. interactivity_pointer omitted; local validation precedes dispatch, and the response is cached without automatic retry."
+    requirement: "Nonblank opaque trigger_id plus an owned Modal snapshot only. interactivity_pointer omitted; local validation precedes dispatch, and the response is cached without automatic retry."
     source_url: "https://docs.slack.dev/reference/methods/views.push/"
     source_section: "Arguments; trigger-only scope and nonblank check are library policy"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/api/checked_views_push_spec.cr", "spec/api/transport_injection_spec.cr"]
+    evidence_paths: ["spec/api/views_push_spec.cr", "spec/api/transport_injection_spec.cr"]
 
   - id: modal-errors-acknowledgment
     classification: library_support
@@ -1250,14 +1250,14 @@ rules:
     source_url: "https://docs.slack.dev/reference/block-kit/block-elements/multi-select-menu-element.md"
     source_section: "Public channels fields and placement metadata; single fields in select-menu-element.md"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["spec/ui/checked/channels_select_spec.cr", "spec/api/channels_select_snapshot_spec.cr"]
+    evidence_paths: ["spec/ui/channels_select_spec.cr", "spec/api/channels_select_snapshot_spec.cr"]
   - id: channel_select_initial_and_placement_policy
     classification: "library_policy"
     requirement: "Initial IDs are nonempty, distinct for multi-select and within a supplied maximum. Owned one-pass snapshots accept actual yielded strings with no ID-format or remote membership checks. Any supplied response_url_enabled, including false, is rejected outside modal Input. Omitted and false fields remain distinct."
     source_url: "https://docs.slack.dev/reference/block-kit/block-elements/select-menu-element/"
     source_section: "Local initial-ID and field-presence policy; response_url_enabled documented placement"
     reviewed_on: "2026-09-27"
-    evidence_paths: ["src/slack/ui/checked/channel_response_url.cr", "spec/ui/checked/channels_select_spec.cr", "spec/api/channels_select_snapshot_spec.cr"]
+    evidence_paths: ["src/slack/ui/channel_response_url.cr", "spec/ui/channels_select_spec.cr", "spec/api/channels_select_snapshot_spec.cr"]
   - id: channel_select_received_ids
     classification: "library_support"
     requirement: "Typed selected_channel and selected_channels actions and state preserve absent/null/empty and raw fields. Malformed known fields raise path-aware TypeMismatch without outbound constraints. Selected array access returns copies. Submission response_urls decode as typed ResponseUrl values."
@@ -1278,7 +1278,7 @@ rules:
     reviewed_on: "2026-09-27"
     source_url: "https://docs.slack.dev/surfaces/modals/#add-a-new-view-via-response_action"
     source_section: "Add a new view via response_action"
-    requirement: "Serialize response_action push with an owned checked modal as the submission acknowledgment. Applications own HTTP delivery within three seconds; Slack owns stack state."
+    requirement: "Serialize response_action push with an owned modal as the submission acknowledgment. Applications own HTTP delivery within three seconds; Slack owns stack state."
     evidence_paths: ["src/slack/interactions/modal_push.cr", "spec/interactions/modal_push_spec.cr", "spec/block_kit_consumers_spec.cr", "examples/support/modal_push_example.cr"]
 
   - id: modal-update-acknowledgment
@@ -1286,7 +1286,7 @@ rules:
     reviewed_on: "2026-09-27"
     source_url: "https://docs.slack.dev/surfaces/modals/#update-a-view-via-response_action"
     source_section: "Update a view via response_action"
-    requirement: "Serialize response_action update and an owned checked modal view as an HTTP acknowledgment. Reuse modal validation and snapshot rules; applications own acknowledgment timing and retained input ID matching."
+    requirement: "Serialize response_action update and an owned modal view as an HTTP acknowledgment. Reuse modal validation and snapshot rules; applications own acknowledgment timing and retained input ID matching."
     evidence_paths: ["src/slack/interactions/modal_update.cr", "spec/interactions/modal_update_spec.cr", "spec/block_kit_consumers_spec.cr", "examples/support/modal_update_example.cr"]
 
 
@@ -1296,7 +1296,7 @@ rules:
     source_url: https://docs.slack.dev/reference/block-kit/block-elements/multi-select-menu-element/
     source_section: "Conversations list; single fields in select-menu-element"
     reviewed_on: "2026-09-27"
-    evidence_paths: [spec/ui/checked/conversations_select_spec.cr, spec/api/conversations_select_snapshot_spec.cr]
+    evidence_paths: [spec/ui/conversations_select_spec.cr, spec/api/conversations_select_snapshot_spec.cr]
 
   - id: conversation-filter-fields
     classification: slack_requirement
@@ -1304,7 +1304,7 @@ rules:
     source_url: https://docs.slack.dev/reference/block-kit/composition-objects/conversation-filter-object/
     source_section: "Fields"
     reviewed_on: "2026-09-27"
-    evidence_paths: [src/slack/ui/checked/composition_objects/conversation_filter.cr, spec/ui/checked/conversations_select_spec.cr, spec/api/conversations_select_snapshot_spec.cr]
+    evidence_paths: [src/slack/ui/composition_objects/conversation_filter.cr, spec/ui/conversations_select_spec.cr, spec/api/conversations_select_snapshot_spec.cr]
 
   - id: conversation-select-local-policies
     classification: library_policy
@@ -1312,7 +1312,7 @@ rules:
     source_url: https://docs.slack.dev/reference/block-kit/block-elements/select-menu-element/
     source_section: "Conversations fields; library ownership and field-presence policies"
     reviewed_on: "2026-09-27"
-    evidence_paths: [spec/ui/checked/conversations_select_spec.cr, spec/api/conversations_select_snapshot_spec.cr]
+    evidence_paths: [spec/ui/conversations_select_spec.cr, spec/api/conversations_select_snapshot_spec.cr]
 
   - id: conversation-select-inbound
     classification: library_support
@@ -1328,35 +1328,35 @@ rules:
     source_url: https://docs.slack.dev/reference/block-kit/block-elements/date-picker-element/
     source_section: Fields, Example and Markdown placement metadata
     reviewed_on: "2026-09-27"
-    evidence_paths: [spec/ui/checked/date_picker_spec.cr, spec/ui/checked/date_time_placement_spec.cr]
+    evidence_paths: [spec/ui/date_picker_spec.cr, spec/ui/date_time_placement_spec.cr]
   - id: datepicker_calendar_policy
     classification: library_policy
     requirement: "Require real Gregorian calendar dates in years 0001–9999; do not enforce remote scheduling windows or apply outbound validation to received strings."
     source_url: https://docs.slack.dev/reference/block-kit/block-elements/date-picker-element/
     source_section: "Fields: initial_date"
     reviewed_on: "2026-09-27"
-    evidence_paths: [spec/ui/checked/date_picker_spec.cr, spec/interactions/date_time_pickers_spec.cr]
+    evidence_paths: [spec/ui/date_picker_spec.cr, spec/interactions/date_time_pickers_spec.cr]
   - id: timepicker_fields
     classification: slack_requirement
     requirement: "Optional initial_time uses HH:mm (00–23 hours, 00–59 minutes); action_id 255; plain placeholder 150; confirmation, one focus target per view, optional IANA timezone hint. Section/Actions/Input on all three surfaces."
     source_url: https://docs.slack.dev/reference/block-kit/block-elements/time-picker-element/
     source_section: Fields, Example and Markdown placement metadata
     reviewed_on: "2026-09-27"
-    evidence_paths: [spec/ui/checked/time_picker_spec.cr, spec/ui/checked/date_time_placement_spec.cr, spec/api/date_time_pickers_snapshot_spec.cr]
+    evidence_paths: [spec/ui/time_picker_spec.cr, spec/ui/date_time_placement_spec.cr, spec/api/date_time_pickers_snapshot_spec.cr]
   - id: datetimepicker_fields
     classification: slack_requirement
     requirement: "Optional initial_date_time is an integer Unix timestamp in seconds with 10 digits; action_id 255; confirmation and one focus target per view. Actions/Input blocks on Messages and Modals only; no Section accessory or Home."
     source_url: https://docs.slack.dev/reference/block-kit/block-elements/datetime-picker-element/
     source_section: Fields and Markdown placement metadata
     reviewed_on: "2026-09-28"
-    evidence_paths: [spec/ui/checked/datetime_picker_spec.cr, spec/block_kit_diagnostics_spec.cr, spec/api/datetime_picker_snapshot_spec.cr]
+    evidence_paths: [spec/ui/datetime_picker_spec.cr, spec/block_kit_diagnostics_spec.cr, spec/api/datetime_picker_snapshot_spec.cr]
   - id: datetimepicker_time_policy
     classification: library_policy
     requirement: "Accept a Time for initial_date_time and send whole seconds; expose received selected_date_time as Int64 seconds without applying the outbound ten-digit range."
     source_url: https://docs.slack.dev/reference/block-kit/block-elements/datetime-picker-element/
     source_section: "Fields: initial_date_time"
     reviewed_on: "2026-09-28"
-    evidence_paths: [spec/ui/checked/datetime_picker_spec.cr, spec/interactions/datetime_picker_spec.cr]
+    evidence_paths: [spec/ui/datetime_picker_spec.cr, spec/interactions/datetime_picker_spec.cr]
 
   - id: external-select-fields
     classification: slack_requirement
@@ -1364,7 +1364,7 @@ rules:
     source_url: https://docs.slack.dev/reference/block-kit/block-elements/select-menu-element/
     source_section: "Select menu of external data source; multi-select-menu-element External data source"
     reviewed_on: "2026-09-28"
-    evidence_paths: [spec/ui/checked/external_select_spec.cr]
+    evidence_paths: [spec/ui/external_select_spec.cr]
 
   - id: external-select-local-policies
     classification: library_policy
@@ -1372,7 +1372,7 @@ rules:
     source_url: https://docs.slack.dev/reference/block-kit/block-elements/multi-select-menu-element/
     source_section: "External data source fields; library ownership policy"
     reviewed_on: "2026-09-28"
-    evidence_paths: [spec/ui/checked/external_select_spec.cr]
+    evidence_paths: [spec/ui/external_select_spec.cr]
 
   - id: block-suggestion-inbound
     classification: library_support
@@ -1396,49 +1396,49 @@ rules:
     source_url: https://docs.slack.dev/reference/block-kit/blocks/rich-text-block.md
     source_section: "Fields, container element pages, and available_in_surfaces metadata"
     reviewed_on: "2026-09-28"
-    evidence_paths: [spec/ui/checked/rich_text_spec.cr, spec/api/rich_text_snapshot_spec.cr, spec/block_kit_diagnostics_spec.cr]
+    evidence_paths: [spec/ui/rich_text_spec.cr, spec/api/rich_text_snapshot_spec.cr, spec/block_kit_diagnostics_spec.cr]
   - id: rich_text_inline_fields
     classification: slack_requirement
     requirement: "team needs team_id; file and canvas need file_id; workflow_mention needs workflow_id, function_trigger_id, and text. Style flags are optional booleans: bold, italic, strike, highlight, client_highlight, underline, unlink, and code on text only. channel tab_id and date timezone are optional strings."
     source_url: https://docs.slack.dev/reference/block-kit/block-elements/workflow-mention-element/
     source_section: "Fields of the text, link, channel, date, team, file, canvas, and workflow_mention element pages"
     reviewed_on: "2026-09-28"
-    evidence_paths: [spec/ui/checked/rich_text_spec.cr, spec/interactions/rich_text_spec.cr]
+    evidence_paths: [spec/ui/rich_text_spec.cr, spec/interactions/rich_text_spec.cr]
   - id: rich_text_policy
     classification: library_policy
     requirement: "Outbound containers need one or more children; required strings are not empty; border is 0 or 1; indent and offset are not negative. Received trees are not held to these rules."
     source_url: https://docs.slack.dev/reference/block-kit/block-elements/rich-text-list-element/
     source_section: "Fields: elements, indent, offset, border"
     reviewed_on: "2026-09-28"
-    evidence_paths: [spec/ui/checked/rich_text_spec.cr, spec/interactions/rich_text_spec.cr]
+    evidence_paths: [spec/ui/rich_text_spec.cr, spec/interactions/rich_text_spec.cr]
   - id: number_input_fields
     classification: slack_requirement
     requirement: "Required is_decimal_allowed; string initial_value, min_value and max_value with min_value <= max_value; action_id 255; plain placeholder 150; dispatch_action_config; one focus target per view. Input block in modals only."
     source_url: https://docs.slack.dev/reference/block-kit/block-elements/number-input-element/
     source_section: Fields, Usage info, Example and Markdown placement metadata
     reviewed_on: "2026-09-28"
-    evidence_paths: [spec/ui/checked/number_input_spec.cr, spec/api/number_input_snapshot_spec.cr, spec/block_kit_diagnostics_spec.cr]
+    evidence_paths: [spec/ui/number_input_spec.cr, spec/api/number_input_snapshot_spec.cr, spec/block_kit_diagnostics_spec.cr]
   - id: number_input_format_policy
     classification: library_policy
     requirement: "Supplied numbers must be plain decimal strings (-10, 0, 5.5); no exponent, plus sign, separators or bare decimal point. When is_decimal_allowed is false, supplied numbers must be whole. Initial value range membership and received strings are not checked locally."
     source_url: https://docs.slack.dev/reference/block-kit/block-elements/number-input-element/
     source_section: "Usage info: whole and decimal numbers"
     reviewed_on: "2026-09-28"
-    evidence_paths: [spec/ui/checked/number_input_spec.cr, spec/interactions/number_input_spec.cr]
+    evidence_paths: [spec/ui/number_input_spec.cr, spec/interactions/number_input_spec.cr]
   - id: file_input_fields
     classification: slack_requirement
     requirement: "Optional action_id 255; optional filetypes string array (all extensions when omitted); optional max_files from 1 through 10, default 10. Input block in modals only. Input dispatch_action is incompatible with file_input."
     source_url: https://docs.slack.dev/reference/block-kit/block-elements/file-input-element/
     source_section: Fields, Usage info and Example; input block dispatch_action field
     reviewed_on: "2026-09-28"
-    evidence_paths: [spec/ui/checked/file_input_spec.cr, spec/api/file_input_snapshot_spec.cr]
+    evidence_paths: [spec/ui/file_input_spec.cr, spec/api/file_input_snapshot_spec.cr]
   - id: file_input_filetypes_policy
     classification: library_policy
     requirement: "Reject an empty filetypes list and blank extensions; omission is the documented way to accept all extensions. Extension spelling and received file types are not checked locally."
     source_url: https://docs.slack.dev/reference/block-kit/block-elements/file-input-element/
     source_section: "Fields: filetypes"
     reviewed_on: "2026-09-28"
-    evidence_paths: [spec/ui/checked/file_input_spec.cr]
+    evidence_paths: [spec/ui/file_input_spec.cr]
   - id: file_input_inbound
     classification: library_support
     requirement: "Typed file_input state exposes files as UploadedFile values with a required id, optional common string fields and raw JSON, preserving absent/null/empty. Wrong JSON types raise path-aware TypeMismatch. Unexpected file_input actions stay UnknownAction."
@@ -1452,7 +1452,7 @@ rules:
     source_url: https://docs.slack.dev/reference/block-kit/block-elements/url-input-element/
     source_section: Fields, Example and Markdown placement metadata
     reviewed_on: "2026-09-28"
-    evidence_paths: [spec/ui/checked/url_input_spec.cr, spec/block_kit_consumers_spec.cr]
+    evidence_paths: [spec/ui/url_input_spec.cr, spec/block_kit_consumers_spec.cr]
   - id: url_input_value_policy
     classification: library_policy
     requirement: "The library does not check the format of initial_value or of received values. Slack checks entered URLs in the client; applications apply their own scheme and host rules."
@@ -1466,140 +1466,140 @@ rules:
     source_url: https://docs.slack.dev/reference/block-kit/block-elements/email-input-element/
     source_section: Fields, Example and Markdown placement metadata
     reviewed_on: "2026-09-28"
-    evidence_paths: [spec/ui/checked/email_input_spec.cr, spec/interactions/email_input_spec.cr]
+    evidence_paths: [spec/ui/email_input_spec.cr, spec/interactions/email_input_spec.cr]
   - id: table_block
     classification: slack_requirement
     requirement: "rows is required: up to 100 rows, each up to 20 cells of rich_text, raw_text, or raw_number. column_settings has up to 20 items of align (left, center, right) and is_wrapped; null skips a column. block_id 255. Available in Messages and Home tabs. Slack limits all cells of one table, and of one message, to 10,000 characters; Slack checks this remotely."
     source_url: https://docs.slack.dev/reference/block-kit/blocks/table-block.md
     source_section: "Fields, Schema for column_settings, Usage info, and available_in_surfaces metadata"
     reviewed_on: "2026-09-28"
-    evidence_paths: [spec/ui/checked/table_block_spec.cr, spec/block_kit_consumers_spec.cr, spec/block_kit_diagnostics_spec.cr]
+    evidence_paths: [spec/ui/table_block_spec.cr, spec/block_kit_consumers_spec.cr, spec/block_kit_diagnostics_spec.cr]
   - id: table_policy
     classification: library_policy
     requirement: "Outbound tables need one or more rows and each row one or more cells; raw_text and raw_number text are not empty; raw_number values are finite."
     source_url: https://docs.slack.dev/reference/block-kit/blocks/table-block/
     source_section: "Fields: rows"
     reviewed_on: "2026-09-28"
-    evidence_paths: [spec/ui/checked/table_block_spec.cr]
+    evidence_paths: [spec/ui/table_block_spec.cr]
   - id: rich_text_input_fields
     classification: slack_requirement
     requirement: "Required action_id (255); initial_value is a rich text block; dispatch_action_config; one focus target per view; plain placeholder 150; min_lines and max_lines from 1 to 100. Input block in modals and Home tabs only."
     source_url: https://docs.slack.dev/reference/block-kit/block-elements/rich-text-input-element/
     source_section: Fields, Example and Markdown placement metadata
     reviewed_on: "2026-09-28"
-    evidence_paths: [spec/ui/checked/rich_text_input_spec.cr, spec/api/rich_text_input_snapshot_spec.cr, spec/block_kit_diagnostics_spec.cr]
+    evidence_paths: [spec/ui/rich_text_input_spec.cr, spec/api/rich_text_input_snapshot_spec.cr, spec/block_kit_diagnostics_spec.cr]
   - id: markdown_block
     classification: slack_requirement
     requirement: "text is required standard markdown. The cumulative limit for all markdown blocks in a single payload is 12,000 characters. block_id is ignored and not retained. Available in Messages."
     source_url: https://docs.slack.dev/reference/block-kit/blocks/markdown-block.md
     source_section: "Fields, Usage info, and available_in_surfaces metadata"
     reviewed_on: "2026-09-28"
-    evidence_paths: [spec/ui/checked/markdown_block_spec.cr, spec/block_kit_consumers_spec.cr]
+    evidence_paths: [spec/ui/markdown_block_spec.cr, spec/block_kit_consumers_spec.cr]
   - id: markdown_policy
     classification: library_policy
     requirement: "Outbound markdown text is not empty, and a markdown block does not accept a block_id."
     source_url: https://docs.slack.dev/reference/block-kit/blocks/markdown-block/
     source_section: "Fields: text and block_id"
     reviewed_on: "2026-09-28"
-    evidence_paths: [spec/ui/checked/markdown_block_spec.cr]
+    evidence_paths: [spec/ui/markdown_block_spec.cr]
   - id: workflow_button_fields
     classification: slack_requirement
     requirement: "Required plain-text text (75), workflow and action_id (255); optional primary or danger style and accessibility_label (75). Section and Actions blocks in Messages only. The trigger object requires url and has optional customizable_input_parameters of name and value."
     source_url: https://docs.slack.dev/reference/block-kit/block-elements/workflow-button-element/
     source_section: "Fields, Markdown placement metadata, and the workflow and trigger object references"
     reviewed_on: "2026-09-28"
-    evidence_paths: [spec/ui/checked/workflow_button_spec.cr, spec/block_kit_consumers_spec.cr]
+    evidence_paths: [spec/ui/workflow_button_spec.cr, spec/block_kit_consumers_spec.cr]
   - id: workflow_button_policy
     classification: library_policy
     requirement: "Home and modal validation reject workflow_button in Section and Actions; the trigger url is not empty; parameter values are strings; received clicks stay UnknownAction because Slack documents no payload shape."
     source_url: https://docs.slack.dev/reference/block-kit/composition-objects/trigger-object/
     source_section: "Fields: url, customizable_input_parameters"
     reviewed_on: "2026-09-28"
-    evidence_paths: [spec/ui/checked/workflow_button_spec.cr]
+    evidence_paths: [spec/ui/workflow_button_spec.cr]
   - id: context_actions_block
     classification: slack_requirement
     requirement: "elements is required: up to 5 feedback_buttons or icon_button elements. block_id 255. Available in Messages only. feedback_buttons needs positive_button and negative_button, each with plain_text text (75), value (2000), and optional accessibility_label (75); action_id 255. icon_button needs icon (trash only) and plain_text text; optional action_id (255, unique in the containing block), value (2000), confirm, accessibility_label (75), and visible_to_user_ids."
     source_url: https://docs.slack.dev/reference/block-kit/blocks/context-actions-block/
     source_section: "Fields and available surfaces of the context actions block, feedback buttons element, and icon button element"
     reviewed_on: "2026-09-28"
-    evidence_paths: [spec/ui/checked/context_actions_spec.cr, spec/block_kit_consumers_spec.cr, spec/block_kit_diagnostics_spec.cr]
+    evidence_paths: [spec/ui/context_actions_spec.cr, spec/block_kit_consumers_spec.cr, spec/block_kit_diagnostics_spec.cr]
   - id: context_actions_policy
     classification: library_policy
     requirement: "A context actions block needs one or more elements. icon_button text is limited to 75 characters like button text. A supplied visible_to_user_ids list needs one or more nonempty IDs; omit it to show the button to all users. Received feedback_buttons and icon_button actions stay UnknownAction, because Slack's block_actions reference does not document their shape."
     source_url: https://docs.slack.dev/reference/block-kit/block-elements/icon-button-element/
     source_section: "Fields: text and visible_to_user_ids"
     reviewed_on: "2026-09-28"
-    evidence_paths: [spec/ui/checked/context_actions_spec.cr, examples/support/context_actions_example.cr]
+    evidence_paths: [spec/ui/context_actions_spec.cr, examples/support/context_actions_example.cr]
   - id: alert_block
     classification: slack_requirement
     requirement: "Required text object (plain_text or mrkdwn) of at most 200 characters; optional level of default, info, warning, error, or success (default when omitted); optional block_id. Available in modals only."
     source_url: https://docs.slack.dev/reference/block-kit/blocks/alert-block.md
     source_section: "Fields, Example, and available_in_surfaces metadata"
     reviewed_on: "2026-09-28"
-    evidence_paths: [spec/ui/checked/alert_block_spec.cr, spec/block_kit_consumers_spec.cr, spec/block_kit_diagnostics_spec.cr]
+    evidence_paths: [spec/ui/alert_block_spec.cr, spec/block_kit_consumers_spec.cr, spec/block_kit_diagnostics_spec.cr]
   - id: data_table_block
     classification: slack_requirement
     requirement: "type, rows, and caption are required. The first row is the header and cannot contain rich_text cells; 2 to 201 rows (1 to 200 data rows plus the header); 1 to 20 columns; all rows have the same number of cells. Cells are raw_text (text minLength 1), raw_number (number value, text minLength 1), or rich_text. page_size 1 to 100 (default 5); row_header_column_index is 0-based (default 0). Available in Messages and Home tabs. Slack limits a data table, and all table cells in one message, to 20,000 characters; Slack checks this remotely."
     source_url: https://docs.slack.dev/reference/block-kit/blocks/data-table-block.md
     source_section: "Fields, Usage info, Schema for raw_text and raw_number, and available_in_surfaces metadata"
     reviewed_on: "2026-09-28"
-    evidence_paths: [spec/ui/checked/data_table_block_spec.cr, spec/block_kit_consumers_spec.cr, spec/block_kit_diagnostics_spec.cr]
+    evidence_paths: [spec/ui/data_table_block_spec.cr, spec/block_kit_consumers_spec.cr, spec/block_kit_diagnostics_spec.cr]
   - id: data_table_policy
     classification: library_policy
     requirement: "The caption is not empty, and row_header_column_index names a header column. Slack states no caption length and no index bound. block_id 255 follows the library-wide block rule."
     source_url: https://docs.slack.dev/reference/block-kit/blocks/data-table-block/
     source_section: "Fields: caption and row_header_column_index"
     reviewed_on: "2026-09-28"
-    evidence_paths: [spec/ui/checked/data_table_block_spec.cr]
+    evidence_paths: [spec/ui/data_table_block_spec.cr]
   - id: data_visualization_block
     classification: slack_requirement
     requirement: "title (max 50) and chart are required; chart is pie (1 to 12 segments: label max 20, value greater than 0) or bar, area, or line (1 to 12 series with unique names of max 20, each with 1 to 20 data points; axis_config with categories of max 20 characters and optional x_label and y_label of max 50). Every data point label matches a category, and each series has exactly one point for every category. At most 2 data visualization blocks per message. Available in Messages and Home tabs."
     source_url: https://docs.slack.dev/reference/block-kit/blocks/data-visualization-block.md
     source_section: "Fields, Chart-specific fields, Type fields, Validation rules, and available_in_surfaces metadata"
     reviewed_on: "2026-09-28"
-    evidence_paths: [spec/ui/checked/data_visualization_block_spec.cr, spec/block_kit_consumers_spec.cr, spec/block_kit_diagnostics_spec.cr]
+    evidence_paths: [spec/ui/data_visualization_block_spec.cr, spec/block_kit_consumers_spec.cr, spec/block_kit_diagnostics_spec.cr]
   - id: data_visualization_policy
     classification: library_policy
     requirement: "Title, segment labels, series names, point labels, and categories are nonempty; axis_config has 1 to 20 unique categories; pie segment labels are unique; values are finite. Slack's rich response guide states the 1-character minimums and the uniqueness of categories and segment labels; the block reference does not."
     source_url: https://docs.slack.dev/ai/slackbot-mcp-client/returning-rich-responses
     source_section: "Charts (data_visualization)"
     reviewed_on: "2026-09-28"
-    evidence_paths: [spec/ui/checked/data_visualization_block_spec.cr]
+    evidence_paths: [spec/ui/data_visualization_block_spec.cr]
   - id: card_block
     classification: slack_requirement
     requirement: "Card fields hero_image and icon (image elements, URL 3000, alt_text 2000), slack_icon (mutually exclusive with icon), title and subtitle (plain_text or mrkdwn, 150), body and subtext (plain_text or mrkdwn, 200), actions (at most 3 buttons), and block_id. At least one of hero_image, title, actions, or body. Available in Modals, Messages, and Home tabs. The Slack icon object has type icon and one of 54 documented names."
     source_url: https://docs.slack.dev/reference/block-kit/blocks/card-block.md
     source_section: "Fields, Example, available_in_surfaces metadata, and the Slack icon object Fields"
     reviewed_on: "2026-09-28"
-    evidence_paths: [spec/ui/checked/card_carousel_spec.cr, spec/block_kit_consumers_spec.cr]
+    evidence_paths: [spec/ui/card_carousel_spec.cr, spec/block_kit_consumers_spec.cr]
   - id: carousel_block
     classification: slack_requirement
     requirement: "elements is required and holds 1 to 10 card blocks; block_id is optional. Available in Messages and Home tabs."
     source_url: https://docs.slack.dev/reference/block-kit/blocks/carousel-block.md
     source_section: "Fields, Example, and available_in_surfaces metadata"
     reviewed_on: "2026-09-28"
-    evidence_paths: [spec/ui/checked/card_carousel_spec.cr, spec/block_kit_consumers_spec.cr, spec/block_kit_diagnostics_spec.cr]
+    evidence_paths: [spec/ui/card_carousel_spec.cr, spec/block_kit_consumers_spec.cr, spec/block_kit_diagnostics_spec.cr]
   - id: card_carousel_policy
     classification: library_policy
     requirement: "Card actions is sent as a plain button array, following Slack's examples rather than the Actions block type in the field table. An empty actions array is rejected (omit actions instead). Supplied action IDs are unique within a card, card block IDs are unique within a carousel, and card and carousel block_id have at most 255 characters."
     source_url: https://docs.slack.dev/reference/block-kit/blocks/card-block/
     source_section: "Fields: actions, block_id; Example"
     reviewed_on: "2026-09-28"
-    evidence_paths: [spec/ui/checked/card_carousel_spec.cr]
+    evidence_paths: [spec/ui/card_carousel_spec.cr]
   - id: container_block
     classification: slack_requirement
     requirement: "title (plain_text, 150) or rich_text_title (a rich_text block) is required; rich_text_title wins when both are sent. subtitle is plain_text or mrkdwn, 150. child_blocks is required, up to 10 blocks of actions, context, divider, file, header, image, input, rich_text, section, table, or video. width is narrow, standard, wide, or full. icon is an image element; alt_text 2000. is_collapsible, default_collapsed, and has_header_divider are booleans. Available in Messages and Home tabs."
     source_url: https://docs.slack.dev/reference/block-kit/blocks/container-block
     source_section: "Fields, Supported child blocks, and Available in surfaces"
     reviewed_on: "2026-09-28"
-    evidence_paths: [spec/ui/checked/container_block_spec.cr, spec/block_kit_consumers_spec.cr, spec/block_kit_diagnostics_spec.cr]
+    evidence_paths: [spec/ui/container_block_spec.cr, spec/block_kit_consumers_spec.cr, spec/block_kit_diagnostics_spec.cr]
   - id: container_policy
     classification: library_policy
     requirement: "Outbound containers need one or more child blocks. Home rejects a File child because Slack documents the File block for messages only; Slack does not document a File child on Home. A container does not nest another container."
     source_url: https://docs.slack.dev/reference/block-kit/blocks/container-block
     source_section: "Fields: child_blocks; Supported child blocks"
     reviewed_on: "2026-09-28"
-    evidence_paths: [spec/ui/checked/container_block_spec.cr]
+    evidence_paths: [spec/ui/container_block_spec.cr]
   - id: interaction_context
     classification: library_support
     requirement: "block_actions container decodes message, view, and message_attachment types; other types stay Container::Unknown with raw JSON, and a non-object container raises TypeMismatch. channel, hash, function_data, and bot_access_token are typed; bot_access_token is a redacted Auth::Secret. view_submission response_urls are typed; view_closed is_cleared is typed. View getters read id, title, callback_id, private_metadata, external_id, hash, and related fields. Received message and view blocks and interactivity stay raw JSON."

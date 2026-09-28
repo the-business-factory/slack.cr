@@ -1,19 +1,19 @@
 require "../spec_helper"
 require "../support/auth/webmock_transport"
 
-describe Slack::Api::CheckedChatUpdate do
+describe Slack::Api::ChatUpdate do
   it "replaces the message snapshot once and parses the update response" do
-    elements = [Slack::UI::Checked::BlockElements::Button.new(
-      text: Slack::UI::Checked.plain("Details", emoji: false), action_id: "details", value: "42")]
-    builder = Slack::UI::Checked::MessageBuilder.new(fallback_text: "Request 42 approved.")
-    builder.section(Slack::UI::Checked.mrkdwn("*Approved*", verbatim: false), block_id: "status.v2")
+    elements = [Slack::UI::BlockElements::Button.new(
+      text: Slack::UI.plain("Details", emoji: false), action_id: "details", value: "42")]
+    builder = Slack::UI::MessageBuilder.new(fallback_text: "Request 42 approved.")
+    builder.section(Slack::UI.mrkdwn("*Approved*", verbatim: false), block_id: "status.v2")
     builder.actions(elements: elements, block_id: "controls.v2")
     message = builder.build
-    request = Slack::Api::CheckedChatUpdate.new(token: "xoxb-synthetic-update", channel: "C123", ts: "1710000000.000000001",
+    request = Slack::Api::ChatUpdate.new(token: "xoxb-synthetic-update", channel: "C123", ts: "1710000000.000000001",
       message: message, as_user: true, transport: AuthSupport::WebMockTransport.new)
     elements.clear
     builder.divider
-    message.blocks.each { |block| block.elements.clear if block.is_a?(Slack::UI::Checked::Blocks::Actions) }
+    message.blocks.each { |block| block.elements.clear if block.is_a?(Slack::UI::Blocks::Actions) }
     message.blocks.clear
     expected = JSON.parse(<<-JSON)
       {"channel":"C123","ts":"1710000000.000000001","text":"Request 42 approved.","blocks":[
@@ -49,9 +49,9 @@ describe Slack::Api::CheckedChatUpdate do
         requests += 1
         HTTP::Client::Response.new(200, body: %({"ok":true,"channel":"C123","ts":"1.1","text":"Done"}))
       end
-      explicit = Slack::UI::Checked.message(fallback_text: "Done", &.divider)
-      generated = Slack::UI::Checked.message_with_slack_generated_fallback(&.divider)
-      overlong = Slack::UI::Checked.message(fallback_text: "é" * 4001, &.divider)
+      explicit = Slack::UI.message(fallback_text: "Done", &.divider)
+      generated = Slack::UI.message_with_slack_generated_fallback(&.divider)
+      overlong = Slack::UI.message(fallback_text: "é" * 4001, &.divider)
       {
         {"", "1.1", explicit, "chat_update.channel.blank", "channel"},
         {"  ", "1.1", explicit, "chat_update.channel.blank", "channel"},
@@ -61,11 +61,11 @@ describe Slack::Api::CheckedChatUpdate do
         {"C123", "1.1", generated, "chat_update.text.required", "text"},
         {"C123", "1.1", overlong, "chat_update.text.too_long", "text"},
       }.each do |channel, timestamp, message, code, path|
-        request = Slack::Api::CheckedChatUpdate.new(token: "xoxb-synthetic-invalid", channel: channel, ts: timestamp,
+        request = Slack::Api::ChatUpdate.new(token: "xoxb-synthetic-invalid", channel: channel, ts: timestamp,
           message: message, transport: AuthSupport::WebMockTransport.new)
-        error = expect_raises(Slack::UI::Checked::ValidationError) { entrypoint == "result" ? request.result : request.call }
+        error = expect_raises(Slack::UI::ValidationError) { entrypoint == "result" ? request.result : request.call }
         error.issues.map { |issue| {issue.code, issue.path} }.should eq [{code, path}]
-        expect_raises(Slack::UI::Checked::ValidationError) { request.to_json }
+        expect_raises(Slack::UI::ValidationError) { request.to_json }
       end
       requests.should eq 0
     end
@@ -73,8 +73,8 @@ describe Slack::Api::CheckedChatUpdate do
 
   [nil, false].each do |as_user|
     it "preserves as_user #{as_user.inspect} and omits unsupported fields" do
-      message = Slack::UI::Checked.message(fallback_text: "Done", &.divider)
-      request = Slack::Api::CheckedChatUpdate.new(token: "xoxb-synthetic-minimal", channel: "D123", ts: "1.1",
+      message = Slack::UI.message(fallback_text: "Done", &.divider)
+      request = Slack::Api::ChatUpdate.new(token: "xoxb-synthetic-minimal", channel: "D123", ts: "1.1",
         message: message, as_user: as_user, transport: AuthSupport::WebMockTransport.new)
       expected = JSON.parse(as_user.nil? ? %({"channel":"D123","ts":"1.1","text":"Done","blocks":[{"type":"divider"}]}) : %({"channel":"D123","ts":"1.1","text":"Done","blocks":[{"type":"divider"}],"as_user":false}))
       WebMock.stub(:post, "https://slack.com/api/chat.update").to_return do |http_request|
@@ -87,8 +87,8 @@ describe Slack::Api::CheckedChatUpdate do
 
   it "accepts 4000 fallback characters without a byte-based limit" do
     fallback = "é" * 4000
-    message = Slack::UI::Checked.message(fallback_text: fallback, &.divider)
-    request = Slack::Api::CheckedChatUpdate.new(token: "xoxb-synthetic-limit", channel: "C123", ts: "1.1", message: message,
+    message = Slack::UI.message(fallback_text: fallback, &.divider)
+    request = Slack::Api::ChatUpdate.new(token: "xoxb-synthetic-limit", channel: "C123", ts: "1.1", message: message,
       transport: AuthSupport::WebMockTransport.new)
     WebMock.stub(:post, "https://slack.com/api/chat.update").to_return do |http_request|
       JSON.parse(http_request.body || fail("Expected JSON body"))["text"].as_s.should eq fallback
@@ -103,8 +103,8 @@ describe Slack::Api::CheckedChatUpdate do
       count += 1
       HTTP::Client::Response.new(200, body: %({"ok":false,"error":"cant_update_message"}))
     end
-    request = Slack::Api::CheckedChatUpdate.new(token: "xoxb-synthetic-denied", channel: "C123", ts: "1.1",
-      message: Slack::UI::Checked.message(fallback_text: "Done", &.divider), transport: AuthSupport::WebMockTransport.new)
+    request = Slack::Api::ChatUpdate.new(token: "xoxb-synthetic-denied", channel: "C123", ts: "1.1",
+      message: Slack::UI.message(fallback_text: "Done", &.divider), transport: AuthSupport::WebMockTransport.new)
     2.times { expect_raises(Slack::Errors::Api, "cant_update_message") { request.call } }
     JSON.parse(request.result.body)["error"].as_s.should eq "cant_update_message"
     count.should eq 1

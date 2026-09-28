@@ -1,9 +1,9 @@
-struct Slack::UI::Checked::BlockElements::Image
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::BlockElements::Image
+  include Slack::UI::ValueValidation
 
   getter alt_text : String
   getter image_url : String?
-  getter slack_file : Slack::UI::Checked::CompositionObjects::SlackFile?
+  getter slack_file : Slack::UI::CompositionObjects::SlackFile?
 
   def initialize(
     *,
@@ -17,7 +17,7 @@ struct Slack::UI::Checked::BlockElements::Image
   def initialize(
     *,
     @alt_text : String,
-    @slack_file : Slack::UI::Checked::CompositionObjects::SlackFile,
+    @slack_file : Slack::UI::CompositionObjects::SlackFile,
   )
     @image_url = nil
     validate!
@@ -27,13 +27,13 @@ struct Slack::UI::Checked::BlockElements::Image
     "image"
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
-    issues = [] of Slack::UI::Checked::ValidationIssue
+  def validate : Array(Slack::UI::ValidationIssue)
+    issues = [] of Slack::UI::ValidationIssue
     if @alt_text.empty?
-      issues << Slack::UI::Checked::ValidationIssue.new("image.alt_text.empty", "alt_text", "Provide a plain-text summary of the image.")
+      issues << Slack::UI::ValidationIssue.new("image.alt_text.empty", "alt_text", "Provide a plain-text summary of the image.")
     end
     if @image_url.try(&.empty?)
-      issues << Slack::UI::Checked::ValidationIssue.new("image.image_url.empty", "image_url", "Image URL must not be empty.")
+      issues << Slack::UI::ValidationIssue.new("image.image_url.empty", "image_url", "Image URL must not be empty.")
     end
     length_issue(issues, @image_url, 3000, "image.image_url.too_long", "image_url")
     if file = @slack_file

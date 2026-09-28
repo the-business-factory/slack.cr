@@ -1,7 +1,7 @@
-alias Slack::UI::Checked::Blocks::ContextElement = Slack::UI::Checked::CompositionObjects::Text | Slack::UI::Checked::BlockElements::Image
+alias Slack::UI::Blocks::ContextElement = Slack::UI::CompositionObjects::Text | Slack::UI::BlockElements::Image
 
-struct Slack::UI::Checked::Blocks::Context
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::Blocks::Context
+  include Slack::UI::ValueValidation
 
   @elements : Array(ContextElement)
   getter block_id : String?
@@ -20,12 +20,12 @@ struct Slack::UI::Checked::Blocks::Context
     @elements.dup
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
-    issues = [] of Slack::UI::Checked::ValidationIssue
+  def validate : Array(Slack::UI::ValidationIssue)
+    issues = [] of Slack::UI::ValidationIssue
     if @elements.empty?
-      issues << Slack::UI::Checked::ValidationIssue.new("context.elements.empty", "elements", "Context must contain at least one element.")
+      issues << Slack::UI::ValidationIssue.new("context.elements.empty", "elements", "Context must contain at least one element.")
     elsif @elements.size > 10
-      issues << Slack::UI::Checked::ValidationIssue.new("context.elements.too_many", "elements", "Context cannot contain more than 10 elements.")
+      issues << Slack::UI::ValidationIssue.new("context.elements.too_many", "elements", "Context cannot contain more than 10 elements.")
     end
     @elements.each_with_index do |element, index|
       element.validate.each { |issue| issues << issue.at("elements[#{index}]") }

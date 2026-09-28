@@ -1,7 +1,7 @@
 require "../spec_helper"
 
 module ExternalSelectInteractionSpec
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
   alias Response = Slack::Interactions::BlockSuggestionResponse
 
   class OnePass(T)

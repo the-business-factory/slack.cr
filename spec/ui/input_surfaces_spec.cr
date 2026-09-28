@@ -1,7 +1,7 @@
-require "../../spec_helper"
+require "../spec_helper"
 
 module InputSurfacesSpec
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   # Authored independently of the serializers; preserve false, omission and order.
   BLOCKS = <<-JSON
@@ -67,7 +67,7 @@ module InputSurfacesSpec
 end
 
 module SurfaceConsumer
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   def self.kind(block : UI::MessageBlock) : String
     case block
@@ -111,26 +111,26 @@ end
 
 describe "typed surface consumers" do
   it "dispatches Input, message-only, table, carousel, container, and display blocks through exhaustive cases and overloads" do
-    input = Slack::UI::Checked::Blocks::Input.new(
-      label: Slack::UI::Checked.plain("Note"),
-      element: Slack::UI::Checked::BlockElements::PlainTextInput.new
+    input = Slack::UI::Blocks::Input.new(
+      label: Slack::UI.plain("Note"),
+      element: Slack::UI::BlockElements::PlainTextInput.new
     )
-    divider = Slack::UI::Checked::Blocks::Divider.new
+    divider = Slack::UI::Blocks::Divider.new
     # DisplayModalBlock includes the modal-only Alert, so share concrete display blocks.
-    display_blocks = [divider] of Slack::UI::Checked::DisplayModalBlock
-    file = Slack::UI::Checked::Blocks::File.new(external_id: "ABCD1")
-    table = Slack::UI::Checked::Blocks::Table.new(rows: { {Slack::UI::Checked::Table::RawText.new("Open")} })
-    markdown = Slack::UI::Checked::Blocks::Markdown.new("**Open**")
-    trash = Slack::UI::Checked::BlockElements::IconButton.new(Slack::UI::Checked::BlockElements::IconButtonIcon::Trash, text: Slack::UI::Checked.plain("Delete"))
-    context_actions = Slack::UI::Checked::Blocks::ContextActions.new(elements: {trash})
-    data_table = Slack::UI::Checked::Blocks::DataTable.new(caption: "Queue", header: {Slack::UI::Checked::Table::RawText.new("Ticket")},
-      rows: { {Slack::UI::Checked::Table::RawText.new("T-1")} })
-    card = Slack::UI::Checked::Blocks::Card.new(title: Slack::UI::Checked.plain("Card"))
-    carousel = Slack::UI::Checked::Blocks::Carousel.new(elements: {card})
-    container = Slack::UI::Checked::Blocks::Container.new(title: Slack::UI::Checked.plain("Group"), child_blocks: {file, input})
-    message_blocks = [divider, input, file, table, markdown, context_actions, data_table, carousel, container] of Slack::UI::Checked::MessageBlock
-    consumer_message = Slack::UI::Checked::Message.new(fallback_text: "Note", blocks: message_blocks)
-    Slack::UI::Checked::DisplayModal.new(title: Slack::UI::Checked.plain("Display"), blocks: display_blocks)
+    display_blocks = [divider] of Slack::UI::DisplayModalBlock
+    file = Slack::UI::Blocks::File.new(external_id: "ABCD1")
+    table = Slack::UI::Blocks::Table.new(rows: { {Slack::UI::Table::RawText.new("Open")} })
+    markdown = Slack::UI::Blocks::Markdown.new("**Open**")
+    trash = Slack::UI::BlockElements::IconButton.new(Slack::UI::BlockElements::IconButtonIcon::Trash, text: Slack::UI.plain("Delete"))
+    context_actions = Slack::UI::Blocks::ContextActions.new(elements: {trash})
+    data_table = Slack::UI::Blocks::DataTable.new(caption: "Queue", header: {Slack::UI::Table::RawText.new("Ticket")},
+      rows: { {Slack::UI::Table::RawText.new("T-1")} })
+    card = Slack::UI::Blocks::Card.new(title: Slack::UI.plain("Card"))
+    carousel = Slack::UI::Blocks::Carousel.new(elements: {card})
+    container = Slack::UI::Blocks::Container.new(title: Slack::UI.plain("Group"), child_blocks: {file, input})
+    message_blocks = [divider, input, file, table, markdown, context_actions, data_table, carousel, container] of Slack::UI::MessageBlock
+    consumer_message = Slack::UI::Message.new(fallback_text: "Note", blocks: message_blocks)
+    Slack::UI::DisplayModal.new(title: Slack::UI.plain("Display"), blocks: display_blocks)
     consumer_message.blocks.map { |block| SurfaceConsumer.kind(block) }.should eq(["display", "input", "message-only", "table", "message-only", "message-only", "table", "carousel", "container"])
     consumer_message.blocks.map { |block| SurfaceConsumer.caption(block) }.should eq(["divider", "Note", "ABCD1", "table", "**Open**", "context_actions", "data_table", "carousel", "2"])
   end

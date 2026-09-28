@@ -1,7 +1,7 @@
-require "../../spec_helper"
+require "../spec_helper"
 
 module CardCarouselSpec
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   # Written from Slack's Slack icon object reference, in its documented order.
   SLACK_ICON_NAMES = %w[

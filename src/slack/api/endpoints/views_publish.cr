@@ -1,6 +1,6 @@
 # Publishes an immutable Home snapshot through the existing API transport.
-class Slack::Api::CheckedViewsPublish
-  @snapshot : Slack::UI::Checked::Home
+class Slack::Api::ViewsPublish
+  @snapshot : Slack::UI::Home
   @result : HTTP::Client::Response?
 
   getter user_id : String
@@ -10,7 +10,7 @@ class Slack::Api::CheckedViewsPublish
   def initialize(
     @token : String,
     @user_id : String,
-    view : Slack::UI::Checked::Home,
+    view : Slack::UI::Home,
     @hash : String? = nil,
     @interactivity_pointer : String? = nil,
     *,
@@ -23,20 +23,20 @@ class Slack::Api::CheckedViewsPublish
   end
 
   def self.from_json(source : String | IO) : NoReturn
-    {% raise "checked request deserialization is unsupported" %}
+    {% raise "request deserialization is unsupported" %}
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
+  def validate : Array(Slack::UI::ValidationIssue)
     issues = @snapshot.validate.map(&.at("view"))
     if @user_id.empty?
-      issues << Slack::UI::Checked::ValidationIssue.new("views_publish.user_id.empty", "user_id", "User ID must not be empty.")
+      issues << Slack::UI::ValidationIssue.new("views_publish.user_id.empty", "user_id", "User ID must not be empty.")
     end
     issues
   end
 
   def validate! : Nil
     issues = validate
-    raise Slack::UI::Checked::ValidationError.new(issues) unless issues.empty?
+    raise Slack::UI::ValidationError.new(issues) unless issues.empty?
   end
 
   def to_json(json : JSON::Builder) : Nil

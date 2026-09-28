@@ -1,7 +1,7 @@
-require "../../spec_helper"
+require "../spec_helper"
 
 module FileInputSpec
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
   alias Element = UI::BlockElements::FileInput
 
   describe Element do

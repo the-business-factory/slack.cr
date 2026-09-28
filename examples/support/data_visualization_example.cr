@@ -5,7 +5,7 @@ require "./webmock_transport"
 # Builds a pie chart and a line chart from application records and posts them.
 # Slack permits at most two data visualization blocks in one message.
 module OfflineDataVisualizationExample
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
   alias DV = UI::DataVisualization
 
   record Deploy, service : String, count : Int32
@@ -33,7 +33,7 @@ module OfflineDataVisualizationExample
       ))
       builder.data_visualization("p95 latency", latency_chart(LATENCY))
     end
-    result = Slack::Api::CheckedChatPostMessage.new(token: "xoxb-synthetic-chart", channel: "C-SYNTHETIC",
+    result = Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic-chart", channel: "C-SYNTHETIC",
       message: message, transport: OfflineExample::WebMockTransport.new).call
     output.puts "Posted #{DEPLOYS.size} services and #{LATENCY.size} latency points to #{result.channel}/#{result.ts}"
 

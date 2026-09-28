@@ -1,7 +1,7 @@
 # :nodoc:
 # Appends each block's issues before its duplicate-ID issues, in block order.
 # Block IDs of container children share the surface's ID space.
-module Slack::UI::Checked::BlockValidation
+module Slack::UI::BlockValidation
   def self.validate(
     blocks : Enumerable(T),
     issues : Array(ValidationIssue),

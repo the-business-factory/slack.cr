@@ -1,5 +1,5 @@
 # A link to a file. `text` is the file title.
-struct Slack::UI::Checked::RichText::File
+struct Slack::UI::RichText::File
   include NodeValidation
 
   getter file_id : String

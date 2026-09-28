@@ -1,5 +1,5 @@
 # :nodoc:
-# Internal bridge from checked requests to ApiClient. The checked request owns
+# Internal bridge from validated requests to ApiClient. The request owns
 # the wire body. `T` is the response model, so each Slack method keeps its own
 # default limiter: ApiClient keys limiters by token and request class.
 private struct Slack::Api::JsonBodyRequest(T) < Slack::Api::Base

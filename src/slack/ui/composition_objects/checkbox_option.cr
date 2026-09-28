@@ -1,6 +1,6 @@
 # A checkbox choice with plain-text or Markdown label and description.
-struct Slack::UI::Checked::CompositionObjects::CheckboxOption
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::CompositionObjects::CheckboxOption
+  include Slack::UI::ValueValidation
 
   getter text : PlainText | Mrkdwn
   getter value : String
@@ -10,7 +10,7 @@ struct Slack::UI::Checked::CompositionObjects::CheckboxOption
     validate!
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
+  def validate : Array(Slack::UI::ValidationIssue)
     issues = @text.validate.map(&.at("text"))
     length_issue(issues, @text.text, 75, "checkbox_option.text.too_long", "text.text")
     length_issue(issues, @value, 150, "checkbox_option.value.too_long", "value")

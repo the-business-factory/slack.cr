@@ -3,7 +3,7 @@ require "webmock"
 require "./webmock_transport"
 
 module OfflineEmailInputExample
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   # Authored from Slack's email input, Input block, and views.open contracts, not from the serializer.
   EXPECTED_VIEW = <<-JSON
@@ -42,7 +42,7 @@ module OfflineEmailInputExample
         element: UI::BlockElements::EmailInput.new(action_id: "email", initial_value: "guest@partner.example",
           dispatch_action_config: config, focus_on_load: true, placeholder: UI.plain("name@partner.example")))
     end
-    Slack::Api::CheckedViewsOpen.new(token: "xoxb-synthetic", trigger_id: trigger,
+    Slack::Api::ViewsOpen.new(token: "xoxb-synthetic", trigger_id: trigger,
       view: view, transport: OfflineExample::WebMockTransport.new).call
 
     payload = %({"type":"block_actions","team":null,"actions":[{"type":"email_text_input","block_id":"invite.email","action_id":"email","value":"lead@partner.example"}]})

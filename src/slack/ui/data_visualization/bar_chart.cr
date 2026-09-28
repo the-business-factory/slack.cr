@@ -1,6 +1,6 @@
 # A bar chart. See `SeriesChart` for the series and category rules.
-struct Slack::UI::Checked::DataVisualization::BarChart
-  include Slack::UI::Checked::DataVisualization::SeriesChart
+struct Slack::UI::DataVisualization::BarChart
+  include Slack::UI::DataVisualization::SeriesChart
 
   def type : String
     "bar"

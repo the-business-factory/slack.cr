@@ -1,5 +1,5 @@
-class Slack::UI::Checked::DisplayModalBuilder
-  include Slack::UI::Checked::DisplayBlockHelpers
+class Slack::UI::DisplayModalBuilder
+  include Slack::UI::DisplayBlockHelpers
 
   @blocks = [] of DisplayModalBlock
 

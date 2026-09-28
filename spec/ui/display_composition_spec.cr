@@ -1,7 +1,7 @@
-require "../../spec_helper"
+require "../spec_helper"
 
 module DisplayCompositionSpec
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   class HomeBlocks
     include Enumerable(UI::Blocks::Input | UI::Blocks::Context)

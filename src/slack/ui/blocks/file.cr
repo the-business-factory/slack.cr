@@ -2,8 +2,8 @@
 # the only surface, so only `MessageSourceBlock` includes it. Slack does not let
 # apps add it to messages directly: share remote files with
 # `files.remote.share`, or use the block in a `chat.unfurl` request.
-struct Slack::UI::Checked::Blocks::File
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::Blocks::File
+  include Slack::UI::ValueValidation
 
   getter external_id : String
   getter block_id : String?
@@ -21,10 +21,10 @@ struct Slack::UI::Checked::Blocks::File
     "remote"
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
-    issues = [] of Slack::UI::Checked::ValidationIssue
+  def validate : Array(Slack::UI::ValidationIssue)
+    issues = [] of Slack::UI::ValidationIssue
     if @external_id.empty?
-      issues << Slack::UI::Checked::ValidationIssue.new("file.external_id.empty", "external_id", "External file ID must not be empty.")
+      issues << Slack::UI::ValidationIssue.new("file.external_id.empty", "external_id", "External file ID must not be empty.")
     end
     length_issue(issues, @block_id, 255, "file.block_id.too_long", "block_id")
     issues

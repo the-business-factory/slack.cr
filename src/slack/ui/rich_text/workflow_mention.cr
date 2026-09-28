@@ -1,6 +1,6 @@
 # A link that starts a workflow through one of its function triggers.
 # Slack sets `channel_id` and `ts` on received mentions; they are not sent.
-struct Slack::UI::Checked::RichText::WorkflowMention
+struct Slack::UI::RichText::WorkflowMention
   include NodeValidation
 
   getter workflow_id : String

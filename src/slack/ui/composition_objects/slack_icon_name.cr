@@ -1,6 +1,6 @@
 # The icon names that Slack documents for the Slack icon object. Each member
 # sends its kebab-case name, for example `CaretLeft` sends `caret-left`.
-enum Slack::UI::Checked::CompositionObjects::SlackIconName
+enum Slack::UI::CompositionObjects::SlackIconName
   Archive
   Book
   Bookmark

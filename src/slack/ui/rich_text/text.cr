@@ -1,4 +1,4 @@
-struct Slack::UI::Checked::RichText::Text
+struct Slack::UI::RichText::Text
   include NodeValidation
 
   getter text : String

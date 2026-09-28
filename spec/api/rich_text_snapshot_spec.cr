@@ -2,7 +2,7 @@ require "../spec_helper"
 require "../support/auth/webmock_transport"
 
 module RichTextSnapshotSpec
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
   alias RT = UI::RichText
 
   it "posts owned rich text release notes matching independent request JSON" do
@@ -16,7 +16,7 @@ module RichTextSnapshotSpec
       RT::List.new(RT::ListStyle::Bullet, elements: items),
       RT::Quote.new(elements: {RT::Link.new("https://example.com/changelog", text: "Full changelog")}),
     ])
-    request = Slack::Api::CheckedChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC",
+    request = Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC",
       message: builder.build, transport: AuthSupport::WebMockTransport.new)
     items << RT::Section.new(elements: {RT::Text.new("added later")})
     intro.clear

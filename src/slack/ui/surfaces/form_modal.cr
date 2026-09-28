@@ -1,4 +1,4 @@
-struct Slack::UI::Checked::FormModal
+struct Slack::UI::FormModal
   include ModalContent
 
   getter title : CompositionObjects::PlainText

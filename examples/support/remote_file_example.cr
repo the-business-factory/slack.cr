@@ -4,7 +4,7 @@ require "../../src/slack"
 # Slack does not let apps add file blocks to messages directly; share a remote
 # file with `files.remote.share`. This library wraps neither method.
 module OfflineRemoteFileExample
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   def self.run(output : IO = STDOUT) : Nil
     link = "https://docs.example.test/plans/2026-q4"

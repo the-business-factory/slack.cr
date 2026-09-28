@@ -1,11 +1,11 @@
-require "../../spec_helper"
+require "../spec_helper"
 
-private alias CheckedButton = Slack::UI::Checked::BlockElements::Button
+private alias ButtonElement = Slack::UI::BlockElements::Button
 
-describe CheckedButton do
+describe ButtonElement do
   it "supports a link button without an action ID" do
-    button = CheckedButton.new(
-      text: Slack::UI::Checked.plain("Open? No, link"),
+    button = ButtonElement.new(
+      text: Slack::UI.plain("Open? No, link"),
       url: "https://docs.slack.dev/block-kit"
     )
     payload = JSON.parse(button.to_json)
@@ -16,18 +16,18 @@ describe CheckedButton do
   end
 
   it "serializes every current documented field" do
-    confirmation = Slack::UI::Checked::CompositionObjects::Confirmation.new(
-      title: Slack::UI::Checked.plain("Confirm"),
-      text: Slack::UI::Checked.plain("Continue?"),
-      confirm: Slack::UI::Checked.plain("Yes"),
-      deny: Slack::UI::Checked.plain("No")
+    confirmation = Slack::UI::CompositionObjects::Confirmation.new(
+      title: Slack::UI.plain("Confirm"),
+      text: Slack::UI.plain("Continue?"),
+      confirm: Slack::UI.plain("Yes"),
+      deny: Slack::UI.plain("No")
     )
-    button = CheckedButton.new(
-      text: Slack::UI::Checked.plain("Approve", emoji: true),
+    button = ButtonElement.new(
+      text: Slack::UI.plain("Approve", emoji: true),
       action_id: "request.approve",
       url: "https://example.test/requests/42",
       value: "request-42",
-      style: Slack::UI::Checked::BlockElements::ButtonStyle::Primary,
+      style: Slack::UI::BlockElements::ButtonStyle::Primary,
       confirm: confirmation,
       accessibility_label: "Approve leave request 42",
       agent_prompt: "Summarize request 42 before approval."
@@ -42,8 +42,8 @@ describe CheckedButton do
   end
 
   it "accepts string limits and reports every value above its limit" do
-    CheckedButton.new(
-      text: Slack::UI::Checked.plain("t" * 75),
+    ButtonElement.new(
+      text: Slack::UI.plain("t" * 75),
       action_id: "a" * 255,
       url: "u" * 3000,
       value: "v" * 2000,
@@ -60,9 +60,9 @@ describe CheckedButton do
       "button.agent_prompt.too_long"        => {1, 1, 1, 1, 1, 4001},
     }
     cases.each do |code, lengths|
-      error = expect_raises(Slack::UI::Checked::ValidationError) do
-        CheckedButton.new(
-          text: Slack::UI::Checked.plain("t" * lengths[0]),
+      error = expect_raises(Slack::UI::ValidationError) do
+        ButtonElement.new(
+          text: Slack::UI.plain("t" * lengths[0]),
           action_id: "a" * lengths[1],
           url: "u" * lengths[2],
           value: "v" * lengths[3],
@@ -75,10 +75,10 @@ describe CheckedButton do
   end
 
   it "reports unnamed styles as structured validation issues" do
-    error = expect_raises(Slack::UI::Checked::ValidationError) do
-      CheckedButton.new(
-        text: Slack::UI::Checked.plain("Invalid"),
-        style: Slack::UI::Checked::BlockElements::ButtonStyle.new(99)
+    error = expect_raises(Slack::UI::ValidationError) do
+      ButtonElement.new(
+        text: Slack::UI.plain("Invalid"),
+        style: Slack::UI::BlockElements::ButtonStyle.new(99)
       )
     end
 

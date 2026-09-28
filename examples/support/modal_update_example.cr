@@ -1,7 +1,7 @@
 require "../../src/slack"
 
 module OfflineModalUpdateExample
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   # Independently authored incoming state, not derived from an outbound modal.
   SUBMISSION = %q({"type":"view_submission","api_app_id":"A-SYNTHETIC","team":{"id":"T-SYNTHETIC"},"user":{"id":"U-SYNTHETIC"},"view":{"type":"modal","callback_id":"request.reason","private_metadata":"42","state":{"values":{"request.reason":{"reason":{"type":"plain_text_input","value":"Need a test environment."}}}}}})

@@ -1,6 +1,6 @@
 # Plain-text static menu option. Use OverflowOption for overflow menus and URLs.
-struct Slack::UI::Checked::CompositionObjects::Option
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::CompositionObjects::Option
+  include Slack::UI::ValueValidation
 
   getter text : PlainText
   getter value : String
@@ -10,7 +10,7 @@ struct Slack::UI::Checked::CompositionObjects::Option
     validate!
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
+  def validate : Array(Slack::UI::ValidationIssue)
     issues = @text.validate.map(&.at("text"))
     length_issue(issues, @text.text, 75, "option.text.too_long", "text.text")
     length_issue(issues, @value, 150, "option.value.too_long", "value")

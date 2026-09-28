@@ -1,7 +1,7 @@
 # :nodoc:
 # Shared checks for rich text nodes. Nonempty values and children are library policy.
-module Slack::UI::Checked::RichText::NodeValidation
-  include Slack::UI::Checked::ValueValidation
+module Slack::UI::RichText::NodeValidation
+  include Slack::UI::ValueValidation
 
   private def empty_issue(issues : Array(ValidationIssue), value : String, code : String, path : String) : Nil
     issues << ValidationIssue.new(code, path, "Value must not be empty.") if value.empty?

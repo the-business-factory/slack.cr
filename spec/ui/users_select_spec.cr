@@ -1,11 +1,11 @@
-require "../../spec_helper"
+require "../spec_helper"
 
 module UsersSelectSpec
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
   alias Single = UI::BlockElements::UsersSelect
   alias Multi = UI::BlockElements::MultiUsersSelect
 
-  describe "checked user selects" do
+  describe "User selects" do
     it "serializes independently authored single and multiple user contracts" do
       confirm = UI::CompositionObjects::Confirmation.new(title: UI.plain("Assign?"),
         text: UI.plain("Notify these users"), confirm: UI.plain("Yes"), deny: UI.plain("No"))

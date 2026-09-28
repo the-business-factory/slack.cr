@@ -1,6 +1,6 @@
 # A line chart. See `SeriesChart` for the series and category rules.
-struct Slack::UI::Checked::DataVisualization::LineChart
-  include Slack::UI::Checked::DataVisualization::SeriesChart
+struct Slack::UI::DataVisualization::LineChart
+  include Slack::UI::DataVisualization::SeriesChart
 
   def type : String
     "line"

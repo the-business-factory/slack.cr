@@ -1,4 +1,4 @@
-enum Slack::UI::Checked::CompositionObjects::ConfirmationStyle
+enum Slack::UI::CompositionObjects::ConfirmationStyle
   Primary
   Danger
 
@@ -9,8 +9,8 @@ enum Slack::UI::Checked::CompositionObjects::ConfirmationStyle
     when .danger?
       "danger"
     else
-      raise Slack::UI::Checked::ValidationError.new([
-        Slack::UI::Checked::ValidationIssue.new(
+      raise Slack::UI::ValidationError.new([
+        Slack::UI::ValidationIssue.new(
           code: "confirmation.style.invalid",
           path: "style",
           message: "Style must be primary or danger."

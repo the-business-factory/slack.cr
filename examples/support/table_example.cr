@@ -6,7 +6,7 @@ require "./webmock_transport"
 # characters in all cells of a message to 10,000; split large reports into
 # separate messages.
 module OfflineTableExample
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
   alias RT = UI::RichText
 
   record Region, name : String, owner_id : String, deals : Int32, revenue : Float64
@@ -33,7 +33,7 @@ module OfflineTableExample
         UI::Table::ColumnSetting.new(align: UI::Table::ColumnAlignment::Right),
       ])
     end
-    result = Slack::Api::CheckedChatPostMessage.new(token: "xoxb-synthetic-table", channel: "C-SYNTHETIC",
+    result = Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic-table", channel: "C-SYNTHETIC",
       message: message, transport: OfflineExample::WebMockTransport.new).call
     output.puts "Posted #{REGIONS.size} regions to #{result.channel}/#{result.ts}"
 

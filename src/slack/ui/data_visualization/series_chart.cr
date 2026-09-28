@@ -3,8 +3,8 @@
 # 12 series with unique names, and each series must have exactly one point for
 # each category in `axis_config`. Point order in a series is free; category
 # order sets the x-axis order.
-module Slack::UI::Checked::DataVisualization::SeriesChart
-  include Slack::UI::Checked::ValueValidation
+module Slack::UI::DataVisualization::SeriesChart
+  include Slack::UI::ValueValidation
 
   SERIES_MAX_SIZE = 12
 

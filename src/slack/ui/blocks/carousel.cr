@@ -1,7 +1,7 @@
 # One to ten cards in a horizontally scrolling row. Slack shows carousels in
 # messages and Home tabs only, so modal unions exclude it.
-struct Slack::UI::Checked::Blocks::Carousel
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::Blocks::Carousel
+  include Slack::UI::ValueValidation
 
   ELEMENTS_MAX_SIZE = 10
 

@@ -1,5 +1,5 @@
 require "../../../../src/slack/ui"
-alias UI = Slack::UI::Checked
+alias UI = Slack::UI
 option = UI::CompositionObjects::Option.new(text: UI.plain("One"), value: "one")
 group = UI::CompositionObjects::OptionGroup.new(label: UI.plain("Group"), options: {option})
 UI::BlockElements::StaticSelect.new(options: {option}, option_groups: {group})

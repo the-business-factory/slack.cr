@@ -1,17 +1,17 @@
-struct Slack::UI::Checked::Blocks::Image
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::Blocks::Image
+  include Slack::UI::ValueValidation
 
   getter alt_text : String
   getter image_url : String?
-  getter slack_file : Slack::UI::Checked::CompositionObjects::SlackFile?
-  getter title : Slack::UI::Checked::CompositionObjects::PlainText?
+  getter slack_file : Slack::UI::CompositionObjects::SlackFile?
+  getter title : Slack::UI::CompositionObjects::PlainText?
   getter block_id : String?
 
   def initialize(
     *,
     @alt_text : String,
     @image_url : String,
-    @title : Slack::UI::Checked::CompositionObjects::PlainText? = nil,
+    @title : Slack::UI::CompositionObjects::PlainText? = nil,
     @block_id : String? = nil,
   )
     @slack_file = nil
@@ -21,8 +21,8 @@ struct Slack::UI::Checked::Blocks::Image
   def initialize(
     *,
     @alt_text : String,
-    @slack_file : Slack::UI::Checked::CompositionObjects::SlackFile,
-    @title : Slack::UI::Checked::CompositionObjects::PlainText? = nil,
+    @slack_file : Slack::UI::CompositionObjects::SlackFile,
+    @title : Slack::UI::CompositionObjects::PlainText? = nil,
     @block_id : String? = nil,
   )
     @image_url = nil
@@ -33,13 +33,13 @@ struct Slack::UI::Checked::Blocks::Image
     "image"
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
-    issues = [] of Slack::UI::Checked::ValidationIssue
+  def validate : Array(Slack::UI::ValidationIssue)
+    issues = [] of Slack::UI::ValidationIssue
     if @alt_text.empty?
-      issues << Slack::UI::Checked::ValidationIssue.new("image.alt_text.empty", "alt_text", "Provide a plain-text summary of the image.")
+      issues << Slack::UI::ValidationIssue.new("image.alt_text.empty", "alt_text", "Provide a plain-text summary of the image.")
     end
     if @image_url.try(&.empty?)
-      issues << Slack::UI::Checked::ValidationIssue.new("image.image_url.empty", "image_url", "Image URL must not be empty.")
+      issues << Slack::UI::ValidationIssue.new("image.image_url.empty", "image_url", "Image URL must not be empty.")
     end
     length_issue(issues, @image_url, 3000, "image.image_url.too_long", "image_url")
     if file = @slack_file

@@ -1,11 +1,11 @@
-struct Slack::UI::Checked::Blocks::Header
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::Blocks::Header
+  include Slack::UI::ValueValidation
 
-  getter text : Slack::UI::Checked::CompositionObjects::PlainText
+  getter text : Slack::UI::CompositionObjects::PlainText
   getter block_id : String?
   getter level : Int32?
 
-  def initialize(@text : Slack::UI::Checked::CompositionObjects::PlainText, @block_id : String? = nil, @level : Int32? = nil)
+  def initialize(@text : Slack::UI::CompositionObjects::PlainText, @block_id : String? = nil, @level : Int32? = nil)
     validate!
   end
 
@@ -13,13 +13,13 @@ struct Slack::UI::Checked::Blocks::Header
     "header"
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
+  def validate : Array(Slack::UI::ValidationIssue)
     issues = @text.validate.map(&.at("text"))
     length_issue(issues, @text.text, 150, "header.text.too_long", "text.text")
     length_issue(issues, @block_id, 255, "header.block_id.too_long", "block_id")
     if level = @level
       unless 1 <= level <= 4
-        issues << Slack::UI::Checked::ValidationIssue.new("header.level.invalid", "level", "Heading level must be between 1 and 4.")
+        issues << Slack::UI::ValidationIssue.new("header.level.invalid", "level", "Heading level must be between 1 and 4.")
       end
     end
     issues

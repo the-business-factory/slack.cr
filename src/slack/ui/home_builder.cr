@@ -1,7 +1,7 @@
-class Slack::UI::Checked::HomeBuilder
-  include Slack::UI::Checked::DisplayBlockHelpers
-  include Slack::UI::Checked::InputBlockHelpers
-  include Slack::UI::Checked::ViewInputBlockHelpers
+class Slack::UI::HomeBuilder
+  include Slack::UI::DisplayBlockHelpers
+  include Slack::UI::InputBlockHelpers
+  include Slack::UI::ViewInputBlockHelpers
 
   @blocks = [] of HomeBlock
 

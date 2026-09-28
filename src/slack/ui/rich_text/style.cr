@@ -1,7 +1,7 @@
 # Optional style flags for rich text mentions, links, dates, colors, files, and canvases.
 # Omitted flags and explicit false remain distinct.
 # Slack does not list `unlink` for date, color, or file elements; the library does not check this.
-struct Slack::UI::Checked::RichText::Style
+struct Slack::UI::RichText::Style
   getter bold : Bool?
   getter italic : Bool?
   getter strike : Bool?

@@ -1,6 +1,6 @@
 # Restricts the Slack-provided list for conversation select menus.
-struct Slack::UI::Checked::CompositionObjects::ConversationFilter
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::CompositionObjects::ConversationFilter
+  include Slack::UI::ValueValidation
 
   @include : Array(String)?
   getter exclude_external_shared_channels : Bool?
@@ -24,18 +24,18 @@ struct Slack::UI::Checked::CompositionObjects::ConversationFilter
     @include.try(&.dup)
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
-    issues = [] of Slack::UI::Checked::ValidationIssue
+  def validate : Array(Slack::UI::ValidationIssue)
+    issues = [] of Slack::UI::ValidationIssue
     if @include.nil? && @exclude_external_shared_channels.nil? && @exclude_bot_users.nil?
-      issues << Slack::UI::Checked::ValidationIssue.new("conversation_filter.empty", "", "Supply at least one filter field.")
+      issues << Slack::UI::ValidationIssue.new("conversation_filter.empty", "", "Supply at least one filter field.")
     end
     if kinds = @include
       if kinds.empty?
-        issues << Slack::UI::Checked::ValidationIssue.new("conversation_filter.include.empty", "include", "Include must contain at least one conversation type.")
+        issues << Slack::UI::ValidationIssue.new("conversation_filter.include.empty", "include", "Include must contain at least one conversation type.")
       end
       kinds.each_with_index do |kind, index|
         unless {"im", "mpim", "private", "public"}.includes?(kind)
-          issues << Slack::UI::Checked::ValidationIssue.new("conversation_filter.include.invalid", "include[#{index}]", "Expected im, mpim, private, or public.")
+          issues << Slack::UI::ValidationIssue.new("conversation_filter.include.invalid", "include[#{index}]", "Expected im, mpim, private, or public.")
         end
       end
     end

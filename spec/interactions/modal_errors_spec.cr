@@ -22,10 +22,10 @@ describe Slack::Interactions::ModalErrors do
   end
 
   it "rejects an empty error map and blank messages as library policy" do
-    expect_raises(Slack::UI::Checked::ValidationError, "Supply at least one") do
+    expect_raises(Slack::UI::ValidationError, "Supply at least one") do
       Slack::Interactions::ModalErrors.new({} of String => String)
     end
-    expect_raises(Slack::UI::Checked::ValidationError, "must not be blank") do
+    expect_raises(Slack::UI::ValidationError, "must not be blank") do
       Slack::Interactions::ModalErrors.new({"reason" => " \n"})
     end
   end

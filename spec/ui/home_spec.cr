@@ -1,7 +1,7 @@
-require "../../spec_helper"
-require "../../support/block_kit/home_fixture"
+require "../spec_helper"
+require "../support/block_kit/home_fixture"
 
-private alias HomeUI = Slack::UI::Checked
+private alias HomeUI = Slack::UI
 
 describe HomeUI::Home do
   it "serializes a complete Home envelope including dispatched plain text input" do
@@ -77,7 +77,7 @@ describe HomeUI::Home do
     blocks.clear
     triggers.clear
     case element = input.element
-    when Slack::UI::Checked::BlockElements::PlainTextInput
+    when Slack::UI::BlockElements::PlainTextInput
       element.dispatch_action_config.try(&.trigger_actions_on.try(&.clear))
     end
     view.blocks.clear

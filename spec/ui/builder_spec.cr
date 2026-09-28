@@ -1,8 +1,8 @@
-require "../../spec_helper"
+require "../spec_helper"
 
-private alias BuilderUI = Slack::UI::Checked
+private alias BuilderUI = Slack::UI
 
-describe "Checked builder composition" do
+describe "Builder composition" do
   it "preserves display arguments, block order, and snapshots on every surface" do
     builders = {
       BuilderUI::MessageBuilder.new(fallback_text: "Summary"),

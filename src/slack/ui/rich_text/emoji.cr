@@ -1,4 +1,4 @@
-struct Slack::UI::Checked::RichText::Emoji
+struct Slack::UI::RichText::Emoji
   include NodeValidation
 
   getter name : String

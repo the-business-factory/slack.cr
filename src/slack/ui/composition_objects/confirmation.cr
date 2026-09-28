@@ -1,4 +1,4 @@
-struct Slack::UI::Checked::CompositionObjects::Confirmation
+struct Slack::UI::CompositionObjects::Confirmation
   TITLE_MAX_LENGTH  = 100
   TEXT_MAX_LENGTH   = 300
   BUTTON_MAX_LENGTH =  30
@@ -19,8 +19,8 @@ struct Slack::UI::Checked::CompositionObjects::Confirmation
     validate!
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
-    issues = [] of Slack::UI::Checked::ValidationIssue
+  def validate : Array(Slack::UI::ValidationIssue)
+    issues = [] of Slack::UI::ValidationIssue
     append_child_issues(issues, @title.validate, "title")
     append_child_issues(issues, @text.validate, "text")
     append_child_issues(issues, @confirm.validate, "confirm")
@@ -30,7 +30,7 @@ struct Slack::UI::Checked::CompositionObjects::Confirmation
     append_length_issue(issues, @confirm.text, BUTTON_MAX_LENGTH, "confirmation.confirm.too_long", "confirm.text")
     append_length_issue(issues, @deny.text, BUTTON_MAX_LENGTH, "confirmation.deny.too_long", "deny.text")
     if (style = @style) && !ConfirmationStyle.valid?(style)
-      issues << Slack::UI::Checked::ValidationIssue.new(
+      issues << Slack::UI::ValidationIssue.new(
         code: "confirmation.style.invalid",
         path: "style",
         message: "Style must be primary or danger."
@@ -41,7 +41,7 @@ struct Slack::UI::Checked::CompositionObjects::Confirmation
 
   def validate! : Nil
     issues = validate
-    raise Slack::UI::Checked::ValidationError.new(issues) unless issues.empty?
+    raise Slack::UI::ValidationError.new(issues) unless issues.empty?
   end
 
   def to_json(json : JSON::Builder) : Nil
@@ -56,15 +56,15 @@ struct Slack::UI::Checked::CompositionObjects::Confirmation
   end
 
   private def append_child_issues(
-    issues : Array(Slack::UI::Checked::ValidationIssue),
-    child_issues : Array(Slack::UI::Checked::ValidationIssue),
+    issues : Array(Slack::UI::ValidationIssue),
+    child_issues : Array(Slack::UI::ValidationIssue),
     path : String,
   ) : Nil
     child_issues.each { |issue| issues << issue.at(path) }
   end
 
   private def append_length_issue(
-    issues : Array(Slack::UI::Checked::ValidationIssue),
+    issues : Array(Slack::UI::ValidationIssue),
     value : String,
     maximum : Int32,
     code : String,
@@ -72,7 +72,7 @@ struct Slack::UI::Checked::CompositionObjects::Confirmation
   ) : Nil
     return unless value.size > maximum
 
-    issues << Slack::UI::Checked::ValidationIssue.new(
+    issues << Slack::UI::ValidationIssue.new(
       code: code,
       path: path,
       message: "Text cannot be longer than #{maximum} characters."

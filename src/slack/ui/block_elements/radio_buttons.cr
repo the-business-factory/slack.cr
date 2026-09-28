@@ -1,18 +1,18 @@
 # A single radio choice in Section, Actions, or Input blocks.
-struct Slack::UI::Checked::BlockElements::RadioButtons
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::BlockElements::RadioButtons
+  include Slack::UI::ValueValidation
 
-  alias Option = Slack::UI::Checked::CompositionObjects::RadioOption
+  alias Option = Slack::UI::CompositionObjects::RadioOption
 
   @options : Array(Option)
   getter initial_option : Option?
   getter action_id : String?
-  getter confirm : Slack::UI::Checked::CompositionObjects::Confirmation?
+  getter confirm : Slack::UI::CompositionObjects::Confirmation?
   getter focus_on_load : Bool?
 
   def initialize(*, options : Enumerable(T), @initial_option : Option? = nil,
                  @action_id : String? = nil,
-                 @confirm : Slack::UI::Checked::CompositionObjects::Confirmation? = nil,
+                 @confirm : Slack::UI::CompositionObjects::Confirmation? = nil,
                  @focus_on_load : Bool? = nil) forall T
     @options = [] of Option
     options.each { |option| @options << option }
@@ -27,22 +27,22 @@ struct Slack::UI::Checked::BlockElements::RadioButtons
     @options.dup
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
-    issues = [] of Slack::UI::Checked::ValidationIssue
+  def validate : Array(Slack::UI::ValidationIssue)
+    issues = [] of Slack::UI::ValidationIssue
     if @options.empty? || @options.size > 10
-      issues << Slack::UI::Checked::ValidationIssue.new("radio_buttons.options.size", "options", "Supply one to ten options.")
+      issues << Slack::UI::ValidationIssue.new("radio_buttons.options.size", "options", "Supply one to ten options.")
     end
     values = Set(String).new
     @options.each_with_index do |option, index|
       option.validate.each { |issue| issues << issue.at("options[#{index}]") }
       unless values.add?(option.value)
-        issues << Slack::UI::Checked::ValidationIssue.new("radio_buttons.options.value.duplicate", "options[#{index}].value", "Option values must be unique within the radio group.")
+        issues << Slack::UI::ValidationIssue.new("radio_buttons.options.value.duplicate", "options[#{index}].value", "Option values must be unique within the radio group.")
       end
     end
     if initial = @initial_option
       initial.validate.each { |issue| issues << issue.at("initial_option") }
       unless @options.includes?(initial)
-        issues << Slack::UI::Checked::ValidationIssue.new("radio_buttons.initial_option.not_found", "initial_option", "Initial option must exactly match an available option.")
+        issues << Slack::UI::ValidationIssue.new("radio_buttons.initial_option.not_found", "initial_option", "Initial option must exactly match an available option.")
       end
     end
     length_issue(issues, @action_id, 255, "radio_buttons.action_id.too_long", "action_id")

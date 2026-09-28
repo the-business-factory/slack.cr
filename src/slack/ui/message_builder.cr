@@ -1,6 +1,6 @@
-class Slack::UI::Checked::MessageBuilder
-  include Slack::UI::Checked::DisplayBlockHelpers
-  include Slack::UI::Checked::InputBlockHelpers
+class Slack::UI::MessageBuilder
+  include Slack::UI::DisplayBlockHelpers
+  include Slack::UI::InputBlockHelpers
 
   @blocks : Array(MessageBlock)
   @fallback_text : String?

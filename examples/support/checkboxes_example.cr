@@ -3,7 +3,7 @@ require "webmock"
 require "./webmock_transport"
 
 module OfflineCheckboxesExample
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   def self.receive(payload : String) : Slack::Interaction
     body = URI::Params.encode({"payload" => payload})
@@ -31,7 +31,7 @@ module OfflineCheckboxesExample
     message = UI.message(fallback_text: "Choose notifications") do |builder|
       builder.section(UI.plain("Notifications"), block_id: "preferences", accessory: control)
     end
-    Slack::Api::CheckedChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC", message: message, transport: OfflineExample::WebMockTransport.new).call
+    Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC", message: message, transport: OfflineExample::WebMockTransport.new).call
 
     # Independently authored Slack payloads exercise both selecting and clearing.
     payload = %({"type":"block_actions","team":null,"actions":[{"type":"checkboxes","block_id":"preferences","action_id":"notifications","selected_options":[{"text":{"type":"mrkdwn","text":"*Daily digest*"},"value":"digest"}]}]})

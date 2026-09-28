@@ -1,7 +1,7 @@
-require "../../spec_helper"
+require "../spec_helper"
 
 module OverflowSpec
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
   alias Option = UI::CompositionObjects::OverflowOption
   alias Overflow = UI::BlockElements::Overflow
 
@@ -35,7 +35,7 @@ module OverflowSpec
       error.issues.first.path.should eq "options[1].value"
       Overflow.new(options: options.first(5)).options.size.should eq 5
     end
-    it "fits Section and mixed Actions on each checked surface and rejects duplicate action IDs" do
+    it "fits Section and mixed Actions on each surface and rejects duplicate action IDs" do
       menu = Overflow.new(options: {Option.new(text: UI.plain("Archive"), value: "archive")}, action_id: "more")
       button = UI::BlockElements::Button.new(text: UI.plain("Approve"), action_id: "approve")
       {UI::MessageBuilder.new(fallback_text: "Request"), UI::HomeBuilder.new,

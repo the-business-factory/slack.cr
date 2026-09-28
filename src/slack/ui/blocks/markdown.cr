@@ -4,8 +4,8 @@
 #
 # Slack ignores a markdown block's `block_id` and does not keep it, so this
 # block does not accept one.
-struct Slack::UI::Checked::Blocks::Markdown
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::Blocks::Markdown
+  include Slack::UI::ValueValidation
 
   # Slack's limit for all markdown blocks in one payload. `Message` checks the
   # total.
@@ -25,10 +25,10 @@ struct Slack::UI::Checked::Blocks::Markdown
   def block_id : Nil
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
-    issues = [] of Slack::UI::Checked::ValidationIssue
+  def validate : Array(Slack::UI::ValidationIssue)
+    issues = [] of Slack::UI::ValidationIssue
     if @text.empty?
-      issues << Slack::UI::Checked::ValidationIssue.new("markdown.text.empty", "text", "Markdown text must not be empty.")
+      issues << Slack::UI::ValidationIssue.new("markdown.text.empty", "text", "Markdown text must not be empty.")
     end
     length_issue(issues, @text, TEXT_MAX_SIZE, "markdown.text.too_long", "text")
     issues

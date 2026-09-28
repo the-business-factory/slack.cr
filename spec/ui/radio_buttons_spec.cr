@@ -1,7 +1,7 @@
-require "../../spec_helper"
+require "../spec_helper"
 
 module RadioButtonsSpec
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
   alias Option = UI::CompositionObjects::RadioOption
   alias RadioButtons = UI::BlockElements::RadioButtons
 

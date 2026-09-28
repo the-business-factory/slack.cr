@@ -2,7 +2,7 @@ require "../spec_helper"
 require "../support/auth/webmock_transport"
 
 module NumberInputSnapshotSpec
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   it "sends an owned number form matching independent request JSON" do
     config = UI::CompositionObjects::DispatchActionConfig.new([UI::CompositionObjects::DispatchTrigger::OnCharacterEntered])
@@ -13,7 +13,7 @@ module NumberInputSnapshotSpec
     builder.input(label: UI.plain("Seats"), block_id: "seats", element: seats, dispatch_action: true)
     builder.input(label: UI.plain("Budget"), block_id: "budget", element: budget, optional: true)
     view = builder.build
-    request = Slack::Api::CheckedViewsOpen.new(token: "xoxb-synthetic", trigger_id: "synthetic-trigger",
+    request = Slack::Api::ViewsOpen.new(token: "xoxb-synthetic", trigger_id: "synthetic-trigger",
       view: view, transport: AuthSupport::WebMockTransport.new)
     builder.divider
     view.blocks.clear

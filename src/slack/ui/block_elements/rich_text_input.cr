@@ -1,22 +1,22 @@
-# A formatted text composer. Its initial value is a checked rich text block.
-struct Slack::UI::Checked::BlockElements::RichTextInput
-  include Slack::UI::Checked::ValueValidation
+# A formatted text composer. Its initial value is a validated rich text block.
+struct Slack::UI::BlockElements::RichTextInput
+  include Slack::UI::ValueValidation
 
   getter action_id : String
-  getter initial_value : Slack::UI::Checked::Blocks::RichText?
-  getter dispatch_action_config : Slack::UI::Checked::CompositionObjects::DispatchActionConfig?
+  getter initial_value : Slack::UI::Blocks::RichText?
+  getter dispatch_action_config : Slack::UI::CompositionObjects::DispatchActionConfig?
   getter focus_on_load : Bool?
-  getter placeholder : Slack::UI::Checked::CompositionObjects::PlainText?
+  getter placeholder : Slack::UI::CompositionObjects::PlainText?
   getter min_lines : Int32?
   getter max_lines : Int32?
 
   def initialize(
     *,
     @action_id : String,
-    @initial_value : Slack::UI::Checked::Blocks::RichText? = nil,
-    @dispatch_action_config : Slack::UI::Checked::CompositionObjects::DispatchActionConfig? = nil,
+    @initial_value : Slack::UI::Blocks::RichText? = nil,
+    @dispatch_action_config : Slack::UI::CompositionObjects::DispatchActionConfig? = nil,
     @focus_on_load : Bool? = nil,
-    @placeholder : Slack::UI::Checked::CompositionObjects::PlainText? = nil,
+    @placeholder : Slack::UI::CompositionObjects::PlainText? = nil,
     @min_lines : Int32? = nil,
     @max_lines : Int32? = nil,
   )
@@ -27,11 +27,11 @@ struct Slack::UI::Checked::BlockElements::RichTextInput
     "rich_text_input"
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
-    issues = [] of Slack::UI::Checked::ValidationIssue
+  def validate : Array(Slack::UI::ValidationIssue)
+    issues = [] of Slack::UI::ValidationIssue
     # Slack requires action_id for this element; an empty ID is library policy.
     if @action_id.empty?
-      issues << Slack::UI::Checked::ValidationIssue.new("rich_text_input.action_id.empty", "action_id", "Action ID cannot be empty.")
+      issues << Slack::UI::ValidationIssue.new("rich_text_input.action_id.empty", "action_id", "Action ID cannot be empty.")
     end
     length_issue(issues, @action_id, 255, "rich_text_input.action_id.too_long", "action_id")
     if initial_value = @initial_value
@@ -64,9 +64,9 @@ struct Slack::UI::Checked::BlockElements::RichTextInput
   end
 
   # Slack documents 1 to 100 for each field and no rule between them.
-  private def lines_issue(issues : Array(Slack::UI::Checked::ValidationIssue), lines : Int32?, field : String) : Nil
+  private def lines_issue(issues : Array(Slack::UI::ValidationIssue), lines : Int32?, field : String) : Nil
     if lines && !lines.in?(1..100)
-      issues << Slack::UI::Checked::ValidationIssue.new("rich_text_input.#{field}.out_of_range", field, "Visible lines must be between 1 and 100.")
+      issues << Slack::UI::ValidationIssue.new("rich_text_input.#{field}.out_of_range", field, "Visible lines must be between 1 and 100.")
     end
   end
 end

@@ -1,7 +1,7 @@
-require "../../spec_helper"
+require "../spec_helper"
 
 module EmailInputSpec
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
   alias EmailInput = UI::BlockElements::EmailInput
 
   describe EmailInput do

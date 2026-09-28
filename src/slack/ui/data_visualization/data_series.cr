@@ -1,8 +1,8 @@
 # A named series of data points for a bar, area, or line chart. Slack requires
 # a name of up to 20 characters and 1 to 20 points. The chart checks that the
 # points match its categories. A nonempty name is library policy.
-struct Slack::UI::Checked::DataVisualization::DataSeries
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::DataVisualization::DataSeries
+  include Slack::UI::ValueValidation
 
   NAME_MAX_SIZE = 20
   DATA_MAX_SIZE = 20

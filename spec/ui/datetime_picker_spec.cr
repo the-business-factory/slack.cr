@@ -1,7 +1,7 @@
-require "../../spec_helper"
+require "../spec_helper"
 
 module DatetimePickerSpec
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
   alias Picker = UI::BlockElements::DatetimePicker
 
   describe Picker do

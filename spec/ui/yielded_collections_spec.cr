@@ -1,7 +1,7 @@
-require "../../spec_helper"
+require "../spec_helper"
 
 module YieldedCollectionsSpec
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   # A component can declare a wider enumerable interface than its yielded values.
   # Failing on a second enumeration also checks ownership of one-pass inputs.

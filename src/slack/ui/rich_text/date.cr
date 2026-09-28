@@ -1,5 +1,5 @@
 # A localized date. Slack substitutes tokens such as `{date_short}` in `format`.
-struct Slack::UI::Checked::RichText::Date
+struct Slack::UI::RichText::Date
   include NodeValidation
 
   getter timestamp : Int64

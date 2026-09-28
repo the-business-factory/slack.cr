@@ -1,7 +1,7 @@
 # Slack sends number fields as strings. This type keeps them as strings, so
 # decimal values do not change precision before they reach Slack.
-struct Slack::UI::Checked::BlockElements::NumberInput
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::BlockElements::NumberInput
+  include Slack::UI::ValueValidation
 
   private NUMBER = /\A(-?)([0-9]+)(?:\.([0-9]+))?\z/
 
@@ -9,9 +9,9 @@ struct Slack::UI::Checked::BlockElements::NumberInput
   getter initial_value : String?
   getter min_value : String?
   getter max_value : String?
-  getter dispatch_action_config : Slack::UI::Checked::CompositionObjects::DispatchActionConfig?
+  getter dispatch_action_config : Slack::UI::CompositionObjects::DispatchActionConfig?
   getter focus_on_load : Bool?
-  getter placeholder : Slack::UI::Checked::CompositionObjects::PlainText?
+  getter placeholder : Slack::UI::CompositionObjects::PlainText?
 
   def initialize(
     *,
@@ -20,9 +20,9 @@ struct Slack::UI::Checked::BlockElements::NumberInput
     @initial_value : String? = nil,
     @min_value : String? = nil,
     @max_value : String? = nil,
-    @dispatch_action_config : Slack::UI::Checked::CompositionObjects::DispatchActionConfig? = nil,
+    @dispatch_action_config : Slack::UI::CompositionObjects::DispatchActionConfig? = nil,
     @focus_on_load : Bool? = nil,
-    @placeholder : Slack::UI::Checked::CompositionObjects::PlainText? = nil,
+    @placeholder : Slack::UI::CompositionObjects::PlainText? = nil,
   )
     validate!
   end
@@ -36,8 +36,8 @@ struct Slack::UI::Checked::BlockElements::NumberInput
     @is_decimal_allowed
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
-    issues = [] of Slack::UI::Checked::ValidationIssue
+  def validate : Array(Slack::UI::ValidationIssue)
+    issues = [] of Slack::UI::ValidationIssue
     length_issue(issues, @action_id, 255, "#{type}.action_id.too_long", "action_id")
     if placeholder = @placeholder
       placeholder.validate.each { |issue| issues << issue.at("placeholder") }
@@ -51,7 +51,7 @@ struct Slack::UI::Checked::BlockElements::NumberInput
     maximum_valid = number_issue(issues, @max_value, "max_value")
     # Slack documents only min <= max; an initial value outside the range is left to Slack.
     if minimum_valid && maximum_valid && (minimum = @min_value) && (maximum = @max_value) && compare(minimum, maximum) > 0
-      issues << Slack::UI::Checked::ValidationIssue.new("#{type}.range.inverted", "min_value", "Minimum value cannot be greater than maximum value.")
+      issues << Slack::UI::ValidationIssue.new("#{type}.range.inverted", "min_value", "Minimum value cannot be greater than maximum value.")
     end
     issues
   end
@@ -72,15 +72,15 @@ struct Slack::UI::Checked::BlockElements::NumberInput
   end
 
   # Adds a format issue and returns false when a supplied value is not a usable number.
-  private def number_issue(issues : Array(Slack::UI::Checked::ValidationIssue), value : String?, field : String) : Bool
+  private def number_issue(issues : Array(Slack::UI::ValidationIssue), value : String?, field : String) : Bool
     return true unless value
     match = NUMBER.match(value)
     unless match
-      issues << Slack::UI::Checked::ValidationIssue.new("#{type}.#{field}.invalid", field, "Value must be a decimal number such as -10, 0 or 5.5.")
+      issues << Slack::UI::ValidationIssue.new("#{type}.#{field}.invalid", field, "Value must be a decimal number such as -10, 0 or 5.5.")
       return false
     end
     if match[3]? && !@is_decimal_allowed
-      issues << Slack::UI::Checked::ValidationIssue.new("#{type}.#{field}.decimal_not_allowed", field, "Value must be a whole number when is_decimal_allowed is false.")
+      issues << Slack::UI::ValidationIssue.new("#{type}.#{field}.decimal_not_allowed", field, "Value must be a whole number when is_decimal_allowed is false.")
       return false
     end
     true

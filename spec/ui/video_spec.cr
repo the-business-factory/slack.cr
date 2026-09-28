@@ -1,6 +1,6 @@
-require "../../spec_helper"
+require "../spec_helper"
 
-private alias VideoUI = Slack::UI::Checked
+private alias VideoUI = Slack::UI
 
 private def minimal_video(**overrides) : VideoUI::Blocks::Video
   VideoUI::Blocks::Video.new(**{
@@ -11,7 +11,7 @@ private def minimal_video(**overrides) : VideoUI::Blocks::Video
   }.merge(overrides))
 end
 
-describe "Checked video block" do
+describe "Video block" do
   it "serializes every documented field" do
     video = VideoUI::Blocks::Video.new(
       alt_text: "Release 4.2 walkthrough",

@@ -3,7 +3,7 @@ require "webmock"
 require "./webmock_transport"
 
 module OfflineRadioButtonsExample
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   def self.receive(payload : String) : Slack::Interaction
     body = URI::Params.encode({"payload" => payload})
@@ -24,7 +24,7 @@ module OfflineRadioButtonsExample
     message = UI.message(fallback_text: "Choose delivery") do |builder|
       builder.section(UI.plain("Delivery"), block_id: "preferences", accessory: control)
     end
-    Slack::Api::CheckedChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC", message: message, transport: OfflineExample::WebMockTransport.new).call
+    Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC", message: message, transport: OfflineExample::WebMockTransport.new).call
 
     # Independently authored Slack payloads, not derived from outbound values.
     payload = %({"type":"block_actions","team":null,"trigger_id":"synthetic-trigger","actions":[{"type":"radio_buttons","block_id":"preferences","action_id":"delivery","selected_option":{"text":{"type":"mrkdwn","text":"*Digest*"},"value":"digest"}}]})
@@ -41,7 +41,7 @@ module OfflineRadioButtonsExample
           builder.input(label: UI.plain("Delivery override"), block_id: "override", optional: true,
             element: UI::BlockElements::RadioButtons.new(options: {digest, immediate}, action_id: "delivery"))
         end
-        Slack::Api::CheckedViewsOpen.new(token: "xoxb-synthetic", trigger_id: trigger, view: view, transport: OfflineExample::WebMockTransport.new).call
+        Slack::Api::ViewsOpen.new(token: "xoxb-synthetic", trigger_id: trigger, view: view, transport: OfflineExample::WebMockTransport.new).call
       else
         raise "Expected radio action"
       end

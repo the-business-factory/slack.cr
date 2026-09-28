@@ -2,9 +2,9 @@ require "../spec_helper"
 require "../support/auth/webmock_transport"
 require "../support/block_kit/static_select_fixture"
 
-alias SnapshotUI = Slack::UI::Checked
+alias SnapshotUI = Slack::UI
 
-describe "Static selections at checked endpoint boundaries" do
+describe "Static selections at endpoint boundaries" do
   {"result", "call"}.each do |entrypoint|
     {"chat.postMessage", "views.open", "views.publish"}.each do |method|
       it "sends #{method} through #{entrypoint} with an immutable nested select snapshot" do
@@ -16,21 +16,21 @@ describe "Static selections at checked endpoint boundaries" do
                   when "chat.postMessage"
                     builder = SnapshotUI::MessageBuilder.new(fallback_text: "Choose colors.")
                     builder.add_all(blocks)
-                    snapshot_request = Slack::Api::CheckedChatPostMessage.new(token: "xoxb-synthetic-choices", channel: "C-SYNTHETIC", message: builder.build, transport: transport)
+                    snapshot_request = Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic-choices", channel: "C-SYNTHETIC", message: builder.build, transport: transport)
                     builder.divider
                     snapshot_request
                   when "views.open"
                     builder = SnapshotUI::FormModalBuilder.new(title: SnapshotUI.plain("Colors"), submit: SnapshotUI.plain("Save"))
                     builder.add_all(blocks)
                     builder.input(label: SnapshotUI.plain("Color"), block_id: "preferences", element: StaticSelectFixture.single)
-                    snapshot_request = Slack::Api::CheckedViewsOpen.new(token: "xoxb-synthetic-choices", trigger_id: "synthetic-trigger", view: builder.build, transport: transport)
+                    snapshot_request = Slack::Api::ViewsOpen.new(token: "xoxb-synthetic-choices", trigger_id: "synthetic-trigger", view: builder.build, transport: transport)
                     builder.divider
                     snapshot_request
                   else
                     builder = SnapshotUI::HomeBuilder.new
                     builder.add_all(blocks)
                     builder.input(label: SnapshotUI.plain("Color"), block_id: "preferences", element: StaticSelectFixture.single)
-                    snapshot_request = Slack::Api::CheckedViewsPublish.new(token: "xoxb-synthetic-choices", user_id: "U-SYNTHETIC", view: builder.build, transport: transport)
+                    snapshot_request = Slack::Api::ViewsPublish.new(token: "xoxb-synthetic-choices", user_id: "U-SYNTHETIC", view: builder.build, transport: transport)
                     builder.divider
                     snapshot_request
                   end

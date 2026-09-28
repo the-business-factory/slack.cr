@@ -1,7 +1,7 @@
 # A positive and a negative feedback button. Slack supports this element only
 # in a `Blocks::ContextActions` block.
-struct Slack::UI::Checked::BlockElements::FeedbackButtons
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::BlockElements::FeedbackButtons
+  include Slack::UI::ValueValidation
 
   getter positive_button : CompositionObjects::FeedbackButton
   getter negative_button : CompositionObjects::FeedbackButton

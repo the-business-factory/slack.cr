@@ -1,4 +1,4 @@
-struct Slack::UI::Checked::RichText::Broadcast
+struct Slack::UI::RichText::Broadcast
   getter range : BroadcastRange
   getter style : Style?
 

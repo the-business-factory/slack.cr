@@ -2,20 +2,20 @@
 # The application must return this JSON in its HTTP 200 response to a
 # view_submission within three seconds. This value makes no Web API request.
 struct Slack::Interactions::ModalUpdate
-  include Slack::UI::Checked::ValueValidation
+  include Slack::UI::ValueValidation
 
-  @snapshot : Slack::UI::Checked::Modal
+  @snapshot : Slack::UI::Modal
 
-  def initialize(view : Slack::UI::Checked::Modal)
+  def initialize(view : Slack::UI::Modal)
     @snapshot = view.snapshot
   end
 
   # Returns a snapshot; changes do not affect the acknowledgment payload.
-  def view : Slack::UI::Checked::Modal
+  def view : Slack::UI::Modal
     @snapshot.snapshot
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
+  def validate : Array(Slack::UI::ValidationIssue)
     @snapshot.validate.map(&.at("view"))
   end
 

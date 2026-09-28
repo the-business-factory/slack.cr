@@ -1,6 +1,6 @@
 # Exactly one Slack file locator. File access and media type are checked by Slack.
-struct Slack::UI::Checked::CompositionObjects::SlackFile
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::CompositionObjects::SlackFile
+  include Slack::UI::ValueValidation
 
   getter id : String?
   getter url : String?
@@ -15,13 +15,13 @@ struct Slack::UI::Checked::CompositionObjects::SlackFile
     validate!
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
-    issues = [] of Slack::UI::Checked::ValidationIssue
+  def validate : Array(Slack::UI::ValidationIssue)
+    issues = [] of Slack::UI::ValidationIssue
     if @id.try(&.empty?)
-      issues << Slack::UI::Checked::ValidationIssue.new("slack_file.id.empty", "id", "File ID must not be empty.")
+      issues << Slack::UI::ValidationIssue.new("slack_file.id.empty", "id", "File ID must not be empty.")
     end
     if @url.try(&.empty?)
-      issues << Slack::UI::Checked::ValidationIssue.new("slack_file.url.empty", "url", "File URL must not be empty.")
+      issues << Slack::UI::ValidationIssue.new("slack_file.url.empty", "url", "File URL must not be empty.")
     end
     issues
   end

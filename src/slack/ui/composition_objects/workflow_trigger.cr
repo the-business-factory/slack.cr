@@ -1,9 +1,9 @@
 # A workflow link trigger URL with optional customizable input parameters.
 # Slack checks that the URL belongs to a valid link trigger.
-struct Slack::UI::Checked::CompositionObjects::WorkflowTrigger
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::CompositionObjects::WorkflowTrigger
+  include Slack::UI::ValueValidation
 
-  alias InputParameter = Slack::UI::Checked::CompositionObjects::WorkflowInputParameter
+  alias InputParameter = Slack::UI::CompositionObjects::WorkflowInputParameter
 
   getter url : String
   @customizable_input_parameters : Array(InputParameter)?
@@ -24,10 +24,10 @@ struct Slack::UI::Checked::CompositionObjects::WorkflowTrigger
     @customizable_input_parameters.try(&.dup)
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
-    issues = [] of Slack::UI::Checked::ValidationIssue
+  def validate : Array(Slack::UI::ValidationIssue)
+    issues = [] of Slack::UI::ValidationIssue
     if @url.empty?
-      issues << Slack::UI::Checked::ValidationIssue.new("workflow_trigger.url.empty", "url", "Trigger URL must not be empty.")
+      issues << Slack::UI::ValidationIssue.new("workflow_trigger.url.empty", "url", "Trigger URL must not be empty.")
     end
     issues
   end

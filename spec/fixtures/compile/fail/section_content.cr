@@ -1,3 +1,3 @@
 require "../../../../src/slack/ui"
 
-Slack::UI::Checked::Blocks::Section.new
+Slack::UI::Blocks::Section.new

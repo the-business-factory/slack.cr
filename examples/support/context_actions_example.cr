@@ -6,7 +6,7 @@ require "./webmock_transport"
 # then reads a signed feedback click. Slack does not document the received
 # action shape for these elements, so it decodes as `UnknownAction`.
 module OfflineContextActionsExample
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
 
   # Returns the JSON body that the stubbed chat.postMessage endpoint received.
   def self.run(output : IO = STDOUT) : JSON::Any
@@ -22,7 +22,7 @@ module OfflineContextActionsExample
       builder.section(UI.plain("Rotate the signing secret in the app settings."), block_id: "answer")
       builder.context_actions(answer_actions("U-ASKER"), block_id: "answer.actions")
     end
-    Slack::Api::CheckedChatPostMessage.new(token: "xoxb-synthetic-answer", channel: "C-SYNTHETIC",
+    Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic-answer", channel: "C-SYNTHETIC",
       message: message, transport: OfflineExample::WebMockTransport.new).call
 
     output.puts "Feedback: #{read_feedback(signed_feedback_click)}"

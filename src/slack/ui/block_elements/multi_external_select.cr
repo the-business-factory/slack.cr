@@ -1,28 +1,28 @@
 # Multiple-choice menu whose options Slack loads from the app's Options Load
 # URL. Initial options cannot be checked against remote results; they must be
 # distinct, nonempty when supplied, and within max_selected_items.
-struct Slack::UI::Checked::BlockElements::MultiExternalSelect
-  include Slack::UI::Checked::ValueValidation
+struct Slack::UI::BlockElements::MultiExternalSelect
+  include Slack::UI::ValueValidation
 
-  @initial_options : Array(Slack::UI::Checked::CompositionObjects::Option)?
+  @initial_options : Array(Slack::UI::CompositionObjects::Option)?
   getter action_id : String?
-  getter placeholder : Slack::UI::Checked::CompositionObjects::PlainText?
+  getter placeholder : Slack::UI::CompositionObjects::PlainText?
   getter min_query_length : Int32?
   getter max_selected_items : Int32?
-  getter confirm : Slack::UI::Checked::CompositionObjects::Confirmation?
+  getter confirm : Slack::UI::CompositionObjects::Confirmation?
   getter focus_on_load : Bool?
 
   def initialize(
     *,
     @action_id : String? = nil,
-    @placeholder : Slack::UI::Checked::CompositionObjects::PlainText? = nil,
+    @placeholder : Slack::UI::CompositionObjects::PlainText? = nil,
     initial_options : Enumerable(T)? = nil,
     @min_query_length : Int32? = nil,
     @max_selected_items : Int32? = nil,
-    @confirm : Slack::UI::Checked::CompositionObjects::Confirmation? = nil,
+    @confirm : Slack::UI::CompositionObjects::Confirmation? = nil,
     @focus_on_load : Bool? = nil,
   ) forall T
-    @initial_options = Slack::UI::Checked::OptionCollection.copy(initial_options)
+    @initial_options = Slack::UI::OptionCollection.copy(initial_options)
     validate!
   end
 
@@ -30,22 +30,22 @@ struct Slack::UI::Checked::BlockElements::MultiExternalSelect
     "multi_external_select"
   end
 
-  def initial_options : Array(Slack::UI::Checked::CompositionObjects::Option)?
+  def initial_options : Array(Slack::UI::CompositionObjects::Option)?
     @initial_options.try(&.dup)
   end
 
-  def validate : Array(Slack::UI::Checked::ValidationIssue)
-    issues = [] of Slack::UI::Checked::ValidationIssue
+  def validate : Array(Slack::UI::ValidationIssue)
+    issues = [] of Slack::UI::ValidationIssue
     length_issue(issues, @action_id, 255, "#{type}.action_id.too_long", "action_id")
     if placeholder = @placeholder
       placeholder.validate.each { |issue| issues << issue.at("placeholder") }
       length_issue(issues, placeholder.text, 150, "#{type}.placeholder.too_long", "placeholder.text")
     end
     if (minimum = @min_query_length) && minimum < 0
-      issues << Slack::UI::Checked::ValidationIssue.new("#{type}.min_query_length.negative", "min_query_length", "Minimum query length cannot be negative.")
+      issues << Slack::UI::ValidationIssue.new("#{type}.min_query_length.negative", "min_query_length", "Minimum query length cannot be negative.")
     end
     if (maximum = @max_selected_items) && maximum < 1
-      issues << Slack::UI::Checked::ValidationIssue.new("#{type}.max_selected_items.too_small", "max_selected_items", "Maximum selected items must be at least one.")
+      issues << Slack::UI::ValidationIssue.new("#{type}.max_selected_items.too_small", "max_selected_items", "Maximum selected items must be at least one.")
     end
     if initial = @initial_options
       validate_initial(initial, issues)
@@ -70,18 +70,18 @@ struct Slack::UI::Checked::BlockElements::MultiExternalSelect
     end
   end
 
-  private def validate_initial(initial : Array(Slack::UI::Checked::CompositionObjects::Option), issues : Array(Slack::UI::Checked::ValidationIssue)) : Nil
+  private def validate_initial(initial : Array(Slack::UI::CompositionObjects::Option), issues : Array(Slack::UI::ValidationIssue)) : Nil
     if initial.empty?
-      issues << Slack::UI::Checked::ValidationIssue.new("#{type}.initial_options.empty", "initial_options", "Initial options must contain at least one option when supplied.")
+      issues << Slack::UI::ValidationIssue.new("#{type}.initial_options.empty", "initial_options", "Initial options must contain at least one option when supplied.")
     end
     if (maximum = @max_selected_items) && initial.size > maximum
-      issues << Slack::UI::Checked::ValidationIssue.new("#{type}.initial_options.too_many", "initial_options", "Initial selections cannot exceed maximum selected items.")
+      issues << Slack::UI::ValidationIssue.new("#{type}.initial_options.too_many", "initial_options", "Initial selections cannot exceed maximum selected items.")
     end
     values = Set(String).new
     initial.each_with_index do |option, index|
       option.validate.each { |issue| issues << issue.at("initial_options[#{index}]") }
       unless values.add?(option.value)
-        issues << Slack::UI::Checked::ValidationIssue.new("#{type}.initial_options.duplicate", "initial_options[#{index}]", "Initial selections must be distinct.")
+        issues << Slack::UI::ValidationIssue.new("#{type}.initial_options.duplicate", "initial_options[#{index}]", "Initial selections must be distinct.")
       end
     end
   end

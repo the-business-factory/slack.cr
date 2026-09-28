@@ -2,7 +2,7 @@ require "../spec_helper"
 require "../support/auth/webmock_transport"
 
 module CheckboxesSnapshotSpec
-  alias UI = Slack::UI::Checked
+  alias UI = Slack::UI
   alias Option = UI::CompositionObjects::CheckboxOption
 
   class OnePassOptions
@@ -27,7 +27,7 @@ module CheckboxesSnapshotSpec
     control = UI::BlockElements::Checkboxes.new(options: choices, initial_options: selections, action_id: "notifications")
     builder = UI::MessageBuilder.new(fallback_text: "Preferences")
     builder.input(label: UI.plain("Notifications"), element: control, block_id: "preferences", optional: true)
-    request = Slack::Api::CheckedChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC", message: builder.build, transport: AuthSupport::WebMockTransport.new)
+    request = Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC", message: builder.build, transport: AuthSupport::WebMockTransport.new)
     options.clear
     initial.clear
     copy = control
@@ -60,7 +60,7 @@ module CheckboxesSnapshotSpec
       message = UI.message(fallback_text: "Preferences") do |builder|
         builder.input(label: UI.plain("Notifications"), element: UI::BlockElements::Checkboxes.new(options: [] of Option))
       end
-      Slack::Api::CheckedChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC", message: message, transport: AuthSupport::WebMockTransport.new).call
+      Slack::Api::ChatPostMessage.new(token: "xoxb-synthetic", channel: "C-SYNTHETIC", message: message, transport: AuthSupport::WebMockTransport.new).call
     end.issues.first.code.should eq "checkboxes.options.size"
     sent.should eq 0
   end
