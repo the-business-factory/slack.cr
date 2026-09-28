@@ -27,6 +27,7 @@ require "../examples/support/remote_file_example"
 require "../examples/support/rich_text_example"
 require "../examples/support/number_input_example"
 require "../examples/support/file_input_example"
+require "../examples/support/url_input_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -262,5 +263,28 @@ describe "documented Block Kit workflows" do
     output = IO::Memory.new
     OfflineFileInputExample.run(output)
     output.to_s.should eq "Received receipts: F-ONE (receipt.pdf, application/pdf), F-TWO (taxi.png, image/png) (acknowledged 200)\n"
+  end
+
+  it "collects an HTTPS page link through a signed modal form" do
+    output = IO::Memory.new
+    request, acknowledgements = OfflineUrlInputExample.run(output)
+    # Authored from Slack's URL input, Input block, and views.open contracts.
+    request.should eq JSON.parse(<<-JSON)
+      {"trigger_id":"synthetic-trigger","view":{"type":"modal","title":{"type":"plain_text","text":"Report a bug"},
+       "submit":{"type":"plain_text","text":"Send"},"callback_id":"bug_report","blocks":[
+        {"type":"input","label":{"type":"plain_text","text":"Summary"},"block_id":"bug.summary",
+         "element":{"type":"plain_text_input","action_id":"summary"}},
+        {"type":"input","label":{"type":"plain_text","text":"Page link"},"block_id":"bug.link","dispatch_action":true,
+         "element":{"type":"url_text_input","action_id":"page","dispatch_action_config":{"trigger_actions_on":["on_enter_pressed"]},
+          "focus_on_load":true,"placeholder":{"type":"plain_text","text":"https://"}}}]}}
+      JSON
+    output.to_s.lines.should eq ["Link entered: http://intranet.example/wiki (acknowledged 200)",
+                                 "Rejected link: http://intranet.example/wiki",
+                                 %(Reported "Login fails" at status.example.com)]
+    rejected, accepted = acknowledgements
+    rejected.headers["Content-Type"].should eq "application/json"
+    JSON.parse(rejected.body).should eq JSON.parse(%({"response_action":"errors","errors":{"bug.link":"Enter an HTTPS link."}}))
+    accepted.status_code.should eq 200
+    accepted.body.should be_empty
   end
 end

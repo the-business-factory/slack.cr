@@ -1,6 +1,6 @@
 # Slack documents these Input children for modals only. Message, Home, and
 # DisplayModal do not accept this block.
-alias Slack::UI::Checked::Blocks::ModalInputElement = Slack::UI::Checked::BlockElements::NumberInput | Slack::UI::Checked::BlockElements::FileInput
+alias Slack::UI::Checked::Blocks::ModalInputElement = Slack::UI::Checked::BlockElements::NumberInput | Slack::UI::Checked::BlockElements::UrlInput | Slack::UI::Checked::BlockElements::FileInput
 
 # An Input block for elements that Slack supports only in modals. It has the
 # same wire type, fields, and limits as `Input`; only FormModal accepts it.

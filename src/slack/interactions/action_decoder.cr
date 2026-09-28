@@ -1,4 +1,4 @@
-alias Slack::Interactions::Action = Slack::Interactions::ButtonAction | Slack::Interactions::StaticSelectAction | Slack::Interactions::MultiStaticSelectAction | Slack::Interactions::ExternalSelectAction | Slack::Interactions::MultiExternalSelectAction | Slack::Interactions::OverflowAction | Slack::Interactions::CheckboxesAction | Slack::Interactions::RadioButtonsAction | Slack::Interactions::UsersSelectAction | Slack::Interactions::MultiUsersSelectAction | Slack::Interactions::ConversationsSelectAction | Slack::Interactions::MultiConversationsSelectAction | Slack::Interactions::ChannelsSelectAction | Slack::Interactions::MultiChannelsSelectAction | Slack::Interactions::DatePickerAction | Slack::Interactions::TimePickerAction | Slack::Interactions::DatetimePickerAction | Slack::Interactions::NumberInputAction | Slack::Interactions::UnknownAction
+alias Slack::Interactions::Action = Slack::Interactions::ButtonAction | Slack::Interactions::StaticSelectAction | Slack::Interactions::MultiStaticSelectAction | Slack::Interactions::ExternalSelectAction | Slack::Interactions::MultiExternalSelectAction | Slack::Interactions::OverflowAction | Slack::Interactions::CheckboxesAction | Slack::Interactions::RadioButtonsAction | Slack::Interactions::UsersSelectAction | Slack::Interactions::MultiUsersSelectAction | Slack::Interactions::ConversationsSelectAction | Slack::Interactions::MultiConversationsSelectAction | Slack::Interactions::ChannelsSelectAction | Slack::Interactions::MultiChannelsSelectAction | Slack::Interactions::DatePickerAction | Slack::Interactions::TimePickerAction | Slack::Interactions::DatetimePickerAction | Slack::Interactions::NumberInputAction | Slack::Interactions::UrlInputAction | Slack::Interactions::UnknownAction
 
 module Slack::Interactions::ActionDecoder
   def self.decode(raw : JSON::Any?) : Array(Action)
@@ -20,6 +20,8 @@ module Slack::Interactions::ActionDecoder
     case type
     when "number_input"
       NumberInputAction.new(item, path)
+    when "url_text_input"
+      UrlInputAction.new(item, path)
     when "datepicker"
       DatePickerAction.new(item, path)
     when "timepicker"
