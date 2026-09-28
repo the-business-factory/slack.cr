@@ -1139,6 +1139,28 @@ entries:
     inbound_status: supported
     evidence_paths: [src/slack/events/event_types/message_factory.cr, src/slack/events/event_types/message.cr, src/slack/events/event_types/message/channel_topic.cr, src/slack/events/event_types/message/message_replied.cr, spec/events/message_subtypes_spec.cr, spec/fixtures/events/message/unmapped_subtype.json, examples/support/event_catalog_example.cr]
 
+  - wire_type: assistant thread and agent session events
+    kind: event
+    documentation_url: https://docs.slack.dev/reference/events/assistant_thread_started
+    fields_supported: [assistant_thread_started, assistant_thread_context_changed, app_context_changed, agent_session_stopped, agent_session_title_changed]
+    parents: [events_api]
+    surfaces: []
+    restrictions: "Both assistant thread events give EventData::AssistantThread (user_id, channel_id, thread_ts, all required) and event_ts. context is nil when Slack omits it; its channel_id, team_id, and enterprise_id are nil for an empty context object. Slack advises conversations.info before the app uses the context channel. app_context_changed gives EventData::AppContext entities (type, value, team_id nil when omitted) in relevance order, empty for an empty context; Slack sends it only with agent_view enabled. agent_session_stopped gives channel, user, thread_ts, event_ts, and streaming_message_ts (empty when no stream was active); Slack does not change the session status. agent_session_title_changed gives title, previous_title (nil for a first title), and enterprise_id (org installs). The library calls no assistant or agent session methods; App#event routes these events by type name without a typed listener."
+    implementation_status: unsupported
+    inbound_status: supported
+    evidence_paths: [src/slack/events/event_types/assistant_thread_started.cr, src/slack/events/event_types/assistant_thread_context_changed.cr, src/slack/events/event_types/app_context_changed.cr, src/slack/events/event_types/agent_session_stopped.cr, src/slack/events/event_types/agent_session_title_changed.cr, src/slack/events/event_data/assistant_thread.cr, src/slack/events/event_data/assistant_thread_context.cr, src/slack/events/event_data/app_context.cr, src/slack/events/event_data/context_entity.cr, spec/events/assistant_events_spec.cr, spec/fixtures/events/assistant_thread_started.json, spec/fixtures/events/agent_session_stopped.json, examples/support/assistant_events_example.cr, spec/block_kit_consumers_spec.cr]
+
+  - wire_type: assistant_app_thread message subtype
+    kind: event
+    documentation_url: https://docs.slack.dev/reference/events/message/assistant_app_thread
+    fields_supported: [subtype, text, user, team, assistant_app_thread title, assistant_app_thread title_blocks, assistant_app_thread artifacts]
+    parents: [events_api]
+    surfaces: []
+    restrictions: "A message event with this subtype decodes as Events::Message::AssistantAppThread; text, user, team, and assistant_app_thread are nil when omitted. Slack's reference example sends the subtype inside message_changed, so EventData::MessageSubset (message and previous_message) also gives subtype and assistant_app_thread. title_blocks decode as received blocks; artifacts stay raw JSON because Slack documents no schema. A direct delivery with this subtype has no reference example."
+    implementation_status: unsupported
+    inbound_status: supported
+    evidence_paths: [src/slack/events/event_types/message/assistant_app_thread.cr, src/slack/events/event_data/assistant_app_thread.cr, src/slack/events/event_data/message_subset.cr, spec/events/assistant_events_spec.cr, spec/fixtures/events/message/assistant_app_thread.json, spec/fixtures/events/message/assistant_app_thread_changed.json, examples/support/assistant_events_example.cr]
+
   - wire_type: functions.completeSuccess request
     kind: endpoint
     documentation_url: https://docs.slack.dev/reference/methods/functions.completeSuccess

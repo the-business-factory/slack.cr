@@ -9,6 +9,15 @@ struct Slack::EventData::MessageSubset
     text : String,
     ts : String
 
+  # The subtype of this message, such as `assistant_app_thread`. Nil for an
+  # ordinary message.
+  @[JSON::Field(emit_null: false)]
+  getter subtype : String? = nil
+
+  # Slack sends it when `subtype` is `assistant_app_thread`.
+  @[JSON::Field(emit_null: false)]
+  getter assistant_app_thread : Slack::EventData::AssistantAppThread? = nil
+
   @[JSON::Field(key: "blocks", emit_null: false)]
   @blocks_raw : JSON::Any? = nil
 

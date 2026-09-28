@@ -58,6 +58,7 @@ require "../examples/support/assistant_thread_example"
 require "../examples/support/user_group_example"
 require "../examples/support/testing_example"
 require "../examples/support/app_example"
+require "../examples/support/assistant_events_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -622,6 +623,19 @@ describe "documented Block Kit workflows" do
       "Topic of C-SYNTHETIC is now Release week",
       "Message subtype synthetic_future_subtype in C-SYNTHETIC",
       "Rate limited for T-SYNTHETIC since 2026-09-12T17:00:00Z",
+    ]
+  end
+
+  it "routes signed assistant thread and agent session events" do
+    output = IO::Memory.new
+    OfflineAssistantEventsExample.run(output)
+    output.to_s.lines.should eq [
+      "Thread 1789232400.000100 in D-ASSISTANT opened while U-ASKER views C-VIEWED",
+      "Thread 1789232400.000100 now views no channel",
+      "Thread root 1789232400.000100 titled Trip planning",
+      "Viewing C-VIEWED",
+      "Session 1789232400.000500 renamed to Bora Bora trip prep",
+      "Stop work in C-AGENT 1789232400.000500; streams stopped: 1",
     ]
   end
 

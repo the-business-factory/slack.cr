@@ -1,0 +1,69 @@
+{
+  "token": "synthetic-legacy-token",
+  "team_id": "T-SYNTHETIC",
+  "api_app_id": "A-SYNTHETIC",
+  "event": {
+    "type": "message",
+    "subtype": "message_changed",
+    "message": {
+      "text": "Chats from 2026-09-12T17:00:00.000Z",
+      "subtype": "assistant_app_thread",
+      "user": "U-ASKER",
+      "type": "message",
+      "edited": {
+        "user": "U-ASKER",
+        "ts": "1789232400.000700"
+      },
+      "team": "T-SYNTHETIC",
+      "thread_ts": "1789232400.000100",
+      "reply_count": 1,
+      "reply_users_count": 1,
+      "latest_reply": "1789232400.000650",
+      "reply_users": ["U-ASKER"],
+      "is_locked": false,
+      "blocks": [],
+      "assistant_app_thread": {
+        "title": "Chats from 2026-09-12T17:00:00.000Z",
+        "title_blocks": [],
+        "artifacts": []
+      },
+      "ts": "1789232400.000100"
+    },
+    "previous_message": {
+      "text": "Chats from 2026-09-12T17:00:00.000Z",
+      "subtype": "assistant_app_thread",
+      "user": "U-ASKER",
+      "type": "message",
+      "ts": "1789232400.000100",
+      "team": "T-SYNTHETIC",
+      "thread_ts": "1789232400.000100",
+      "reply_count": 1,
+      "reply_users_count": 1,
+      "latest_reply": "1789232400.000650",
+      "reply_users": ["U-ASKER"],
+      "is_locked": false,
+      "blocks": [],
+      "assistant_app_thread": {
+        "title": "Chats from 2026-09-12T17:00:00.000Z",
+        "title_blocks": [],
+        "artifacts": []
+      }
+    },
+    "channel": "D-ASSISTANT",
+    "hidden": true,
+    "ts": "1789232400.000700",
+    "event_ts": "1789232400.000700",
+    "channel_type": "im"
+  },
+  "type": "event_callback",
+  "authorizations": [
+    {
+      "team_id": "T-SYNTHETIC",
+      "user_id": "U-BOT",
+      "is_bot": true,
+      "is_enterprise_install": false
+    }
+  ],
+  "event_id": "Ev-ASSISTANT-6",
+  "event_time": 1789232400
+}

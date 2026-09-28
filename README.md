@@ -185,6 +185,36 @@ end
 
 Slack sends `app_rate_limited` instead of events when the app would get more than 30,000 events in one hour from one workspace. It has no inner event. `Slack::AppRateLimited#minute_rate_limited` gives the minute when the limit started. Return HTTP 200 for it.
 
+### Assistant and agent events
+
+These events decode as typed structs in `Slack::Events`:
+
+| Event type | Struct | Main values |
+| --- | --- | --- |
+| `assistant_thread_started` | `AssistantThreadStarted` | `assistant_thread` (`user_id`, `channel_id`, `thread_ts`, `context`) |
+| `assistant_thread_context_changed` | `AssistantThreadContextChanged` | `assistant_thread` with the new `context` |
+| `app_context_changed` | `AppContextChanged` | `context.entities` (`type`, `value`, `team_id`), most relevant first |
+| `agent_session_stopped` | `AgentSessionStopped` | `channel`, `thread_ts`, `streaming_message_ts` |
+| `agent_session_title_changed` | `AgentSessionTitleChanged` | `title`, `previous_title` |
+
+`assistant_thread.context` is nil when Slack does not send it. Its `channel_id`, `team_id`, and `enterprise_id` are nil when Slack sends an empty context. Call `conversations.info` before you use `channel_id`, because the app can have no access to that channel.
+
+The root message of an assistant thread has the subtype `assistant_app_thread`. It decodes as `Slack::Events::Message::AssistantAppThread`. Slack also sends this subtype inside other subtypes, such as the `message` of `message_changed`, so check `message.subtype` there:
+
+```crystal
+case event = envelope.event
+when Slack::Events::AssistantThreadStarted
+  thread = event.assistant_thread
+  greet(thread.channel_id, thread.thread_ts, thread.context.try(&.channel_id))
+when Slack::Events::AgentSessionStopped
+  cancel_work(event.channel, event.thread_ts)
+when Slack::Events::Message::MessageChanged
+  store_title(event.message.assistant_app_thread.try(&.title)) if event.message.subtype == "assistant_app_thread"
+end
+```
+
+The library does not call the assistant or agent session methods for these events, and Slack does not change a stopped session status by itself. The offline specs do not prove that Slack sends these events to an app.
+
 ### Retries
 
 Slack retries a delivery up to three times when the app does not return HTTP 2xx within three seconds. To stop retries for a failed delivery, add `Slack::Events::Delivery::NO_RETRY_HEADER` with `NO_RETRY_VALUE` (`X-Slack-No-Retry: 1`) to the non-2xx response. The library does not send responses or remove duplicate deliveries; use `event_id` for that. The offline specs do not prove Slack retry timing or behavior.
@@ -321,6 +351,7 @@ crystal run examples/attachments.cr
 crystal run examples/ephemeral_reply.cr
 crystal run examples/event_delivery.cr
 crystal run examples/event_catalog.cr
+crystal run examples/assistant_events.cr
 crystal run examples/socket_mode_protocol.cr
 crystal run examples/socket_mode_client.cr
 crystal run examples/interaction_context.cr
@@ -331,7 +362,7 @@ crystal run examples/testing.cr
 crystal run examples/app.cr
 ```
 
-The examples show Web API calls and error codes, channel history and thread replies across cursor pages, workspace members read into an on-call user group, a file upload, a remote file share, message construction, a message with a colored attachment and metadata, an ephemeral thread reply with a permalink and a scheduled reminder, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, message workflow buttons, typed blocks of a received message, routed app events and message subtypes, Socket Mode frames with their acknowledgments, a Socket Mode connection to a local server, a slash command response with a `response_url` reply, a custom workflow step that completes or fails its execution, an app that answers a signed mention and a button click through its HTTP receiver, and an offline test of a slash command handler. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
+The examples show Web API calls and error codes, channel history and thread replies across cursor pages, workspace members read into an on-call user group, a file upload, a remote file share, message construction, a message with a colored attachment and metadata, an ephemeral thread reply with a permalink and a scheduled reminder, a signed button and form submission, Home publishing and state, static selections, overflow menus, checkbox selections, radio selections, user assignments and reviewers, external option suggestions, message status updates, modal updates and pushes, modal alerts, uploaded files, message workflow buttons, typed blocks of a received message, routed app events and message subtypes, routed assistant thread and agent session events, Socket Mode frames with their acknowledgments, a Socket Mode connection to a local server, a slash command response with a `response_url` reply, a custom workflow step that completes or fails its execution, an app that answers a signed mention and a button click through its HTTP receiver, and an offline test of a slash command handler. A separate demo app is at [hirobot.app](https://github.com/the-business-factory/hirobot.app).
 
 ## Contributing
 
