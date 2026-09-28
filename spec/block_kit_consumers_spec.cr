@@ -8,6 +8,7 @@ require "../examples/support/checkboxes_example"
 require "../examples/support/radio_buttons_example"
 require "../examples/support/message_update_example"
 require "../examples/support/view_update_example"
+require "../examples/support/users_select_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -90,5 +91,10 @@ describe "documented Block Kit workflows" do
     output = IO::Memory.new
     OfflineViewUpdateExample.run(output)
     output.to_s.should eq("Updated modal V123 with stable reason/text input IDs (hash next-hash).\n")
+  end
+  it "assigns an owner and submits reviewers through signed user selections" do
+    output = IO::Memory.new
+    OfflineUsersSelectExample.run(output)
+    output.to_s.should eq "Assigned owner: U-OWNER (acknowledged 200)\nSaved reviewers: U-ONE, W-TWO (acknowledged 200)\n"
   end
 end

@@ -1,4 +1,4 @@
-alias Slack::Interactions::StateValue = Slack::Interactions::PlainTextValue | Slack::Interactions::StaticSelectValue | Slack::Interactions::MultiStaticSelectValue | Slack::Interactions::CheckboxesValue | Slack::Interactions::RadioButtonsValue | Slack::Interactions::UnknownStateValue
+alias Slack::Interactions::StateValue = Slack::Interactions::PlainTextValue | Slack::Interactions::StaticSelectValue | Slack::Interactions::MultiStaticSelectValue | Slack::Interactions::CheckboxesValue | Slack::Interactions::RadioButtonsValue | Slack::Interactions::UsersSelectValue | Slack::Interactions::MultiUsersSelectValue | Slack::Interactions::UnknownStateValue
 
 # Reads state.values by stable block and action IDs without imposing outbound rules.
 struct Slack::Interactions::StateMap
@@ -24,6 +24,10 @@ struct Slack::Interactions::StateMap
     object = PayloadAccess.object?(item, path)
     type = PayloadAccess.string?(object.try(&.["type"]?), "#{path}.type")
     case type
+    when "users_select"
+      UsersSelectValue.new(item, path)
+    when "multi_users_select"
+      MultiUsersSelectValue.new(item, path)
     when "radio_buttons"
       RadioButtonsValue.new(item, path)
     when "checkboxes"
@@ -76,6 +80,26 @@ struct Slack::Interactions::StateMap
     when MultiStaticSelectValue then entry
     else
       raise TypeMismatch.new(entry_path(block_id, action_id), "multi_static_select", entry.type || "null or untyped state value")
+    end
+  end
+
+  def users_select_value?(block_id : String, action_id : String) : UsersSelectValue?
+    entry = self[block_id, action_id]?
+    case entry
+    when Nil              then nil
+    when UsersSelectValue then entry
+    else
+      raise TypeMismatch.new(entry_path(block_id, action_id), "users_select", entry.type || "null or untyped state value")
+    end
+  end
+
+  def multi_users_select_value?(block_id : String, action_id : String) : MultiUsersSelectValue?
+    entry = self[block_id, action_id]?
+    case entry
+    when Nil                   then nil
+    when MultiUsersSelectValue then entry
+    else
+      raise TypeMismatch.new(entry_path(block_id, action_id), "multi_users_select", entry.type || "null or untyped state value")
     end
   end
 
