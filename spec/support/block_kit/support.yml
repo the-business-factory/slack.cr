@@ -274,7 +274,7 @@ entries:
     kind: surface
     documentation_url: https://docs.slack.dev/reference/views/modal-views/
     fields_supported: [type, title, submit, close, blocks, private_metadata, callback_id, external_id, clear_on_close, notify_on_close, submit_disabled]
-    parents: [views.open]
+    parents: [views.open, views.update]
     surfaces: [modal]
     restrictions: Checked DisplayModal excludes Input; FormModal requires submit. The block catalog is limited to Section, Actions, Divider, Header, Context, Image, and Input containing PlainTextInput, static selects, Checkboxes, or RadioButtons. submit_disabled is for Slack configuration modals only. View lifecycle responses remain deferred. Legacy Modal keeps its previous contract.
     implementation_status: partial
@@ -291,6 +291,17 @@ entries:
     implementation_status: partial
     inbound_status: partial
     evidence_paths: [src/slack/api/endpoints/checked_views_open.cr, spec/api/checked_views_open_spec.cr, spec/block_kit_consumers_spec.cr]
+
+  - wire_type: views.update checked adapter
+    kind: endpoint
+    documentation_url: https://docs.slack.dev/reference/methods/views.update/
+    fields_supported: [view, view_id, external_id, hash]
+    parents: []
+    surfaces: [modal]
+    restrictions: CheckedViewsUpdate owns a FormModal or DisplayModal snapshot. Exactly one nonblank explicit target selector is library policy; external_id allows 255 characters. Top-level external_id selects the target independently of nested view metadata. Optional hash is opaque, including empty string; no automatic conflict retry or state migration. Input block/action IDs are sent unchanged; matching old IDs and live state preservation are not locally verified. Home uses views.publish. ViewsUpdate exposes ok and raw view JSON. Token, configuration, transport and limiter are dispatch options, not JSON fields.
+    implementation_status: supported
+    inbound_status: partial
+    evidence_paths: [src/slack/api/endpoints/checked_views_update.cr, src/slack/models/views/views_update.cr, spec/api/checked_views_update_spec.cr, spec/api/transport_injection_spec.cr, spec/block_kit_consumers_spec.cr, examples/block_kit_view_update.cr]
 
   - wire_type: block_actions and view_submission
     kind: interaction payload
@@ -680,3 +691,17 @@ rules:
     source_section: "Arguments, Valid message types, Errors: msg_too_long"
     reviewed_on: "2026-09-27"
     evidence_paths: ["spec/api/checked_chat_update_spec.cr"]
+  - id: views_update_target_policy
+    classification: "library_policy"
+    requirement: "Exactly one nonblank explicit view_id or external_id; never infer a target from nested view metadata. Only the existing Modal union is supported."
+    source_url: "https://docs.slack.dev/reference/methods/views.update/"
+    source_section: "Arguments and Usage info; exclusive selector choice is library policy"
+    reviewed_on: "2026-09-27"
+    evidence_paths: ["spec/api/checked_views_update_spec.cr"]
+  - id: views_update_hash_and_inputs
+    classification: "slack_requirement"
+    requirement: "External target IDs allow 255 characters. Optional hash protects against stale updates; retained input block_id/action_id pairs must match the old view to preserve input state. Local checks prove transmitted IDs, not remote state preservation."
+    source_url: "https://docs.slack.dev/reference/methods/views.update/"
+    source_section: "Arguments, Preserving input entry, Errors"
+    reviewed_on: "2026-09-27"
+    evidence_paths: ["spec/api/checked_views_update_spec.cr", "spec/block_kit_consumers_spec.cr", "examples/support/view_update_example.cr"]
