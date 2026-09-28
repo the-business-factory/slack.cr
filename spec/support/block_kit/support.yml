@@ -1,6 +1,6 @@
 schema_version: 2
 checked_on: "2026-09-27"
-scope: Checked Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, channel selects, date/time pickers, the datetime picker, video blocks, and external selects with block_suggestion option responses, including Input in Messages, FormModal and Home.
+scope: Checked Block Kit values, surface builders, static selections, overflow menus, checkboxes, radio buttons, user selects, channel selects, date/time pickers, the datetime picker, video blocks, external selects with block_suggestion option responses, and remote file blocks, including Input in Messages, FormModal and Home.
 statuses:
   - unsupported
   - partial
@@ -405,13 +405,13 @@ entries:
   - wire_type: file block
     kind: block
     documentation_url: https://docs.slack.dev/reference/block-kit/blocks/file-block/
-    fields_supported: []
-    parents: []
-    surfaces: []
-    restrictions: Empty legacy placeholder; not a checked wire implementation.
-    implementation_status: unsupported
+    fields_supported: [type, external_id, source, block_id]
+    parents: [message]
+    surfaces: [message]
+    restrictions: Checked File is a message-only block with a nonempty external_id, a fixed "remote" source, and an optional block_id of 255 characters. The nonempty external_id is library policy. Home and modal surfaces reject it at compile time. Slack does not let apps add the block to messages directly; apps share remote files with files.remote.share or place the block in their own chat.unfurl request. No remote-file or unfurl API and no received-message decoding. Slack checks that the remote file exists. The empty legacy Slack::UI::Blocks::File placeholder remains unchanged.
+    implementation_status: supported
     inbound_status: unsupported
-    evidence_paths: [src/slack/ui/blocks/file.cr]
+    evidence_paths: [src/slack/ui/checked/blocks/file.cr, spec/ui/checked/file_block_spec.cr, spec/block_kit_diagnostics_spec.cr, examples/support/remote_file_example.cr, spec/block_kit_consumers_spec.cr]
 
   - wire_type: Block Kit message payload
     kind: surface
@@ -758,6 +758,13 @@ rules:
     source_section: "Fields and usage info"
     reviewed_on: "2026-09-28"
     evidence_paths: ["spec/ui/checked/video_spec.cr"]
+  - id: file_block
+    classification: "slack_requirement"
+    requirement: "Messages only, not added to app surfaces directly (share with files.remote.share or chat.unfurl); required external_id and source \"remote\"; block_id 255."
+    source_url: "https://docs.slack.dev/reference/block-kit/blocks/file-block/"
+    source_section: "Fields and usage info"
+    reviewed_on: "2026-09-28"
+    evidence_paths: ["spec/ui/checked/file_block_spec.cr", "spec/block_kit_diagnostics_spec.cr"]
   - id: slack_file
     classification: "slack_requirement"
     requirement: "Exactly one id or url source; remote access and image format cannot be validated offline."

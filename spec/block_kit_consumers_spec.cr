@@ -22,6 +22,7 @@ require "../examples/support/date_time_pickers_example"
 require "../examples/support/datetime_picker_example"
 require "../examples/support/video_example"
 require "../examples/support/external_select_example"
+require "../examples/support/remote_file_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -99,6 +100,14 @@ describe "documented Block Kit workflows" do
     output = IO::Memory.new
     OfflineMessageUpdateExample.run(output)
     output.to_s.should eq("Updated C123/1710000000.000001: Request 42 approved.\n")
+  end
+  it "builds a remote file block for an application's unfurl request" do
+    output = IO::Memory.new
+    OfflineRemoteFileExample.run(output)
+    JSON.parse(output.to_s).should eq JSON.parse(<<-JSON)
+      {"https://docs.example.test/plans/2026-q4":{"blocks":[
+        {"type":"file","external_id":"plan-2026-q4","source":"remote","block_id":"plan.file"}]}}
+      JSON
   end
   it "updates an opened form using its returned ID and hash with stable input IDs" do
     output = IO::Memory.new

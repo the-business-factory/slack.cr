@@ -5,6 +5,7 @@ alias Slack::UI::Checked::MessageSourceBlock = Slack::UI::Checked::Blocks::Secti
                                                Slack::UI::Checked::Blocks::Context |
                                                Slack::UI::Checked::Blocks::Image |
                                                Slack::UI::Checked::Blocks::Video |
+                                               Slack::UI::Checked::Blocks::File |
                                                Slack::UI::Checked::Blocks::Input
 
 alias Slack::UI::Checked::MessageBlock = Slack::UI::Checked::MessageSourceBlock

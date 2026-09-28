@@ -6,7 +6,7 @@ Use `require "slack"` and `Slack::UI::Checked` to construct validated, immutable
 
 | Checked surface | Direct blocks | Input children | Send with |
 | --- | --- | --- | --- |
-| `Message` | Section, Actions, Divider, Header, Context, Image, Video, Input | PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, DatetimePicker | `Slack::Api::CheckedChatPostMessage`, `Slack::Api::CheckedChatUpdate` |
+| `Message` | Section, Actions, Divider, Header, Context, Image, Video, File, Input | PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, DatetimePicker | `Slack::Api::CheckedChatPostMessage`, `Slack::Api::CheckedChatUpdate` |
 | `DisplayModal` | Section, Actions, Divider, Header, Context, Image, Video | None, even if a submit label is supplied | `Slack::Api::CheckedViewsOpen`, `Slack::Api::CheckedViewsUpdate`, `Slack::Api::CheckedViewsPush` |
 | `FormModal` | Section, Actions, Divider, Header, Context, Image, Video, Input | PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, DatetimePicker | `Slack::Api::CheckedViewsOpen`, `Slack::Api::CheckedViewsUpdate`, `Slack::Api::CheckedViewsPush` |
 | `Home` | Section, Actions, Divider, Header, Context, Image, Video, Input | PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker | `Slack::Api::CheckedViewsPublish` |
@@ -20,7 +20,7 @@ Use `require "slack"` and `Slack::UI::Checked` to construct validated, immutable
 | Context elements | PlainText, Mrkdwn, Image element |
 | Input element | PlainTextInput, StaticSelect, MultiStaticSelect, ExternalSelect, MultiExternalSelect, Checkboxes, RadioButtons, UsersSelect, MultiUsersSelect, ChannelsSelect, MultiChannelsSelect, ConversationsSelect, MultiConversationsSelect, DatePicker, TimePicker, DatetimePicker (not Home) |
 
-Checked Header, Context, Image, and Video blocks are display content on all four surfaces. An Image block or element needs alt text and exactly one public `image_url` or `SlackFile` source. `SlackFile` takes an ID or URL. Remote image availability and file access are checked by Slack. Section supports text, fields, and the listed accessory; Actions checks duplicate supplied action IDs within that block.
+Checked Header, Context, Image, and Video blocks are display content on all four surfaces. A File block is a message-only representation. An Image block or element needs alt text and exactly one public `image_url` or `SlackFile` source. `SlackFile` takes an ID or URL. Remote image availability and file access are checked by Slack. Section supports text, fields, and the listed accessory; Actions checks duplicate supplied action IDs within that block.
 
 Static choices use plain-text `Option` values, optional `OptionGroup` values, and exactly one `options:` or `option_groups:` source. `StaticSelect` has one `initial_option`; `MultiStaticSelect` has `initial_options` and optional `max_selected_items`. Choice values must be unique within a menu, and initial selections must match offered options. Each group can contain up to 100 options. These two types use a **static** source. User, channel, and conversation selects use Slack-provided lists. External selects load options from your app; see [Load options from your app](#load-options-from-your-app).
 
@@ -53,6 +53,20 @@ response = request.call
 ```
 
 `CheckedChatPostMessage` accepts `channel`, checked `text`/`blocks`, `thread_ts`, `reply_broadcast`, `unfurl_links`, and `unfurl_media`. It copies and validates the message before dispatch and requires a `String` token. `result` and `call` share the same validation boundary. Named `configuration`, `transport`, and `limiter` options can customize dispatch; they are not JSON fields. The wrapper sends through the existing API client and raises `Slack::Api::Error` for API failures. It does not support every `chat.postMessage` field.
+
+## Build a remote file block
+
+A File block shows a remote file. Slack does not let apps add this block to messages directly. To share a remote file, the app adds it with `files.remote.add` and shares it with `files.remote.share`. To show it in a link preview, the app puts the block in its own `chat.unfurl` request. This library does not wrap these methods. Slack shows File blocks in messages that contain remote files.
+
+```crystal
+file = UI::Blocks::File.new(external_id: "plan-2026-q4", block_id: "plan.file")
+file.to_json
+# {"type":"file","external_id":"plan-2026-q4","source":"remote","block_id":"plan.file"}
+```
+
+The block always sends `source: "remote"`. The `external_id` must not be empty, and `block_id` is limited to 255 characters. A checked `Message` can contain the block because Slack lists messages as its only surface; `DisplayModal`, `FormModal`, and `Home` reject `Blocks::File` at compile time. This placement does not make `chat.postMessage` or `chat.update` a supported way to share a file. Slack checks that the remote file exists. Received message blocks are not decoded. See the [file block reference](https://docs.slack.dev/reference/block-kit/blocks/file-block/), the [remote file guide](https://docs.slack.dev/messaging/working-with-files/), and the offline [remote-file example](../examples/block_kit_remote_file.cr). The legacy `Slack::UI::Blocks::File` placeholder does not change.
+
+`MessageBlock` now contains `Blocks::File`. An exhaustive `case ... in` or overload set over `MessageBlock` must add a `Blocks::File` branch. Before this change, `Blocks::Input` and `DisplayModalBlock` were sufficient.
 
 ## Update a message
 
@@ -522,7 +536,7 @@ Text and field lengths count characters. Common limits: top-level Message 50 blo
 
 Checked constructors and builders accept arrays, tuples, and custom enumerables according to the **types actually yielded by `each`**. A broad declared `Enumerable(T?)` is allowed if its `each` yields only supported `T` values. Unsupported yielded values cause a compile error; constructors do no runtime filtering. Inputs are traversed once and copied into owned typed arrays. Getters return snapshots, so changing a caller array, a getter result, or a builder cannot mutate an already built surface or endpoint request.
 
-Use a collection typed for the destination surface. An ordinary `Array(Slack::UI::Checked::MessageBlock)` has an item union that includes Input; it cannot be passed to `DisplayModal` even if its present elements happen to be display blocks. Use `Array(Slack::UI::Checked::DisplayModalBlock)` for that surface. Legacy conversion helpers remain available in the API for supported mutable Section and Actions values; checked values can be built directly from application data.
+Use a collection typed for the destination surface. An ordinary `Array(Slack::UI::Checked::MessageBlock)` has an item union that includes Input and File; it cannot be passed to `DisplayModal` even if its present elements happen to be display blocks. Use `Array(Slack::UI::Checked::DisplayModalBlock)` for that surface. Legacy conversion helpers remain available in the API for supported mutable Section and Actions values; checked values can be built directly from application data.
 
 ## Offline examples
 
@@ -550,6 +564,7 @@ crystal run examples/block_kit_date_time_pickers.cr
 crystal run examples/block_kit_datetime_picker.cr
 crystal run examples/block_kit_video.cr
 crystal run examples/block_kit_external_select.cr
+crystal run examples/block_kit_remote_file.cr
 ```
 
-The message example builds and prints a request. The modal example posts a button, verifies a signed action, opens a form, and reads a signed submission. The Home example publishes through a stub and reads simulated state. The static choice example posts a single choice, reads a signed selection, opens a grouped multi-choice form, and reads its submission. The overflow example posts action and URL choices and acknowledges a signed URL selection. The checkbox example posts initial choices, reads a signed checkbox action, and reads a cleared selection from a signed submission. The radio example posts an initial choice, reads a signed selection, opens an optional override form, and reads an unselected submission. The message-update example replaces a posted approval button with the completed status and new fallback text. The user-select example assigns an owner and submits multiple reviewers. The video example posts a message with a video block and shows a local rejection of an HTTP video link. The external-select example answers a signed options-load request, then reads a signed selection and submission. Real handlers must acknowledge interactions within Slack's response window.
+The message example builds and prints a request. The modal example posts a button, verifies a signed action, opens a form, and reads a signed submission. The Home example publishes through a stub and reads simulated state. The static choice example posts a single choice, reads a signed selection, opens a grouped multi-choice form, and reads its submission. The overflow example posts action and URL choices and acknowledges a signed URL selection. The checkbox example posts initial choices, reads a signed checkbox action, and reads a cleared selection from a signed submission. The radio example posts an initial choice, reads a signed selection, opens an optional override form, and reads an unselected submission. The message-update example replaces a posted approval button with the completed status and new fallback text. The user-select example assigns an owner and submits multiple reviewers. The video example posts a message with a video block and shows a local rejection of an HTTP video link. The external-select example answers a signed options-load request, then reads a signed selection and submission. The remote-file example prints the unfurls value for an application's own `chat.unfurl` request. Real handlers must acknowledge interactions within Slack's response window.

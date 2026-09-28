@@ -21,6 +21,12 @@ class Slack::UI::Checked::MessageBuilder
     @blocks << block
   end
 
+  # Adds a remote file block. Home and modal builders do not have this helper.
+  # Slack does not accept direct posts of this block; see `Blocks::File`.
+  def file(external_id : String, block_id : String? = nil) : Nil
+    add(Blocks::File.new(external_id: external_id, block_id: block_id))
+  end
+
   def add_all(blocks : Enumerable(T)) : Nil forall T
     blocks.each { |block| add(block) }
   end

@@ -1,0 +1,16 @@
+{
+  "text": "Quarterly plan shared.",
+  "blocks": [
+    {
+      "type": "file",
+      "external_id": "ABCD1",
+      "source": "remote",
+      "block_id": "plan.file"
+    },
+    {
+      "type": "file",
+      "external_id": "ABCD2",
+      "source": "remote"
+    }
+  ]
+}
