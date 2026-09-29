@@ -119,11 +119,7 @@ struct Slack::UI::Blocks::Section
     copied
   end
 
-  private def append_field(fields : Array(Text), field : Slack::UI::CompositionObjects::PlainText) : Nil
-    fields << field
-  end
-
-  private def append_field(fields : Array(Text), field : Slack::UI::CompositionObjects::Mrkdwn) : Nil
+  private def append_field(fields : Array(Text), field : Text) : Nil
     fields << field
   end
 end
