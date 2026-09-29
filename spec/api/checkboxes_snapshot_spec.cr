@@ -14,7 +14,6 @@ module CheckboxesSnapshotSpec
     control = UI::BlockElements::Checkboxes.new(options: choices, initial_options: selections, action_id: "notifications")
     builder = UI::MessageBuilder.new(fallback_text: "Preferences")
     builder.input(label: UI.plain("Notifications"), element: control, block_id: "preferences", optional: true)
-    client = ApiSupport.client("xoxb-synthetic")
     request = Slack::Api::ChatPostMessage.new(channel: "C-SYNTHETIC", message: builder.build)
     options.clear
     initial.clear
