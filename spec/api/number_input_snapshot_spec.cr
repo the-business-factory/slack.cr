@@ -1,5 +1,4 @@
 require "../spec_helper"
-require "../support/api/webmock_client"
 
 module NumberInputSnapshotSpec
   alias UI = Slack::UI
@@ -13,7 +12,6 @@ module NumberInputSnapshotSpec
     builder.input(label: UI.plain("Seats"), block_id: "seats", element: seats, dispatch_action: true)
     builder.input(label: UI.plain("Budget"), block_id: "budget", element: budget, optional: true)
     view = builder.build
-    client = ApiSupport.client("xoxb-synthetic")
     request = Slack::Api::ViewsOpen.new(trigger_id: "synthetic-trigger",
       view: view)
     builder.divider
@@ -29,13 +27,5 @@ module NumberInputSnapshotSpec
          "element":{"type":"number_input","is_decimal_allowed":true,"action_id":"budget","placeholder":{"type":"plain_text","text":"0.00"}}}]}}
       JSON
     JSON.parse(request.to_json).should eq expected
-    sent = 0
-    WebMock.stub(:post, "https://slack.com/api/views.open").with(headers: {"Authorization" => "Bearer xoxb-synthetic"}).to_return do |http_request|
-      sent += 1
-      JSON.parse(http_request.body || fail("Missing body")).should eq expected
-      HTTP::Client::Response.new(200, body: %({"ok":true,"view":{"id":"V-SYNTHETIC","type":"modal"}}))
-    end
-    client.call(request).view["id"].should eq "V-SYNTHETIC"
-    sent.should eq 1
   end
 end

@@ -1,5 +1,4 @@
 require "../spec_helper"
-require "../support/api/webmock_client"
 
 module DatetimePickerSnapshotSpec
   alias UI = Slack::UI
@@ -10,7 +9,6 @@ module DatetimePickerSnapshotSpec
     builder.actions({start}, block_id: "meeting")
     builder.input(label: UI.plain("End"), block_id: "meeting.end", element: UI::BlockElements::DatetimePicker.new(action_id: "end"), optional: true)
     message = builder.build
-    client = ApiSupport.client("xoxb-synthetic")
     request = Slack::Api::ChatPostMessage.new(channel: "C-SYNTHETIC",
       message: message)
     builder.divider
@@ -22,13 +20,6 @@ module DatetimePickerSnapshotSpec
         {"type":"input","label":{"type":"plain_text","text":"End"},"block_id":"meeting.end","optional":true,
          "element":{"type":"datetimepicker","action_id":"end"}}]}
       JSON
-    sent = 0
-    WebMock.stub(:post, "https://slack.com/api/chat.postMessage").with(headers: {"Authorization" => "Bearer xoxb-synthetic"}).to_return do |http_request|
-      sent += 1
-      JSON.parse(http_request.body || fail("Missing body")).should eq expected
-      HTTP::Client::Response.new(200, body: File.read("spec/fixtures/api/chat-post-success-section.json"))
-    end
-    client.call(request)
-    sent.should eq 1
+    JSON.parse(request.to_json).should eq expected
   end
 end

@@ -1,4 +1,6 @@
 struct Slack::UI::CompositionObjects::Confirmation
+  include Slack::UI::ValueValidation
+
   TITLE_MAX_LENGTH  = 100
   TEXT_MAX_LENGTH   = 300
   BUTTON_MAX_LENGTH =  30
@@ -25,10 +27,10 @@ struct Slack::UI::CompositionObjects::Confirmation
     append_child_issues(issues, @text.validate, "text")
     append_child_issues(issues, @confirm.validate, "confirm")
     append_child_issues(issues, @deny.validate, "deny")
-    append_length_issue(issues, @title.text, TITLE_MAX_LENGTH, "confirmation.title.too_long", "title.text")
-    append_length_issue(issues, @text.text, TEXT_MAX_LENGTH, "confirmation.text.too_long", "text.text")
-    append_length_issue(issues, @confirm.text, BUTTON_MAX_LENGTH, "confirmation.confirm.too_long", "confirm.text")
-    append_length_issue(issues, @deny.text, BUTTON_MAX_LENGTH, "confirmation.deny.too_long", "deny.text")
+    length_issue(issues, @title.text, TITLE_MAX_LENGTH, "confirmation.title.too_long", "title.text", "Text")
+    length_issue(issues, @text.text, TEXT_MAX_LENGTH, "confirmation.text.too_long", "text.text", "Text")
+    length_issue(issues, @confirm.text, BUTTON_MAX_LENGTH, "confirmation.confirm.too_long", "confirm.text", "Text")
+    length_issue(issues, @deny.text, BUTTON_MAX_LENGTH, "confirmation.deny.too_long", "deny.text", "Text")
     if (style = @style) && !ConfirmationStyle.valid?(style)
       issues << Slack::UI::ValidationIssue.new(
         code: "confirmation.style.invalid",
@@ -37,11 +39,6 @@ struct Slack::UI::CompositionObjects::Confirmation
       )
     end
     issues
-  end
-
-  def validate! : Nil
-    issues = validate
-    raise Slack::UI::ValidationError.new(issues) unless issues.empty?
   end
 
   def to_json(json : JSON::Builder) : Nil
@@ -61,21 +58,5 @@ struct Slack::UI::CompositionObjects::Confirmation
     path : String,
   ) : Nil
     child_issues.each { |issue| issues << issue.at(path) }
-  end
-
-  private def append_length_issue(
-    issues : Array(Slack::UI::ValidationIssue),
-    value : String,
-    maximum : Int32,
-    code : String,
-    path : String,
-  ) : Nil
-    return unless value.size > maximum
-
-    issues << Slack::UI::ValidationIssue.new(
-      code: code,
-      path: path,
-      message: "Text cannot be longer than #{maximum} characters."
-    )
   end
 end

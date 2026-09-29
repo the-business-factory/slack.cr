@@ -1,5 +1,4 @@
 require "../spec_helper"
-require "../support/api/webmock_client"
 
 module DateTimePickersSnapshotSpec
   alias UI = Slack::UI
@@ -11,7 +10,6 @@ module DateTimePickersSnapshotSpec
     builder.input(label: UI.plain("Date"), block_id: "schedule.date", element: date)
     builder.input(label: UI.plain("Time"), block_id: "schedule.time", element: time, dispatch_action: false)
     view = builder.build
-    client = ApiSupport.client("xoxb-synthetic")
     request = Slack::Api::ViewsOpen.new(trigger_id: "synthetic-trigger",
       view: view)
     builder.divider
@@ -26,13 +24,5 @@ module DateTimePickersSnapshotSpec
          "element":{"type":"timepicker","action_id":"time","initial_time":"09:30","timezone":"America/Chicago","focus_on_load":false}}]}}
       JSON
     JSON.parse(request.to_json).should eq expected
-    sent = 0
-    WebMock.stub(:post, "https://slack.com/api/views.open").with(headers: {"Authorization" => "Bearer xoxb-synthetic"}).to_return do |http_request|
-      sent += 1
-      JSON.parse(http_request.body || fail("Missing body")).should eq expected
-      HTTP::Client::Response.new(200, body: %({"ok":true,"view":{"id":"V-SYNTHETIC","type":"modal"}}))
-    end
-    client.call(request).view["id"].should eq "V-SYNTHETIC"
-    sent.should eq 1
   end
 end

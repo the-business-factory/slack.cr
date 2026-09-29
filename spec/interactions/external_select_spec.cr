@@ -1,22 +1,9 @@
 require "../spec_helper"
+require "../support/one_pass"
 
 module ExternalSelectInteractionSpec
   alias UI = Slack::UI
   alias Response = Slack::Interactions::BlockSuggestionResponse
-
-  class OnePass(T)
-    include Enumerable(T?)
-    getter passes : Int32 = 0
-
-    def initialize(@items : Array(T))
-    end
-
-    def each(&) : Nil
-      @passes += 1
-      raise "Traversed twice" if @passes > 1
-      @items.each { |item| yield item }
-    end
-  end
 
   def self.option(value : String) : UI::CompositionObjects::Option
     UI::CompositionObjects::Option.new(text: UI.plain(value.capitalize), value: value)
@@ -132,14 +119,14 @@ module ExternalSelectInteractionSpec
 
     it "owns options and groups after one traversal" do
       items = [option("apollo")]
-      source = OnePass(UI::CompositionObjects::Option).new(items)
+      source = SpecSupport::OnePass.new(items)
       response = Response.new(options: source)
       items.clear
       response.options.should_not(be_nil).clear
       source.passes.should eq 1
       response.option_groups.should be_nil
       groups = [UI::CompositionObjects::OptionGroup.new(label: UI.plain("Active"), options: {option("apollo")})]
-      grouped = Response.new(option_groups: OnePass(UI::CompositionObjects::OptionGroup).new(groups))
+      grouped = Response.new(option_groups: SpecSupport::OnePass.new(groups))
       groups.clear
       grouped.option_groups.should_not(be_nil).clear
       grouped.options.should be_nil
