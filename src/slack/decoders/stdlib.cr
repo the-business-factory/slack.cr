@@ -1,8 +1,12 @@
 require "../decoder"
 
-# The default `Slack::Decoder`. It decodes with the standard library `JSON`
-# parser through `Slack::Events.parse`, `Slack::Interactions.parse`, and
-# `Slack::Commands.parse`.
+# A `Slack::Decoder` that decodes with the standard library `JSON` parser
+# through `Slack::Events.parse`, `Slack::Interactions.parse`, and
+# `Slack::Commands.parse`. The default decoder is `Slack::Decoders::Fused`.
+#
+# ```
+# Slack::App::SocketModeReceiver.new(app, socket, decoder: Slack::Decoders::Stdlib.new)
+# ```
 class Slack::Decoders::Stdlib < Slack::Decoder
   protected def decode_event(body : String) : Slack::VerifiedEvent | Slack::UrlVerification | Slack::AppRateLimited
     Slack::Events.parse(body)

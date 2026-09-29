@@ -9,14 +9,19 @@ require "./interactions/parse"
 #
 # `Slack::App::HttpReceiver`, `Slack::App::SocketModeReceiver`,
 # `Slack::Auth::RequestAuthorizer`, and `Slack::Auth::CredentialLifecycle`
-# take a decoder. The default is
-# `Slack::Decoders::Stdlib`.
+# take a decoder. The default is `Slack::Decoders::Fused`.
+# `Slack::Decoders::Stdlib` decodes with the standard library `JSON` parser
+# instead:
+#
+# ```
+# Slack::App::HttpReceiver.new(app, verifier, decoder: Slack::Decoders::Stdlib.new)
+# ```
 #
 # Give an observer to see each payload before the decoder decodes it, for
 # example to keep a payload for a bug report or a test fixture:
 #
 # ```
-# decoder = Slack::Decoders::Stdlib.new(->(kind : Slack::Decoder::Kind, body : String) {
+# decoder = Slack::Decoders::Fused.new(->(kind : Slack::Decoder::Kind, body : String) {
 #   File.write("captured-#{kind.to_s.downcase}.txt", body)
 #   nil
 # })
@@ -57,7 +62,7 @@ abstract class Slack::Decoder
   alias Observer = Kind, String -> Nil
 
   # The decoder that receivers and authorizers use when you do not give one.
-  class_getter default : Decoder { Decoders::Stdlib.new }
+  class_getter default : Decoder { Decoders::Fused.new }
 
   def initialize(@observer : Observer? = nil)
   end
@@ -90,3 +95,4 @@ abstract class Slack::Decoder
 end
 
 require "./decoders/stdlib"
+require "./decoders/fused"

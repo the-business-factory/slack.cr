@@ -45,6 +45,26 @@ server.listen
 
 Set the Events API, Interactivity, and slash command Request URLs to `https://<your host>/slack/events`. The bot token needs `app_mentions:read`, `chat:write`, and `commands`. The receiver answers when the listener calls `ack` or returns, or after 2.5 seconds. See [App listeners](documentation/app.md).
 
+## Decoders
+
+The receivers decode payloads with a `Slack::Decoder`. The default, `Slack::Decoders::Fused`, uses the [FusedJSON](https://github.com/wyhaines/fused-json.cr) parser, which the shard installs as a dependency. `Slack::Decoders::Stdlib` uses the standard library `JSON` parser. Both decode each payload to the same value. Give a decoder with `decoder:`:
+
+```crystal
+Slack::App::HttpReceiver.new(app, verifier, decoder: Slack::Decoders::Stdlib.new)
+```
+
+To capture the payloads that Slack sends, for example for a bug report or a test fixture, give the decoder an observer. The observer gets each payload before the decoder decodes it:
+
+```crystal
+decoder = Slack::Decoders::Fused.new(->(kind : Slack::Decoder::Kind, body : String) {
+  File.write("captured-#{kind.to_s.downcase}.txt", body)
+  nil
+})
+Slack::App::SocketModeReceiver.new(app, socket, decoder: decoder)
+```
+
+Payloads can contain user messages and other private data. See [Decoders](documentation/app.md#decoders).
+
 ## Web API quickstart
 
 Create one `Slack::Api::Client` with a token. Send typed requests with `call`:

@@ -16,6 +16,11 @@ targets:
   slack:
     main: src/slack.cr
 
+dependencies:
+  fused_json:
+    github: wyhaines/fused-json.cr
+    version: ~> 0.3.0
+
 development_dependencies:
   ameba:
     github: crystal-ameba/ameba

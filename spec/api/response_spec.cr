@@ -2,22 +2,14 @@ require "../spec_helper"
 
 # Counts the JSON texts that the stdlib parsers start on, so a spec can check
 # that `Response` parses a body once. The count is off outside `counting`.
-class JSON::PullParser
+# `JSON::PullParser` and `JSON::Parser` both make a `JSON::Lexer` for each
+# text. The hook is on the lexer, because a reopened `JSON::PullParser#initialize`
+# breaks subclasses in other namespaces, such as FusedJSON's pull adapter.
+abstract class JSON::Lexer
   class_property parsed_texts : Array(String)? = nil
 
-  def initialize(input)
-    if input.is_a?(String)
-      JSON::PullParser.parsed_texts.try(&.<< input)
-    end
-    previous_def
-  end
-end
-
-class JSON::Parser
-  def initialize(string_or_io : String | IO)
-    if string_or_io.is_a?(String)
-      JSON::PullParser.parsed_texts.try(&.<< string_or_io)
-    end
+  def self.new(string : String) : self
+    JSON::Lexer.parsed_texts.try(&.<< string)
     previous_def
   end
 end
@@ -25,11 +17,11 @@ end
 module ResponseSpec
   def self.counting(&) : Array(String)
     texts = [] of String
-    JSON::PullParser.parsed_texts = texts
+    JSON::Lexer.parsed_texts = texts
     begin
       yield
     ensure
-      JSON::PullParser.parsed_texts = nil
+      JSON::Lexer.parsed_texts = nil
     end
     texts
   end

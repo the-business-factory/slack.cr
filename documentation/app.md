@@ -302,12 +302,23 @@ The receiver logs with source `slack.app.socket_mode_receiver`. The logs contain
 
 ## Decoders
 
-The receivers decode payloads with a `Slack::Decoder`. The default is `Slack::Decoders::Stdlib`, which uses the standard library `JSON` parser. `HttpReceiver`, `SocketModeReceiver`, `Slack::Auth::RequestAuthorizer`, and `Slack::Auth::CredentialLifecycle` accept another decoder through `decoder:`.
+The receivers decode payloads with a `Slack::Decoder`. `HttpReceiver`, `SocketModeReceiver`, `Slack::Auth::RequestAuthorizer`, and `Slack::Auth::CredentialLifecycle` accept a decoder through `decoder:`. The shard has two:
+
+- `Slack::Decoders::Fused`, the default. It uses the [FusedJSON](https://github.com/wyhaines/fused-json.cr) parser. A scan reads only the `type` fields, and one typed parse then decodes the payload into the selected type.
+- `Slack::Decoders::Stdlib`. It uses the standard library `JSON` parser.
+
+Both decode each payload to the same value and raise the same error classes for a payload that does not decode. The error messages can differ: for example, FusedJSON gives lines and columns in the original payload. FusedJSON is strict JSON and rejects, for example, a trailing comma.
+
+```crystal
+Slack::App::HttpReceiver.new(app, verifier, decoder: Slack::Decoders::Stdlib.new)
+```
+
+To use another parser, inherit `Slack::Decoder` and implement its protected `decode_event`, `decode_interaction`, and `decode_command` methods.
 
 To capture the payloads that Slack sends, for example for a bug report or a test fixture, give the decoder an observer. The decoder calls the observer with the payload kind and body before it decodes the payload. The observer is off by default.
 
 ```crystal
-decoder = Slack::Decoders::Stdlib.new(->(kind : Slack::Decoder::Kind, body : String) {
+decoder = Slack::Decoders::Fused.new(->(kind : Slack::Decoder::Kind, body : String) {
   Log.debug { "#{kind} payload: #{body}" }
   nil
 })

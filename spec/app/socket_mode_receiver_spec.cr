@@ -181,6 +181,20 @@ describe Slack::App::SocketModeReceiver do
     harness.try(&.stop)
   end
 
+  it "routes an event through an injected standard library decoder" do
+    app = build_app
+    mentions = Channel(String).new(1)
+    app.on_app_mention { |ctx| mentions.send(ctx.event.text) }
+    harness = connect(app, Slack::Decoders::Stdlib.new)
+
+    harness.send(app_mention_envelope("E-STDLIB", retry_attempt: 0, retry_reason: ""))
+
+    harness.next_ack.should eq JSON.parse(%({"envelope_id":"E-STDLIB"}))
+    SocketModeSupport.receive(mentions, "the mention").should eq "<@U-BOT> deploy"
+  ensure
+    harness.try(&.stop)
+  end
+
   it "acknowledges a view submission with a response action" do
     app = build_app
     app.view("deploy.form") do |ctx|

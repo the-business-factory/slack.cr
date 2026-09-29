@@ -1,8 +1,9 @@
 require "./spec_helper"
 
 # The contract that every `Slack::Decoder` meets. `DecoderContract.verify`
-# defines the examples for one decoder, so a second decoder runs the same
-# examples with one more call at the end of this file.
+# defines the examples for one decoder. The calls at the end of this file run
+# them for the default decoder (`Slack::Decoders::Fused`) and for
+# `Slack::Decoders::Stdlib`.
 #
 # For each fixture, the decoder must give the type in `EVENT_TYPES` or
 # `INTERACTION_TYPES`, and the decoded payload must re-encode to the input.
@@ -23,6 +24,10 @@ require "./spec_helper"
 # Each other difference fails the example, unless `KNOWN_DIFFERENCES` lists
 # it for that fixture. A listed difference that does not occur also fails, so
 # the list stays current when a model gains a field.
+#
+# Each malformed fixture must raise the error class and reason in `MALFORMED`
+# with every decoder. The message text comes from the JSON parser, so each
+# decoder gives its own expected messages.
 module DecoderContract
   extend Spec::Methods
 
@@ -242,9 +247,29 @@ module DecoderContract
   # The types that keep their payload JSON unchanged.
   FALLBACK_TYPES = [Slack::Events::Unknown, Slack::Events::Message::Unmapped, Slack::Interactions::Unknown]
 
-  # The error that each malformed fixture raises: the class, the message, and
-  # for `Slack::Auth::RequestAuthorizationError` the reason.
+  # The error that each malformed fixture raises with every decoder: the
+  # error class, and for `Slack::Auth::RequestAuthorizationError` the reason.
+  # A `JSON::ParseException` here excludes its subclass `JSON::SerializableError`.
   MALFORMED = {
+    "malformed/events/truncated.json"                          => "JSON::ParseException",
+    "malformed/events/array_body.json"                         => "JSON::ParseException",
+    "malformed/events/missing_event.json"                      => "JSON::SerializableError",
+    "malformed/events/app_mention_numeric_ts.json"             => "JSON::SerializableError",
+    "malformed/events/channel_topic_missing_topic.json"        => "JSON::SerializableError",
+    "malformed/events/url_verification_missing_challenge.json" => "JSON::SerializableError",
+    "malformed/interactions/missing_type.json"                 => "JSON::SerializableError",
+    "malformed/interactions/block_actions_string_user.json"    => "JSON::SerializableError",
+    "malformed/interactions/unknown_empty_user.json"           => "JSON::SerializableError",
+    "malformed/interactions/duplicate_payload.txt"             => "Slack::Auth::RequestAuthorizationError (invalid_payload)",
+    "malformed/commands/duplicate_team_id.txt"                 => "Slack::Auth::RequestAuthorizationError (duplicate_routing_field)",
+    "malformed/commands/invalid_install_kind.txt"              => "Slack::Auth::RequestAuthorizationError (invalid_install_kind)",
+    "malformed/commands/missing_command.txt"                   => "JSON::SerializableError",
+  }
+
+  # The full error that `Slack::Decoders::Stdlib` raises for each malformed
+  # fixture. The JSON parser writes the message text (token wording, line,
+  # and column), so each decoder has its own list.
+  STDLIB_ERRORS = {
     "malformed/events/truncated.json" => <<-ERROR,
       JSON::ParseException: Unexpected token: <EOF> at line 1, column 100
       ERROR
@@ -303,7 +328,65 @@ module DecoderContract
       ERROR
   }
 
-  def self.verify(decoder : Slack::Decoder) : Nil
+  # The full error that `Slack::Decoders::Fused` raises for each malformed
+  # fixture. FusedJSON reports lines and columns in the original payload. The
+  # trace names the internal envelope type that holds the concrete event.
+  FUSED_ERRORS = {
+    "malformed/events/truncated.json" => <<-ERROR,
+      FusedJSON::ParseError: expected ',' or '}' in object at line 1, column 100
+      ERROR
+    "malformed/events/array_body.json" => <<-ERROR,
+      FusedJSON::ParseError: expected BeginObject, found BeginArray at line 1, column 1
+      ERROR
+    "malformed/events/missing_event.json" => <<-ERROR,
+      JSON::SerializableError: Missing JSON attribute: event
+        parsing Slack::VerifiedEvent#event at line 1, column 1
+      ERROR
+    "malformed/events/app_mention_numeric_ts.json" => <<-ERROR,
+      JSON::SerializableError: expected String, found Int at line 9, column 11
+        parsing Slack::Events::AppMentioned#ts at line 9, column 5
+        parsing Slack::Decoders::Fused::Envelope(Slack::Events::AppMentioned)#event at line 5, column 3
+      ERROR
+    "malformed/events/channel_topic_missing_topic.json" => <<-ERROR,
+      JSON::SerializableError: Missing JSON attribute: topic
+        parsing Slack::Events::Message::ChannelTopic#topic at line 5, column 12
+        parsing Slack::Decoders::Fused::Envelope(Slack::Events::Message::ChannelTopic)#event at line 5, column 3
+      ERROR
+    "malformed/events/url_verification_missing_challenge.json" => <<-ERROR,
+      JSON::SerializableError: Missing JSON attribute: challenge
+        parsing Slack::UrlVerification#challenge at line 1, column 1
+      ERROR
+    "malformed/interactions/missing_type.json" => <<-ERROR,
+      JSON::SerializableError: Missing string JSON discriminator field 'type'
+        parsing Slack::Interaction at line 1, column 1
+      ERROR
+    "malformed/interactions/block_actions_string_user.json" => <<-ERROR,
+      JSON::SerializableError: Expected BeginObject but was String at line 5, column 11
+        parsing Slack::Interactions::User at line 5, column 11
+        parsing Slack::Interactions::BlockAction#user at line 5, column 3
+      ERROR
+    "malformed/interactions/unknown_empty_user.json" => <<-ERROR,
+      JSON::SerializableError: Missing JSON attribute: id
+        parsing Slack::Interactions::User#id at line 1, column 1
+      ERROR
+    "malformed/interactions/duplicate_payload.txt" => <<-ERROR,
+      Slack::Auth::RequestAuthorizationError: Authentication failure: InvalidIdentity (invalid_payload)
+      ERROR
+    "malformed/commands/duplicate_team_id.txt" => <<-ERROR,
+      Slack::Auth::RequestAuthorizationError: Authentication failure: InvalidIdentity (duplicate_routing_field)
+      ERROR
+    "malformed/commands/invalid_install_kind.txt" => <<-ERROR,
+      Slack::Auth::RequestAuthorizationError: Authentication failure: InvalidIdentity (invalid_install_kind)
+      ERROR
+    "malformed/commands/missing_command.txt" => <<-ERROR,
+      JSON::SerializableError: Missing JSON attribute: command
+        parsing Slack::Command#command at line 1, column 1
+      ERROR
+  }
+
+  # Defines the contract examples for *decoder*. *errors* gives the full
+  # error, as `describe_error` writes it, for each `MALFORMED` fixture.
+  def self.verify(decoder : Slack::Decoder, errors : Hash(String, String)) : Nil
     describe "#{decoder.class} decoder contract" do
       describe "decodes and re-encodes each event fixture" do
         it "has an expected type for each event fixture" do
@@ -370,11 +453,16 @@ module DecoderContract
         end
       end
 
-      describe "raises the same error for each malformed fixture" do
+      describe "raises the expected error for each malformed fixture" do
+        it "has an expected error for each malformed fixture" do
+          errors.keys.sort!.should eq(MALFORMED.keys.sort!)
+        end
+
         MALFORMED.each do |path, expected|
           it path do
             decode_malformed(decoder, path).each do |error|
-              describe_error(error).should eq(expected)
+              error_kind(error).should eq(expected)
+              describe_error(error).should eq(errors[path]?)
             end
           end
         end
@@ -475,6 +563,17 @@ module DecoderContract
     fail "Expected the payload not to decode"
   end
 
+  # Returns the error class that `MALFORMED` names for *error*, with the
+  # reason of a `Slack::Auth::RequestAuthorizationError`.
+  private def self.error_kind(error : Exception) : String
+    case error
+    when Slack::Auth::RequestAuthorizationError then "#{error.class} (#{error.reason})"
+    when JSON::SerializableError                then "JSON::SerializableError"
+    when JSON::ParseException                   then "JSON::ParseException"
+    else                                             error.class.to_s
+    end
+  end
+
   private def self.describe_error(error : Exception) : String
     description = "#{error.class}: #{error.message}"
     return description unless error.is_a?(Slack::Auth::RequestAuthorizationError)
@@ -526,4 +625,5 @@ module DecoderContract
   end
 end
 
-DecoderContract.verify(Slack::Decoder.default)
+DecoderContract.verify(Slack::Decoder.default, DecoderContract::FUSED_ERRORS)
+DecoderContract.verify(Slack::Decoders::Stdlib.new, DecoderContract::STDLIB_ERRORS)

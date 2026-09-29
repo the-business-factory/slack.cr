@@ -386,7 +386,7 @@ describe Slack::App::HttpReceiver do
 
     Log.capture("slack.app.receiver") do |logs|
       AppSupport.run(receiver, AppSupport.json(secret_text)).status.should eq 400
-      logs.check(:warn, /\ARejected a payload that does not decode: JSON::\w+\z/)
+      logs.check(:warn, /\ARejected a payload that does not decode: [\w:]+\z/)
     end
     AppSupport.run(receiver, AppSupport.signed("{}", "text/plain")).status.should eq 415
     AppSupport.run(receiver, AppSupport.signed("{}", "application/json", path: "/health")).status.should eq 404

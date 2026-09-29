@@ -29,8 +29,13 @@ module Slack::Commands::Parser
   # `is_enterprise_install` must be `"true"` or `"false"` (a JSON boolean is
   # also accepted).
   def self.from_json_object(json : String) : Slack::Command
+    from_json_object(JSON::PullParser.new(json))
+  end
+
+  # Reads a slash command JSON object from *pull* with the rules of
+  # `.from_json_object(json)`.
+  def self.from_json_object(pull : JSON::PullParser) : Slack::Command
     object = {} of String => JSON::Any
-    pull = JSON::PullParser.new(json)
     pull.read_object do |key|
       if object.has_key?(key) && ROUTING_KEYS.includes?(key)
         raise Slack::Auth::RequestAuthorizationError.new(:duplicate_routing_field)
