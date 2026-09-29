@@ -10,7 +10,7 @@ struct Slack::App::MessageContext < Slack::App::Context
     super(environment)
   end
 
-  private def say_channel : String?
+  private def say_channel : String
     @message.channel
   end
 end

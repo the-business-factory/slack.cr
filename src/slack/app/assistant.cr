@@ -91,11 +91,10 @@ class Slack::App::Assistant
     TypedRoute(AssistantContext(Slack::Events::Message)).new(middleware, handler, acknowledge_first: true) do |payload, environment|
       next unless payload.is_a?(Slack::VerifiedEvent)
       message = payload.event
-      next unless message.is_a?(Slack::Events::Message) && message.im? && message.subtype.nil? && message.bot_id.nil?
-      channel = message.channel
+      next unless message.is_a?(Slack::Events::Message) && message.im? && message.bot_id.nil?
       thread_ts = message.thread_ts
-      if channel && thread_ts
-        AssistantContext(Slack::Events::Message).new(environment, payload, message, store, channel_id: channel,
+      if thread_ts
+        AssistantContext(Slack::Events::Message).new(environment, payload, message, store, channel_id: message.channel,
           thread_ts: thread_ts, user_id: message.user, event_context: nil)
       end
     end

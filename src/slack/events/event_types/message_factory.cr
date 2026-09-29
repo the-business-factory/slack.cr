@@ -1,17 +1,18 @@
 # Selects the `message` event struct by `subtype`.
 #
-# A message without a subtype, or with a subtype that this library does not
-# map, decodes as the base `Slack::Events::Message`. Its `subtype` getter gives
-# the unmapped value.
+# A message without a subtype decodes as `Slack::Events::Message`. A subtype
+# that this library does not map decodes as `Slack::Events::Message::Unmapped`.
 struct Slack::Events::MessageFactory
   # Keep the explicit type dispatch together rather than split the discriminator mapping.
   # ameba:disable Metrics/CyclomaticComplexity
   def self.new(pull : JSON::PullParser) : Slack::Event
     location = pull.location
     raw = JSON::Any.new(pull)
+    subtype = subtype(raw, location)
     json = raw.to_json
 
-    case subtype(raw, location)
+    case subtype
+    when nil                    then Slack::Events::Message.from_json(json)
     when "assistant_app_thread" then Slack::Events::Message::AssistantAppThread.from_json(json)
     when "bot_add"              then Slack::Events::Message::BotAdd.from_json(json)
     when "bot_message"          then Slack::Events::Message::BotMessage.from_json(json)
@@ -28,11 +29,14 @@ struct Slack::Events::MessageFactory
     when "pinned_item"          then Slack::Events::Message::PinnedItem.from_json(json)
     when "thread_broadcast"     then Slack::Events::Message::ThreadBroadcast.from_json(json)
     when "unpinned_item"        then Slack::Events::Message::UnpinnedItem.from_json(json)
-    else                             Slack::Events::Message.from_json(json)
+    else                             Slack::Events::Message::Unmapped.new(subtype, raw)
     end
   end
 
-  private def self.subtype(raw : JSON::Any, location : Tuple(Int32, Int32)) : String?
+  # :nodoc:
+  # Returns the `subtype` of the message object *raw*, or nil when it is
+  # missing or null. Raises `JSON::SerializableError` for another JSON type.
+  def self.subtype(raw : JSON::Any, location : Tuple(Int32, Int32)) : String?
     object = raw.as_h? || raise JSON::SerializableError.new("Expected a JSON object for a message event", "Slack::Events::MessageFactory", nil, *location, nil)
     value = object["subtype"]?
     return if value.nil? || value.raw.nil?

@@ -44,7 +44,7 @@ module OfflineRichTextExample
     # An independent, signed message event: a user reply written in Slack's composer.
     body = <<-JSON
       {"token":"synthetic","team_id":"T-SYNTHETIC","api_app_id":"A-SYNTHETIC","type":"event_callback","event_id":"Ev-SYNTHETIC","event_time":1710000001,
-      "event":{"type":"message","user":"U-READER","team":"T-SYNTHETIC","channel":"C-SYNTHETIC","channel_type":"channel","ts":"1710000001.000002",
+      "event":{"type":"message","user":"U-READER","team":"T-SYNTHETIC","channel":"C-SYNTHETIC","channel_type":"channel","ts":"1710000001.000002","event_ts":"1710000001.000002",
       "thread_ts":"1710000000.000001","text":"Thanks <@U-AUTHOR>! Next: docs, changelog","blocks":[
       {"type":"rich_text","block_id":"r3Pl","elements":[
       {"type":"rich_text_section","elements":[{"type":"text","text":"Thanks "},{"type":"user","user_id":"U-AUTHOR"},{"type":"text","text":"! Next:"}]},

@@ -30,7 +30,7 @@ class Slack::App::Router
     @routes << TypedRoute(MessageContext).new(middleware, handler, acknowledge_first: true) do |payload, environment|
       next unless payload.is_a?(Slack::VerifiedEvent)
       message = payload.event
-      if message.is_a?(Slack::Events::Message) && message.subtype.nil? && text_matches?(pattern, message.text)
+      if message.is_a?(Slack::Events::Message) && text_matches?(pattern, message.text)
         MessageContext.new(environment, payload, message)
       end
     end
@@ -106,9 +106,8 @@ class Slack::App::Router
 
   # Message text patterns follow Bolt: a string matches when the text contains it.
   # A message without text matches only when there is no pattern.
-  private def text_matches?(pattern : (String | Regex)?, text : String?) : Bool
+  private def text_matches?(pattern : (String | Regex)?, text : String) : Bool
     return true unless pattern
-    return false unless text
     case pattern
     in String then text.includes?(pattern)
     in Regex  then pattern.matches?(text)

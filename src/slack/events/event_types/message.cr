@@ -1,26 +1,38 @@
-# A `message` event. Slack omits `channel`, `user`, `team`, `text`, and
-# `channel_type` in some messages, such as a message with an unmapped subtype.
+# A `message` event without a `subtype`: a message that a user or an app posts.
+#
+# A message with a `subtype` decodes as one of the structs nested in this
+# namespace, such as `Message::ChannelTopic`, or as `Message::Unmapped` when
+# this library does not map the subtype. These structs inherit `Slack::Event`,
+# not `Message`, because a plain message has a stricter field set. Thus
+# `is_a?(Message)` means a plain message. Match all subtypes with
+# `Slack::Events::MessageSubtype`, and `Message::Unmapped` separately:
+#
+# ```
+# case event = envelope.event
+# when Slack::Events::Message           then reply(event.channel, event.text)
+# when Slack::Events::MessageSubtype    then log("#{event.subtype} in #{event.channel}")
+# when Slack::Events::Message::Unmapped then log("Unmapped #{event.subtype}")
+# end
+# ```
 struct Slack::Events::Message < Slack::Event
   @[JSON::Field(key: "blocks", emit_null: false)]
   @blocks_raw : JSON::Any?
 
-  # `bot_id` is set on messages that an app or bot posts.
+  property channel : String,
+    channel_type : String,
+    event_ts : String,
+    text : String,
+    ts : String,
+    user : String
+
+  # `bot_id` and `app_id` are set on messages that an app or bot posts.
   property attachments : Array(Slack::EventData::Attachment)?,
+    app_id : String?,
     bot_id : String?,
-    channel : String?,
-    channel_type : String?,
     client_msg_id : String?,
     parent_user_id : String?,
     team : String?,
-    text : String?,
-    thread_ts : String?,
-    ts : String?,
-    user : String?
-
-  # Nil for an ordinary message. A subtype that this library does not map also
-  # decodes as `Message`; this getter gives its name.
-  @[JSON::Field(emit_null: false)]
-  getter subtype : String?
+    thread_ts : String?
 
   # Decodes the message blocks. Returns an empty array when the message has none.
   # Raises `Slack::Interactions::TypeMismatch` for a malformed known block.

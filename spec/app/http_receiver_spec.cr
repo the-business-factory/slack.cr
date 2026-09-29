@@ -34,12 +34,6 @@ private UNMAPPED_SUBTYPE_MESSAGE = <<-JSON
             "ts":"1789232400.000400","event_ts":"1789232400.000400","channel_type":"channel"},
    "type":"event_callback","event_id":"Ev-SUBTYPE","event_time":1789232400}
   JSON
-private TEXTLESS_MESSAGE = <<-JSON
-  {"token":"synthetic-legacy-token","team_id":"T-SYNTHETIC","api_app_id":"A-SYNTHETIC",
-   "event":{"type":"message","channel":"C-SYNTHETIC","user":"U-SYNTHETIC",
-            "ts":"1789232400.000500","event_ts":"1789232400.000500","channel_type":"channel"},
-   "type":"event_callback","event_id":"Ev-TEXTLESS","event_time":1789232400}
-  JSON
 private URL_VERIFICATION = %({"token":"synthetic-legacy-token","challenge":"3eZbrw1aBm2rZgRNFdxV2595E9CY3gmdALWMmHkvFXO7tYXAYM8P","type":"url_verification"})
 
 private COMMAND = {
@@ -153,16 +147,6 @@ describe Slack::App::HttpReceiver do
 
     receive(app, AppSupport.json(UNMAPPED_SUBTYPE_MESSAGE)).status.should eq 200
     routed.receive.should eq "event listener"
-  end
-
-  it "routes a message without text only to a listener without a pattern" do
-    app = build_app
-    routed = Channel(String).new(1)
-    app.message("deploy") { |_ctx| routed.send("pattern listener") }
-    app.message { |_ctx| routed.send("any-message listener") }
-
-    receive(app, AppSupport.json(TEXTLESS_MESSAGE)).status.should eq 200
-    routed.receive.should eq "any-message listener"
   end
 
   it "echoes a url_verification challenge without authorizing or routing" do

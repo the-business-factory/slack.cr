@@ -216,11 +216,11 @@ module ReceivedBlocksSpec
 
     it "reads blocks in message events and message subtypes" do
       message = Slack::Event.from_json(<<-JSON).should be_a(Slack::Events::Message)
-        {"type":"message","channel":"C1","channel_type":"channel","team":"T1","text":"hi","user":"U1","ts":"1.1",
+        {"type":"message","channel":"C1","channel_type":"channel","team":"T1","text":"hi","user":"U1","ts":"1.1","event_ts":"1.1",
          "blocks":[{"type":"section","text":{"type":"mrkdwn","text":"*hi*"}}]}
         JSON
       message.blocks.first.should(be_a(RB::Section)).text.try(&.text).should eq "*hi*"
-      plain = Slack::Event.from_json(%({"type":"message","channel":"C1","channel_type":"im","team":"T1","text":"hi","user":"U1"}))
+      plain = Slack::Event.from_json(%({"type":"message","channel":"C1","channel_type":"im","team":"T1","text":"hi","user":"U1","ts":"1.1","event_ts":"1.1"}))
       plain.should(be_a(Slack::Events::Message)).blocks.should be_empty
 
       file_share = Slack::Event.from_json(<<-JSON)

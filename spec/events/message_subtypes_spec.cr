@@ -66,28 +66,42 @@ describe "Message subtypes" do
     unpinned.item_type.should eq "G"
   end
 
-  it "decodes an unmapped subtype as the base message with its subtype" do
-    message = message_event("unmapped_subtype").should be_a(Slack::Events::Message)
+  it "keeps an unmapped subtype with the complete event object" do
+    message = message_event("unmapped_subtype").should be_a(Slack::Events::Message::Unmapped)
     message.subtype.should eq "synthetic_future_subtype"
-    message.channel.should eq "C-SYNTHETIC"
-    message.channel_type.should be_nil
-    message.user.should be_nil
-    message.text.should be_nil
-    message.blocks.should be_empty
+    message.type.should eq "message"
+    message.raw["detail"]["state"].as_s.should eq "ready"
+
+    fixture = JSON.parse(File.read("spec/fixtures/events/message/unmapped_subtype.json"))["event"]
+    JSON.parse(message.to_json).should eq fixture
+    Slack::Event.from_json(message.to_json).should be_a(Slack::Events::Message::Unmapped)
   end
 
   it "decodes an unmapped subtype without a channel, as Slack's group_topic reference shows" do
-    message = message_event("group_topic").should be_a(Slack::Events::Message)
+    message = message_event("group_topic").should be_a(Slack::Events::Message::Unmapped)
     message.subtype.should eq "group_topic"
-    message.channel.should be_nil
-    message.user.should eq "U-EDITOR"
-    message.ts.should eq "1789232400.002100"
+    message.raw["channel"]?.should be_nil
+    message.raw["user"].as_s.should eq "U-EDITOR"
   end
 
-  it "keeps a message without a subtype as the base message" do
+  it "decodes a message without a subtype with its channel, author, text, and timestamps" do
     message = message_event("../message").should be_a(Slack::Events::Message)
-    message.subtype.should be_nil
-    message.user.should eq "U016SQZLFEE"
+    {message.channel, message.channel_type, message.user}.should eq({"C032TLM43GA", "channel", "U016SQZLFEE"})
+    message.text.should start_with("testing multiple repeated links")
+    {message.ts, message.event_ts}.should eq({"1645228769.569399", "1645228769.569399"})
+    {message.team, message.client_msg_id}.should eq({"T017GL5AV5E", "df8c8743-f186-4a99-aa07-316bda8ddf1f"})
+    {message.bot_id, message.app_id, message.thread_ts}.should eq({nil, nil, nil})
+  end
+
+  it "decodes a null subtype as a message without a subtype" do
+    json = %({"type":"message","subtype":null,"channel":"D1","channel_type":"im","user":"U1","text":"hi","ts":"1.1","event_ts":"1.1"})
+    Slack::Event.from_json(json).should(be_a(Slack::Events::Message)).im?.should be_true
+  end
+
+  it "rejects a message without a subtype that omits a required field" do
+    expect_raises(JSON::SerializableError, /text/) do
+      Slack::Event.from_json(%({"type":"message","channel":"D1","channel_type":"im","user":"U1","ts":"1.1","event_ts":"1.1"}))
+    end
   end
 
   it "rejects a message subtype that is not a string" do

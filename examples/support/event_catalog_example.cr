@@ -39,8 +39,8 @@ module OfflineEventCatalogExample
       output.puts "Welcome #{event.user} to #{event.channel}, invited by #{event.inviter}"
     when Slack::Events::Message::ChannelTopic
       output.puts "Topic of #{event.channel} is now #{event.topic}"
-    when Slack::Events::Message
-      output.puts "Message subtype #{event.subtype} in #{event.channel}"
+    when Slack::Events::Message::Unmapped
+      output.puts "Message subtype #{event.subtype} in #{event.raw["channel"]?}"
     else
       output.puts "Skipped #{event.type}"
     end
