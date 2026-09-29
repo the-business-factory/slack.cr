@@ -86,6 +86,21 @@ Event listeners take an event type, not a string. Make these changes:
 - `event("message")` matched messages with and without a subtype. `message` matches only messages without a subtype. For subtypes, also add `event(Slack::Events::MessageSubtype)` and `event(Slack::Events::Message::Unmapped)`.
 - For an event type that the library does not map, use `event(Slack::Events::Unknown, type: "future_type")`.
 
+### Migrate from the untyped action context
+
+`ActionContext` is now `ActionContext(T)`. An `app.action(id) { |ctx| ... }` block without a type annotation needs no change. Make these changes:
+
+- Replace an `ActionContext` annotation on an `app.action(id)` listener with `ActionContext(Slack::Interactions::Action)`:
+
+  ```crystal
+  # Before
+  app.action("deploy.approve", &->(ctx : Slack::App::ActionContext) { ctx.ack })
+  # After
+  app.action("deploy.approve", &->(ctx : Slack::App::ActionContext(Slack::Interactions::Action)) { ctx.ack })
+  ```
+
+- To get the action as its element type, use `app.action(ElementType, id)`, for example `app.action(Slack::Interactions::ButtonAction, "deploy.approve")`. The listener gets `ActionContext(ElementType)`. Remove the `is_a?` check on `ctx.action`.
+
 ## Acknowledge within three seconds
 
 Slack expects an HTTP 200 within three seconds. Otherwise it shows an error to the user or retries the event. The receiver sends the response when one of these occurs first:
