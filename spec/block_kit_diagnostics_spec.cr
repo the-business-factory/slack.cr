@@ -3,7 +3,7 @@ require "./support/compile_contracts"
 
 # One fixture per contract. Surface placement is one mechanism, so it is covered
 # once per diagnostic wording rather than once per block type.
-describe "Block Kit construction diagnostics" do
+describe "Block Kit construction and app listener diagnostics" do
   root = File.expand_path("..", __DIR__)
   positive_checked = false
 
@@ -31,6 +31,7 @@ describe "Block Kit construction diagnostics" do
     "data_table_rich_header" => ["DataTable#append_header_cell", "Table::RawText", "Table::RawNumber"],
     "rich_text_list_item"    => ["RichText::List#append_element", "RichText::Section", "not Slack::UI::RichText::Text"],
     "number_input_message"   => ["MessageBuilder#input", "argument 'element'", "NumberInput"],
+    "event_type_typo"        => ["undefined constant Slack::Events::AppMentoined"],
   }.each do |name, fragments|
     it "explains #{name}" do
       result = CompileContracts.compile(root, "spec/fixtures/compile/fail/#{name}.cr")

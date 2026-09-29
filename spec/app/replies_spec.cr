@@ -152,7 +152,7 @@ describe "Slack::App say and respond" do
         builder.section(Slack::UI.mrkdwn("Status: *green*"), block_id: "status")
       end
       metadata = Slack::UI::MessageMetadata.new("status_reported", {"service" => JSON::Any.new("api")})
-      done.send(ctx.say(message, thread_ts: ctx.message.thread_ts, metadata: metadata).ts)
+      done.send(ctx.say(message, thread_ts: ctx.event.thread_ts, metadata: metadata).ts)
     end
 
     receive(app, AppSupport.json(THREAD_MESSAGE)).status.should eq 200
@@ -252,7 +252,7 @@ describe "Slack::App say and respond" do
     app = single_token_app(transport)
     errors = Channel(Slack::App::ListenerError).new(2)
     app.error { |error, _ctx| errors.send(error) }
-    app.event("reaction_added", &.say("unreachable"))
+    app.on_reaction_added(&.say("unreachable"))
 
     receive(app, AppSupport.json(FILE_REACTION)).status.should eq 200
 
@@ -269,7 +269,7 @@ describe "Slack::App error handler" do
     app = installation_app(store, transport)
     errors = Channel({Slack::App::ListenerError, Slack::App::Context}).new(1)
     app.error { |error, ctx| errors.send({error, ctx}) }
-    app.event("app_mention") do |ctx|
+    app.event(Slack::Events::AppMentioned) do |ctx|
       record = store.fetch(OWNER) || raise "Missing installation"
       store.invalidate(OWNER, Slack::Auth::GrantKey.new(:bot), record.version)
       ctx.say("unreachable")
@@ -281,10 +281,10 @@ describe "Slack::App error handler" do
 
       error.cause.should be_a(Slack::Auth::ContractError)
       error.payload_kind.should eq "event app_mention"
-      error.route.should eq "Slack::App::EventContext"
+      error.route.should eq "Slack::App::EventContext(Slack::Events::AppMentioned)"
       error.acknowledged?.should be_true
-      error.message.should eq "Listener for Slack::App::EventContext raised Slack::Auth::ContractError after acknowledging"
-      context.should be_a(Slack::App::EventContext)
+      error.message.should eq "Listener for Slack::App::EventContext(Slack::Events::AppMentioned) raised Slack::Auth::ContractError after acknowledging"
+      context.should be_a(Slack::App::EventContext(Slack::Events::AppMentioned))
       transport.requests.should be_empty
       logs.empty
     end
@@ -351,7 +351,7 @@ describe "Slack::App authorization" do
     rotation = Slack::Auth::RotationService.new(store, Slack::Auth::RefreshClient.new(oauth, transport))
     app = installation_app(store, transport, rotation)
     done = Channel(Nil).new(1)
-    app.event("app_mention") do |ctx|
+    app.on_app_mention do |ctx|
       ctx.say("Rotated.")
       done.send(nil)
     end
@@ -371,7 +371,7 @@ describe "Slack::App authorization" do
     app = installation_app(store, transport)
     app.lifecycle(Slack::Auth::CredentialLifecycle.new("A-SYNTHETIC", store, AppSupport::VERIFIER))
     ran = false
-    app.event("tokens_revoked") { |_ctx| ran = true }
+    app.on_tokens_revoked { |_ctx| ran = true }
 
     reply = receive(app, AppSupport.json(TOKENS_REVOKED))
 

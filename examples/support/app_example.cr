@@ -24,10 +24,8 @@ module OfflineAppExample
       transport: OfflineExample::WebMockTransport.new)
     app = Slack::App.new(authorizer: Slack::App::SingleTokenAuthorizer.new(client))
 
-    app.event("app_mention") do |ctx|
-      mention = ctx.event
-      next unless mention.is_a?(Slack::Events::AppMentioned)
-      ctx.client.call(Slack::Api::ChatPostMessage.new(channel: mention.channel, message: approval_request("api")))
+    app.on_app_mention do |ctx|
+      ctx.client.call(Slack::Api::ChatPostMessage.new(channel: ctx.event.channel, message: approval_request("api")))
     end
 
     app.action(APPROVE) do |ctx|

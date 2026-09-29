@@ -210,7 +210,7 @@ Rules:
 
 - The app acknowledges each event before the handler runs. Handler exceptions go to `app.error`.
 - Register the handlers before `app.assistant`. Events without a handler go to the other listeners.
-- The first listener that matches runs. Add the assistant before a `message` or `event("message")` listener for the same messages.
+- The first listener that matches runs. Add the assistant before a `message` or `event` listener that matches the same messages.
 - Without a `thread_context_changed` handler, the assistant saves the new context. A handler replaces this default; call `ctx.save_thread_context` in it to keep the context.
 - Scopes: `assistant:write`, `chat:write`, and `im:history`. Subscribe to `assistant_thread_started`, `assistant_thread_context_changed`, and `message.im`.
 

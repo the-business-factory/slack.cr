@@ -298,7 +298,7 @@ describe Slack::App::Assistant do
       assistant.user_message { handled.send("assistant") }
       app = assistant_app(transport)
       app.assistant(assistant)
-      app.event("message") { handled.send("event") }
+      app.event(Slack::Event) { handled.send("event") }
 
       receive(app, body).status.should eq 200
       handled.receive.should eq "event"

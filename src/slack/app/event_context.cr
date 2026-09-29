@@ -1,22 +1,27 @@
-# The context of an `App#event` listener. The app acknowledges the event
-# before the listener runs, so the listener has no `ack`.
-struct Slack::App::EventContext < Slack::App::Context
+# The context of an `App#event`, `App#message`, or generated `App#on_*`
+# listener. *T* is the event type that the listener matched, so `#event`
+# needs no cast. The app acknowledges the event before the listener runs, so
+# the listener has no `ack`.
+#
+# ```
+# app.event(Slack::Events::AppMentioned) do |ctx|
+#   ctx.say("You said: #{ctx.event.text}")
+# end
+# ```
+struct Slack::App::EventContext(T) < Slack::App::Context
   include Saying
 
   getter envelope : Slack::VerifiedEvent
+  getter event : T
 
-  def initialize(environment : Environment, @envelope : Slack::VerifiedEvent)
+  def initialize(environment : Environment, @envelope : Slack::VerifiedEvent, @event : T)
     super(environment)
-  end
-
-  def event : Slack::Event
-    @envelope.event
   end
 
   # The conversation of events that happen in one, as in Bolt: messages,
   # mentions, App Home, membership changes, reactions, pins, and shared links.
   private def say_channel : String?
-    case event = @envelope.event
+    case event = @event
     when Slack::Events::AppMentioned, Slack::Events::AppHomeOpened, Slack::Events::MemberJoinedChannel,
          Slack::Events::MemberLeftChannel, Slack::Events::LinkShared, Slack::Events::Message,
          Slack::Events::MessageSubtype

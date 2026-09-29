@@ -10,9 +10,8 @@ require "slack"
 client = Slack::Api::Client.new(token: Slack::Auth::Secret.new(ENV["SLACK_BOT_TOKEN"]))
 app = Slack::App.new(authorizer: Slack::App::SingleTokenAuthorizer.new(client))
 
-app.event("app_mention") do |ctx|
+app.on_app_mention do |ctx|
   mention = ctx.event
-  next unless mention.is_a?(Slack::Events::AppMentioned)
   ctx.client.call(Slack::Api::ChatPostMessage.new(channel: mention.channel, text: "Hello <@#{mention.user}>."))
 end
 
@@ -36,8 +35,10 @@ Register listeners before the app receives requests. Each registration method gi
 
 | Method | Payload | Context | Acknowledgment |
 | --- | --- | --- | --- |
-| `event(type)` | Events API event of `type` | `EventContext`: `envelope`, `event` | Automatic, before the listener runs |
-| `message(pattern = nil)` | `message` event without a subtype | `MessageContext`: `envelope`, `message` | Automatic, before the listener runs |
+| `event(T)` | Events API event that is a `T` | `EventContext(T)`: `envelope`, `event : T` | Automatic, before the listener runs |
+| `on_app_mention`, `on_reaction_added`, ... | The event of that `type` | `EventContext(T)` | Automatic, before the listener runs |
+| `event(Slack::Events::Unknown, type:)` | Event of a `type` that the library does not map | `EventContext(Slack::Events::Unknown)` | Automatic, before the listener runs |
+| `message(pattern = nil)` | `message` event without a subtype | `EventContext(Slack::Events::Message)` | Automatic, before the listener runs |
 | `function(callback_id)` | `function_executed` | `FunctionContext`: `envelope`, `event`, `inputs`, `complete`, `fail` | Automatic, before the listener runs |
 | `action(action_id, block_id = nil)` | `block_actions` | `ActionContext`: `payload`, `action` | `ack` |
 | `command(name)` | Slash command | `CommandContext`: `command` | `ack`, `ack(Commands::Response)` |
@@ -49,6 +50,9 @@ Register listeners before the app receives requests. Each registration method gi
 
 Matching rules:
 
+- `event(T)` matches when the decoded event is a `T`. Give an event type, such as `Slack::Events::AppMentioned`, a message subtype, such as `Slack::Events::Message::ChannelTopic`, `Slack::Events::MessageSubtype` for all typed subtypes, or `Slack::Event` for all events. A misspelled type does not compile.
+- Each `type` in `Slack::Event::KNOWN_TYPES` has an `on_<type>` method that is the same as `event(T)`, for example `on_app_mention` for `event(Slack::Events::AppMentioned)`. `message` has no `on_message`: use `message`, which also matches text.
+- `event(Slack::Events::Unknown, type: "future_type")` matches an event of a type that the library does not map yet. `event(Slack::Events::Unknown)` matches all of them.
 - A string ID matches the complete value. A `Regex` matches when it finds a match in the value.
 - `action` and `options` also take a `Slack::UI::ActionId`. It matches as its string does. Give the same constant to the element `action_id:` and to the listener.
 - A string `message` pattern matches text that contains it, as in Bolt. A `Regex` matches the text. Nil matches every message.
@@ -106,7 +110,7 @@ end
 
 app.message("status") do |ctx|
   # A reply goes into a thread only when you give thread_ts.
-  ctx.say("All green.", thread_ts: ctx.message.thread_ts || ctx.message.ts)
+  ctx.say("All green.", thread_ts: ctx.event.thread_ts || ctx.event.ts)
 end
 
 app.action("deploy.approve") do |ctx|
@@ -117,8 +121,7 @@ end
 
 | Context | `say` channel | `respond` URL |
 | --- | --- | --- |
-| `EventContext` | The event's channel: messages, `app_mention`, `app_home_opened`, `member_joined_channel`, `member_left_channel`, reactions on messages, pins, `link_shared` | — |
-| `MessageContext` | `message.channel` | — |
+| `EventContext(T)` | The event's channel: messages, `app_mention`, `app_home_opened`, `member_joined_channel`, `member_left_channel`, reactions on messages, pins, `link_shared` | — |
 | `CommandContext` | `command.channel_id` | `command.response_url` |
 | `ActionContext` | `payload.channel` (messages only) | `payload.response_url` (messages only) |
 | `ShortcutContext` | The channel of a message shortcut | The `response_url` of a message shortcut |

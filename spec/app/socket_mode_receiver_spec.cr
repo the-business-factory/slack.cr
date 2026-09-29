@@ -146,7 +146,7 @@ describe Slack::App::SocketModeReceiver do
     app = build_app
     release = Channel(Nil).new
     deliveries = Channel(String).new(2)
-    app.event("app_mention") do |ctx|
+    app.on_app_mention do |ctx|
       release.receive
       delivery = ctx.delivery.should_not be_nil
       deliveries.send("#{ctx.envelope.event_id} retry=#{delivery.retry?} #{delivery.retry_num} #{delivery.retry_reason}")

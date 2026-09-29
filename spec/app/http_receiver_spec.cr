@@ -41,6 +41,12 @@ private TEXTLESS_MESSAGE = <<-JSON
             "ts":"1789232400.000500","event_ts":"1789232400.000500","channel_type":"channel"},
    "type":"event_callback","event_id":"Ev-TEXTLESS","event_time":1789232400}
   JSON
+# An event type that this library does not map.
+private FUTURE_EVENT = <<-JSON
+  {"token":"synthetic-legacy-token","team_id":"T-SYNTHETIC","api_app_id":"A-SYNTHETIC",
+   "event":{"type":"synthetic_future_event","channel":"C-SYNTHETIC","event_ts":"1789232400.000600"},
+   "type":"event_callback","event_id":"Ev-FUTURE","event_time":1789232400}
+  JSON
 private URL_VERIFICATION = %({"token":"synthetic-legacy-token","challenge":"3eZbrw1aBm2rZgRNFdxV2595E9CY3gmdALWMmHkvFXO7tYXAYM8P","type":"url_verification"})
 
 private COMMAND = {
@@ -131,9 +137,9 @@ describe Slack::App::HttpReceiver do
   it "acknowledges an event with an empty 200 and runs the matching listener" do
     app = build_app
     mentions = Channel(String).new(1)
-    app.event("app_mention") do |ctx|
-      event = ctx.event.should be_a(Slack::Events::AppMentioned)
-      mentions.send("#{ctx.envelope.event_id} #{event.channel} retry=#{ctx.delivery.try(&.retry_num)}")
+    app.event(Slack::Events::ReactionAdded) { |_ctx| mentions.send("wrong listener") }
+    app.event(Slack::Events::AppMentioned) do |ctx|
+      mentions.send("#{ctx.envelope.event_id} #{ctx.event.channel} #{ctx.event.text} retry=#{ctx.delivery.try(&.retry_num)}")
     end
 
     headers = HTTP::Headers{"X-Slack-Retry-Num" => "2", "X-Slack-Retry-Reason" => "http_timeout"}
@@ -141,14 +147,14 @@ describe Slack::App::HttpReceiver do
 
     reply.status.should eq 200
     reply.body.should be_empty
-    mentions.receive.should eq "Ev-SYNTHETIC C-SYNTHETIC retry=2"
+    mentions.receive.should eq "Ev-SYNTHETIC C-SYNTHETIC <@U-BOT> deploy retry=2"
   end
 
   it "routes a message event whose text contains the pattern" do
     app = build_app
     texts = Channel(String?).new(1)
     app.message("release") { |_ctx| texts.send("wrong listener") }
-    app.message("deploy") { |ctx| texts.send(ctx.message.text) }
+    app.message("deploy") { |ctx| texts.send(ctx.event.text) }
 
     receive(app, AppSupport.json(MESSAGE)).status.should eq 200
     texts.receive.should eq "please deploy api"
@@ -158,17 +164,29 @@ describe Slack::App::HttpReceiver do
     app = build_app
     routed = Channel(String).new(1)
     app.message { |_ctx| routed.send("message listener") }
-    app.event("message") { |_ctx| routed.send("event listener") }
+    app.event(Slack::Events::Message::Unmapped) { |ctx| routed.send(ctx.event.subtype) }
 
     receive(app, AppSupport.json(UNMAPPED_SUBTYPE_MESSAGE)).status.should eq 200
-    routed.receive.should eq "event listener"
+    routed.receive.should eq "ekm_access_denied"
+  end
+
+  it "routes an unmapped event type only to the listener for that type string" do
+    app = build_app
+    routed = Channel(String).new(1)
+    app.event(Slack::Events::Unknown, type: "synthetic_other_event") { |_ctx| routed.send("wrong listener") }
+    app.event(Slack::Events::Unknown, type: "synthetic_future_event") do |ctx|
+      routed.send("#{ctx.event.type} #{ctx.event.raw["channel"]}")
+    end
+
+    receive(app, AppSupport.json(FUTURE_EVENT)).status.should eq 200
+    routed.receive.should eq "synthetic_future_event C-SYNTHETIC"
   end
 
   it "answers 400 and runs no listener for a message without a subtype that omits a required field" do
     app = build_app
     routed = [] of String
     app.message { |_ctx| routed << "message listener" }
-    app.event("message") { |_ctx| routed << "event listener" }
+    app.event(Slack::Event) { |_ctx| routed << "event listener" }
 
     receive(app, AppSupport.json(TEXTLESS_MESSAGE)).status.should eq 400
     routed.should be_empty
@@ -460,7 +478,7 @@ describe Slack::App::HttpReceiver do
       ctx.ack
       busy.call("command work finished")
     end
-    app.event("app_mention") { |_ctx| busy.call("event work finished") }
+    app.on_app_mention { |_ctx| busy.call("event work finished") }
 
     receive(app, AppSupport.form(COMMAND)).status.should eq 200
     steps << "command response written"

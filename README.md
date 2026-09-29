@@ -24,10 +24,8 @@ require "slack"
 client = Slack::Api::Client.new(token: Slack::Auth::Secret.new(ENV["SLACK_BOT_TOKEN"]))
 app = Slack::App.new(authorizer: Slack::App::SingleTokenAuthorizer.new(client))
 
-app.event("app_mention") do |ctx|
-  mention = ctx.event
-  next unless mention.is_a?(Slack::Events::AppMentioned)
-  ctx.say("Hello <@#{mention.user}>.")
+app.on_app_mention do |ctx|
+  ctx.say("Hello <@#{ctx.event.user}>.")
 end
 
 app.command("/deploy") do |ctx|

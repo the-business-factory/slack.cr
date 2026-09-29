@@ -57,18 +57,61 @@ class Slack::App
     @middleware << middleware
   end
 
-  # Listens for Events API events of *type*, for example `"app_mention"`.
-  def event(type : String, *, middleware : Array(Middleware) = [] of Middleware,
-            &handler : EventContext ->) : Nil
-    @router.event(type, middleware, handler)
+  # Listens for Events API events that are an *event_type*, and gives the
+  # listener the event as that type. *event_type* is a `Slack::Event` type, such
+  # as `Slack::Events::AppMentioned`, or a type that event types include, such
+  # as `Slack::Events::MessageSubtype`. `Slack::Event` matches every event.
+  #
+  # ```
+  # app.event(Slack::Events::ReactionAdded) do |ctx|
+  #   ctx.log.info { "Reaction: #{ctx.event.reaction}" }
+  # end
+  # ```
+  #
+  # Each type in `Slack::Event::KNOWN_TYPES` also has an `on_*` method, for
+  # example `#on_app_mention`. For `message` events, use `#message`.
+  def event(event_type : T.class, *, middleware : Array(Middleware) = [] of Middleware,
+            &handler : EventContext(T) ->) : Nil forall T
+    {% unless T <= ::Slack::Event || ::Slack::Event.all_subclasses.any? { |event| event <= T } %}
+      {% raise "App#event takes a Slack::Event type, not #{T}" %}
+    {% end %}
+    @router.event(event_type, middleware, handler)
+  end
+
+  # Listens for events of *type* that this library does not map, for example a
+  # new Slack event. The event is a `Slack::Events::Unknown`, with its data in `raw`.
+  #
+  # ```
+  # app.event(Slack::Events::Unknown, type: "future_type") do |ctx|
+  #   ctx.log.info { ctx.event.type }
+  # end
+  # ```
+  def event(event_type : Slack::Events::Unknown.class, *, type : String,
+            middleware : Array(Middleware) = [] of Middleware,
+            &handler : EventContext(Slack::Events::Unknown) ->) : Nil
+    @router.unknown_event(type, middleware, handler)
   end
 
   # Listens for `message` events without a subtype. A string *pattern* matches
   # text that contains it, a regex matches the text, and nil matches every message.
+  # To match messages with a subtype, give the subtype to `#event`, for example
+  # `Slack::Events::Message::ChannelTopic`.
   def message(pattern : (String | Regex)? = nil, *, middleware : Array(Middleware) = [] of Middleware,
-              &handler : MessageContext ->) : Nil
+              &handler : EventContext(Slack::Events::Message) ->) : Nil
     @router.message(pattern, middleware, handler)
   end
+
+  # `message` has no `on_message`: `#message` is the listener for plain
+  # messages, and it also matches text.
+  {% for type_name, event_type in Slack::Event::KNOWN_TYPES %}
+    {% unless type_name == "message" %}
+      # Listens for `{{ type_name.id }}` events. Same as `event({{ event_type }})`.
+      def on_{{ type_name.id }}(*, middleware : Array(Middleware) = [] of Middleware,
+                                &handler : EventContext({{ event_type }}) ->) : Nil
+        event({{ event_type }}, middleware: middleware, &handler)
+      end
+    {% end %}
+  {% end %}
 
   # Listens for `function_executed` events of the custom function *callback_id*.
   def function(callback_id : String, *, middleware : Array(Middleware) = [] of Middleware,

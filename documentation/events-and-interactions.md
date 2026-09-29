@@ -93,9 +93,8 @@ User, user group, app request, and pinned item objects stay raw `JSON::Any`. Mes
 `Slack::Events::AppMentioned` gives the message that mentions the app: `channel`, `user`, `text`, `ts`, and `event_ts`. `thread_ts` is nil for a mention at the top level. `team` is nil when Slack omits it. `blocks` decodes the message blocks. To reply in the thread of the mention, use `thread_ts || ts`:
 
 ```crystal
-app.event("app_mention") do |ctx|
+app.on_app_mention do |ctx|
   mention = ctx.event
-  next unless mention.is_a?(Slack::Events::AppMentioned)
   ctx.say("On it.", thread_ts: mention.thread_ts || mention.ts)
 end
 ```

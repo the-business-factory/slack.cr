@@ -1,4 +1,4 @@
-require "../../../../src/slack/ui"
+require "../../../../src/slack"
 
 alias UI = Slack::UI
 
@@ -41,3 +41,8 @@ UI.home do |builder|
 end
 task = UI::Blocks::TaskCard.new(task_id: "read", title: "Read the report", status: UI::TaskStatus::Complete)
 UI::Message.new(fallback_text: "Plan", blocks: [UI::Blocks::Plan.new(title: "Plan", tasks: {task}), task, section])
+
+client = Slack::Api::Client.new(token: Slack::Auth::Secret.new("xoxb-synthetic"))
+app = Slack::App.new(authorizer: Slack::App::SingleTokenAuthorizer.new(client))
+app.event(Slack::Events::AppMentioned) { |ctx| ctx.log.info { ctx.event.text } }
+app.on_reaction_added { |ctx| ctx.log.info { ctx.event.reaction } }

@@ -17,21 +17,34 @@ class Slack::App::Router
     @routes << route
   end
 
-  def event(type : String, middleware : Array(Middleware), handler : Proc(EventContext, Nil)) : Nil
-    @routes << TypedRoute(EventContext).new(middleware, handler, acknowledge_first: true) do |payload, environment|
-      if payload.is_a?(Slack::VerifiedEvent) && payload.event.type == type
-        EventContext.new(environment, payload)
+  # Matches events that are a *T*, for example `Slack::Events::AppMentioned`.
+  def event(event_type : T.class, middleware : Array(Middleware), handler : Proc(EventContext(T), Nil)) : Nil forall T
+    @routes << TypedRoute(EventContext(T)).new(middleware, handler, acknowledge_first: true) do |payload, environment|
+      next unless payload.is_a?(Slack::VerifiedEvent)
+      event = payload.event
+      EventContext(T).new(environment, payload, event) if event.is_a?(T)
+    end
+  end
+
+  # Matches events of a *type* that this library does not map.
+  def unknown_event(type : String, middleware : Array(Middleware),
+                    handler : Proc(EventContext(Slack::Events::Unknown), Nil)) : Nil
+    @routes << TypedRoute(EventContext(Slack::Events::Unknown)).new(middleware, handler, acknowledge_first: true) do |payload, environment|
+      next unless payload.is_a?(Slack::VerifiedEvent)
+      event = payload.event
+      if event.is_a?(Slack::Events::Unknown) && event.type == type
+        EventContext(Slack::Events::Unknown).new(environment, payload, event)
       end
     end
   end
 
   def message(pattern : (String | Regex)?, middleware : Array(Middleware),
-              handler : Proc(MessageContext, Nil)) : Nil
-    @routes << TypedRoute(MessageContext).new(middleware, handler, acknowledge_first: true) do |payload, environment|
+              handler : Proc(EventContext(Slack::Events::Message), Nil)) : Nil
+    @routes << TypedRoute(EventContext(Slack::Events::Message)).new(middleware, handler, acknowledge_first: true) do |payload, environment|
       next unless payload.is_a?(Slack::VerifiedEvent)
       message = payload.event
       if message.is_a?(Slack::Events::Message) && text_matches?(pattern, message.text)
-        MessageContext.new(environment, payload, message)
+        EventContext(Slack::Events::Message).new(environment, payload, message)
       end
     end
   end
