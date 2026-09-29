@@ -3,11 +3,11 @@ require "../auth/transport"
 require "./error"
 require "./rate_limited"
 require "./envelope"
-require "./envelope_body"
+require "./decoded_response"
 
 module Slack::Api
   # The parsed Web API envelope and the response model `M`. `parse` reads
-  # both from one parse of the body.
+  # both from one parse of the body, also for an error body.
   #
   # See https://docs.slack.dev/apis/web-api/ for `ok`, `error`, and `warning`,
   # and https://docs.slack.dev/apis/web-api/pagination for `response_metadata`.
@@ -25,56 +25,43 @@ module Slack::Api
       # Do not parse a 429 body: the status and header carry the contract.
       raise RateLimited.new(retry_after(response.headers)) if status == 429
 
-      body = response.body
-      decoded = decode(body)
-      envelope = decoded ? decoded[1] : parse_envelope(body, status)
+      decoded = decode(response.body)
       # Every Web API response has `ok`. A body without it is not one.
-      raise Error.new(success?(status) ? "invalid_response" : "http_error", status) unless envelope.ok_present?
-      metadata = envelope.response_metadata
-      unless envelope.ok? || flagged_outcome?(envelope)
-        raise Error.new(envelope.error || "unknown_error", status, metadata.try(&.messages) || [] of String,
-          details: details(envelope))
+      raise Error.new(success?(status) ? "invalid_response" : "http_error", status) if decoded.ok.nil?
+      metadata = decoded.response_metadata
+      unless decoded.ok || flagged_outcome?(decoded)
+        raise Error.new(decoded.error || "unknown_error", status, metadata.try(&.messages) || [] of String,
+          details: details(decoded))
       end
       raise Error.new("http_error", status) unless success?(status)
-      # Converters such as String#to_f raise with the remote value in the
-      # message, so no decode error becomes the cause.
-      raise Error.new("invalid_response", status) unless decoded
+      model = decoded.model
+      raise Error.new("invalid_response", status) if model.nil?
 
-      new(decoded[0], warnings(envelope), metadata.try(&.next_cursor).presence)
+      new(model, warnings(decoded), metadata.try(&.next_cursor).presence)
     end
 
-    # Parses the body once into the model and its envelope fields. Returns nil
-    # when the body does not decode as the model, such as an error body
-    # without the model's required fields.
-    private def self.decode(body : String) : {M, Envelope}?
+    private def self.decode(body : String) : DecodedResponse(M)
       decode(body, M)
-    rescue JSON::ParseException | TypeCastError | ArgumentError
-      nil
     end
 
-    private def self.decode(body : String, type : JSON::Any.class) : {JSON::Any, Envelope}
-      raw = JSON.parse(body)
-      {raw, EnvelopeBody.new(raw)}
-    end
-
-    private def self.decode(body : String, type : T.class) : {T, Envelope} forall T
-      type.from_api_response(body)
-    end
-
-    private def self.parse_envelope(body : String, status : Int32) : Envelope
-      EnvelopeBody.from_json(body)
+    private def self.decode(body : String, type : JSON::Any.class) : DecodedResponse(JSON::Any)
+      DecodedResponse(JSON::Any).new(JSON.parse(body))
     rescue JSON::ParseException
-      raise Error.new(success?(status) ? "invalid_response" : "http_error", status)
+      DecodedResponse(JSON::Any).unreadable
+    end
+
+    private def self.decode(body : String, type : T.class) : DecodedResponse(T) forall T
+      type.from_api_response(body)
     end
 
     # True when Slack answers `ok: false` with no `error` and the model's
     # outcome flag set, such as `{"ok": false, "not_in_channel": true}`.
-    private def self.flagged_outcome?(envelope : Envelope) : Bool
-      envelope.error.nil? && envelope.flagged_outcome?
+    private def self.flagged_outcome?(decoded : DecodedResponse(M)) : Bool
+      decoded.error.nil? && decoded.flagged_outcome?
     end
 
-    private def self.details(envelope : Envelope) : Array(ErrorDetail)
-      entries = envelope.errors.try(&.as_a?) || [] of JSON::Any
+    private def self.details(decoded : DecodedResponse(M)) : Array(ErrorDetail)
+      entries = decoded.errors.try(&.as_a?) || [] of JSON::Any
       entries.compact_map do |entry|
         next unless fields = entry.as_h?
         next unless message = fields["message"]?.try(&.as_s?)
@@ -82,9 +69,9 @@ module Slack::Api
       end
     end
 
-    private def self.warnings(envelope : Envelope) : Array(String)
-      codes = envelope.warning.try(&.split(',').map(&.strip)) || [] of String
-      codes.concat(envelope.response_metadata.try(&.warnings) || [] of String)
+    private def self.warnings(decoded : DecodedResponse(M)) : Array(String)
+      codes = decoded.warning.try(&.split(',').map(&.strip)) || [] of String
+      codes.concat(decoded.response_metadata.try(&.warnings) || [] of String)
       codes.reject(&.empty?).uniq!
     end
 

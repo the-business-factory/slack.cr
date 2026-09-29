@@ -14,7 +14,7 @@ module Slack::Models::Conversations
 
     # Slack answers `{"ok": false, "not_in_channel": true}` for a caller that
     # is not a member. That is an outcome, not a failure.
-    def flagged_outcome? : Bool
+    protected def flagged_outcome? : Bool
       not_in_channel?
     end
   end
