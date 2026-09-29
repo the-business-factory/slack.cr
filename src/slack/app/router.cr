@@ -105,7 +105,6 @@ class Slack::App::Router
   end
 
   # Message text patterns follow Bolt: a string matches when the text contains it.
-  # A message without text matches only when there is no pattern.
   private def text_matches?(pattern : (String | Regex)?, text : String) : Bool
     return true unless pattern
     case pattern

@@ -34,6 +34,13 @@ private UNMAPPED_SUBTYPE_MESSAGE = <<-JSON
             "ts":"1789232400.000400","event_ts":"1789232400.000400","channel_type":"channel"},
    "type":"event_callback","event_id":"Ev-SUBTYPE","event_time":1789232400}
   JSON
+# A message without a subtype and without `text`, which `Slack::Events::Message` requires.
+private TEXTLESS_MESSAGE = <<-JSON
+  {"token":"synthetic-legacy-token","team_id":"T-SYNTHETIC","api_app_id":"A-SYNTHETIC",
+   "event":{"type":"message","channel":"C-SYNTHETIC","user":"U-SYNTHETIC",
+            "ts":"1789232400.000500","event_ts":"1789232400.000500","channel_type":"channel"},
+   "type":"event_callback","event_id":"Ev-TEXTLESS","event_time":1789232400}
+  JSON
 private URL_VERIFICATION = %({"token":"synthetic-legacy-token","challenge":"3eZbrw1aBm2rZgRNFdxV2595E9CY3gmdALWMmHkvFXO7tYXAYM8P","type":"url_verification"})
 
 private COMMAND = {
@@ -147,6 +154,16 @@ describe Slack::App::HttpReceiver do
 
     receive(app, AppSupport.json(UNMAPPED_SUBTYPE_MESSAGE)).status.should eq 200
     routed.receive.should eq "event listener"
+  end
+
+  it "answers 400 and runs no listener for a message without a subtype that omits a required field" do
+    app = build_app
+    routed = [] of String
+    app.message { |_ctx| routed << "message listener" }
+    app.event("message") { |_ctx| routed << "event listener" }
+
+    receive(app, AppSupport.json(TEXTLESS_MESSAGE)).status.should eq 400
+    routed.should be_empty
   end
 
   it "echoes a url_verification challenge without authorizing or routing" do

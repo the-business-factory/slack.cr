@@ -106,11 +106,11 @@ The `item` of `reaction_added` and `reaction_removed` is a `Slack::EventData::Re
 
 A `message` event without a `subtype` decodes as `Slack::Events::Message`. A `message` event with a `subtype` selects a struct in the `Slack::Events::Message` namespace: `assistant_app_thread`, `bot_add`, `bot_message`, `channel_join`, `channel_leave`, `channel_name`, `channel_purpose`, `channel_topic`, `file_share`, `me_message`, `message_changed`, `message_deleted`, `message_replied`, `pinned_item`, `thread_broadcast`, and `unpinned_item`. A subtype that the library does not map decodes as `Slack::Events::Message::Unmapped`, with `subtype` and the complete event object in `raw`.
 
-- `Message` always has `channel`, `channel_type`, `user`, `text`, `ts`, and `event_ts`. `team`, `bot_id`, `app_id`, `thread_ts`, `client_msg_id`, `parent_user_id`, and `attachments` are nil when Slack omits them. A message without a subtype that omits a required field does not decode.
+- `Message` always has `channel`, `channel_type`, `user`, `text`, `ts`, and `event_ts`. `team`, `bot_id`, `app_id`, `thread_ts`, `client_msg_id`, `parent_user_id`, and `attachments` are nil when Slack omits them.
 - The subtype structs and `Message::Unmapped` inherit `Slack::Event`, not `Message`. Thus `is_a?(Slack::Events::Message)` matches only a message without a subtype. Match all typed subtypes with `Slack::Events::MessageSubtype`.
 - A typed subtype gives `channel`, `channel_type`, and `event_ts` as nil when Slack omits them, as several reference examples do.
 - `Message::Unmapped#to_json` emits `raw` unchanged. `raw` can hold private message content, so do not log it.
-- Slack documents that `message_replied` can arrive without its subtype, so check `thread_ts` to find replies.
+- A plain `message` event must have `channel`, `channel_type`, `user`, `text`, `ts`, and `event_ts`. The app rejects a delivery without one of these fields with HTTP 400, and no listener gets it. For example, Slack can send `message_replied` without its subtype. That delivery does not have `user` or `text`, so the app rejects it.
 - A canvas mention arrives as `app_mention` with `subtype` `document_mention` and a `document_mention` value.
 - `blocks` decodes the message blocks. See [Read blocks from messages and views](block-kit.md#read-blocks-from-messages-and-views).
 
