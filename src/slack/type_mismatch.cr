@@ -1,6 +1,6 @@
 # Raised when received JSON does not have the expected shape, for example by a
 # typed payload accessor or by `SocketMode::Frame.parse`. `#path` names the
-# field. Raw payloads remain available.
+# field. The source payload stays unchanged, and its `to_json` writes it back.
 class Slack::TypeMismatch < Exception
   getter path : String
   getter expected : String

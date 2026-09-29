@@ -36,7 +36,7 @@ module OfflineViewPushExample
     case interaction
     when Slack::Interactions::BlockAction
       source = interaction.view || raise "Missing modal view"
-      raise "Wrong source modal" unless source["id"] == opened.view["id"]
+      raise "Wrong source modal" unless source.id == opened.view["id"].as_s?
       action = interaction.actions.first
       raise "Unexpected action" unless action.is_a?(Slack::Interactions::ButtonAction) && action.action_id == "request.details"
       trigger = interaction.trigger_id || raise "Missing modal trigger"

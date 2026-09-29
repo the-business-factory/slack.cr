@@ -298,12 +298,11 @@ describe Slack::Auth::RequestAuthorizer do
       parsed_view = RequestAuthorizerSpec.view(interaction).should_not be_nil
       parsed_view.app_installed_team_id.should eq("T_OWNER")
       JSON.parse(parsed_view.to_json).should eq(object["view"])
-      parsed_view["id"].as_s.should eq("V1")
-      parsed_view["callback_id"].as_s.should eq("save-form")
-      parsed_view["private_metadata"].as_s.should eq("synthetic-workflow-123")
-      parsed_view["hash"].as_s.should eq("synthetic-view-version")
-      parsed_view.dig("state", "values", "description", "input", "value").as_s.should eq("submitted text")
-      parsed_view.dig("future_content", "retained").as_bool.should be_true
+      parsed_view.id.should eq("V1")
+      parsed_view.callback_id.should eq("save-form")
+      parsed_view.private_metadata.should eq("synthetic-workflow-123")
+      parsed_view.view_hash.should eq("synthetic-view-version")
+      parsed_view.plain_text?("description", "input").should eq("submitted text")
 
       context = authorizer.authorize_interaction(RequestAuthorizerSpec.request(body, clock),
         Slack::Auth::GrantKey.new(:bot))

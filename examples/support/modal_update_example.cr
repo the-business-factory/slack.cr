@@ -18,13 +18,13 @@ module OfflineModalUpdateExample
       raise "Expected view submission"
     end
     submitted = interaction.view
-    raise "Unexpected form" unless submitted && submitted["callback_id"].as_s == "request.reason"
+    raise "Unexpected form" unless submitted && submitted.callback_id == "request.reason"
     reason = interaction.plain_text?("request.reason", "reason") || raise "Missing reason"
     # Bound the display preview so a valid long input fits the Section text limit.
     preview = reason.size > 200 ? "#{reason[0, 200]}…" : reason
 
     updated = UI.form_modal(title: UI.plain("Review request"), submit: UI.plain("Save"),
-      callback_id: "request.review", private_metadata: submitted["private_metadata"].as_s) do |builder|
+      callback_id: "request.review", private_metadata: submitted.private_metadata || raise "Missing metadata") do |builder|
       builder.section(UI.plain("Choose an owner for: #{preview}"))
       # Keep the submitted input IDs. Slack owns remote input state; this example
       # checks the response bytes and does not simulate state preservation.

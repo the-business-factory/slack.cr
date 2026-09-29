@@ -14,7 +14,7 @@ module OfflineModalClearExample
     interaction = Slack::Interactions.parse(VERIFIER.verify(request).body)
     raise "Expected view submission" unless interaction.is_a?(Slack::Interactions::ViewSubmission)
     view = interaction.view
-    raise "Unexpected form" unless view && view["callback_id"].as_s == "request.reason"
+    raise "Unexpected form" unless view && view.callback_id == "request.reason"
     reason = interaction.plain_text?("request.reason", "reason")
     raise "Expected a useful reason" unless reason && reason.strip.size >= 10
 

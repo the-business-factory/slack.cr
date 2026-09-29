@@ -6,8 +6,8 @@ describe "Home interaction coverage" do
     case interaction
     when Slack::Interactions::BlockAction
       interaction.channel.should be_nil
-      interaction.view.try(&.["type"].as_s).should eq "home"
-      interaction.view.try(&.["future"].as_bool).should be_true
+      interaction.view.try(&.type).should eq "home"
+      interaction.view.try { |view| JSON.parse(view.to_json)["future"].as_bool }.should be_true
       case button = interaction.actions.first
       when Slack::Interactions::ButtonAction
         button.action_id.should eq "refresh"

@@ -1,4 +1,5 @@
-# Received menu selection. Retains unmodeled fields without outbound validation.
+# Received menu selection. It decodes the selection without outbound validation.
+# Unmodeled fields stay in the source payload.
 struct Slack::Interactions::OverflowAction
   getter action_id : String
   getter block_id : String

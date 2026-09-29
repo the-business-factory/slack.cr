@@ -120,13 +120,13 @@ describe "Interaction payload context" do
     error.path.should eq "container.attachment_id"
   end
 
-  it "reports malformed view fields when read and keeps the raw view" do
+  it "reports malformed view fields when read and keeps the view payload" do
     action = block_action_with(%(,"view":{"id":7,"title":"Plain","clear_on_close":"yes"}))
     view = action.view.should_not be_nil
     expect_raises(Slack::Interactions::TypeMismatch, "view.id: expected string or null") { view.id }
     expect_raises(Slack::Interactions::TypeMismatch, "view.title: expected object") { view.title }
     expect_raises(Slack::Interactions::TypeMismatch, "view.clear_on_close: expected bool") { view.clear_on_close }
-    view["title"].as_s.should eq "Plain"
+    JSON.parse(view.to_json)["title"].as_s.should eq "Plain"
   end
 
   it "reads view_submission response_urls, trigger_id, and view fields" do

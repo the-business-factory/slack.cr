@@ -17,7 +17,7 @@ module OfflineModalErrorsExample
       raise "Expected view submission"
     end
     view = interaction.view
-    raise "Unexpected form" unless view && view["callback_id"].as_s == "request.reason"
+    raise "Unexpected form" unless view && view.callback_id == "request.reason"
 
     reason = interaction.plain_text?("request.reason", "reason")
     if reason.nil? || reason.strip.size < 10

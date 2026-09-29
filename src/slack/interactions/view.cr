@@ -1,6 +1,8 @@
 # Retains arbitrary Slack view content while exposing typed installation ownership.
 # Other typed getters read the retained payload when called. They return nil for
-# an absent or null field and raise `TypeMismatch` for a malformed one.
+# an absent or null field and raise `TypeMismatch` for a malformed one. The
+# payload is private: `to_json` writes the complete view, including fields that
+# have no getter.
 struct Slack::Interactions::View
   private struct Ownership
     include JSON::Serializable
@@ -27,30 +29,6 @@ struct Slack::Interactions::View
   end
 
   private def initialize(@payload : JSON::Any, @app_installed_team_id : String?)
-  end
-
-  def [](key : String) : JSON::Any
-    @payload[key]
-  end
-
-  def []?(key : String) : JSON::Any?
-    @payload[key]?
-  end
-
-  def dig(index_or_key : Int | String, *subkeys : Int | String) : JSON::Any
-    @payload.dig(index_or_key, *subkeys)
-  end
-
-  def dig?(index_or_key : Int | String, *subkeys : Int | String) : JSON::Any?
-    @payload.dig?(index_or_key, *subkeys)
-  end
-
-  def as_h : Hash(String, JSON::Any)
-    @payload.as_h
-  end
-
-  def as_h? : Hash(String, JSON::Any)?
-    @payload.as_h?
   end
 
   def to_json(json : JSON::Builder) : Nil

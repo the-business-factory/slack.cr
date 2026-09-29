@@ -336,7 +336,7 @@ Empty initial IDs, repeated initial channels, and an initial count above a suppl
 
 Only `ChannelsSelect` accepts `response_url_enabled`. Slack documents it for Input blocks in modals. The library rejects any supplied value, including `false`, outside that placement; this field-presence restriction is library policy. Omit the field elsewhere. In modal Input, omitted, `false`, and `true` remain distinct. With `true`, Slack can return `response_urls` on submission; read them from `ViewSubmission#response_urls` (see [Read interaction context](events-and-interactions.md#read-interaction-context)). This adds no response-URL transport or delivery guarantee.
 
-Read `ChannelsSelectAction#selected_channel` (`String?`) and `MultiChannelsSelectAction#selected_channels` (`Array(String)?`), or use `state.channels_select_value?` and `state.multi_channels_select_value?`. Their `selected_channel_presence` and `selected_channels_presence` distinguish Absent, Null, and Present. A cleared single selection is null; a cleared multi-selection is a present empty array. Missing state entries return nil. Received IDs have no outbound limits; malformed known fields raise path-aware `TypeMismatch`. Raw unknown fields are retained, and selected-array getters return copies. Input can set `dispatch_action: true` for selection changes.
+Read `ChannelsSelectAction#selected_channel` (`String?`) and `MultiChannelsSelectAction#selected_channels` (`Array(String)?`), or use `state.channels_select_value?` and `state.multi_channels_select_value?`. Their `selected_channel_presence` and `selected_channels_presence` distinguish Absent, Null, and Present. A cleared single selection is null; a cleared multi-selection is a present empty array. Missing state entries return nil. Received IDs have no outbound limits; malformed known fields raise path-aware `TypeMismatch`. Unknown fields stay in the source payload, and selected-array getters return copies. Input can set `dispatch_action: true` for selection changes.
 
 Channel interactions decode as `ChannelsSelectAction`/`MultiChannelsSelectAction` and `ChannelsSelectValue`/`MultiChannelsSelectValue`. The [offline workflow](../examples/block_kit_channels_select.cr) selects a notification channel, opens a destination form, and reads signed submission state.
 
@@ -968,7 +968,7 @@ In an HTTP handler with `context : HTTP::Server::Context`, verify the original r
 case interaction = Slack::Interactions.parse(verifier.verify(context.request).body)
 when Slack::Interactions::ViewSubmission
   view = interaction.view
-  if view && view["callback_id"].as_s == "request.reason"
+  if view && view.callback_id == "request.reason"
     reason = interaction.plain_text?("request.reason", "reason")
     context.response.status_code = 200
     if reason.nil? || reason.strip.size < 10

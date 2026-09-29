@@ -77,7 +77,7 @@ module ExternalSelectInteractionSpec
       suggestion.message.should be_nil
       view = suggestion.view.should_not be_nil
       view.app_installed_team_id.should eq "T-SYNTHETIC"
-      view["callback_id"].as_s.should eq "assign"
+      view.callback_id.should eq "assign"
     end
 
     it "verifies request bytes before parsing a malformed suggestion" do

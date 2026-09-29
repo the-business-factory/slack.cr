@@ -18,11 +18,11 @@ module OfflineModalPushExample
       raise "Expected view submission"
     end
     view = interaction.view
-    raise "Unexpected form" unless view && view["callback_id"].as_s == "request.reason"
+    raise "Unexpected form" unless view && view.callback_id == "request.reason"
     reason = interaction.plain_text?("request.reason", "reason") || raise "Missing reason"
 
     next_view = UI.form_modal(title: UI.plain("Delivery details"), submit: UI.plain("Save"),
-      close: UI.plain("Back"), callback_id: "request.delivery", private_metadata: view["private_metadata"].as_s) do |builder|
+      close: UI.plain("Back"), callback_id: "request.delivery", private_metadata: view.private_metadata || raise "Missing metadata") do |builder|
       builder.section(UI.plain("Reason: #{reason}"))
       builder.input(label: UI.plain("Delivery note"), block_id: "delivery",
         element: UI::BlockElements::PlainTextInput.new(action_id: "note", multiline: true))
