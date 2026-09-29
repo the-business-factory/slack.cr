@@ -1,4 +1,5 @@
 require "../spec_helper"
+require "../support/one_pass"
 
 module WorkflowButtonSpec
   alias UI = Slack::UI
@@ -6,17 +7,6 @@ module WorkflowButtonSpec
   alias Workflow = UI::CompositionObjects::Workflow
   alias Trigger = UI::CompositionObjects::WorkflowTrigger
   alias Parameter = UI::CompositionObjects::WorkflowInputParameter
-
-  class OnePassParameters
-    include Enumerable(Parameter?)
-    getter passes : Int32 = 0
-
-    def each(&) : Nil
-      @passes += 1
-      raise "Traversed twice" if @passes > 1
-      yield Parameter.new(name: "incident_id", value: "INC-7")
-    end
-  end
 
   def self.workflow(url : String = "https://slack.com/shortcuts/Ft0SYNTHETIC/run") : Workflow
     Workflow.new(trigger: Trigger.new(url: url))
@@ -91,7 +81,7 @@ module WorkflowButtonSpec
     end
 
     it "copies supported yielded parameters once even when the declared item type includes nil" do
-      source = OnePassParameters.new
+      source = SpecSupport::OnePass.new([Parameter.new(name: "incident_id", value: "INC-7")])
       trigger = Trigger.new(url: "https://slack.com/shortcuts/Ft0SYNTHETIC/run", customizable_input_parameters: source)
       trigger.customizable_input_parameters.try(&.clear)
       trigger.customizable_input_parameters.try(&.map(&.name)).should eq ["incident_id"]

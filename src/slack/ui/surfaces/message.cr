@@ -22,6 +22,8 @@ alias Slack::UI::MessageSourceBlock = Slack::UI::Blocks::Section |
 alias Slack::UI::MessageBlock = Slack::UI::MessageSourceBlock
 
 struct Slack::UI::Message
+  include Slack::UI::ValueValidation
+
   BLOCKS_MAX_SIZE = 50
 
   # Slack's data visualization reference permits two of these blocks per message.
@@ -98,11 +100,6 @@ struct Slack::UI::Message
     markdown_size_issue(issues)
     issues.concat(ChannelResponseUrl.non_modal_inputs(@blocks))
     issues
-  end
-
-  def validate! : Nil
-    issues = validate
-    raise Slack::UI::ValidationError.new(issues) unless issues.empty?
   end
 
   def to_json(json : JSON::Builder) : Nil

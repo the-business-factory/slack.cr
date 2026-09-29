@@ -1,6 +1,11 @@
 # :nodoc:
 # Builds display blocks through the concrete surface builder's typed add method.
 module Slack::UI::DisplayBlockHelpers
+  # Adds each block in order through the builder's typed `add` method.
+  def add_all(blocks : Enumerable(T)) : Nil forall T
+    blocks.each { |block| add(block) }
+  end
+
   def section(
     text : Slack::UI::CompositionObjects::Text,
     accessory : Slack::UI::Blocks::Section::Accessory? = nil,

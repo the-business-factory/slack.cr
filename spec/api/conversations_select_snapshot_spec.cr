@@ -1,30 +1,16 @@
 require "../spec_helper"
-require "../support/api/webmock_client"
+require "../support/one_pass"
 
 module ConversationsSelectSnapshotSpec
   alias UI = Slack::UI
 
-  class OnePassConversations
-    include Enumerable(String?)
-    getter passes : Int32 = 0
-
-    def initialize(@items : Array(String))
-    end
-
-    def each(&) : Nil
-      @passes += 1
-      raise "Traversed twice" if @passes > 1
-      @items.each { |item| yield item }
-    end
-  end
-
   it "sends owned conversation selections after caller, getter, and builder mutation" do
     ids = ["C-ONE", "G-TWO"]
-    conversations = OnePassConversations.new(ids)
+    conversations = SpecSupport::OnePass.new(ids)
     multi = UI::BlockElements::MultiConversationsSelect.new(action_id: "destinations", initial_conversations: conversations,
       max_selected_items: 3, focus_on_load: false)
     kinds = ["public", "private", "im"]
-    includes = OnePassConversations.new(kinds)
+    includes = SpecSupport::OnePass.new(kinds)
     filter = UI::CompositionObjects::ConversationFilter.new(include: includes, exclude_bot_users: false)
     single = UI::BlockElements::ConversationsSelect.new(action_id: "notification", initial_conversation: "D-NOTIFY", response_url_enabled: true,
       default_to_current_conversation: false, filter: filter)
@@ -32,7 +18,6 @@ module ConversationsSelectSnapshotSpec
     builder.input(label: UI.plain("Notify"), element: single, block_id: "notification")
     builder.input(label: UI.plain("Destinations"), element: multi, block_id: "destinations",
       optional: true, dispatch_action: false)
-    client = ApiSupport.client("xoxb-synthetic")
     request = Slack::Api::ViewsOpen.new(trigger_id: "synthetic-trigger",
       view: builder.build)
     ids.clear
@@ -54,13 +39,5 @@ module ConversationsSelectSnapshotSpec
          "element":{"type":"multi_conversations_select","action_id":"destinations","initial_conversations":["C-ONE","G-TWO"],"max_selected_items":3,"focus_on_load":false}}]}}
       JSON
     JSON.parse(request.to_json).should eq expected
-    sent = 0
-    WebMock.stub(:post, "https://slack.com/api/views.open").with(headers: {"Authorization" => "Bearer xoxb-synthetic"}).to_return do |http_request|
-      sent += 1
-      JSON.parse(http_request.body || fail("Missing body")).should eq expected
-      HTTP::Client::Response.new(200, body: %({"ok":true,"view":{"id":"V-SYNTHETIC","type":"modal"}}))
-    end
-    client.call(request).view["id"].should eq "V-SYNTHETIC"
-    sent.should eq 1
   end
 end

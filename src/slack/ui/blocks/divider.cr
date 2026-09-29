@@ -1,4 +1,6 @@
 struct Slack::UI::Blocks::Divider
+  include Slack::UI::ValueValidation
+
   BLOCK_ID_MAX_LENGTH = 255
 
   getter block_id : String?
@@ -13,19 +15,8 @@ struct Slack::UI::Blocks::Divider
 
   def validate : Array(Slack::UI::ValidationIssue)
     issues = [] of Slack::UI::ValidationIssue
-    if @block_id.try(&.size.>(BLOCK_ID_MAX_LENGTH))
-      issues << Slack::UI::ValidationIssue.new(
-        code: "divider.block_id.too_long",
-        path: "block_id",
-        message: "Block ID cannot be longer than #{BLOCK_ID_MAX_LENGTH} characters."
-      )
-    end
+    length_issue(issues, @block_id, BLOCK_ID_MAX_LENGTH, "divider.block_id.too_long", "block_id", "Block ID")
     issues
-  end
-
-  def validate! : Nil
-    issues = validate
-    raise Slack::UI::ValidationError.new(issues) unless issues.empty?
   end
 
   def to_json(json : JSON::Builder) : Nil

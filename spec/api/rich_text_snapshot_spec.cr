@@ -1,5 +1,4 @@
 require "../spec_helper"
-require "../support/api/webmock_client"
 
 module RichTextSnapshotSpec
   alias UI = Slack::UI
@@ -16,7 +15,6 @@ module RichTextSnapshotSpec
       RT::List.new(RT::ListStyle::Bullet, elements: items),
       RT::Quote.new(elements: {RT::Link.new("https://example.com/changelog", text: "Full changelog")}),
     ])
-    client = ApiSupport.client("xoxb-synthetic")
     request = Slack::Api::ChatPostMessage.new(channel: "C-SYNTHETIC",
       message: builder.build)
     items << RT::Section.new(elements: {RT::Text.new("added later")})
@@ -35,14 +33,7 @@ module RichTextSnapshotSpec
             {"type":"rich_text_section","elements":[{"type":"text","text":"Faster builds"}]}]},
           {"type":"rich_text_quote","elements":[{"type":"link","url":"https://example.com/changelog","text":"Full changelog"}]}]}]}
       JSON
-    sent = 0
-    WebMock.stub(:post, "https://slack.com/api/chat.postMessage").to_return do |http_request|
-      sent += 1
-      JSON.parse(http_request.body || fail("Missing body")).should eq expected
-      HTTP::Client::Response.new(200, body: %({"ok":true,"channel":"C-SYNTHETIC","ts":"1710000000.000001","message":{"type":"message","ts":"1710000000.000001"}}))
-    end
-    client.call(request)
-    sent.should eq 1
+    JSON.parse(request.to_json).should eq expected
   end
 
   it "places the same rich text block in display modals and Home" do

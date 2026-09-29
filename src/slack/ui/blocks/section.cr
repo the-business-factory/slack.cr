@@ -1,4 +1,6 @@
 struct Slack::UI::Blocks::Section
+  include Slack::UI::ValueValidation
+
   alias Text = Slack::UI::CompositionObjects::Text
   alias Accessory = Slack::UI::BlockElements::Button | Slack::UI::BlockElements::Image | Slack::UI::BlockElements::StaticSelect | Slack::UI::BlockElements::MultiStaticSelect | Slack::UI::BlockElements::ExternalSelect | Slack::UI::BlockElements::MultiExternalSelect | Slack::UI::BlockElements::Checkboxes | Slack::UI::BlockElements::RadioButtons | Slack::UI::BlockElements::UsersSelect | Slack::UI::BlockElements::MultiUsersSelect | Slack::UI::BlockElements::ConversationsSelect | Slack::UI::BlockElements::MultiConversationsSelect | Slack::UI::BlockElements::DatePicker | Slack::UI::BlockElements::TimePicker | Slack::UI::BlockElements::ChannelsSelect | Slack::UI::BlockElements::MultiChannelsSelect | Slack::UI::BlockElements::Overflow | Slack::UI::BlockElements::WorkflowButton
 
@@ -67,7 +69,7 @@ struct Slack::UI::Blocks::Section
 
     if text = @text
       text.validate.each { |issue| issues << issue.at("text") }
-      append_text_length_issue(issues, text.text, TEXT_MAX_LENGTH, "section.text.too_long", "text.text")
+      length_issue(issues, text.text, TEXT_MAX_LENGTH, "section.text.too_long", "text.text", "Text")
     end
 
     if fields = @fields
@@ -87,13 +89,7 @@ struct Slack::UI::Blocks::Section
 
       fields.each_with_index do |field, index|
         field.validate.each { |issue| issues << issue.at("fields[#{index}]") }
-        append_text_length_issue(
-          issues,
-          field.text,
-          FIELD_MAX_LENGTH,
-          "section.field.text.too_long",
-          "fields[#{index}].text"
-        )
+        length_issue(issues, field.text, FIELD_MAX_LENGTH, "section.field.text.too_long", "fields[#{index}].text", "Text")
       end
     end
 
@@ -101,13 +97,8 @@ struct Slack::UI::Blocks::Section
       accessory.validate.each { |issue| issues << issue.at("accessory") }
       issues.concat(ChannelResponseUrl.validate(accessory, "accessory.response_url_enabled"))
     end
-    append_block_id_issue(issues)
+    length_issue(issues, @block_id, BLOCK_ID_MAX_LENGTH, "section.block_id.too_long", "block_id", "Block ID")
     issues
-  end
-
-  def validate! : Nil
-    issues = validate
-    raise Slack::UI::ValidationError.new(issues) unless issues.empty?
   end
 
   def to_json(json : JSON::Builder) : Nil
@@ -134,31 +125,5 @@ struct Slack::UI::Blocks::Section
 
   private def append_field(fields : Array(Text), field : Slack::UI::CompositionObjects::Mrkdwn) : Nil
     fields << field
-  end
-
-  private def append_text_length_issue(
-    issues : Array(Slack::UI::ValidationIssue),
-    value : String,
-    maximum : Int32,
-    code : String,
-    path : String,
-  ) : Nil
-    return unless value.size > maximum
-
-    issues << Slack::UI::ValidationIssue.new(
-      code: code,
-      path: path,
-      message: "Text cannot be longer than #{maximum} characters."
-    )
-  end
-
-  private def append_block_id_issue(issues : Array(Slack::UI::ValidationIssue)) : Nil
-    return unless @block_id.try(&.size.>(BLOCK_ID_MAX_LENGTH))
-
-    issues << Slack::UI::ValidationIssue.new(
-      code: "section.block_id.too_long",
-      path: "block_id",
-      message: "Block ID cannot be longer than #{BLOCK_ID_MAX_LENGTH} characters."
-    )
   end
 end

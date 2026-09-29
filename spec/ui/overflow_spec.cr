@@ -1,20 +1,10 @@
 require "../spec_helper"
+require "../support/one_pass"
 
 module OverflowSpec
   alias UI = Slack::UI
   alias Option = UI::CompositionObjects::OverflowOption
   alias Overflow = UI::BlockElements::Overflow
-
-  class OnePassOptions
-    include Enumerable(Option?)
-    getter passes : Int32 = 0
-
-    def each(&) : Nil
-      @passes += 1
-      raise "Traversed twice" if @passes > 1
-      yield Option.new(text: UI.plain("Archive"), value: "archive")
-    end
-  end
 
   describe Overflow do
     it "serializes an action and a URL option with confirmation independently of the wire fixture" do
@@ -75,7 +65,7 @@ module OverflowSpec
     end
 
     it "copies supported yielded options once even when the declared item type includes nil" do
-      source = OnePassOptions.new
+      source = SpecSupport::OnePass.new([Option.new(text: UI.plain("Archive"), value: "archive")])
       menu = Overflow.new(options: source)
       copy = menu
       copy.options.clear

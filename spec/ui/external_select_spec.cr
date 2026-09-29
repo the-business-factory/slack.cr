@@ -1,23 +1,10 @@
 require "../spec_helper"
+require "../support/one_pass"
 
 module ExternalSelectSpec
   alias UI = Slack::UI
   alias Single = UI::BlockElements::ExternalSelect
   alias Multi = UI::BlockElements::MultiExternalSelect
-
-  class OnePassOptions
-    include Enumerable(UI::CompositionObjects::Option?)
-    getter passes : Int32 = 0
-
-    def initialize(@items : Array(UI::CompositionObjects::Option))
-    end
-
-    def each(&) : Nil
-      @passes += 1
-      raise "Traversed twice" if @passes > 1
-      @items.each { |item| yield item }
-    end
-  end
 
   def self.option(value : String) : UI::CompositionObjects::Option
     UI::CompositionObjects::Option.new(text: UI.plain(value.capitalize), value: value)
@@ -94,7 +81,7 @@ module ExternalSelectSpec
 
     it "owns initial options after one traversal and returns copies" do
       items = [option("apollo"), option("gemini")]
-      source = OnePassOptions.new(items)
+      source = SpecSupport::OnePass.new(items)
       multi = Multi.new(initial_options: source)
       items.clear
       multi.initial_options.should_not(be_nil).clear

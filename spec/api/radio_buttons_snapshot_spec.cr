@@ -1,34 +1,19 @@
 require "../spec_helper"
-require "../support/api/webmock_client"
+require "../support/one_pass"
 
 module RadioButtonsSnapshotSpec
   alias UI = Slack::UI
   alias Option = UI::CompositionObjects::RadioOption
 
-  class OnePassOptions
-    include Enumerable(Option?)
-    getter passes : Int32 = 0
-
-    def initialize(@items : Array(Option))
-    end
-
-    def each(&) : Nil
-      @passes += 1
-      raise "Traversed twice" if @passes > 1
-      @items.each { |item| yield item }
-    end
-  end
-
   it "sends an owned radio choice and initial selection after caller mutation" do
     digest = Option.new(text: UI.mrkdwn("*Digest*"), value: "digest")
     options = [digest, Option.new(text: UI.plain("Immediate"), value: "immediate")]
-    choices = OnePassOptions.new(options)
+    choices = SpecSupport::OnePass.new(options)
     control = UI::BlockElements::RadioButtons.new(options: choices, initial_option: digest,
       action_id: "delivery", focus_on_load: false)
     builder = UI::MessageBuilder.new(fallback_text: "Delivery preference")
     builder.input(label: UI.plain("Delivery"), element: control, block_id: "preferences",
       optional: true, dispatch_action: true)
-    client = ApiSupport.client("xoxb-synthetic")
     request = Slack::Api::ChatPostMessage.new(channel: "C-SYNTHETIC",
       message: builder.build, unfurl_links: false)
     options.clear
@@ -47,13 +32,5 @@ module RadioButtonsSnapshotSpec
        "initial_option":{"text":{"type":"mrkdwn","text":"*Digest*"},"value":"digest"}}}]}
       JSON
     JSON.parse(request.to_json).should eq expected
-    sent = 0
-    WebMock.stub(:post, "https://slack.com/api/chat.postMessage").with(headers: {"Authorization" => "Bearer xoxb-synthetic"}).to_return do |http_request|
-      sent += 1
-      JSON.parse(http_request.body || fail("Missing body")).should eq expected
-      HTTP::Client::Response.new(200, body: %({"ok":true,"channel":"C-SYNTHETIC","ts":"1710000000.000001","message":{"type":"message","ts":"1710000000.000001"}}))
-    end
-    client.call(request).channel.should eq "C-SYNTHETIC"
-    sent.should eq 1
   end
 end

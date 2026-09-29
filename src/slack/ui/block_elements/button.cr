@@ -1,4 +1,6 @@
 struct Slack::UI::BlockElements::Button
+  include Slack::UI::ValueValidation
+
   TEXT_MAX_LENGTH                =   75
   ACTION_ID_MAX_LENGTH           =  255
   URL_MAX_LENGTH                 = 3000
@@ -35,18 +37,18 @@ struct Slack::UI::BlockElements::Button
 
   def validate : Array(Slack::UI::ValidationIssue)
     issues = @text.validate.map(&.at("text"))
-    append_length_issue(issues, @text.text, TEXT_MAX_LENGTH, "button.text.too_long", "text.text")
-    append_optional_length_issue(issues, @action_id, ACTION_ID_MAX_LENGTH, "button.action_id.too_long", "action_id")
-    append_optional_length_issue(issues, @url, URL_MAX_LENGTH, "button.url.too_long", "url")
-    append_optional_length_issue(issues, @value, VALUE_MAX_LENGTH, "button.value.too_long", "value")
-    append_optional_length_issue(
+    length_issue(issues, @text.text, TEXT_MAX_LENGTH, "button.text.too_long", "text.text")
+    length_issue(issues, @action_id, ACTION_ID_MAX_LENGTH, "button.action_id.too_long", "action_id")
+    length_issue(issues, @url, URL_MAX_LENGTH, "button.url.too_long", "url")
+    length_issue(issues, @value, VALUE_MAX_LENGTH, "button.value.too_long", "value")
+    length_issue(
       issues,
       @accessibility_label,
       ACCESSIBILITY_LABEL_MAX_LENGTH,
       "button.accessibility_label.too_long",
       "accessibility_label"
     )
-    append_optional_length_issue(issues, @agent_prompt, AGENT_PROMPT_MAX_LENGTH, "button.agent_prompt.too_long", "agent_prompt")
+    length_issue(issues, @agent_prompt, AGENT_PROMPT_MAX_LENGTH, "button.agent_prompt.too_long", "agent_prompt")
     if confirmation = @confirm
       confirmation.validate.each { |issue| issues << issue.at("confirm") }
     end
@@ -58,11 +60,6 @@ struct Slack::UI::BlockElements::Button
       )
     end
     issues
-  end
-
-  def validate! : Nil
-    issues = validate
-    raise Slack::UI::ValidationError.new(issues) unless issues.empty?
   end
 
   def to_json(json : JSON::Builder) : Nil
@@ -78,33 +75,5 @@ struct Slack::UI::BlockElements::Button
       json.field "accessibility_label", @accessibility_label if @accessibility_label
       json.field "agent_prompt", @agent_prompt if @agent_prompt
     end
-  end
-
-  private def append_optional_length_issue(
-    issues : Array(Slack::UI::ValidationIssue),
-    value : String?,
-    maximum : Int32,
-    code : String,
-    path : String,
-  ) : Nil
-    return unless value
-
-    append_length_issue(issues, value, maximum, code, path)
-  end
-
-  private def append_length_issue(
-    issues : Array(Slack::UI::ValidationIssue),
-    value : String,
-    maximum : Int32,
-    code : String,
-    path : String,
-  ) : Nil
-    return unless value.size > maximum
-
-    issues << Slack::UI::ValidationIssue.new(
-      code: code,
-      path: path,
-      message: "Value cannot be longer than #{maximum} characters."
-    )
   end
 end

@@ -26,10 +26,6 @@ class Slack::UI::DisplayModalBuilder
     add(Blocks::Alert.new(text: text, level: level, block_id: block_id))
   end
 
-  def add_all(blocks : Enumerable(T)) : Nil forall T
-    blocks.each { |block| add(block) }
-  end
-
   def build : DisplayModal
     DisplayModal.new(
       blocks: @blocks,

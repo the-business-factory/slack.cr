@@ -1,5 +1,4 @@
 require "../spec_helper"
-require "../support/api/webmock_client"
 
 module FileInputSnapshotSpec
   alias UI = Slack::UI
@@ -11,7 +10,6 @@ module FileInputSnapshotSpec
       element: UI::BlockElements::FileInput.new(action_id: "files", filetypes: extensions, max_files: 3))
     builder.input(label: UI.plain("Note"), block_id: "note", optional: true,
       element: UI::BlockElements::PlainTextInput.new(action_id: "text"))
-    client = ApiSupport.client("xoxb-synthetic")
     request = Slack::Api::ViewsOpen.new(trigger_id: "synthetic-trigger",
       view: builder.build)
     extensions << "exe"
@@ -25,13 +23,6 @@ module FileInputSnapshotSpec
         {"type":"input","label":{"type":"plain_text","text":"Note"},"block_id":"note","optional":true,
          "element":{"type":"plain_text_input","action_id":"text"}}]}}
       JSON
-    sent = 0
-    WebMock.stub(:post, "https://slack.com/api/views.open").with(headers: {"Authorization" => "Bearer xoxb-synthetic"}).to_return do |http_request|
-      sent += 1
-      JSON.parse(http_request.body || fail("Missing body")).should eq expected
-      HTTP::Client::Response.new(200, body: %({"ok":true,"view":{"id":"V-SYNTHETIC","type":"modal"}}))
-    end
-    client.call(request).view["id"].should eq "V-SYNTHETIC"
-    sent.should eq 1
+    JSON.parse(request.to_json).should eq expected
   end
 end

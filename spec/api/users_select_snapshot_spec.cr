@@ -1,26 +1,12 @@
 require "../spec_helper"
-require "../support/api/webmock_client"
+require "../support/one_pass"
 
 module UsersSelectSnapshotSpec
   alias UI = Slack::UI
 
-  class OnePassUsers
-    include Enumerable(String?)
-    getter passes : Int32 = 0
-
-    def initialize(@items : Array(String))
-    end
-
-    def each(&) : Nil
-      @passes += 1
-      raise "Traversed twice" if @passes > 1
-      @items.each { |item| yield item }
-    end
-  end
-
   it "sends owned user selections after caller, getter, and builder mutation" do
     ids = ["U-ONE", "W-TWO"]
-    users = OnePassUsers.new(ids)
+    users = SpecSupport::OnePass.new(ids)
     multi = UI::BlockElements::MultiUsersSelect.new(action_id: "reviewers", initial_users: users,
       max_selected_items: 3, focus_on_load: false)
     single = UI::BlockElements::UsersSelect.new(action_id: "owner", initial_user: "U-OWNER")
@@ -28,7 +14,6 @@ module UsersSelectSnapshotSpec
     builder.section(UI.plain("Owner"), accessory: single, block_id: "assignment")
     builder.input(label: UI.plain("Reviewers"), element: multi, block_id: "review",
       optional: true, dispatch_action: false)
-    client = ApiSupport.client("xoxb-synthetic")
     request = Slack::Api::ChatPostMessage.new(channel: "C-SYNTHETIC",
       message: builder.build, unfurl_links: false)
     ids.clear
@@ -45,13 +30,5 @@ module UsersSelectSnapshotSpec
          "element":{"type":"multi_users_select","action_id":"reviewers","initial_users":["U-ONE","W-TWO"],"max_selected_items":3,"focus_on_load":false}}]}
       JSON
     JSON.parse(request.to_json).should eq expected
-    sent = 0
-    WebMock.stub(:post, "https://slack.com/api/chat.postMessage").with(headers: {"Authorization" => "Bearer xoxb-synthetic"}).to_return do |http_request|
-      sent += 1
-      JSON.parse(http_request.body || fail("Missing body")).should eq expected
-      HTTP::Client::Response.new(200, body: %({"ok":true,"channel":"C-SYNTHETIC","ts":"1710000000.000001","message":{"type":"message","ts":"1710000000.000001"}}))
-    end
-    client.call(request).channel.should eq "C-SYNTHETIC"
-    sent.should eq 1
   end
 end

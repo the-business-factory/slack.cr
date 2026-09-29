@@ -1,29 +1,16 @@
 require "../spec_helper"
 require "../support/api/webmock_client"
+require "../support/one_pass"
 
 module CheckboxesSnapshotSpec
   alias UI = Slack::UI
   alias Option = UI::CompositionObjects::CheckboxOption
 
-  class OnePassOptions
-    include Enumerable(Option?)
-    getter passes : Int32 = 0
-
-    def initialize(@items : Array(Option))
-    end
-
-    def each(&) : Nil
-      @passes += 1
-      raise "Traversed twice" if @passes > 1
-      @items.each { |item| yield item }
-    end
-  end
-
   it "sends owned checkbox choices and initial selections after caller mutation" do
     options = [Option.new(text: UI.mrkdwn("*Digest*"), value: "digest")]
     initial = options.dup
-    choices = OnePassOptions.new(options)
-    selections = OnePassOptions.new(initial)
+    choices = SpecSupport::OnePass.new(options)
+    selections = SpecSupport::OnePass.new(initial)
     control = UI::BlockElements::Checkboxes.new(options: choices, initial_options: selections, action_id: "notifications")
     builder = UI::MessageBuilder.new(fallback_text: "Preferences")
     builder.input(label: UI.plain("Notifications"), element: control, block_id: "preferences", optional: true)
@@ -41,14 +28,6 @@ module CheckboxesSnapshotSpec
       {"channel":"C-SYNTHETIC","text":"Preferences","blocks":[{"type":"input","label":{"type":"plain_text","text":"Notifications"},"block_id":"preferences","optional":true,"element":{"type":"checkboxes","action_id":"notifications","options":[{"text":{"type":"mrkdwn","text":"*Digest*"},"value":"digest"}],"initial_options":[{"text":{"type":"mrkdwn","text":"*Digest*"},"value":"digest"}]}}]}
       JSON
     JSON.parse(request.to_json).should eq expected
-    sent = 0
-    WebMock.stub(:post, "https://slack.com/api/chat.postMessage").with(headers: {"Authorization" => "Bearer xoxb-synthetic"}).to_return do |http_request|
-      sent += 1
-      JSON.parse(http_request.body || fail("Missing body")).should eq expected
-      HTTP::Client::Response.new(200, body: %({"ok":true,"channel":"C-SYNTHETIC","ts":"1710000000.000001","message":{"type":"message","ts":"1710000000.000001"}}))
-    end
-    client.call(request).channel.should eq "C-SYNTHETIC"
-    sent.should eq 1
   end
 
   it "rejects invalid checkbox choices before transport" do

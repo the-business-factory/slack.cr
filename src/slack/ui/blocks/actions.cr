@@ -1,4 +1,6 @@
 struct Slack::UI::Blocks::Actions
+  include Slack::UI::ValueValidation
+
   alias Element = Slack::UI::BlockElements::Button | Slack::UI::BlockElements::StaticSelect | Slack::UI::BlockElements::MultiStaticSelect | Slack::UI::BlockElements::ExternalSelect | Slack::UI::BlockElements::MultiExternalSelect | Slack::UI::BlockElements::Checkboxes | Slack::UI::BlockElements::RadioButtons | Slack::UI::BlockElements::UsersSelect | Slack::UI::BlockElements::MultiUsersSelect | Slack::UI::BlockElements::ConversationsSelect | Slack::UI::BlockElements::MultiConversationsSelect | Slack::UI::BlockElements::DatePicker | Slack::UI::BlockElements::TimePicker | Slack::UI::BlockElements::DatetimePicker | Slack::UI::BlockElements::ChannelsSelect | Slack::UI::BlockElements::MultiChannelsSelect | Slack::UI::BlockElements::Overflow | Slack::UI::BlockElements::WorkflowButton
 
   ELEMENTS_MAX_SIZE   =  25
@@ -54,19 +56,8 @@ struct Slack::UI::Blocks::Actions
       end
     end
 
-    if @block_id.try(&.size.>(BLOCK_ID_MAX_LENGTH))
-      issues << Slack::UI::ValidationIssue.new(
-        code: "actions.block_id.too_long",
-        path: "block_id",
-        message: "Block ID cannot be longer than #{BLOCK_ID_MAX_LENGTH} characters."
-      )
-    end
+    length_issue(issues, @block_id, BLOCK_ID_MAX_LENGTH, "actions.block_id.too_long", "block_id", "Block ID")
     issues
-  end
-
-  def validate! : Nil
-    issues = validate
-    raise Slack::UI::ValidationError.new(issues) unless issues.empty?
   end
 
   def to_json(json : JSON::Builder) : Nil
