@@ -8,7 +8,11 @@ crystal: 1.21.0
 
 license: MIT
 
+# Ameba 1.7 no longer builds itself on `shards install`. This target builds
+# it into bin/ameba with `shards build ameba`; bin/check does so when needed.
 targets:
+  ameba:
+    main: lib/ameba/bin/ameba.cr
   slack:
     main: src/slack.cr
 

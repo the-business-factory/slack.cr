@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# Runs the checks every change must pass: formatting, Ameba, and specs.
+# Use `bin/check --fix` to format the code and apply Ameba autocorrections
+# before the checks. Without --fix, this script changes no files.
+# Run `shards install` first. Ameba 1.7 does not build itself on install, so
+# this script builds bin/ameba from the shard's `ameba` target when missing.
+set -euo pipefail
+
+cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.."
+
+case "${1:-}" in
+  "") fix=false ;;
+  --fix) fix=true ;;
+  *)
+    echo "usage: bin/check [--fix]" >&2
+    exit 2
+    ;;
+esac
+
+# One compiler cache per checkout: `crystal spec` writes its executable to a
+# fixed name in the cache, so a shared cache lets parallel checkouts collide.
+export CRYSTAL_CACHE_DIR="${CRYSTAL_CACHE_DIR:-$PWD/.crystal-cache}"
+
+[[ -x bin/ameba ]] || shards build ameba
+
+# Name the checked paths. Both tools otherwise scan the whole checkout,
+# including gitignored scratch code in plans/.
+paths=(src spec examples)
+
+if $fix; then
+  crystal tool format "${paths[@]}"
+  bin/ameba --fix "${paths[@]}"
+fi
+
+crystal tool format --check "${paths[@]}"
+bin/ameba "${paths[@]}"
+crystal spec
