@@ -29,11 +29,18 @@ describe "received file input state" do
     receipt.size.should eq 1024_i64
     files[1].name.should be_nil
     files[1].url_private.should be_nil
+    files[1].size.should be_nil
     files.clear
     value.files.should_not(be_nil).size.should eq 2
     state.file_input_value?("receipts", "missing").should be_nil
     expect_raises(Slack::Interactions::TypeMismatch) { state.file_input_value?("note", "text") }.path.should eq %(view.state.values["note"]["text"])
     expect_raises(Slack::Interactions::TypeMismatch) { state.plain_text_value?("receipts", "files") }.path.should eq %(view.state.values["receipts"]["files"])
+  end
+
+  it "reads a file size above the 32-bit integer range" do
+    map = Slack::Interactions::StateMap.new(JSON.parse(%({"values":{"b":{"a":{"type":"file_input","files":[{"id":"F-BIG","size":4294967296}]}}}})))
+    files = map.file_input_value?("b", "a").try(&.files).should_not be_nil
+    files.first.size.should eq 4_294_967_296_i64
   end
 
   it "preserves absent, null and empty file lists" do
@@ -48,7 +55,8 @@ describe "received file input state" do
 
   it "rejects wrong JSON types with paths while leaving file_input actions unknown" do
     { %("files":{}) => "files", %("files":[null]) => "files[0]", %("files":[{"name":"x"}]) => "files[0].id",
-     %("files":[{"id":7}]) => "files[0].id", %("files":[{"id":"F","mimetype":[]}]) => "files[0].mimetype" }.each do |field, path|
+     %("files":[{"id":7}]) => "files[0].id", %("files":[{"id":"F","mimetype":[]}]) => "files[0].mimetype",
+     %("files":[{"id":"F","size":1.5}]) => "files[0].size" }.each do |field, path|
       map = Slack::Interactions::StateMap.new(JSON.parse(%({"values":{"b":{"a":{"type":"file_input",#{field}}}}})))
       expect_raises(Slack::Interactions::TypeMismatch) { map["b", "a"]? }.path.should eq %(state.values["b"]["a"].#{path})
     end

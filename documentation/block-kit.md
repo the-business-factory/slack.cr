@@ -252,7 +252,7 @@ section = UI::Blocks::Section.new(text: UI.plain("Request 42"), accessory: menu)
 
 Option labels and optional descriptions use plain text, up to 75 characters. Values are required, unique within the menu, and limited to 150 characters. URLs allow up to 3000 characters; action IDs allow 255. A nonempty option list is library policy. `OverflowOption` is separate from static-select `Option`, so URL options cannot be passed to static selects. See Slack's [Overflow](https://docs.slack.dev/reference/block-kit/block-elements/overflow-menu-element/) and [Option](https://docs.slack.dev/reference/block-kit/composition-objects/option-object/) references.
 
-On receipt, `OverflowAction#selected_option` exposes the selected value and text through the received `SelectedOption` type. It requires a selection and keeps all received option fields in `raw`; outbound size rules do not apply to received data. Overflow has no typed state-map entry. URL choices also send an interaction: acknowledge it within three seconds, even when the browser opens the URL.
+On receipt, `OverflowAction#selected_option` exposes the selected value and text through the received `SelectedOption` type. It requires a selection. `SelectedOption#url` is the URL of a URL choice, or nil. Other received option fields stay in `raw`; outbound size rules do not apply to received data. Overflow has no typed state-map entry. URL choices also send an interaction: acknowledge it within three seconds, even when the browser opens the URL.
 
 ### Add checkboxes
 
@@ -269,7 +269,7 @@ control = UI::BlockElements::Checkboxes.new(
 
 `initial_options` must exactly match offered options, including text formatting and descriptions. Repeated initial selections and empty option lists are rejected by library policy. Omit `initial_options` or supply an empty collection for no initial selection. Optional `confirm` uses the existing confirmation type. Optional `action_id` allows 255 characters. `focus_on_load` participates in the single-focus rule for views. See Slack's [Checkboxes](https://docs.slack.dev/reference/block-kit/block-elements/checkboxes-element/) and [Option](https://docs.slack.dev/reference/block-kit/composition-objects/option-object/) references.
 
-Checkbox interactions decode as `CheckboxesAction`; state entries decode as `CheckboxesValue`. Read `selected_options` through the action or `state_map.checkboxes_value?(block_id, action_id)`. A cleared selection is a present empty array. Absent and null selections both return nil, with `selected_options_presence` distinguishing them. Received options use `SelectedOption`, preserving unknown fields in `raw` without outbound validation. Set `dispatch_action: true` on an Input block to receive actions when its checkboxes change; submissions also include their state.
+Checkbox interactions decode as `CheckboxesAction`; state entries decode as `CheckboxesValue`. Read `selected_options` through the action or `state_map.checkboxes_value?(block_id, action_id)`. A cleared selection is a present empty array. Absent and null selections both return nil, with `selected_options_presence` distinguishing them. Received options use `SelectedOption`. `description` is a `ReceivedText?`. Unknown fields stay in `raw`, without outbound validation. Set `dispatch_action: true` on an Input block to receive actions when its checkboxes change; submissions also include their state.
 
 ### Add radio buttons
 
@@ -288,7 +288,7 @@ control = UI::BlockElements::RadioButtons.new(
 
 `initial_option` must exactly match one offered option, including text formatting and description. Omit it for no initial selection. Empty option lists are rejected by library policy. Optional `confirm` uses the existing confirmation type. Optional `action_id` allows 255 characters. `focus_on_load` participates in the single-focus rule for views. Collections are consumed once into owned snapshots. See Slack's [Radio buttons](https://docs.slack.dev/reference/block-kit/block-elements/radio-button-group-element/) and [Option](https://docs.slack.dev/reference/block-kit/composition-objects/option-object/) references.
 
-Read `RadioButtonsAction#selected_option` or `state_map.radio_buttons_value?(block_id, action_id)`. A selection is a received `SelectedOption`. Both an absent field and explicit null return nil; `selected_option_presence` distinguishes Absent, Null, and Present. A present option can have an empty string value. Unknown fields remain in `raw`, and outbound limits do not apply to received data. Malformed known fields raise `TypeMismatch`. Set `dispatch_action: true` on an Input block to receive selection changes; submissions also include state.
+Read `RadioButtonsAction#selected_option` or `state_map.radio_buttons_value?(block_id, action_id)`. A selection is a received `SelectedOption`. Both an absent field and explicit null return nil; `selected_option_presence` distinguishes Absent, Null, and Present. A present option can have an empty string value. `SelectedOption#description` is a `ReceivedText?`. Unknown fields remain in `raw`, and outbound limits do not apply to received data. Malformed known fields raise `TypeMismatch`. Set `dispatch_action: true` on an Input block to receive selection changes; submissions also include state.
 
 Radio interactions decode as `RadioButtonsAction` and `RadioButtonsValue`.
 
@@ -800,7 +800,7 @@ FileInput supports optional `action_id` (255 characters), `filetypes`, and `max_
 
 The `filetypes` filter is a convenience. Check each received file in the application. Your app needs the `files:read` scope, and Slack applies a 100MB file size limit. The library does not check these remote conditions or download files.
 
-Read `state_map.file_input_value?` with the block and action IDs. `files` returns `Array(UploadedFile)?`, and `files_presence` distinguishes Absent, Null, and Present (an empty array is Present). Each `UploadedFile` has a required `id` and optional `name`, `title`, `mimetype`, `filetype`, `url_private`, and `url_private_download`. Other file fields stay in `raw`. Wrong JSON types raise path-aware `TypeMismatch`. A `file_input` entry in `actions` stays `UnknownAction`.
+Read `state_map.file_input_value?` with the block and action IDs. `files` returns `Array(UploadedFile)?`, and `files_presence` distinguishes Absent, Null, and Present (an empty array is Present). Each `UploadedFile` has a required `id` and optional `name`, `title`, `mimetype`, `filetype`, `url_private`, and `url_private_download`, and an optional `size` in bytes (`Int64?`). Other file fields stay in `raw`. Wrong JSON types raise path-aware `TypeMismatch`. A `file_input` entry in `actions` stays `UnknownAction`.
 
 ```crystal
 if value = submission.state_map.file_input_value?("receipts", "files")
@@ -1071,6 +1071,8 @@ Slack sends the blocks of a message or view in events and interactions. These ge
 - Text objects decode as `ReceivedText` with `type`, `text`, `emoji`, and `verbatim`.
 - Elements in `Actions`, `ContextActions`, a Section `accessory`, an Input `element`, and Card images and actions decode as `ElementSummary` with `type`, `action_id`, and `raw`. Read selected values from the action payload or `state_map`, not from the block.
 - `Context` elements are `ReceivedText` or `ElementSummary` (images).
+- `Card#slack_icon` is a `ReceivedBlocks::SlackIcon?` with `name`. It is not an `ElementSummary`. Replace `card.slack_icon.try(&.raw["name"].as_s)` with `card.slack_icon.try(&.name)`. An icon without `name` raises `TypeMismatch`.
+- `TaskCard#sources` is an `Array(TaskCard::Source)`, each with `type`, `url`, and `text`. It is empty when `sources` is absent or null.
 - `Table` and `DataTable` rows hold `RawText`, `RawNumber` (`value` is `Int64` or `Float64`), `RichText::Block`, or `UnknownBlock` cells.
 - `Container#child_blocks` and `Carousel#elements` decode like top-level blocks.
 - `DataVisualization#chart`, `Plan#tasks`, `Table#column_settings`, and `Image#slack_file` stay raw JSON. For other fields, such as a task card's `details`, read `raw`.
