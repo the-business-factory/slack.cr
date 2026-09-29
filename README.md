@@ -53,7 +53,7 @@ The receivers decode payloads with a `Slack::Decoder`. The default, `Slack::Deco
 Slack::App::HttpReceiver.new(app, verifier, decoder: Slack::Decoders::Stdlib.new)
 ```
 
-To capture the payloads that Slack sends, for example for a bug report or a test fixture, give the decoder an observer. The observer gets each payload before the decoder decodes it:
+To capture the payloads that Slack sends, for example for a bug report or a test fixture, give the decoder an observer. The observer gets the exact payload bytes before the decoder decodes them:
 
 ```crystal
 decoder = Slack::Decoders::Fused.new(->(kind : Slack::Decoder::Kind, body : String) {

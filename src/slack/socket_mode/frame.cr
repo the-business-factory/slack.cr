@@ -1,4 +1,5 @@
 require "json"
+require "fused_json"
 require "../payload_access"
 
 # Decodes one inbound Socket Mode text frame.
@@ -26,25 +27,37 @@ module Slack::SocketMode::Frame
       if fields.has_key?("envelope_id")
         envelope(fields, payload_json)
       else
-        UnknownFrame.new(type, JSON.parse(text))
+        UnknownFrame.new(type, FusedJSON.load(text))
       end
     end
   end
 
-  # Keeps the payload as raw JSON so that payload decoders see the original
-  # bytes, including duplicate keys.
+  # Keeps the payload as the exact frame bytes, so that payload decoders and
+  # the decoder observer see the text that Slack sent, including whitespace,
+  # string escapes, and duplicate keys.
   private def self.read_fields(text : String) : Tuple(Hash(String, JSON::Any), String?)
     fields = {} of String => JSON::Any
     payload_json = nil
-    pull = JSON::PullParser.new(text)
+    pull = FusedJSON::PullParser.new(text)
     pull.read_object do |key|
+      value = read_value_bytes(pull, text)
       if key == "payload"
-        payload_json = pull.read_raw
+        payload_json = value
       else
-        fields[key] = JSON::Any.new(pull)
+        fields[key] = FusedJSON.load(value)
       end
     end
+    pull.finish
     {fields, payload_json}
+  end
+
+  # Skips the value under the cursor and returns its bytes from *text*. The
+  # skip stops at the next event: a key or the end of the object. The bytes
+  # between hold whitespace and at most one comma.
+  private def self.read_value_bytes(pull : FusedJSON::PullParser, text : String) : String
+    start = pull.byte_offset
+    pull.skip
+    text.byte_slice(start, pull.byte_offset - start).rstrip.chomp(',').rstrip
   end
 
   private def self.hello(fields : Hash(String, JSON::Any)) : Hello

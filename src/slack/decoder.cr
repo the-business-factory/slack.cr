@@ -28,13 +28,12 @@ require "./interactions/parse"
 # Slack::App::HttpReceiver.new(app, verifier, decoder: decoder)
 # ```
 #
-# The observer gets the body that the caller gives the decoder:
+# The observer gets the exact bytes that the caller gives the decoder:
 #
-# - Over HTTP, the exact request bytes, after signature verification: JSON for
-#   an event, and the form for an interaction or a slash command.
-# - Over Socket Mode, `SocketMode::Envelope#payload_json`. `SocketMode::Frame.parse`
-#   copies it from the frame, so whitespace and string escapes can differ from
-#   the frame bytes.
+# - Over HTTP, the request body, after signature verification: JSON for an
+#   event, and the form for an interaction or a slash command.
+# - Over Socket Mode, `SocketMode::Envelope#payload_json`: the payload bytes
+#   from the frame, with their whitespace and string escapes.
 #
 # The observer runs in the fiber that decodes the payload. If the observer
 # raises, the decoder does not decode the payload and the exception goes to

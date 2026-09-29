@@ -32,9 +32,8 @@ require "log"
 #
 # The receiver decodes payloads with *decoder*. Give a decoder with an
 # observer to capture each payload; see `Slack::Decoder`. The observer gets
-# `SocketMode::Envelope#payload_json`, which `SocketMode::Frame.parse` copies
-# from the frame, so whitespace and string escapes can differ from the frame
-# bytes.
+# `SocketMode::Envelope#payload_json`: the exact bytes of the payload in the
+# frame, with its whitespace and string escapes.
 class Slack::App::SocketModeReceiver
   Log = ::Log.for("slack.app.socket_mode_receiver")
 

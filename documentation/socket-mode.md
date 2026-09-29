@@ -91,7 +91,7 @@ When your code expects one kind, give the kind to `payload_json`. For another ki
 command = decoder.command(envelope.payload_json(:slash_commands), :json)
 ```
 
-`Frame.parse` copies the payload from the frame, so whitespace and string escapes in `payload_json` can differ from the frame bytes.
+`payload_json` is the exact bytes of the `payload` value in the frame, with its whitespace and string escapes. `Frame.parse` reads the frame with the FusedJSON pull parser and cuts the payload out of the frame text.
 
 For a command payload, the default decoder uses `Slack::Commands::Parser.from_json_object`. It applies the form parser rules: a repeated routing field raises `Slack::Auth::RequestAuthorizationError`, and `is_enterprise_install` must be `"true"` or `"false"` (a JSON boolean is also accepted).
 

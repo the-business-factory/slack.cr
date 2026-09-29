@@ -327,7 +327,7 @@ Slack::App::SocketModeReceiver.new(app, socket, decoder: decoder)
 ```
 
 - Over HTTP, the observer gets the body only after the signature check. The body is the exact request bytes: JSON for an event, and the form for an interaction or a slash command.
-- Over Socket Mode, the observer gets the envelope `payload` as JSON. The frame parser copies it, so whitespace and string escapes can differ from the frame.
+- Over Socket Mode, the observer gets the envelope `payload`: the exact bytes from the frame, with their whitespace and string escapes.
 - If the observer raises, the payload is not decoded, and the receiver answers as it does when a listener raises.
 
 Payloads can contain user messages and other private data. Keep captured payloads as you keep other user data.

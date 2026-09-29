@@ -166,17 +166,30 @@ describe Slack::App::SocketModeReceiver do
     harness.try(&.stop)
   end
 
-  it "gives a decoder observer the kind and payload of an envelope before it decodes the payload" do
+  it "gives a decoder observer the kind and exact payload bytes of an envelope before it decodes the payload" do
+    # Spaces, a line break, and the escapes \u00e9, \", and \/ must reach the observer unchanged.
+    payload = <<-'JSON'.chomp
+      { "team_id" : "T-SYNTHETIC", "channel_id":"C-SYNTHETIC", "channel_name":"deploys",
+        "user_id":"U-SYNTHETIC", "user_name":"synthetic.user",
+        "command":"\/deploy", "text":"caf\u00e9 \"api\"", "api_app_id":"A-SYNTHETIC",
+        "response_url":"https://hooks.slack.com/commands/T-SYNTHETIC/1/synthetic",
+        "trigger_id":"1789232400.synthetic.trigger" }
+      JSON
     observed = Channel({Slack::Decoder::Kind, String}).new(1)
-    decoder = Slack::Decoders::Stdlib.new(->(kind : Slack::Decoder::Kind, body : String) { observed.send({kind, body}) })
-    harness = connect(build_app, decoder)
+    decoder = Slack::Decoders::Fused.new(->(kind : Slack::Decoder::Kind, body : String) { observed.send({kind, body}) })
+    app = build_app
+    app.command("/deploy") { |ctx| ctx.ack(Slack::Commands::Response.new(text: "Deploying #{ctx.command.text}")) }
+    harness = connect(app, decoder)
 
-    harness.send(command_envelope("E-OBSERVED"))
+    harness.send(%({"envelope_id":"E-OBSERVED","type":"slash_commands","payload":  #{payload}  ,"accepts_response_payload":true}))
 
     kind, body = SocketModeSupport.receive(observed, "the observed payload")
     kind.should eq Slack::Decoder::Kind::Command
-    JSON.parse(body).should eq JSON.parse(command_envelope("E-OBSERVED"))["payload"]
-    harness.next_ack.should eq JSON.parse(%({"envelope_id":"E-OBSERVED"}))
+    body.should eq payload
+    harness.next_ack.should eq JSON.parse(<<-'JSON')
+      {"envelope_id":"E-OBSERVED","payload":{"response_type":"ephemeral","text":"Deploying caf\u00e9 \"api\""}}
+      JSON
+
   ensure
     harness.try(&.stop)
   end

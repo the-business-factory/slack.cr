@@ -35,8 +35,8 @@ struct Slack::SocketMode::Envelope
   # SDK-sourced (Bolt JS socket-mode client); not on the Slack reference page.
   getter retry_reason : String?
 
-  # The payload as JSON text. `Frame.parse` copies it from the frame, so the
-  # whitespace and string escapes can differ from the frame bytes.
+  # The payload as JSON text: the exact bytes of the `payload` value in the
+  # frame, with its whitespace and string escapes.
   getter payload_json : String
 
   def initialize(@envelope_id : String, @type : String, @payload_json : String,
