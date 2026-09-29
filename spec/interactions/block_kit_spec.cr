@@ -31,15 +31,14 @@ describe "Typed Block Kit interaction access" do
   it "decodes buttons without outbound text and preserves new action types" do
     interaction = received_block_action(%(,"actions":[{"type":"button","block_id":"request","action_id":"open","value":"42","action_ts":"1710000000.000001","future":true},{"type":"future_control","data":{"selected":[]}}]))
     interaction.channel.should be_nil
-    interaction.state.should be_nil
-    actions = interaction.decoded_actions
+    interaction.state.presence.should eq Slack::Interactions::ValuePresence::Absent
+    actions = interaction.actions
     case action = actions.first
     when Slack::Interactions::ButtonAction
       action.action_id.should eq "open"
       action.block_id.should eq "request"
       action.value.should eq "42"
       action.action_ts.should eq "1710000000.000001"
-      action.raw["future"].as_bool.should be_true
     else
       fail("Expected typed button")
     end
@@ -50,12 +49,12 @@ describe "Typed Block Kit interaction access" do
     else
       fail("Expected unknown action")
     end
-    interaction.actions.try(&.as_a.size).should eq 2
+    interaction.actions.size.should eq 2
   end
 
   {"" => Slack::Interactions::ValuePresence::Absent, %(,"value":null) => Slack::Interactions::ValuePresence::Null, %(,"value":"") => Slack::Interactions::ValuePresence::Present}.each do |field, presence|
     it "retains button value #{presence}" do
-      action = received_block_action(%(,"actions":[{"type":"button","block_id":"b","action_id":"a"#{field}}])).decoded_actions.first
+      action = received_block_action(%(,"actions":[{"type":"button","block_id":"b","action_id":"a"#{field}}])).actions.first
       case action
       when Slack::Interactions::ButtonAction
         action.value_presence.should eq presence
@@ -71,7 +70,7 @@ describe "Typed Block Kit interaction access" do
       field = state.empty? ? "" : %("state":#{state})
       action = received_block_action(field.empty? ? "" : ",#{field}")
       submission = received_submission(field)
-      {action.state_map, submission.state_map}.each do |map|
+      {action.state, submission.state}.each do |map|
         map.presence.should eq presence
         map.values_presence.should eq Slack::Interactions::ValuePresence::Absent
         map.plain_text?("missing", "missing").should be_nil
@@ -82,14 +81,14 @@ describe "Typed Block Kit interaction access" do
   {"null" => Slack::Interactions::ValuePresence::Null, "{}" => Slack::Interactions::ValuePresence::Present}.each do |values, presence|
     it "distinguishes #{presence} state.values" do
       submission = received_submission(%("state":{"values":#{values}}))
-      submission.state_map.values_presence.should eq presence
+      submission.state.values_presence.should eq presence
       submission.plain_text?("missing", "missing").should be_nil
     end
   end
 
   it "distinguishes an absent entry from absent, null, and empty plain text values" do
     submission = received_submission(%("state":{"values":{"b":{"absent":{"type":"plain_text_input"},"null":{"type":"plain_text_input","value":null},"empty":{"type":"plain_text_input","value":""},"text":{"type":"plain_text_input","value":"Line 1\\n界"}}}}))
-    map = submission.state_map
+    map = submission.state
     map["b", "missing"]?.should be_nil
     map.plain_text_value?("b", "absent").try(&.value_presence).should eq Slack::Interactions::ValuePresence::Absent
     map.plain_text_value?("b", "null").try(&.value_presence).should eq Slack::Interactions::ValuePresence::Null
@@ -101,7 +100,7 @@ describe "Typed Block Kit interaction access" do
 
   it "retains unknown state types and empty selections, with useful mismatch errors" do
     submission = received_submission(%("state":{"values":{"b":{"a":{"type":"future_select","selected_options":[],"extra":true}}}}))
-    case entry = submission.state_map["b", "a"]?
+    case entry = submission.state["b", "a"]?
     when Slack::Interactions::UnknownStateValue
       entry.type.should eq "future_select"
       entry.raw.should eq JSON.parse(%({"type":"future_select","selected_options":[],"extra":true}))
@@ -117,7 +116,7 @@ describe "Typed Block Kit interaction access" do
 
   it "keeps null unknown state entries accessible" do
     submission = received_submission(%("state":{"values":{"b":{"a":null}}}))
-    case entry = submission.state_map["b", "a"]?
+    case entry = submission.state["b", "a"]?
     when Slack::Interactions::UnknownStateValue
       entry.raw.raw.should be_nil
     else
@@ -132,8 +131,8 @@ describe "Typed Block Kit interaction access" do
       %(,"team":null,"container":{"type":"view"},"view":{"type":"modal","state":null}),
     ].each do |fields|
       action = received_block_action(fields)
-      action.decoded_actions.should be_empty
-      action.state_map.plain_text?("b", "a").should be_nil
+      action.actions.should be_empty
+      action.state.plain_text?("b", "a").should be_nil
     end
     [%("type":"view_submission"), %("type":"view_submission","view":null,"response_urls":null), %("type":"view_closed","view":{"state":{}})].each do |fields|
       Slack::Interaction.from_json("{#{fields}}")
@@ -155,10 +154,10 @@ describe "Typed Block Kit interaction access" do
       error.path.should eq path
     end
     error = expect_raises(Slack::Interactions::TypeMismatch) do
-      received_block_action(%(,"actions":[{"type":"button","block_id":"b","action_id":42}])).decoded_actions
+      received_block_action(%(,"actions":[{"type":"button","block_id":"b","action_id":42}])).actions
     end
     error.path.should eq "actions[0].action_id"
-    expect_raises(Slack::Interactions::TypeMismatch, "actions: expected array") { received_block_action(%(,"actions":{})).decoded_actions }
+    expect_raises(Slack::Interactions::TypeMismatch, "actions: expected array") { received_block_action(%(,"actions":{})).actions }
   end
 
   it "preserves unknown actions and state through the signed public HTTP entrypoint" do
@@ -173,9 +172,9 @@ describe "Typed Block Kit interaction access" do
     interaction = Slack::Interactions.parse(verified.body)
     case interaction
     when Slack::Interactions::BlockAction
-      interaction.decoded_actions.first.should be_a Slack::Interactions::UnknownAction
-      interaction.state_map["b", "a"]?.should be_a Slack::Interactions::UnknownStateValue
-      expect_raises(Slack::Interactions::TypeMismatch, "future_value") { interaction.state_map.plain_text?("b", "a") }
+      interaction.actions.first.should be_a Slack::Interactions::UnknownAction
+      interaction.state["b", "a"]?.should be_a Slack::Interactions::UnknownStateValue
+      expect_raises(Slack::Interactions::TypeMismatch, "future_value") { interaction.state.plain_text?("b", "a") }
     else
       fail("Expected block action")
     end

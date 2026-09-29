@@ -5,11 +5,10 @@ alias Slack::Interactions::ReceivedBlocks::ContextElement = Slack::Interactions:
 # A received `context` block.
 # https://docs.slack.dev/reference/block-kit/blocks/context-block/
 struct Slack::Interactions::ReceivedBlocks::Context
-  getter raw : JSON::Any
   getter block_id : String?
   @elements : Array(ContextElement)
 
-  def initialize(@raw : JSON::Any, object : Hash(String, JSON::Any), path : String)
+  def initialize(object : Hash(String, JSON::Any), path : String)
     @block_id = Decoder.block_id(object, path)
     @elements = Decoder.items(object, "elements", path).map_with_index do |item, index|
       Decoder.context_element(item, "#{path}.elements[#{index}]")

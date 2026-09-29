@@ -14,11 +14,10 @@ alias Slack::Interactions::RichText::Element = Slack::Interactions::RichText::Te
                                                Slack::Interactions::RichText::Unknown
 
 struct Slack::Interactions::RichText::Section
-  getter raw : JSON::Any
   @elements : Array(Element)
 
-  def initialize(@raw : JSON::Any, path : String)
-    @elements = Decoder.elements(Decoder.object(@raw, path), path)
+  def initialize(raw : JSON::Any, path : String)
+    @elements = Decoder.elements(Decoder.object(raw, path), path)
   end
 
   def elements : Array(Element)

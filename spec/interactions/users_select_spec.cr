@@ -12,26 +12,23 @@ describe "received user selections" do
         "reviewers":{"type":"multi_users_select","selected_users":["U-REVIEWER"],"future":false},
         "unknown":{"type":"future_select","future":{"nested":null}}}}}}
       JSON
-    actions = interaction.decoded_actions
+    actions = interaction.actions
     single = actions[0].should be_a(Slack::Interactions::UsersSelectAction)
     single.selected_user.should eq "U-OWNER"
     single.action_id.should eq "owner"
     single.block_id.should eq "assignment"
     single.action_ts.should eq "1710000000.000001"
-    single.raw["future"].as_bool.should be_false
     multi = actions[1].should be_a(Slack::Interactions::MultiUsersSelectAction)
     multi.selected_users.should eq ["U-ONE", "W-TWO"]
     multi.action_ts.should be_nil
     multi.selected_users.should_not(be_nil).clear
     multi.selected_users.should eq ["U-ONE", "W-TWO"]
-    multi.raw["future"].as_a.should be_empty
     unknown = actions[2].should be_a(Slack::Interactions::UnknownAction)
     unknown.raw.should eq JSON.parse(%({"type":"future_select","selected_users":[],"future":{"nested":null}}))
-    state = interaction.state_map
+    state = interaction.state
     state.users_select_value?("assignment", "owner").should_not(be_nil).selected_user.should eq "U-OTHER"
     reviewers = state.multi_users_select_value?("assignment", "reviewers").should_not be_nil
     reviewers.selected_users.should eq ["U-REVIEWER"]
-    reviewers.raw["future"].as_bool.should be_false
     state["assignment", "unknown"]?.should(be_a(Slack::Interactions::UnknownStateValue)).raw.should eq JSON.parse(%({"type":"future_select","future":{"nested":null}}))
   end
 
@@ -46,20 +43,20 @@ describe "received user selections" do
         expected = value.empty? ? Slack::Interactions::ValuePresence::Absent : value == "null" ? Slack::Interactions::ValuePresence::Null : Slack::Interactions::ValuePresence::Present
         case action
         when Slack::Interactions::UsersSelectAction
-          state = submission.state_map.users_select_value?("b", "a").should_not be_nil
+          state = submission.state.users_select_value?("b", "a").should_not be_nil
           action.selected_user_presence.should eq expected
           state.selected_user_presence.should eq expected
           state.selected_user.should eq(expected.present? ? "" : nil)
         when Slack::Interactions::MultiUsersSelectAction
-          state = submission.state_map.multi_users_select_value?("b", "a").should_not be_nil
+          state = submission.state.multi_users_select_value?("b", "a").should_not be_nil
           action.selected_users_presence.should eq expected
           state.selected_users_presence.should eq expected
           state.selected_users.should eq(expected.present? ? [] of String : nil)
         else
           fail "Expected a typed user action"
         end
-        submission.state_map["b", "missing"]?.should be_nil
-        submission.view.should_not(be_nil).state_map["b", "a"]?.should eq submission.state_map["b", "a"]?
+        submission.state["b", "missing"]?.should be_nil
+        submission.view.should_not(be_nil).state["b", "a"]?.should eq submission.state["b", "a"]?
       end
     end
   end
@@ -82,8 +79,8 @@ describe "received user selections" do
       cases.each do |override, suffix|
         raw = JSON.parse(%({"type":"#{type}","block_id":"b","action_id":"a"})).as_h.merge(JSON.parse(override).as_h)
         interaction = Slack::Interaction.from_json({type: "block_actions", actions: [raw]}.to_json).should be_a(Slack::Interactions::BlockAction)
-        interaction.actions.should eq JSON.parse([raw].to_json)
-        expect_raises(Slack::Interactions::TypeMismatch) { interaction.decoded_actions }.path.should eq "actions[0].#{suffix}"
+        JSON.parse(interaction.to_json)["actions"].should eq JSON.parse([raw].to_json)
+        expect_raises(Slack::Interactions::TypeMismatch) { interaction.actions }.path.should eq "actions[0].#{suffix}"
         if suffix.starts_with?("selected_")
           map = Slack::Interactions::StateMap.new(JSON.parse({values: {b: {a: raw}}}.to_json))
           expect_raises(Slack::Interactions::TypeMismatch) { map["b", "a"]? }.path.should eq %(state.values["b"]["a"].#{suffix})

@@ -2,9 +2,8 @@
 #
 # Slack does not document this action. The fields follow the Bolt JS
 # `FeedbackButtonsAction` type and are not verified against live Slack, so
-# every field after `block_id` is nilable. `raw` keeps the complete action.
+# every field after `block_id` is nilable.
 struct Slack::Interactions::FeedbackButtonsAction
-  getter raw : JSON::Any
   getter action_id : String
   getter block_id : String
   getter action_ts : String?
@@ -13,8 +12,8 @@ struct Slack::Interactions::FeedbackButtonsAction
   # The label of the pressed button.
   getter text : ReceivedText?
 
-  def initialize(@raw : JSON::Any, path : String = "action")
-    object = PayloadAccess.object?(@raw, path) || raise TypeMismatch.new(path, "feedback_buttons object", "null")
+  def initialize(raw : JSON::Any, path : String = "action")
+    object = PayloadAccess.object?(raw, path) || raise TypeMismatch.new(path, "feedback_buttons object", "null")
     actual = PayloadAccess.string?(object["type"]?, "#{path}.type")
     unless actual == "feedback_buttons"
       raise TypeMismatch.new("#{path}.type", "feedback_buttons", actual || "absent or null")

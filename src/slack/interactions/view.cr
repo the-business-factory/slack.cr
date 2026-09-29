@@ -9,8 +9,8 @@ struct Slack::Interactions::View
   end
 
   getter app_installed_team_id : String?
-  # The complete parsed view payload.
-  getter payload : JSON::Any
+  # The complete parsed view payload. `to_json` writes it back.
+  @payload : JSON::Any
 
   def self.new(pull : JSON::PullParser) : self
     payload = JSON::Any.new(pull)
@@ -125,12 +125,12 @@ struct Slack::Interactions::View
     @decoded_blocks ||= ReceivedBlocks.decode(@payload["blocks"]?, "view.blocks")
   end
 
-  def state_map : StateMap
+  def state : StateMap
     StateMap.new(@payload["state"]?, "view.state")
   end
 
   def plain_text?(block_id : String, action_id : String) : String?
-    state_map.plain_text?(block_id, action_id)
+    state.plain_text?(block_id, action_id)
   end
 
   private def string?(key : String) : String?

@@ -38,7 +38,7 @@ module OfflineContainerExample
        "actions":[{"type":"button","block_id":"bulk.actions","action_id":"bulk.confirm","value":"DCW-1024,DCW-1025",
                    "text":{"type":"plain_text","text":"Confirm all"},"action_ts":"1710000001.000100"}]}
       JSON
-    if interaction.is_a?(Slack::Interactions::BlockAction) && (action = interaction.decoded_actions.first).is_a?(Slack::Interactions::ButtonAction)
+    if interaction.is_a?(Slack::Interactions::BlockAction) && (action = interaction.actions.first).is_a?(Slack::Interactions::ButtonAction)
       output.puts "#{action.action_id} in #{action.block_id}: #{action.value}"
     end
 

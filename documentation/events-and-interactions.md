@@ -186,12 +186,18 @@ Slack::Events::MessageFactory::KNOWN_SUBTYPES["channel_topic"] # => Slack::Event
 
 ### Read actions and state
 
-`BlockAction#decoded_actions` gives typed ButtonAction, StaticSelectAction, MultiStaticSelectAction, ExternalSelectAction, MultiExternalSelectAction, OverflowAction, CheckboxesAction, RadioButtonsAction, UsersSelectAction, MultiUsersSelectAction, ChannelsSelectAction, MultiChannelsSelectAction, ConversationsSelectAction, MultiConversationsSelectAction, DatePickerAction, TimePickerAction, DatetimePickerAction, NumberInputAction, UrlInputAction, EmailInputAction, and RichTextInputAction values with block/action IDs, selections, and raw JSON. A dispatched `plain_text_input` action stays `UnknownAction`; read its text through `state_map`. Unknown action and state families keep raw JSON for application inspection.
+`BlockAction#actions` gives typed ButtonAction, StaticSelectAction, MultiStaticSelectAction, ExternalSelectAction, MultiExternalSelectAction, OverflowAction, CheckboxesAction, RadioButtonsAction, UsersSelectAction, MultiUsersSelectAction, ChannelsSelectAction, MultiChannelsSelectAction, ConversationsSelectAction, MultiConversationsSelectAction, DatePickerAction, TimePickerAction, DatetimePickerAction, NumberInputAction, UrlInputAction, EmailInputAction, and RichTextInputAction values with block/action IDs and selections. It decodes the actions on the first call and keeps the result. `BlockAction#state` gives the `StateMap`. A dispatched `plain_text_input` action stays `UnknownAction`; read its text through `state`. Only `UnknownAction` and `UnknownStateValue` keep `raw` JSON. For another field, read the payload: `to_json` on the interaction writes it back unchanged.
 
-Clicks on `feedback_buttons`, `icon_button`, and `workflow_button` elements decode as `FeedbackButtonsAction`, `IconButtonAction`, and `WorkflowButtonAction`. Slack does not document these action shapes. The feedback and icon fields come from the Bolt JS `FeedbackButtonsAction` and `IconButtonAction` types (SDK-sourced, unverified against live Slack). No SDK defines a workflow button action, so `WorkflowButtonAction` assumes that the click echoes the element: `text` and the raw `workflow` object. `action_id` and `block_id` are required. All other fields are nilable, so a different live shape still decodes; `raw` keeps the complete action. A known field with the wrong JSON type, such as a number `value`, raises `TypeMismatch`.
+Migrate from earlier versions: `BlockAction#decoded_actions` is now `#actions`, and `state_map` is now `state` on `BlockAction`, `View`, and `ViewSubmission`. Typed actions, state values, received blocks, and rich text nodes no longer have `raw`. `View#payload` and `ReceivedMessage#payload` are private. To read a field that the library does not model, parse the `to_json` of the interaction, view, or message:
 
 ```crystal
-case action = interaction.decoded_actions.first
+extra = JSON.parse(interaction.to_json)["actions"][0]["future_field"]?
+```
+
+Clicks on `feedback_buttons`, `icon_button`, and `workflow_button` elements decode as `FeedbackButtonsAction`, `IconButtonAction`, and `WorkflowButtonAction`. Slack does not document these action shapes. The feedback and icon fields come from the Bolt JS `FeedbackButtonsAction` and `IconButtonAction` types (SDK-sourced, unverified against live Slack). No SDK defines a workflow button action, so `WorkflowButtonAction` assumes that the click echoes the element: `text` and the raw `workflow` object. `action_id` and `block_id` are required. All other fields are nilable, so a different live shape still decodes. A known field with the wrong JSON type, such as a number `value`, raises `TypeMismatch`.
+
+```crystal
+case action = interaction.actions.first
 when Slack::Interactions::FeedbackButtonsAction
   record_feedback(action.action_id, action.value) # value of the pressed button: "good" or "bad"
 when Slack::Interactions::IconButtonAction
@@ -205,7 +211,7 @@ end
 case interaction = Slack::Interactions.parse(verifier.verify(request).body)
 when Slack::Interactions::ViewSubmission
   reason : String? = interaction.plain_text?("reason", "text")
-  if color = interaction.state_map.static_select_value?("preferences", "color")
+  if color = interaction.state.static_select_value?("preferences", "color")
     selected = color.selected_option.try(&.value)
   end
 end
@@ -217,7 +223,7 @@ end
 - For an existing selection entry, the matching `selected_option_presence`, `selected_options_presence`, `selected_user_presence`, `selected_users_presence`, `selected_channel_presence`, `selected_channels_presence`, `selected_conversation_presence`, or `selected_conversations_presence` distinguishes Absent, Null, and Present.
 - A cleared single choice can be null; a cleared multi choice can be a present empty array. `selected_options`, `selected_users`, `selected_channels`, and `selected_conversations` can also be nil if absent or null.
 - Asking for the wrong typed family raises `TypeMismatch`, as do malformed known values; it does not silently return nil.
-- Complete raw JSON stays available for fields that the library does not model.
+- Fields that the library does not model stay in the payload. `to_json` on the interaction writes the complete payload.
 
 Received values are user input. The library does not apply outbound rules to them:
 
@@ -241,7 +247,7 @@ Interactions tell the app where the user acted. Use these typed values to reply 
 - `ViewSubmission#response_urls` gives `ResponseUrl` values (`response_url`, `block_id`, `action_id`, `channel_id`) for conversation selects with `response_url_enabled`. Absent and null give an empty array.
 - `ViewClosed#is_cleared` is true when the user closed the whole view stack.
 - `View` has typed getters for `id`, `team_id`, `type`, `title`, `callback_id`, `private_metadata`, `external_id`, `root_view_id`, `previous_view_id`, `app_id`, `bot_id`, `clear_on_close`, and `notify_on_close`. `View#[]` and `View#payload` keep all other fields.
-- `BlockAction#message` and `MessageAction#message` give a `ReceivedMessage` with `ts`, `thread_ts`, `text`, `user`, `blocks`, and the complete `payload`. `View#blocks` decodes the view blocks. See [Read blocks from messages and views](block-kit.md#read-blocks-from-messages-and-views). `interactivity` stays raw JSON.
+- `BlockAction#message` and `MessageAction#message` give a `ReceivedMessage` with `ts`, `thread_ts`, `text`, `user`, and `blocks`. `to_json` writes the complete message. `View#blocks` decodes the view blocks. See [Read blocks from messages and views](block-kit.md#read-blocks-from-messages-and-views). `interactivity` stays raw JSON.
 - `BlockAction#response_url` gives the reply webhook for a message click. Use it to reply to an ephemeral message, which `chat.update` cannot change. Slack deprecates `response_url` and `response_urls` only for apps created with the Deno Slack SDK.
 
 ```crystal

@@ -1,7 +1,6 @@
 # A received `video` block.
 # https://docs.slack.dev/reference/block-kit/blocks/video-block/
 struct Slack::Interactions::ReceivedBlocks::Video
-  getter raw : JSON::Any
   getter block_id : String?
   getter alt_text : String
   getter title : ReceivedText
@@ -13,7 +12,7 @@ struct Slack::Interactions::ReceivedBlocks::Video
   getter provider_name : String?
   getter provider_icon_url : String?
 
-  def initialize(@raw : JSON::Any, object : Hash(String, JSON::Any), path : String)
+  def initialize(object : Hash(String, JSON::Any), path : String)
     @block_id = Decoder.block_id(object, path)
     @alt_text = Decoder.string(object, "alt_text", path)
     @title = Decoder.text(object, "title", path)

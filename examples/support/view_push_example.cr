@@ -37,7 +37,7 @@ module OfflineViewPushExample
     when Slack::Interactions::BlockAction
       source = interaction.view || raise "Missing modal view"
       raise "Wrong source modal" unless source["id"] == opened.view["id"]
-      action = interaction.decoded_actions.first
+      action = interaction.actions.first
       raise "Unexpected action" unless action.is_a?(Slack::Interactions::ButtonAction) && action.action_id == "request.details"
       trigger = interaction.trigger_id || raise "Missing modal trigger"
       # A real handler sends this acknowledgment within three seconds, separately

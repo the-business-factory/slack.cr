@@ -39,7 +39,7 @@ module OfflineRichTextInputExample
       interaction = receive(payload)
       raise "Expected block action" unless interaction.is_a?(Slack::Interactions::BlockAction)
       begin
-        action = interaction.decoded_actions.first
+        action = interaction.actions.first
       rescue error : Slack::Interactions::TypeMismatch
         # Acknowledge with HTTP 200 anyway; the raw payload stays in interaction.actions.
         output.puts "Skipped malformed standup at #{error.path}"

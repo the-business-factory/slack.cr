@@ -39,7 +39,7 @@ module OfflineUrlInputExample
     payload = %({"type":"block_actions","team":null,"actions":[{"type":"url_text_input","block_id":"bug.link","action_id":"page","value":"http://intranet.example/wiki"}]})
     interaction = receive(payload)
     raise "Expected block action" unless interaction.is_a?(Slack::Interactions::BlockAction)
-    case action = interaction.decoded_actions.first
+    case action = interaction.actions.first
     when Slack::Interactions::UrlInputAction
       # Real handlers must return each acknowledgment within three seconds.
       acknowledgement = HTTP::Client::Response.new(200, body: "")
@@ -52,7 +52,7 @@ module OfflineUrlInputExample
       payload = %({"type":"view_submission","team":null,"view":{"callback_id":"bug_report","state":{"values":{"bug.summary":{"summary":{"type":"plain_text_input","value":"Login fails"}},"bug.link":{"page":{"type":"url_text_input","value":"#{link}"}}}}}})
       interaction = receive(payload)
       raise "Expected submission" unless interaction.is_a?(Slack::Interactions::ViewSubmission)
-      acknowledge(interaction.state_map, output)
+      acknowledge(interaction.state, output)
     end
     {requests.first, acknowledgements}
   end

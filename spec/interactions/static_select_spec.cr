@@ -16,7 +16,7 @@ end
 private def selection_state(entry : String) : Slack::Interactions::StateMap
   interaction = Slack::Interaction.from_json(%({"type":"view_submission","view":{"state":{"values":{"b":{"a":#{entry}}}}}}))
   case interaction
-  when Slack::Interactions::ViewSubmission then interaction.state_map
+  when Slack::Interactions::ViewSubmission then interaction.state
   else                                          fail("Expected submission")
   end
 end
@@ -28,16 +28,13 @@ describe "Typed static selection interactions" do
         interaction = select_interaction(File.read("spec/fixtures/block_kit/phase_5_#{fixture}.json"), signed)
         case interaction
         when Slack::Interactions::BlockAction, Slack::Interactions::ViewSubmission
-          map = interaction.state_map
+          map = interaction.state
           single = map.static_select_value?("preferences", "color") || fail("Missing single state")
           single.selected_option_presence.should eq Slack::Interactions::ValuePresence::Present
-          single.raw["future_state"].as_bool.should be_true
           option = single.selected_option || fail("Missing option")
           option.value.should eq "red"
           option.text.should eq "Red"
           option.text_type.should eq "plain_text"
-          option.raw["future_option"].as_a.size.should eq 2
-          option.raw["text"]["future_text"].as_s.should eq "kept"
           multi = map.multi_static_select_value?("preferences", "colors") || fail("Missing multi state")
           multi.selected_options.try(&.map(&.value)).should eq ["red"]
           multi.selected_options.try(&.clear)
@@ -61,17 +58,16 @@ describe "Typed static selection interactions" do
           expect_raises(Slack::Interactions::TypeMismatch) { map.multi_static_select_value?("preferences", "color") }
           expect_raises(Slack::Interactions::TypeMismatch) { map.plain_text_value?("preferences", "color") }
           if interaction.is_a?(Slack::Interactions::BlockAction)
-            case action = interaction.decoded_actions.first
+            case action = interaction.actions.first
             when Slack::Interactions::StaticSelectAction
               action.action_id.should eq "color"
               action.block_id.should eq "preferences"
               action.action_ts.should eq "1710000000.000001"
               action.selected_option.try(&.value).should eq "red"
-              action.raw["future_action"].as_bool.should be_true
             else
               fail("Expected static action")
             end
-            case action = interaction.decoded_actions[1]
+            case action = interaction.actions[1]
             when Slack::Interactions::MultiStaticSelectAction
               action.action_id.should eq "colors"
               action.block_id.should eq "preferences"
@@ -80,7 +76,7 @@ describe "Typed static selection interactions" do
             else
               fail("Expected multi static action")
             end
-            case unknown = interaction.decoded_actions.last
+            case unknown = interaction.actions.last
             when Slack::Interactions::UnknownAction
               unknown.raw.should eq JSON.parse(%({"type":"future_select","selected_options":[],"extra":null}))
             else
@@ -88,7 +84,7 @@ describe "Typed static selection interactions" do
             end
             if fixture != "message_action"
               interaction.channel.should be_nil
-              interaction.view.try(&.state_map.static_select_value?("preferences", "color").try(&.selected_option.try(&.value))).should eq "red"
+              interaction.view.try(&.state.static_select_value?("preferences", "color").try(&.selected_option.try(&.value))).should eq "red"
             end
           end
         else
@@ -104,7 +100,7 @@ describe "Typed static selection interactions" do
       interaction = select_interaction(%({"type":"block_actions","actions":[{"type":"multi_static_select","block_id":"b","action_id":"a"#{field}}]}), false)
       case interaction
       when Slack::Interactions::BlockAction
-        case action = interaction.decoded_actions.first
+        case action = interaction.actions.first
         when Slack::Interactions::MultiStaticSelectAction
           action.selected_options_presence.should eq presence
           action.selected_options.should eq(presence.present? ? [] of Slack::Interactions::SelectedOption : nil)
@@ -119,7 +115,7 @@ describe "Typed static selection interactions" do
       interaction = select_interaction(%({"type":"block_actions","actions":[{"type":"static_select","block_id":"b","action_id":"a"#{field}}]}), true)
       case interaction
       when Slack::Interactions::BlockAction
-        case action = interaction.decoded_actions.first
+        case action = interaction.actions.first
         when Slack::Interactions::StaticSelectAction
           action.selected_option_presence.should eq presence
           action.selected_option.should be_nil
@@ -139,10 +135,9 @@ describe "Typed static selection interactions" do
     selected.text_type.should eq "future_text"
     selected.text.size.should eq 76
     selected.value.should eq ""
-    selected.raw.should eq JSON.parse(option)
   end
 
-  it "reports malformed known selections at nested field paths while raw payloads remain accessible" do
+  it "reports malformed known selections at nested field paths while the payload still round-trips" do
     {
       %({"type":"static_select","selected_option":[]})                               => "selected_option",
       %({"type":"static_select","selected_option":{}})                               => "selected_option.value",
@@ -153,14 +148,13 @@ describe "Typed static selection interactions" do
       %({"type":"multi_static_select","selected_options":[{"value":"x","text":{}}]}) => "selected_options[0].text.text",
     }.each do |entry, suffix|
       map = selection_state(entry)
-      map.raw.should_not be_nil
       error = expect_raises(Slack::Interactions::TypeMismatch) { map["b", "a"]? }
       error.path.should eq %(view.state.values["b"]["a"].#{suffix})
       interaction = select_interaction(%({"type":"block_actions","actions":[#{entry}]}), false)
       case interaction
       when Slack::Interactions::BlockAction
-        interaction.actions.try(&.as_a.first).should eq JSON.parse(entry)
-        error = expect_raises(Slack::Interactions::TypeMismatch) { interaction.decoded_actions }
+        JSON.parse(interaction.to_json)["actions"][0].should eq JSON.parse(entry)
+        error = expect_raises(Slack::Interactions::TypeMismatch) { interaction.actions }
         error.path.should eq "actions[0].#{suffix}"
       else
         fail("Expected action")
@@ -172,7 +166,7 @@ describe "Typed static selection interactions" do
     interaction = select_interaction(%({"type":"block_actions","actions":[{"type":"static_select","block_id":"b","action_id":42}]}), false)
     case interaction
     when Slack::Interactions::BlockAction
-      expect_raises(Slack::Interactions::TypeMismatch) { interaction.decoded_actions }.path.should eq "actions[0].action_id"
+      expect_raises(Slack::Interactions::TypeMismatch) { interaction.actions }.path.should eq "actions[0].action_id"
     else
       fail("Expected action")
     end

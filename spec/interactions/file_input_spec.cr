@@ -13,7 +13,7 @@ describe "received file input state" do
           {"id":"F-TWO","name":null}]}},
         "note":{"text":{"type":"plain_text_input","value":"Travel"}}}}}}
       JSON
-    state = submission.state_map
+    state = submission.state
     value = state.file_input_value?("receipts", "files").should_not be_nil
     value.type.should eq "file_input"
     value.files_presence.should eq Slack::Interactions::ValuePresence::Present

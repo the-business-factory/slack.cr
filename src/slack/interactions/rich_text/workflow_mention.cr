@@ -1,5 +1,4 @@
 struct Slack::Interactions::RichText::WorkflowMention
-  getter raw : JSON::Any
   getter workflow_id : String
   getter function_trigger_id : String
   getter text : String
@@ -9,8 +8,8 @@ struct Slack::Interactions::RichText::WorkflowMention
   getter ts : String?
   getter style : Style?
 
-  def initialize(@raw : JSON::Any, path : String)
-    object = Decoder.object(@raw, path)
+  def initialize(raw : JSON::Any, path : String)
+    object = Decoder.object(raw, path)
     @workflow_id = PayloadAccess.string(object["workflow_id"]?, "#{path}.workflow_id")
     @function_trigger_id = PayloadAccess.string(object["function_trigger_id"]?, "#{path}.function_trigger_id")
     @text = PayloadAccess.string(object["text"]?, "#{path}.text")

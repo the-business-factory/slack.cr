@@ -36,7 +36,7 @@ module OfflineFileInputExample
     payload = %({"type":"view_submission","team":null,"view":{"callback_id":"expense","state":{"values":{"receipts":{"files":{"type":"file_input","files":[{"id":"F-ONE","name":"receipt.pdf","mimetype":"application/pdf","filetype":"pdf","url_private":"https://files.slack.com/files-pri/T-SYNTHETIC-F-ONE/receipt.pdf"},{"id":"F-TWO","name":"taxi.png","mimetype":"image/png","filetype":"png"}]}}}}}})
     case interaction = receive(payload)
     when Slack::Interactions::ViewSubmission
-      state = interaction.state_map.file_input_value?("receipts", "files") || raise "Missing receipts state"
+      state = interaction.state.file_input_value?("receipts", "files") || raise "Missing receipts state"
       files = state.files || raise "Absent or cleared files"
       # filetypes is only a convenience filter; the application checks each received file.
       names = files.map { |file| "#{file.id} (#{file.name || "unnamed"}, #{file.mimetype || "unknown type"})" }

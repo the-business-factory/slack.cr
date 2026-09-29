@@ -2,8 +2,8 @@
 # complete payload. Typed getters read the payload when called. They return nil
 # for an absent or null field and raise `TypeMismatch` for a malformed one.
 struct Slack::Interactions::ReceivedMessage
-  # The complete parsed message payload.
-  getter payload : JSON::Any
+  # The complete parsed message payload. `to_json` writes it back.
+  @payload : JSON::Any
 
   def self.new(pull : JSON::PullParser) : self
     new(JSON::Any.new(pull))

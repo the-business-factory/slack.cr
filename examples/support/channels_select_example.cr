@@ -28,7 +28,7 @@ module OfflineChannelsSelectExample
     payload = %({"type":"block_actions","team":null,"trigger_id":"synthetic-trigger","actions":[{"type":"channels_select","block_id":"notifications","action_id":"notification","selected_channel":"C-NOTIFY"}]})
     case interaction = receive(payload)
     when Slack::Interactions::BlockAction
-      case action = interaction.decoded_actions.first
+      case action = interaction.actions.first
       when Slack::Interactions::ChannelsSelectAction
         notification = action.selected_channel || raise "Absent or null notification"
         # Real handlers must acknowledge each interaction within three seconds.
@@ -52,7 +52,7 @@ module OfflineChannelsSelectExample
     payload = %({"type":"view_submission","team":null,"view":{"private_metadata":"C-NOTIFY","state":{"values":{"destinations":{"destinations":{"type":"multi_channels_select","selected_channels":["C-ONE","C-TWO"]}}}}}})
     case interaction = receive(payload)
     when Slack::Interactions::ViewSubmission
-      state = interaction.state_map.multi_channels_select_value?("destinations", "destinations") || raise "Missing destination state"
+      state = interaction.state.multi_channels_select_value?("destinations", "destinations") || raise "Missing destination state"
       destinations = state.selected_channels || raise "Absent or null destinations"
       acknowledgement = HTTP::Client::Response.new(200, body: "")
       output.puts "Saved destinations: #{destinations.join(", ")} (acknowledged #{acknowledgement.status_code})"

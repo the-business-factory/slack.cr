@@ -8,23 +8,23 @@ describe "Home interaction coverage" do
       interaction.channel.should be_nil
       interaction.view.try(&.["type"].as_s).should eq "home"
       interaction.view.try(&.["future"].as_bool).should be_true
-      case button = interaction.decoded_actions.first
+      case button = interaction.actions.first
       when Slack::Interactions::ButtonAction
         button.action_id.should eq "refresh"
         button.block_id.should eq "controls"
       else
         fail("Expected button action")
       end
-      case text = interaction.decoded_actions.last
+      case text = interaction.actions.last
       when Slack::Interactions::UnknownAction
         text.type.should eq "plain_text_input"
         text.raw["value"].as_s.should eq "Ready"
       else
         fail("Expected raw dispatched text action")
       end
-      interaction.state_map.plain_text?("note", "text").should eq "Ready"
+      interaction.state.plain_text?("note", "text").should eq "Ready"
       interaction.view.try(&.plain_text?("note", "text")).should eq "Ready"
-      interaction.state_map["future", "select"]?.should be_a(Slack::Interactions::UnknownStateValue)
+      interaction.state["future", "select"]?.should be_a(Slack::Interactions::UnknownStateValue)
     else
       fail("Expected block action")
     end

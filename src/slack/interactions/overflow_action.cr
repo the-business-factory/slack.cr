@@ -1,13 +1,12 @@
 # Received menu selection. Retains unmodeled fields without outbound validation.
 struct Slack::Interactions::OverflowAction
-  getter raw : JSON::Any
   getter action_id : String
   getter block_id : String
   getter action_ts : String?
   getter selected_option : SelectedOption
 
-  def initialize(@raw : JSON::Any, path : String = "action")
-    object = PayloadAccess.object?(@raw, path) || raise TypeMismatch.new(path, "overflow object", "null")
+  def initialize(raw : JSON::Any, path : String = "action")
+    object = PayloadAccess.object?(raw, path) || raise TypeMismatch.new(path, "overflow object", "null")
     actual = PayloadAccess.string?(object["type"]?, "#{path}.type")
     unless actual == "overflow"
       raise TypeMismatch.new("#{path}.type", "overflow", actual || "absent or null")

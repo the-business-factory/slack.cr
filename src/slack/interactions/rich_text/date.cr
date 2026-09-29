@@ -1,5 +1,4 @@
 struct Slack::Interactions::RichText::Date
-  getter raw : JSON::Any
   getter timestamp : Int64
   getter format : String
   getter timezone : String?
@@ -7,8 +6,8 @@ struct Slack::Interactions::RichText::Date
   getter fallback : String?
   getter style : Style?
 
-  def initialize(@raw : JSON::Any, path : String)
-    object = Decoder.object(@raw, path)
+  def initialize(raw : JSON::Any, path : String)
+    object = Decoder.object(raw, path)
     @timestamp = Decoder.int64(object["timestamp"]?, "#{path}.timestamp")
     @format = PayloadAccess.string(object["format"]?, "#{path}.format")
     @timezone = PayloadAccess.string?(object["timezone"]?, "#{path}.timezone")

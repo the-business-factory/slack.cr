@@ -11,7 +11,7 @@ end
 describe "received feedback, icon, and workflow button clicks" do
   it "decodes SDK-shaped clicks and keeps unlisted action types unknown" do
     interaction = Slack::Interaction.from_json(context_clicks_fixture.to_json).should be_a(Slack::Interactions::BlockAction)
-    actions = interaction.decoded_actions
+    actions = interaction.actions
 
     feedback = actions[0].should be_a(Slack::Interactions::FeedbackButtonsAction)
     feedback.type.should eq "feedback_buttons"
@@ -30,7 +30,6 @@ describe "received feedback, icon, and workflow button clicks" do
     icon.icon.should eq "trash"
     icon.value.should eq "delete"
     icon.text.try(&.text).should eq "Delete"
-    icon.raw["future_field"].should eq JSON.parse("[1]")
 
     workflow = actions[2].should be_a(Slack::Interactions::WorkflowButtonAction)
     workflow.type.should eq "workflow_button"
@@ -76,7 +75,7 @@ describe "received feedback, icon, and workflow button clicks" do
       raw = action.as_h.dup
       raw[field] = value
       interaction = Slack::Interaction.from_json({type: "block_actions", actions: [raw]}.to_json).should be_a(Slack::Interactions::BlockAction)
-      expect_raises(Slack::Interactions::TypeMismatch) { interaction.decoded_actions }.path.should eq "actions[0].#{field}"
+      expect_raises(Slack::Interactions::TypeMismatch) { interaction.actions }.path.should eq "actions[0].#{field}"
     end
   end
 

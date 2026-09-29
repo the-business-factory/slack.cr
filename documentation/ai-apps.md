@@ -112,7 +112,7 @@ Differences between the Slack reference and the Slack SDKs:
 - The task card `icon` field has no schema, so the library does not send it.
 - `UI::TaskStatus::Pending` comes from the Slack SDKs and from the plan reference example. The task card reference lists only `in_progress`, `complete`, and `error`.
 
-Received blocks decode as `Slack::Interactions::ReceivedBlocks::Plan` (`title`, `block_id`, and raw `tasks`) and `ReceivedBlocks::TaskCard` (`task_id`, `title`, `status` as a string, `block_id`, and `sources`, empty when absent; read other fields from `raw`). See [Read blocks from messages and views](block-kit.md#read-blocks-from-messages-and-views). Offline examples do not prove that Slack shows these blocks outside a stream. See Slack's [plan block](https://docs.slack.dev/reference/block-kit/blocks/plan-block) and [task card block](https://docs.slack.dev/reference/block-kit/blocks/task-card-block) references and [examples/plan.cr](../examples/plan.cr).
+Received blocks decode as `Slack::Interactions::ReceivedBlocks::Plan` (`title`, `block_id`, and raw `tasks`) and `ReceivedBlocks::TaskCard` (`task_id`, `title`, `status` as a string, `block_id`, and `sources`, empty when absent; other fields stay in the source payload). See [Read blocks from messages and views](block-kit.md#read-blocks-from-messages-and-views). Offline examples do not prove that Slack shows these blocks outside a stream. See Slack's [plan block](https://docs.slack.dev/reference/block-kit/blocks/plan-block) and [task card block](https://docs.slack.dev/reference/block-kit/blocks/task-card-block) references and [examples/plan.cr](../examples/plan.cr).
 
 ## Errors
 

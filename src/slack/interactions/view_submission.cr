@@ -34,11 +34,11 @@ struct Slack::Interactions::ViewSubmission < Slack::Interaction
     @response_urls.dup
   end
 
-  def state_map : StateMap
-    @view.try(&.state_map) || StateMap.new(nil, "view.state")
+  def state : StateMap
+    @view.try(&.state) || StateMap.new(nil, "view.state")
   end
 
   def plain_text?(block_id : String, action_id : String) : String?
-    state_map.plain_text?(block_id, action_id)
+    state.plain_text?(block_id, action_id)
   end
 end

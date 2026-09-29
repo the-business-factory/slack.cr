@@ -1,6 +1,5 @@
 # A received file from file_input state. Download URLs need a token with files:read.
 struct Slack::Interactions::UploadedFile
-  getter raw : JSON::Any
   getter id : String
   getter name : String?
   getter title : String?
@@ -11,8 +10,8 @@ struct Slack::Interactions::UploadedFile
   # The file size in bytes.
   getter size : Int64?
 
-  def initialize(@raw : JSON::Any, path : String)
-    object = PayloadAccess.object?(@raw, path) || raise TypeMismatch.new(path, "file object", "null")
+  def initialize(raw : JSON::Any, path : String)
+    object = PayloadAccess.object?(raw, path) || raise TypeMismatch.new(path, "file object", "null")
     @id = PayloadAccess.string(object["id"]?, "#{path}.id")
     @name = PayloadAccess.string?(object["name"]?, "#{path}.name")
     @title = PayloadAccess.string?(object["title"]?, "#{path}.title")

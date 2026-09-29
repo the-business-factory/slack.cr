@@ -1,6 +1,5 @@
-# Received style flags. Other flags remain in `raw`.
+# Received style flags.
 struct Slack::Interactions::RichText::Style
-  getter raw : JSON::Any
   getter bold : Bool?
   getter italic : Bool?
   getter strike : Bool?
@@ -10,8 +9,8 @@ struct Slack::Interactions::RichText::Style
   getter underline : Bool?
   getter unlink : Bool?
 
-  def initialize(@raw : JSON::Any, path : String)
-    object = Decoder.object(@raw, path)
+  def initialize(raw : JSON::Any, path : String)
+    object = Decoder.object(raw, path)
     @bold = Decoder.bool?(object["bold"]?, "#{path}.bold")
     @italic = Decoder.bool?(object["italic"]?, "#{path}.italic")
     @strike = Decoder.bool?(object["strike"]?, "#{path}.strike")

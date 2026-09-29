@@ -1,11 +1,12 @@
 # The item of a `reaction_added` or `reaction_removed` event, decoded by
 # `type`. An item type that this library does not model decodes as
-# `ReactionItem::Unknown`. Every variant keeps its raw JSON, and `to_json`
-# writes it unchanged. A known item with a missing or malformed field raises
+# `ReactionItem::Unknown`, which exposes its `raw` JSON. Every variant keeps
+# the item JSON, and `to_json` writes it unchanged. A known item with a missing or malformed field raises
 # `JSON::ParseException` while the event decodes.
 # https://docs.slack.dev/reference/events/reaction_added
 abstract struct Slack::EventData::ReactionItem
-  getter raw : JSON::Any
+  # The complete item JSON. `to_json` writes it back.
+  @raw : JSON::Any
 
   def self.new(pull : JSON::PullParser) : ReactionItem
     line, column = pull.location
@@ -97,6 +98,7 @@ abstract struct Slack::EventData::ReactionItem
   # An item type that this library does not model. `type` is nil when absent or null.
   struct Unknown < ReactionItem
     getter type : String?
+    getter raw : JSON::Any
 
     def initialize(@type : String?, raw : JSON::Any)
       super(raw)

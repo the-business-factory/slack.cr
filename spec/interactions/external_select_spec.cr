@@ -160,7 +160,7 @@ module ExternalSelectInteractionSpec
           "project":{"type":"external_select","selected_option":{"text":{"type":"plain_text","text":"Mercury"},"value":"mercury"}},
           "projects":{"type":"multi_external_select","selected_options":[{"text":{"type":"plain_text","text":"Gemini"},"value":"gemini"}],"future":[]}}}}}
         JSON
-      actions = interaction.decoded_actions
+      actions = interaction.actions
       single = actions[0].should be_a(Slack::Interactions::ExternalSelectAction)
       single.type.should eq "external_select"
       single.action_id.should eq "project"
@@ -169,17 +169,15 @@ module ExternalSelectInteractionSpec
       selected = single.selected_option.should_not be_nil
       selected.value.should eq "apollo"
       selected.text.should eq "Apollo"
-      single.raw["future"].as_bool.should be_false
       multi = actions[1].should be_a(Slack::Interactions::MultiExternalSelectAction)
       multi.selected_options.should_not(be_nil).map(&.value).should eq ["apollo", "gemini"]
       multi.selected_options.should_not(be_nil).clear
       multi.selected_options.should_not(be_nil).size.should eq 2
       multi.action_ts.should be_nil
-      state = interaction.state_map
+      state = interaction.state
       state.external_select_value?("assignment", "project").should_not(be_nil).selected_option.should_not(be_nil).value.should eq "mercury"
       projects = state.multi_external_select_value?("assignment", "projects").should_not be_nil
       projects.selected_options.should_not(be_nil).map(&.value).should eq ["gemini"]
-      projects.raw["future"].as_a.should be_empty
     end
 
     it "distinguishes absent, null, and empty selections in actions and submissions" do
@@ -192,12 +190,12 @@ module ExternalSelectInteractionSpec
           expected = value.empty? ? Slack::Interactions::ValuePresence::Absent : value == "null" ? Slack::Interactions::ValuePresence::Null : Slack::Interactions::ValuePresence::Present
           case action
           when Slack::Interactions::ExternalSelectAction
-            state = submission.state_map.external_select_value?("b", "a").should_not be_nil
+            state = submission.state.external_select_value?("b", "a").should_not be_nil
             action.selected_option_presence.should eq expected
             state.selected_option_presence.should eq expected
             state.selected_option.try(&.value).should eq(expected.present? ? "" : nil)
           when Slack::Interactions::MultiExternalSelectAction
-            state = submission.state_map.multi_external_select_value?("b", "a").should_not be_nil
+            state = submission.state.multi_external_select_value?("b", "a").should_not be_nil
             action.selected_options_presence.should eq expected
             state.selected_options_presence.should eq expected
             state.selected_options.try(&.size).should eq(expected.present? ? 0 : nil)
@@ -224,7 +222,7 @@ module ExternalSelectInteractionSpec
         cases.each do |override, suffix|
           raw = JSON.parse(%({"type":"#{type}","block_id":"b","action_id":"a"})).as_h.merge(JSON.parse(override).as_h)
           interaction = Slack::Interaction.from_json({type: "block_actions", actions: [raw]}.to_json).should be_a(Slack::Interactions::BlockAction)
-          expect_raises(Slack::Interactions::TypeMismatch) { interaction.decoded_actions }.path.should eq "actions[0].#{suffix}"
+          expect_raises(Slack::Interactions::TypeMismatch) { interaction.actions }.path.should eq "actions[0].#{suffix}"
           if suffix.starts_with?("selected_")
             map = Slack::Interactions::StateMap.new(JSON.parse({values: {b: {a: raw}}}.to_json))
             expect_raises(Slack::Interactions::TypeMismatch) { map["b", "a"]? }.path.should eq %(state.values["b"]["a"].#{suffix})

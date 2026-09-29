@@ -8,25 +8,23 @@ describe "received email inputs" do
        "view":{"state":{"values":{"contact":{"email":{"type":"email_text_input","value":"lead@example.com","future":{}}}}}},
        "state":{"values":{"contact":{"email":{"type":"email_text_input","value":"ops@example.com"}}}}}
       JSON
-    action = interaction.decoded_actions.first.should be_a(Slack::Interactions::EmailInputAction)
+    action = interaction.actions.first.should be_a(Slack::Interactions::EmailInputAction)
     action.value.should eq "ops@example.com"
     action.value_presence.present?.should be_true
     action.block_id.should eq "contact"
     action.action_id.should eq "email"
     action.action_ts.should eq "1710000000.000001"
     action.type.should eq "email_text_input"
-    action.raw["future"].as_bool.should be_true
-    interaction.state_map.email_input_value?("contact", "email").should_not(be_nil).value.should eq "ops@example.com"
-    view_state = interaction.view.should_not(be_nil).state_map.email_input_value?("contact", "email").should_not be_nil
+    interaction.state.email_input_value?("contact", "email").should_not(be_nil).value.should eq "ops@example.com"
+    view_state = interaction.view.should_not(be_nil).state.email_input_value?("contact", "email").should_not be_nil
     view_state.value.should eq "lead@example.com"
-    view_state.raw["future"].as_h.should be_empty
   end
 
   it "preserves absent, cleared, empty, and unchecked values" do
     {"", "null", %q(""), %q("not an address")}.each do |value|
       field = value.empty? ? "" : %(,"value":#{value})
       payload = %({"type":"view_submission","view":{"state":{"values":{"contact":{"email":{"type":"email_text_input"#{field}},"seats":{"type":"number_input","value":"2"}}}}}})
-      state = Slack::Interaction.from_json(payload).should(be_a(Slack::Interactions::ViewSubmission)).state_map
+      state = Slack::Interaction.from_json(payload).should(be_a(Slack::Interactions::ViewSubmission)).state
       email = state.email_input_value?("contact", "email").should_not be_nil
       presence = value.empty? ? Slack::Interactions::ValuePresence::Absent : value == "null" ? Slack::Interactions::ValuePresence::Null : Slack::Interactions::ValuePresence::Present
       email.value_presence.should eq presence
@@ -43,8 +41,8 @@ describe "received email inputs" do
       raw = JSON.parse(%({"type":"email_text_input","block_id":"b","action_id":"a"})).as_h
       raw[field] = JSON.parse(value)
       interaction = Slack::Interaction.from_json({type: "block_actions", actions: [raw]}.to_json).should be_a(Slack::Interactions::BlockAction)
-      interaction.actions.should eq JSON.parse([raw].to_json)
-      expect_raises(Slack::Interactions::TypeMismatch) { interaction.decoded_actions }.path.should eq "actions[0].#{field}"
+      JSON.parse(interaction.to_json)["actions"].should eq JSON.parse([raw].to_json)
+      expect_raises(Slack::Interactions::TypeMismatch) { interaction.actions }.path.should eq "actions[0].#{field}"
     end
     map = Slack::Interactions::StateMap.new(JSON.parse(%({"values":{"b":{"a":{"type":"email_text_input","value":["x"]}}}})))
     expect_raises(Slack::Interactions::TypeMismatch) { map["b", "a"]? }.path.should eq %(state.values["b"]["a"].value)

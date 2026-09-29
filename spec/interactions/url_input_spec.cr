@@ -8,25 +8,23 @@ describe "received URL inputs" do
        "view":{"state":{"values":{"link":{"url":{"type":"url_text_input","value":"https://example.com/draft","future":{}}}}}},
        "state":{"values":{"link":{"url":{"type":"url_text_input","value":"https://example.com/a"}}}}}
       JSON
-    action = interaction.decoded_actions.first.should be_a(Slack::Interactions::UrlInputAction)
+    action = interaction.actions.first.should be_a(Slack::Interactions::UrlInputAction)
     action.value.should eq "https://example.com/a"
     action.value_presence.present?.should be_true
     action.block_id.should eq "link"
     action.action_id.should eq "url"
     action.action_ts.should eq "1710000000.000001"
     action.type.should eq "url_text_input"
-    action.raw["future"].as_bool.should be_true
-    interaction.state_map.url_input_value?("link", "url").should_not(be_nil).value.should eq "https://example.com/a"
-    view_state = interaction.view.should_not(be_nil).state_map.url_input_value?("link", "url").should_not be_nil
+    interaction.state.url_input_value?("link", "url").should_not(be_nil).value.should eq "https://example.com/a"
+    view_state = interaction.view.should_not(be_nil).state.url_input_value?("link", "url").should_not be_nil
     view_state.value.should eq "https://example.com/draft"
-    view_state.raw["future"].as_h.should be_empty
   end
 
   it "preserves absent, cleared, and present values and rejects the wrong family" do
     {"", "null", %q(""), %q("not a url")}.each do |value|
       field = value.empty? ? "" : %(,"value":#{value})
       payload = %({"type":"view_submission","view":{"state":{"values":{"link":{"url":{"type":"url_text_input"#{field}},"note":{"type":"plain_text_input","value":"x"}}}}}})
-      state = Slack::Interaction.from_json(payload).should(be_a(Slack::Interactions::ViewSubmission)).state_map
+      state = Slack::Interaction.from_json(payload).should(be_a(Slack::Interactions::ViewSubmission)).state
       url = state.url_input_value?("link", "url").should_not be_nil
       presence = value.empty? ? Slack::Interactions::ValuePresence::Absent : value == "null" ? Slack::Interactions::ValuePresence::Null : Slack::Interactions::ValuePresence::Present
       url.value_presence.should eq presence
@@ -44,8 +42,8 @@ describe "received URL inputs" do
       raw = JSON.parse(%({"type":"url_text_input","block_id":"b","action_id":"a"})).as_h
       raw[field] = JSON.parse(value)
       interaction = Slack::Interaction.from_json({type: "block_actions", actions: [raw]}.to_json).should be_a(Slack::Interactions::BlockAction)
-      interaction.actions.should eq JSON.parse([raw].to_json)
-      expect_raises(Slack::Interactions::TypeMismatch) { interaction.decoded_actions }.path.should eq "actions[0].#{field}"
+      JSON.parse(interaction.to_json)["actions"].should eq JSON.parse([raw].to_json)
+      expect_raises(Slack::Interactions::TypeMismatch) { interaction.actions }.path.should eq "actions[0].#{field}"
     end
     map = Slack::Interactions::StateMap.new(JSON.parse(%({"values":{"b":{"a":{"type":"url_text_input","value":["https://x"]}}}})))
     expect_raises(Slack::Interactions::TypeMismatch) { map["b", "a"]? }.path.should eq %(state.values["b"]["a"].value)

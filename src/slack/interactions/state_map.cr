@@ -2,8 +2,6 @@ alias Slack::Interactions::StateValue = Slack::Interactions::PlainTextValue | Sl
 
 # Reads state.values by stable block and action IDs without imposing outbound rules.
 struct Slack::Interactions::StateMap
-  getter raw : JSON::Any?
-
   def initialize(@raw : JSON::Any? = nil, @path : String = "state")
   end
 

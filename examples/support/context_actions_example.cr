@@ -53,7 +53,7 @@ module OfflineContextActionsExample
     interaction = Slack::Interactions.parse(VERIFIER.verify(request).body)
     raise "Expected block action" unless interaction.is_a?(Slack::Interactions::BlockAction)
 
-    case action = interaction.decoded_actions.first
+    case action = interaction.actions.first
     when Slack::Interactions::FeedbackButtonsAction
       "Feedback: #{action.value || raise "Missing feedback value"}"
     when Slack::Interactions::IconButtonAction

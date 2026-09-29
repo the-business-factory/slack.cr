@@ -144,7 +144,7 @@ describe "Interaction payload context" do
     view.callback_id.should eq "share_report"
     view.private_metadata.should eq "report-7"
     view.view_hash.should eq "1710000000.efgh5678"
-    submission.state_map.conversations_select_value?("target", "channel").try(&.selected_conversation).should eq "C-TARGET"
+    submission.state.conversations_select_value?("target", "channel").try(&.selected_conversation).should eq "C-TARGET"
   end
 
   it "treats absent and null response_urls as empty" do

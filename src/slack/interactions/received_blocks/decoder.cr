@@ -7,7 +7,7 @@ module Slack::Interactions::ReceivedBlocks::Decoder
   def self.block(raw : JSON::Any, path : String) : ReceivedBlock
     object = object(raw, path)
     type = PayloadAccess.string(object["type"]?, "#{path}.type")
-    layout(type, raw, object, path) || display(type, raw, object, path) || UnknownBlock.new(type, raw)
+    layout(type, object, path) || display(type, raw, object, path) || UnknownBlock.new(type, raw)
   end
 
   def self.object(raw : JSON::Any, path : String) : Hash(String, JSON::Any)
@@ -120,34 +120,34 @@ module Slack::Interactions::ReceivedBlocks::Decoder
     TEXT_TYPES.includes?(type) ? ReceivedText.new(raw, path) : ElementSummary.new(raw, path)
   end
 
-  private def self.layout(type : String, raw : JSON::Any, object : Hash(String, JSON::Any), path : String) : ReceivedBlock?
+  private def self.layout(type : String, object : Hash(String, JSON::Any), path : String) : ReceivedBlock?
     case type
-    when "section"         then Section.new(raw, object, path)
-    when "actions"         then Actions.new(raw, object, path)
-    when "context"         then Context.new(raw, object, path)
-    when "context_actions" then ContextActions.new(raw, object, path)
-    when "divider"         then Divider.new(raw, object, path)
-    when "header"          then Header.new(raw, object, path)
-    when "input"           then Input.new(raw, object, path)
-    when "container"       then Container.new(raw, object, path)
-    when "carousel"        then Carousel.new(raw, object, path)
-    when "card"            then Card.new(raw, object, path)
+    when "section"         then Section.new(object, path)
+    when "actions"         then Actions.new(object, path)
+    when "context"         then Context.new(object, path)
+    when "context_actions" then ContextActions.new(object, path)
+    when "divider"         then Divider.new(object, path)
+    when "header"          then Header.new(object, path)
+    when "input"           then Input.new(object, path)
+    when "container"       then Container.new(object, path)
+    when "carousel"        then Carousel.new(object, path)
+    when "card"            then Card.new(object, path)
     end
   end
 
   private def self.display(type : String, raw : JSON::Any, object : Hash(String, JSON::Any), path : String) : ReceivedBlock?
     case type
     when "rich_text"          then RichText::Block.new(raw, path)
-    when "image"              then Image.new(raw, object, path)
-    when "markdown"           then Markdown.new(raw, object, path)
-    when "file"               then File.new(raw, object, path)
-    when "video"              then Video.new(raw, object, path)
-    when "table"              then Table.new(raw, object, path)
-    when "data_table"         then DataTable.new(raw, object, path)
-    when "alert"              then Alert.new(raw, object, path)
-    when "data_visualization" then DataVisualization.new(raw, object, path)
-    when "plan"               then Plan.new(raw, object, path)
-    when "task_card"          then TaskCard.new(raw, object, path)
+    when "image"              then Image.new(object, path)
+    when "markdown"           then Markdown.new(object, path)
+    when "file"               then File.new(object, path)
+    when "video"              then Video.new(object, path)
+    when "table"              then Table.new(object, path)
+    when "data_table"         then DataTable.new(object, path)
+    when "alert"              then Alert.new(object, path)
+    when "data_visualization" then DataVisualization.new(object, path)
+    when "plan"               then Plan.new(object, path)
+    when "task_card"          then TaskCard.new(object, path)
     end
   end
 
@@ -155,8 +155,8 @@ module Slack::Interactions::ReceivedBlocks::Decoder
     object = object(raw, path)
     type = PayloadAccess.string(object["type"]?, "#{path}.type")
     case type
-    when "raw_text"   then RawText.new(raw, object, path)
-    when "raw_number" then RawNumber.new(raw, object, path)
+    when "raw_text"   then RawText.new(object, path)
+    when "raw_number" then RawNumber.new(object, path)
     when "rich_text"  then RichText::Block.new(raw, path)
     else                   UnknownBlock.new(type, raw)
     end

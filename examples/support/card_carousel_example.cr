@@ -65,7 +65,7 @@ module OfflineCardCarouselExample
     request = Slack::Testing::SignedRequest.build(body, signing_secret: SIGNING_SECRET, path: "/interactions", content_type: "application/x-www-form-urlencoded")
     interaction = Slack::Interactions.parse(VERIFIER.verify(request).body)
     raise "Expected block action" unless interaction.is_a?(Slack::Interactions::BlockAction)
-    action = interaction.decoded_actions.first
+    action = interaction.actions.first
     raise "Expected button action" unless action.is_a?(Slack::Interactions::ButtonAction)
     raise "Unexpected action" unless action.action_id == "visit.request"
     output.puts "Visit requested: #{action.value}"

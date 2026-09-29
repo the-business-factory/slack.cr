@@ -25,7 +25,6 @@ module ReceivedBlocksSpec
         .should eq [{"mrkdwn", "*Owner*\nMorgan", nil}, {"plain_text", "Due Friday :calendar:", true}]
       accessory = section.accessory.should_not be_nil
       {accessory.type, accessory.action_id}.should eq({"overflow", "request.more"})
-      accessory.raw["options"][0]["value"].should eq "snooze"
 
       blocks[1].should(be_a(RB::Divider)).block_id.should eq "Yq2Rt"
 
@@ -36,7 +35,7 @@ module ReceivedBlocksSpec
 
       context = blocks[3].should be_a(RB::Context)
       image = context.elements[0].should be_a(RB::ElementSummary)
-      {image.type, image.action_id, image.raw["alt_text"].as_s}.should eq({"image", nil, "Morgan"})
+      {image.type, image.action_id}.should eq({"image", nil})
       context.elements[1].should(be_a(Slack::Interactions::ReceivedText)).text.should eq "Filed 2 hours ago"
 
       rich_text = blocks[4].should be_a(RT::Block)

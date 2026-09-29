@@ -29,7 +29,7 @@ module OfflineDatetimePickerExample
     payload = %({"type":"block_actions","team":null,"trigger_id":"synthetic-trigger","actions":[{"type":"datetimepicker","block_id":"meeting","action_id":"start","selected_date_time":1835454600}]})
     case interaction = receive(payload)
     when Slack::Interactions::BlockAction
-      case action = interaction.decoded_actions.first
+      case action = interaction.actions.first
       when Slack::Interactions::DatetimePickerAction
         seconds = action.selected_date_time || raise "Absent or cleared start"
         start = Time.unix(seconds)
@@ -52,7 +52,7 @@ module OfflineDatetimePickerExample
     payload = %({"type":"view_submission","team":null,"view":{"callback_id":"meeting","state":{"values":{"meeting.start":{"start":{"type":"datetimepicker","selected_date_time":1835458200}}}}}})
     case interaction = receive(payload)
     when Slack::Interactions::ViewSubmission
-      state = interaction.state_map.datetime_picker_value?("meeting.start", "start") || raise "Missing start state"
+      state = interaction.state.datetime_picker_value?("meeting.start", "start") || raise "Missing start state"
       seconds = state.selected_date_time || raise "Absent or cleared start"
       acknowledgement = HTTP::Client::Response.new(200, body: "")
       output.puts "Saved start: #{Time.unix(seconds).to_rfc3339} (acknowledged #{acknowledgement.status_code})"

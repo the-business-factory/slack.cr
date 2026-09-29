@@ -28,7 +28,7 @@ module OfflineUsersSelectExample
     payload = %({"type":"block_actions","team":null,"trigger_id":"synthetic-trigger","actions":[{"type":"users_select","block_id":"assignment","action_id":"owner","selected_user":"U-OWNER"}]})
     case interaction = receive(payload)
     when Slack::Interactions::BlockAction
-      case action = interaction.decoded_actions.first
+      case action = interaction.actions.first
       when Slack::Interactions::UsersSelectAction
         owner = action.selected_user || raise "Absent or null owner"
         # Real handlers must acknowledge each interaction within three seconds.
@@ -52,7 +52,7 @@ module OfflineUsersSelectExample
     payload = %({"type":"view_submission","team":null,"view":{"private_metadata":"U-OWNER","state":{"values":{"review":{"reviewers":{"type":"multi_users_select","selected_users":["U-ONE","W-TWO"]}}}}}})
     case interaction = receive(payload)
     when Slack::Interactions::ViewSubmission
-      state = interaction.state_map.multi_users_select_value?("review", "reviewers") || raise "Missing reviewer state"
+      state = interaction.state.multi_users_select_value?("review", "reviewers") || raise "Missing reviewer state"
       reviewers = state.selected_users || raise "Absent or null reviewers"
       acknowledgement = HTTP::Client::Response.new(200, body: "")
       output.puts "Saved reviewers: #{reviewers.join(", ")} (acknowledged #{acknowledgement.status_code})"

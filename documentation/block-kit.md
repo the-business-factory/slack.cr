@@ -252,7 +252,7 @@ section = UI::Blocks::Section.new(text: UI.plain("Request 42"), accessory: menu)
 
 Option labels and optional descriptions use plain text, up to 75 characters. Values are required, unique within the menu, and limited to 150 characters. URLs allow up to 3000 characters; action IDs allow 255. A nonempty option list is library policy. `OverflowOption` is separate from static-select `Option`, so URL options cannot be passed to static selects. See Slack's [Overflow](https://docs.slack.dev/reference/block-kit/block-elements/overflow-menu-element/) and [Option](https://docs.slack.dev/reference/block-kit/composition-objects/option-object/) references.
 
-On receipt, `OverflowAction#selected_option` exposes the selected value and text through the received `SelectedOption` type. It requires a selection. `SelectedOption#url` is the URL of a URL choice, or nil. Other received option fields stay in `raw`; outbound size rules do not apply to received data. Overflow has no typed state-map entry. URL choices also send an interaction: acknowledge it within three seconds, even when the browser opens the URL.
+On receipt, `OverflowAction#selected_option` exposes the selected value and text through the received `SelectedOption` type. It requires a selection. `SelectedOption#url` is the URL of a URL choice, or nil. Other received option fields stay in the payload; outbound size rules do not apply to received data. Overflow has no typed state-map entry. URL choices also send an interaction: acknowledge it within three seconds, even when the browser opens the URL.
 
 ### Add checkboxes
 
@@ -269,7 +269,7 @@ control = UI::BlockElements::Checkboxes.new(
 
 `initial_options` must exactly match offered options, including text formatting and descriptions. Repeated initial selections and empty option lists are rejected by library policy. Omit `initial_options` or supply an empty collection for no initial selection. Optional `confirm` uses the existing confirmation type. Optional `action_id` allows 255 characters. `focus_on_load` participates in the single-focus rule for views. See Slack's [Checkboxes](https://docs.slack.dev/reference/block-kit/block-elements/checkboxes-element/) and [Option](https://docs.slack.dev/reference/block-kit/composition-objects/option-object/) references.
 
-Checkbox interactions decode as `CheckboxesAction`; state entries decode as `CheckboxesValue`. Read `selected_options` through the action or `state_map.checkboxes_value?(block_id, action_id)`. A cleared selection is a present empty array. Absent and null selections both return nil, with `selected_options_presence` distinguishing them. Received options use `SelectedOption`. `description` is a `ReceivedText?`. Unknown fields stay in `raw`, without outbound validation. Set `dispatch_action: true` on an Input block to receive actions when its checkboxes change; submissions also include their state.
+Checkbox interactions decode as `CheckboxesAction`; state entries decode as `CheckboxesValue`. Read `selected_options` through the action or `state.checkboxes_value?(block_id, action_id)`. A cleared selection is a present empty array. Absent and null selections both return nil, with `selected_options_presence` distinguishing them. Received options use `SelectedOption`. `description` is a `ReceivedText?`. Outbound validation does not apply to received options. Set `dispatch_action: true` on an Input block to receive actions when its checkboxes change; submissions also include their state.
 
 ### Add radio buttons
 
@@ -288,7 +288,7 @@ control = UI::BlockElements::RadioButtons.new(
 
 `initial_option` must exactly match one offered option, including text formatting and description. Omit it for no initial selection. Empty option lists are rejected by library policy. Optional `confirm` uses the existing confirmation type. Optional `action_id` allows 255 characters. `focus_on_load` participates in the single-focus rule for views. Collections are consumed once into owned snapshots. See Slack's [Radio buttons](https://docs.slack.dev/reference/block-kit/block-elements/radio-button-group-element/) and [Option](https://docs.slack.dev/reference/block-kit/composition-objects/option-object/) references.
 
-Read `RadioButtonsAction#selected_option` or `state_map.radio_buttons_value?(block_id, action_id)`. A selection is a received `SelectedOption`. Both an absent field and explicit null return nil; `selected_option_presence` distinguishes Absent, Null, and Present. A present option can have an empty string value. `SelectedOption#description` is a `ReceivedText?`. Unknown fields remain in `raw`, and outbound limits do not apply to received data. Malformed known fields raise `TypeMismatch`. Set `dispatch_action: true` on an Input block to receive selection changes; submissions also include state.
+Read `RadioButtonsAction#selected_option` or `state.radio_buttons_value?(block_id, action_id)`. A selection is a received `SelectedOption`. Both an absent field and explicit null return nil; `selected_option_presence` distinguishes Absent, Null, and Present. A present option can have an empty string value. `SelectedOption#description` is a `ReceivedText?`. Outbound limits do not apply to received data. Malformed known fields raise `TypeMismatch`. Set `dispatch_action: true` on an Input block to receive selection changes; submissions also include state.
 
 Radio interactions decode as `RadioButtonsAction` and `RadioButtonsValue`.
 
@@ -311,7 +311,7 @@ Both types support optional `action_id` (255 characters), plain-text `placeholde
 
 The library rejects empty initial IDs, repeated initial users, and an initial count above the supplied maximum as local policy. It does not impose ID prefixes or lengths, check remote user existence, or require static options. Slack controls the available user list and remote acceptance. See the [single-user fields](https://docs.slack.dev/reference/block-kit/block-elements/select-menu-element/#users_select) and [multi-user fields](https://docs.slack.dev/reference/block-kit/block-elements/multi-select-menu-element/#users_multi_select).
 
-Read `UsersSelectAction#selected_user` (`String?`) and `MultiUsersSelectAction#selected_users` (`Array(String)?`), or use `state_map.users_select_value?` and `state_map.multi_users_select_value?` with block/action IDs. The corresponding `selected_user_presence` and `selected_users_presence` distinguish Absent, Null, and Present. A cleared single selection is null; a cleared multi-selection is a present empty array. A missing state entry returns nil. Received IDs have no outbound validation; malformed known values raise path-aware `TypeMismatch`, including the index of a malformed array item. Complete raw JSON remains available, and selected-array getters return copies. Input blocks can set `dispatch_action: true` for selection changes; submissions also carry state.
+Read `UsersSelectAction#selected_user` (`String?`) and `MultiUsersSelectAction#selected_users` (`Array(String)?`), or use `state.users_select_value?` and `state.multi_users_select_value?` with block/action IDs. The corresponding `selected_user_presence` and `selected_users_presence` distinguish Absent, Null, and Present. A cleared single selection is null; a cleared multi-selection is a present empty array. A missing state entry returns nil. Received IDs have no outbound validation; malformed known values raise path-aware `TypeMismatch`, including the index of a malformed array item. Selected-array getters return copies. Input blocks can set `dispatch_action: true` for selection changes; submissions also carry state.
 
 User interactions decode as `UsersSelectAction`/`MultiUsersSelectAction` and `UsersSelectValue`/`MultiUsersSelectValue`. The [offline workflow](../examples/block_kit_users_select.cr) assigns an owner, opens a reviewer form, and verifies signed submission state.
 
@@ -336,7 +336,7 @@ Empty initial IDs, repeated initial channels, and an initial count above a suppl
 
 Only `ChannelsSelect` accepts `response_url_enabled`. Slack documents it for Input blocks in modals. The library rejects any supplied value, including `false`, outside that placement; this field-presence restriction is library policy. Omit the field elsewhere. In modal Input, omitted, `false`, and `true` remain distinct. With `true`, Slack can return `response_urls` on submission; read them from `ViewSubmission#response_urls` (see [Read interaction context](events-and-interactions.md#read-interaction-context)). This adds no response-URL transport or delivery guarantee.
 
-Read `ChannelsSelectAction#selected_channel` (`String?`) and `MultiChannelsSelectAction#selected_channels` (`Array(String)?`), or use `state_map.channels_select_value?` and `state_map.multi_channels_select_value?`. Their `selected_channel_presence` and `selected_channels_presence` distinguish Absent, Null, and Present. A cleared single selection is null; a cleared multi-selection is a present empty array. Missing state entries return nil. Received IDs have no outbound limits; malformed known fields raise path-aware `TypeMismatch`. Raw unknown fields are retained, and selected-array getters return copies. Input can set `dispatch_action: true` for selection changes.
+Read `ChannelsSelectAction#selected_channel` (`String?`) and `MultiChannelsSelectAction#selected_channels` (`Array(String)?`), or use `state.channels_select_value?` and `state.multi_channels_select_value?`. Their `selected_channel_presence` and `selected_channels_presence` distinguish Absent, Null, and Present. A cleared single selection is null; a cleared multi-selection is a present empty array. Missing state entries return nil. Received IDs have no outbound limits; malformed known fields raise path-aware `TypeMismatch`. Raw unknown fields are retained, and selected-array getters return copies. Input can set `dispatch_action: true` for selection changes.
 
 Channel interactions decode as `ChannelsSelectAction`/`MultiChannelsSelectAction` and `ChannelsSelectValue`/`MultiChannelsSelectValue`. The [offline workflow](../examples/block_kit_channels_select.cr) selects a notification channel, opens a destination form, and reads signed submission state.
 
@@ -368,7 +368,7 @@ Initial IDs and filter includes are copied in one pass; getters return copies. E
 
 Only the single control accepts `response_url_enabled`. It is allowed only in modal Input blocks; rejecting a supplied false outside that placement is library policy, matching ChannelsSelect. Omit it elsewhere. Submission `response_urls` are available as typed `ResponseUrl` values; this adds no response-URL transport.
 
-Read `ConversationsSelectAction#selected_conversation` (`String?`) and `MultiConversationsSelectAction#selected_conversations` (`Array(String)?`), or use `state_map.conversations_select_value?` and `state_map.multi_conversations_select_value?` with block/action IDs. Presence accessors distinguish Absent, Null, and Present. A cleared single selection is null; a cleared multi-selection is an empty array. Missing entries return nil, malformed known values raise path-aware `TypeMismatch`, and unknown fields stay in raw JSON. Received IDs have no outbound limits; selected-array getters return copies. Input can use `dispatch_action: true` for changes; submissions also carry state.
+Read `ConversationsSelectAction#selected_conversation` (`String?`) and `MultiConversationsSelectAction#selected_conversations` (`Array(String)?`), or use `state.conversations_select_value?` and `state.multi_conversations_select_value?` with block/action IDs. Presence accessors distinguish Absent, Null, and Present. A cleared single selection is null; a cleared multi-selection is an empty array. Missing entries return nil, and malformed known values raise path-aware `TypeMismatch`. Received IDs have no outbound limits; selected-array getters return copies. Input can use `dispatch_action: true` for changes; submissions also carry state.
 
 These controls decode as `ConversationsSelectAction`/`MultiConversationsSelectAction` and `ConversationsSelectValue`/`MultiConversationsSelectValue`. The [offline workflow](../examples/block_kit_conversations_select.cr) posts a filtered conversation menu, reads a signed action, opens a destination form, and reads its signed submission. It does not prove live permissions, rendering, default precedence, remote acceptance, or acknowledgment timing.
 
@@ -391,7 +391,7 @@ Both support optional `action_id` (255 characters), plain-text `placeholder` (15
 
 Only TimePicker accepts `timezone`, an IANA timezone hint such as `America/Chicago`. The library sends it unchanged and does not consult the host timezone database or validate remote timezone support. Slack can return it on certain interactions, including submissions. The application owns timezone resolution, daylight-saving ambiguity, and any scheduling rules. For one instant, use the separate [datetime picker](#choose-an-instant).
 
-Read `DatePickerAction#selected_date` and `TimePickerAction#selected_time`, or `state_map.date_picker_value?` and `state_map.time_picker_value?` with block/action IDs. Selections remain `String?`. Their `selected_date_presence` and `selected_time_presence` distinguish Absent, Null (cleared), and Present. TimePickerAction/TimePickerValue also expose optional `timezone` and `timezone_presence`. Missing state entries return nil. Empty or malformed-format strings remain present without outbound calendar/clock validation; wrong JSON types raise path-aware `TypeMismatch`. Unknown fields remain in `raw`. Input can set `dispatch_action: true` to receive changes.
+Read `DatePickerAction#selected_date` and `TimePickerAction#selected_time`, or `state.date_picker_value?` and `state.time_picker_value?` with block/action IDs. Selections remain `String?`. Their `selected_date_presence` and `selected_time_presence` distinguish Absent, Null (cleared), and Present. TimePickerAction/TimePickerValue also expose optional `timezone` and `timezone_presence`. Missing state entries return nil. Empty or malformed-format strings remain present without outbound calendar/clock validation; wrong JSON types raise path-aware `TypeMismatch`. Input can set `dispatch_action: true` to receive changes.
 
 Picker interactions decode as `DatePickerAction`/`TimePickerAction` and `DatePickerValue`/`TimePickerValue`. The [offline scheduling-choice workflow](../examples/block_kit_date_time_pickers.cr) posts a date choice, opens a form, and reads the final date, time, and timezone from a signed submission.
 
@@ -408,7 +408,7 @@ start = UI::BlockElements::DatetimePicker.new(
 
 The picker supports optional `action_id` (255 characters), `initial_date_time`, `confirm`, and `focus_on_load`. It has no placeholder or timezone field. `initial_date_time` is a `Time`; the library sends whole seconds and drops sub-second precision. Slack documents a ten-digit timestamp, so the value must be from 2001-09-09T01:46:40Z through 2286-11-20T17:46:39Z. Omitted fields and explicit false stay distinct, and one element per view can request focus. See Slack's [datetime picker](https://docs.slack.dev/reference/block-kit/block-elements/datetime-picker-element/) fields and placement metadata.
 
-Read `DatetimePickerAction#selected_date_time`, or `state_map.datetime_picker_value?` with block/action IDs. The selection is `Int64?` Unix seconds as received; use `Time.unix(seconds)` to get a UTC `Time`. `selected_date_time_presence` distinguishes Absent, Null (cleared), and Present. Missing state entries return nil. A non-integer selection or a wrong ID type raises path-aware `TypeMismatch`. Unknown fields remain in `raw`. The library does not apply outbound range rules to received values or create a scheduled job.
+Read `DatetimePickerAction#selected_date_time`, or `state.datetime_picker_value?` with block/action IDs. The selection is `Int64?` Unix seconds as received; use `Time.unix(seconds)` to get a UTC `Time`. `selected_date_time_presence` distinguishes Absent, Null (cleared), and Present. Missing state entries return nil. A non-integer selection or a wrong ID type raises path-aware `TypeMismatch`. The library does not apply outbound range rules to received values or create a scheduled job.
 
 Datetime picker interactions decode as `DatetimePickerAction` and `DatetimePickerValue`. The [offline meeting-start workflow](../examples/block_kit_datetime_picker.cr) posts a proposed start, reads a signed choice, opens a form with that start, and reads the saved start from a signed submission.
 
@@ -448,7 +448,7 @@ end
 
 Supply `options:` (0 to 100 options; an empty list shows no results) or `option_groups:` (up to 100 `OptionGroup` values, each with 1 to 100 options). Values must be unique across the response; this is library policy. The response owns a copy of the collection. The library does not route the Options Load URL, run an HTTP server, or enforce the deadline. See the [block_suggestion payload](https://docs.slack.dev/reference/interaction-payloads/block_suggestion-payload/).
 
-Read `ExternalSelectAction#selected_option` (`SelectedOption?`) and `MultiExternalSelectAction#selected_options` (`Array(SelectedOption)?`), or use `state_map.external_select_value?` and `state_map.multi_external_select_value?` with block/action IDs. Presence accessors distinguish Absent, Null, and Present. A cleared multi-selection is an empty array. Missing entries return nil, malformed known values raise path-aware `TypeMismatch`, and unknown fields stay in raw JSON. Received options have no outbound limits.
+Read `ExternalSelectAction#selected_option` (`SelectedOption?`) and `MultiExternalSelectAction#selected_options` (`Array(SelectedOption)?`), or use `state.external_select_value?` and `state.multi_external_select_value?` with block/action IDs. Presence accessors distinguish Absent, Null, and Present. A cleared multi-selection is an empty array. Missing entries return nil, and malformed known values raise path-aware `TypeMismatch`. Received options have no outbound limits.
 
 `block_suggestion` payloads decode as `BlockSuggestion`. External select actions and state decode as `ExternalSelectAction`/`MultiExternalSelectAction` and `ExternalSelectValue`/`MultiExternalSelectValue`. The [offline workflow](../examples/block_kit_external_select.cr) posts an external menu, answers a signed suggestion, reads a signed selection, opens a related-project form, and reads its signed submission. It does not prove live acceptance, rendering, or response timing.
 
@@ -576,7 +576,7 @@ RT::Section.new(elements: [
 
 The block and each container need at least one child. Required strings, such as text, URLs, IDs, and date formats, must not be empty. `border` is 0 or 1, and `indent` and `offset` are not negative. These checks are library policy. Other element types, such as `citation`, `tag`, and `message_mention`, are not supported for outbound values. See Slack's [rich text block](https://docs.slack.dev/reference/block-kit/blocks/rich-text-block/) reference and its linked element pages.
 
-Received `rich_text` blocks decode as `Slack::Interactions::RichText::Block`, for example in `Slack::Events::Message#blocks` (see [Read blocks from messages and views](#read-blocks-from-messages-and-views)). To read one raw block, use `Slack::Interactions::RichText::Block.new(raw, path)`. The received types have the same names in `Slack::Interactions::RichText`. They keep `style`, `range`, and numbers as sent, allow empty children, and keep all JSON in `raw`. Slack sets some fields only to describe a received node. Read them on the received types: link `from_llm`, `is_slack_url`, and `truncated`; user and channel `from_llm`; file and canvas `is_skill_invocation`; and workflow mention `channel_id` and `ts`. An unknown node type becomes `RichText::Unknown`. A missing required field, a wrong JSON type, or a known node in the wrong position raises a `TypeMismatch` with the JSON path.
+Received `rich_text` blocks decode as `Slack::Interactions::RichText::Block`, for example in `Slack::Events::Message#blocks` (see [Read blocks from messages and views](#read-blocks-from-messages-and-views)). To read one raw block, use `Slack::Interactions::RichText::Block.new(raw, path)`. The received types have the same names in `Slack::Interactions::RichText`. They keep `style`, `range`, and numbers as sent, and allow empty children. Slack sets some fields only to describe a received node. Read them on the received types: link `from_llm`, `is_slack_url`, and `truncated`; user and channel `from_llm`; file and canvas `is_skill_invocation`; and workflow mention `channel_id` and `ts`. An unknown node type becomes `RichText::Unknown`. A missing required field, a wrong JSON type, or a known node in the wrong position raises a `TypeMismatch` with the JSON path.
 
 ```crystal
 event.blocks.each do |reply|
@@ -779,7 +779,7 @@ end
 
 Slack requires `min_value` to be less than or equal to `max_value`. The library compares the exact decimal values. As library policy, each supplied number must be a plain decimal string, such as `-10`, `0`, or `5.5`. Exponents, a plus sign, separators, and a bare decimal point are rejected. When `is_decimal_allowed` is false, each supplied number must be whole. Slack does not document a rule for an `initial_value` outside the range, so the library does not check it.
 
-Read `state_map.number_input_value?(block_id, action_id)` in a submission. With `dispatch_action_config` and `dispatch_action: true` on the block, Slack sends a `NumberInputAction`. Both expose `value : String?` and `value_presence` (Absent, Null, or Present). The value stays a string. Parse it and check its range in the application before you store it. Received values are not checked with outbound rules; wrong JSON types raise path-aware `TypeMismatch`.
+Read `state.number_input_value?(block_id, action_id)` in a submission. With `dispatch_action_config` and `dispatch_action: true` on the block, Slack sends a `NumberInputAction`. Both expose `value : String?` and `value_presence` (Absent, Null, or Present). The value stays a string. Parse it and check its range in the application before you store it. Received values are not checked with outbound rules; wrong JSON types raise path-aware `TypeMismatch`.
 
 Number input interactions decode as `NumberInputAction` and `NumberInputValue`. The [offline booking workflow](../examples/block_kit_number_input.cr) opens a number form from a signed button action, reads a dispatched number, rejects an out-of-range submission with `ModalErrors`, and accepts a corrected one.
 
@@ -800,10 +800,10 @@ FileInput supports optional `action_id` (255 characters), `filetypes`, and `max_
 
 The `filetypes` filter is a convenience. Check each received file in the application. Your app needs the `files:read` scope, and Slack applies a 100MB file size limit. The library does not check these remote conditions or download files.
 
-Read `state_map.file_input_value?` with the block and action IDs. `files` returns `Array(UploadedFile)?`, and `files_presence` distinguishes Absent, Null, and Present (an empty array is Present). Each `UploadedFile` has a required `id` and optional `name`, `title`, `mimetype`, `filetype`, `url_private`, and `url_private_download`, and an optional `size` in bytes (`Int64?`). Other file fields stay in `raw`. Wrong JSON types raise path-aware `TypeMismatch`. A `file_input` entry in `actions` stays `UnknownAction`.
+Read `state.file_input_value?` with the block and action IDs. `files` returns `Array(UploadedFile)?`, and `files_presence` distinguishes Absent, Null, and Present (an empty array is Present). Each `UploadedFile` has a required `id` and optional `name`, `title`, `mimetype`, `filetype`, `url_private`, and `url_private_download`, and an optional `size` in bytes (`Int64?`). Other file fields stay in the payload. Wrong JSON types raise path-aware `TypeMismatch`. A `file_input` entry in `actions` stays `UnknownAction`.
 
 ```crystal
-if value = submission.state_map.file_input_value?("receipts", "files")
+if value = submission.state.file_input_value?("receipts", "files")
   ids = value.files.try(&.map(&.id)) || [] of String
 end
 ```
@@ -823,7 +823,7 @@ end
 
 All fields are optional: `action_id` (255 characters), `initial_value`, `dispatch_action_config`, `focus_on_load`, and a plain-text `placeholder` (150 characters). One element per view can request focus. Slack does not document a format rule for `initial_value`, so the library sends it unchanged.
 
-Read `state_map.url_input_value?(block_id, action_id)` in a submission. With `dispatch_action_config` and `dispatch_action: true` on the block, Slack sends a `UrlInputAction`. Both expose `value : String?` and `value_presence` (Absent, Null, or Present). Slack checks that the entry is a URL. Application rules, such as HTTPS only or an allowed host, stay in the application. Do not fetch a received URL without your own checks.
+Read `state.url_input_value?(block_id, action_id)` in a submission. With `dispatch_action_config` and `dispatch_action: true` on the block, Slack sends a `UrlInputAction`. Both expose `value : String?` and `value_presence` (Absent, Null, or Present). Slack checks that the entry is a URL. Application rules, such as HTTPS only or an allowed host, stay in the application. Do not fetch a received URL without your own checks.
 
 URL input interactions decode as `UrlInputAction` and `UrlInputValue`. The [offline bug report workflow](../examples/block_kit_url_input.cr) opens a form from a signed button action, reads a dispatched link, rejects an HTTP link with `ModalErrors`, and accepts an HTTPS link.
 
@@ -842,7 +842,7 @@ end
 
 All fields are optional: `action_id` (255 characters), `initial_value`, `dispatch_action_config`, `focus_on_load`, and a plain-text `placeholder` (150 characters). One element per view can request focus. Slack documents no address syntax rule for `initial_value`, so the library sends it unchanged.
 
-Read `state_map.email_input_value?(block_id, action_id)` in a submission. With `dispatch_action_config` and `dispatch_action: true` on the block, Slack sends an `EmailInputAction`. Both expose `value : String?` and `value_presence` (Absent, Null, or Present). The library does not check the received address. Apply your own rules, such as an allowed domain, and return `ModalErrors` for a bad value. Wrong JSON types raise path-aware `TypeMismatch`.
+Read `state.email_input_value?(block_id, action_id)` in a submission. With `dispatch_action_config` and `dispatch_action: true` on the block, Slack sends an `EmailInputAction`. Both expose `value : String?` and `value_presence` (Absent, Null, or Present). The library does not check the received address. Apply your own rules, such as an allowed domain, and return `ModalErrors` for a bad value. Wrong JSON types raise path-aware `TypeMismatch`.
 
 Email input interactions decode as `EmailInputAction` and `EmailInputValue`. The [offline invitation workflow](../examples/block_kit_email_input.cr) opens an email form from a signed button action, reads a dispatched address, rejects an address outside the allowed domain with `ModalErrors`, and accepts a corrected one.
 
@@ -864,10 +864,10 @@ end
 
 Slack requires `action_id` (255 characters) for this element. As library policy, it must not be empty. `initial_value` is a `Blocks::RichText`; see [Show rich text](#show-rich-text). Other optional fields are `dispatch_action_config`, `focus_on_load`, a plain-text `placeholder` (150 characters), `min_lines`, and `max_lines`. Each line count must be from 1 to 100. Slack documents no rule between the two counts, so the library does not compare them. Slack also lists the Table block as a parent; the library does not support that placement.
 
-Read `state_map.rich_text_input_value?(block_id, action_id)` in a submission or a Home action. With `dispatch_action_config` and `dispatch_action: true` on the block, Slack sends a `RichTextInputAction`. Both expose `rich_text_value : Slack::Interactions::RichText::Block?` and `value_presence` (Absent, Null, or Present). The received tree uses the parser from [Show rich text](#show-rich-text), without outbound rules. A malformed tree or a wrong JSON type raises `TypeMismatch` with the JSON path, and `raw` keeps the complete JSON.
+Read `state.rich_text_input_value?(block_id, action_id)` in a submission or a Home action. With `dispatch_action_config` and `dispatch_action: true` on the block, Slack sends a `RichTextInputAction`. Both expose `rich_text_value : Slack::Interactions::RichText::Block?` and `value_presence` (Absent, Null, or Present). The received tree uses the parser from [Show rich text](#show-rich-text), without outbound rules. A malformed tree or a wrong JSON type raises `TypeMismatch` with the JSON path.
 
 ```crystal
-case action = interaction.decoded_actions.first
+case action = interaction.actions.first
 when Slack::Interactions::RichTextInputAction
   if tree = action.rich_text_value
     tree.elements.each do |container|
@@ -1067,15 +1067,15 @@ Slack sends the blocks of a message or view in events and interactions. These ge
 
 `ReceivedBlock` is a union of one struct for each block type. The types are in `Slack::Interactions::ReceivedBlocks`: `Section`, `Actions`, `Context`, `ContextActions`, `Divider`, `Header`, `Image`, `Input`, `Markdown`, `File`, `Video`, `Table`, `DataTable`, `Container`, `Card`, `Carousel`, `Alert`, `DataVisualization`, `Plan`, `TaskCard`, and `UnknownBlock`. A `rich_text` block decodes as `Slack::Interactions::RichText::Block` (see [Show rich text](#show-rich-text)).
 
-- Each block has `raw`, the complete JSON, and each known block has `block_id`.
+- Each known block has `block_id`. `to_json` on the source message or view writes the complete blocks.
 - Text objects decode as `ReceivedText` with `type`, `text`, `emoji`, and `verbatim`.
-- Elements in `Actions`, `ContextActions`, a Section `accessory`, an Input `element`, and Card images and actions decode as `ElementSummary` with `type`, `action_id`, and `raw`. Read selected values from the action payload or `state_map`, not from the block.
+- Elements in `Actions`, `ContextActions`, a Section `accessory`, an Input `element`, and Card images and actions decode as `ElementSummary` with `type` and `action_id` only. Read selected values from the action payload or `state`, not from the block.
 - `Context` elements are `ReceivedText` or `ElementSummary` (images).
 - `Card#slack_icon` is a `ReceivedBlocks::SlackIcon?` with `name`. It is not an `ElementSummary`. Replace `card.slack_icon.try(&.raw["name"].as_s)` with `card.slack_icon.try(&.name)`. An icon without `name` raises `TypeMismatch`.
 - `TaskCard#sources` is an `Array(TaskCard::Source)`, each with `type`, `url`, and `text`. It is empty when `sources` is absent or null.
 - `Table` and `DataTable` rows hold `RawText`, `RawNumber` (`value` is `Int64` or `Float64`), `RichText::Block`, or `UnknownBlock` cells.
 - `Container#child_blocks` and `Carousel#elements` decode like top-level blocks.
-- `DataVisualization#chart`, `Plan#tasks`, `Table#column_settings`, and `Image#slack_file` stay raw JSON. For other fields, such as a task card's `details`, read `raw`.
+- `DataVisualization#chart`, `Plan#tasks`, `Table#column_settings`, and `Image#slack_file` stay raw JSON. Other fields, such as a task card's `details`, stay in the source payload.
 - A block type that this library does not read decodes as `UnknownBlock` with `type` and `raw`.
 
 ```crystal

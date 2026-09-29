@@ -1,9 +1,13 @@
 # https://docs.slack.dev/reference/interaction-payloads/block_actions-payload/
 struct Slack::Interactions::BlockAction < Slack::Interaction
   @[JSON::Field(ignore: true)]
-  @state_present : Bool = false
+  @state_raw_present : Bool = false
 
-  property actions : JSON::Any?
+  @[JSON::Field(key: "actions")]
+  @actions_raw : JSON::Any?
+
+  @[JSON::Field(ignore: true)]
+  @actions : Array(Action)? = nil
 
   # Present when the action happened in a message.
   @[JSON::Field(emit_null: false)]
@@ -39,8 +43,8 @@ struct Slack::Interactions::BlockAction < Slack::Interaction
   @[JSON::Field(converter: Slack::Interactions::SecretConverter, ignore_serialize: true)]
   getter bot_access_token : Slack::Auth::Secret?
 
-  @[JSON::Field(emit_null: false, presence: true)]
-  property state : JSON::Any?
+  @[JSON::Field(key: "state", emit_null: false, presence: true)]
+  @state_raw : JSON::Any?
 
   @[JSON::Field(emit_null: false)]
   property token : String?
@@ -62,14 +66,20 @@ struct Slack::Interactions::BlockAction < Slack::Interaction
     Container.decode(@container_raw)
   end
 
-  def decoded_actions : Array(Slack::Interactions::Action)
-    ActionDecoder.decode(@actions)
+  # Decodes the actions once and keeps the result. Returns a copy of the array.
+  #
+  # A copy of this struct made before the first call does not share the result,
+  # because a struct copy has its own fields. That copy decodes again. Bind the
+  # payload to a local variable to decode once.
+  def actions : Array(Action)
+    (@actions ||= ActionDecoder.decode(@actions_raw)).dup
   end
 
-  def state_map : StateMap
+  # The input values in the source view. Read values by block ID and action ID.
+  def state : StateMap
     # The nilable `state` field collapses explicit JSON null; presence retains it.
-    raw = @state
-    raw = JSON::Any.new(nil) if raw.nil? && @state_present
+    raw = @state_raw
+    raw = JSON::Any.new(nil) if raw.nil? && @state_raw_present
     StateMap.new(raw)
   end
 end

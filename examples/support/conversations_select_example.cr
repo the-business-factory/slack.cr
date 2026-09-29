@@ -29,7 +29,7 @@ module OfflineConversationsSelectExample
     payload = %({"type":"block_actions","team":null,"trigger_id":"synthetic-trigger","actions":[{"type":"conversations_select","block_id":"notifications","action_id":"notification","selected_conversation":"D-NOTIFY"}]})
     case interaction = receive(payload)
     when Slack::Interactions::BlockAction
-      case action = interaction.decoded_actions.first
+      case action = interaction.actions.first
       when Slack::Interactions::ConversationsSelectAction
         notification = action.selected_conversation || raise "Absent or null notification"
         # Real handlers must acknowledge each interaction within three seconds.
@@ -55,7 +55,7 @@ module OfflineConversationsSelectExample
     payload = %({"type":"view_submission","team":null,"view":{"private_metadata":"D-NOTIFY","state":{"values":{"destinations":{"destinations":{"type":"multi_conversations_select","selected_conversations":["C-ONE","G-TWO"]}}}}}})
     case interaction = receive(payload)
     when Slack::Interactions::ViewSubmission
-      state = interaction.state_map.multi_conversations_select_value?("destinations", "destinations") || raise "Missing destination state"
+      state = interaction.state.multi_conversations_select_value?("destinations", "destinations") || raise "Missing destination state"
       destinations = state.selected_conversations || raise "Absent or null destinations"
       acknowledgement = HTTP::Client::Response.new(200, body: "")
       output.puts "Saved destinations: #{destinations.join(", ")} (acknowledged #{acknowledgement.status_code})"

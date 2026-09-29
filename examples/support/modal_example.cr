@@ -45,7 +45,7 @@ module OfflineModalExample
                            actions: [{type: "button", block_id: "request.actions", action_id: button["action_id"], value: button["value"]}]}.to_json)
     case interaction
     when Slack::Interactions::BlockAction
-      case action = interaction.decoded_actions.first
+      case action = interaction.actions.first
       when Slack::Interactions::ButtonAction
         raise "Unexpected action" unless action.action_id == "request.open"
         trigger = interaction.trigger_id || raise "Missing trigger ID"

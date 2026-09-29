@@ -1,5 +1,4 @@
 struct Slack::Interactions::RichText::File
-  getter raw : JSON::Any
   getter file_id : String
   getter text : String?
   getter url : String?
@@ -7,8 +6,8 @@ struct Slack::Interactions::RichText::File
   getter is_skill_invocation : Bool?
   getter style : Style?
 
-  def initialize(@raw : JSON::Any, path : String)
-    object = Decoder.object(@raw, path)
+  def initialize(raw : JSON::Any, path : String)
+    object = Decoder.object(raw, path)
     @file_id = PayloadAccess.string(object["file_id"]?, "#{path}.file_id")
     @text = PayloadAccess.string?(object["text"]?, "#{path}.text")
     @url = PayloadAccess.string?(object["url"]?, "#{path}.url")

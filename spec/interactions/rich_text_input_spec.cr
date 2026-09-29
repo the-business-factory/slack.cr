@@ -14,18 +14,17 @@ module RichTextInputInteractionSpec
           {"type":"rich_text_list","style":"bullet","elements":[{"type":"rich_text_section","elements":[{"type":"text","text":"Ship","style":{"bold":true}}]}]},
           {"type":"rich_text_future","elements":[]}]}}}}}}}
         JSON
-      action = interaction.decoded_actions.first.should be_a(Slack::Interactions::RichTextInputAction)
+      action = interaction.actions.first.should be_a(Slack::Interactions::RichTextInputAction)
       action.type.should eq "rich_text_input"
       action.block_id.should eq "standup"
       action.action_id.should eq "summary"
       action.action_ts.should eq "1710000000.000001"
-      action.raw["future"].as_bool.should be_true
       action.value_presence.present?.should be_true
       section = action.rich_text_value.should_not(be_nil).elements.first.should be_a(Received::Section)
       section.elements.map(&.class).should eq [Received::Text, Received::User]
       section.elements.last.should(be_a(Received::User)).user_id.should eq "U-PAIR"
 
-      value = interaction.view.should_not(be_nil).state_map.rich_text_input_value?("standup", "summary").should_not be_nil
+      value = interaction.view.should_not(be_nil).state.rich_text_input_value?("standup", "summary").should_not be_nil
       value.type.should eq "rich_text_input"
       tree = value.rich_text_value.should_not be_nil
       list = tree.elements.first.should be_a(Received::List)
@@ -36,7 +35,7 @@ module RichTextInputInteractionSpec
     it "distinguishes absent and null values and rejects the wrong state family" do
       {"" => Slack::Interactions::ValuePresence::Absent, %(,"rich_text_value":null) => Slack::Interactions::ValuePresence::Null}.each do |field, presence|
         payload = %({"type":"view_submission","view":{"state":{"values":{"standup":{"summary":{"type":"rich_text_input"#{field}},"note":{"type":"plain_text_input","value":"x"}}}}}})
-        state = Slack::Interaction.from_json(payload).should(be_a(Slack::Interactions::ViewSubmission)).state_map
+        state = Slack::Interaction.from_json(payload).should(be_a(Slack::Interactions::ViewSubmission)).state
         value = state.rich_text_input_value?("standup", "summary").should_not be_nil
         value.value_presence.should eq presence
         value.rich_text_value.should be_nil
@@ -56,8 +55,8 @@ module RichTextInputInteractionSpec
       }.each do |tree, path|
         raw = %({"type":"rich_text_input","block_id":"b","action_id":"a","rich_text_value":#{tree}})
         interaction = Slack::Interaction.from_json(%({"type":"block_actions","actions":[#{raw}]})).should be_a(Slack::Interactions::BlockAction)
-        interaction.actions.should eq JSON.parse("[#{raw}]")
-        expect_raises(Slack::Interactions::TypeMismatch) { interaction.decoded_actions }.path.should eq path
+        JSON.parse(interaction.to_json)["actions"].should eq JSON.parse("[#{raw}]")
+        expect_raises(Slack::Interactions::TypeMismatch) { interaction.actions }.path.should eq path
       end
       {"action_id" => "false", "block_id" => "[]", "action_ts" => "1"}.each do |field, value|
         raw = JSON.parse(%({"type":"rich_text_input","block_id":"b","action_id":"a"})).as_h

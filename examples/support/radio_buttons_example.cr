@@ -30,7 +30,7 @@ module OfflineRadioButtonsExample
     payload = %({"type":"block_actions","team":null,"trigger_id":"synthetic-trigger","actions":[{"type":"radio_buttons","block_id":"preferences","action_id":"delivery","selected_option":{"text":{"type":"mrkdwn","text":"*Digest*"},"value":"digest"}}]})
     case interaction = receive(payload)
     when Slack::Interactions::BlockAction
-      case action = interaction.decoded_actions.first
+      case action = interaction.actions.first
       when Slack::Interactions::RadioButtonsAction
         selected = action.selected_option || raise "Absent or null selection"
         # Real handlers must acknowledge each interaction within three seconds.
@@ -52,7 +52,7 @@ module OfflineRadioButtonsExample
     payload = %({"type":"view_submission","team":null,"view":{"state":{"values":{"override":{"delivery":{"type":"radio_buttons","selected_option":null}}}}}})
     case interaction = receive(payload)
     when Slack::Interactions::ViewSubmission
-      state = interaction.state_map.radio_buttons_value?("override", "delivery") || raise "Missing state"
+      state = interaction.state.radio_buttons_value?("override", "delivery") || raise "Missing state"
       raise "Expected unselected state" unless state.selected_option_presence.null? && state.selected_option.nil?
       acknowledgement = HTTP::Client::Response.new(200, body: "")
       output.puts "Saved delivery: none (acknowledged #{acknowledgement.status_code})"

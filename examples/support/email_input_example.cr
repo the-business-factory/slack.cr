@@ -47,7 +47,7 @@ module OfflineEmailInputExample
     payload = %({"type":"block_actions","team":null,"actions":[{"type":"email_text_input","block_id":"invite.email","action_id":"email","value":"lead@partner.example"}]})
     interaction = receive(payload)
     raise "Expected block action" unless interaction.is_a?(Slack::Interactions::BlockAction)
-    case action = interaction.decoded_actions.first
+    case action = interaction.actions.first
     when Slack::Interactions::EmailInputAction
       # Real handlers must return each acknowledgment within three seconds.
       acknowledgement = HTTP::Client::Response.new(200, body: "")
@@ -60,7 +60,7 @@ module OfflineEmailInputExample
       payload = %({"type":"view_submission","team":null,"view":{"callback_id":"invite","state":{"values":{"invite.email":{"email":{"type":"email_text_input","value":"#{email}"}}}}}})
       interaction = receive(payload)
       raise "Expected submission" unless interaction.is_a?(Slack::Interactions::ViewSubmission)
-      acknowledge(interaction.state_map, output)
+      acknowledge(interaction.state, output)
     end
   end
 

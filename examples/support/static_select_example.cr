@@ -46,7 +46,7 @@ module OfflineStaticSelectExample
                            actions: [{type: "static_select", block_id: "preferences", action_id: "color", selected_option: red}]}.to_json)
     case interaction
     when Slack::Interactions::BlockAction
-      case action = interaction.decoded_actions.first
+      case action = interaction.actions.first
       when Slack::Interactions::StaticSelectAction
         raise "Unexpected color" unless action.selected_option.try(&.value) == "red"
         trigger = interaction.trigger_id || raise "Missing trigger"
@@ -76,7 +76,7 @@ module OfflineStaticSelectExample
     interaction = receive({type: "view_submission", team: nil, view: submitted}.to_json)
     case interaction
     when Slack::Interactions::ViewSubmission
-      entry = interaction.state_map.multi_static_select_value?("notifications", "colors") || raise "Missing state"
+      entry = interaction.state.multi_static_select_value?("notifications", "colors") || raise "Missing state"
       selected = entry.selected_options || raise "Absent or null selection"
       raise "Incorrect selection" unless selected.map(&.value) == ["red", "blue"]
       # Real handlers must acknowledge each action and submission within three

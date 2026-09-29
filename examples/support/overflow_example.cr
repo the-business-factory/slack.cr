@@ -32,7 +32,7 @@ module OfflineOverflowExample
     request = Slack::Testing::SignedRequest.build(body, signing_secret: SIGNING_SECRET, path: "/interactions", content_type: "application/x-www-form-urlencoded")
     case interaction = Slack::Interactions.parse(VERIFIER.verify(request).body)
     when Slack::Interactions::BlockAction
-      case action = interaction.decoded_actions.first
+      case action = interaction.actions.first
       when Slack::Interactions::OverflowAction
         # URL options also send interactions. Real handlers must acknowledge
         # within three seconds, even when the browser opens a link.

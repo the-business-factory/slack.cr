@@ -2,8 +2,6 @@
 # decode as `Container::Unknown` and keep their raw JSON.
 # https://docs.slack.dev/reference/interaction-payloads/block_actions-payload/
 abstract struct Slack::Interactions::Container
-  getter raw : JSON::Any
-
   # Returns nil for an absent or null container. Raises `TypeMismatch` when the
   # container is not an object or a known type has a malformed field.
   def self.decode(raw : JSON::Any?, path : String = "container") : Container?
@@ -12,14 +10,11 @@ abstract struct Slack::Interactions::Container
     return unless object
     type = PayloadAccess.string?(object["type"]?, "#{path}.type")
     case type
-    when "message"            then Message.new(raw, object, path)
-    when "view"               then View.new(raw, object, path)
-    when "message_attachment" then MessageAttachment.new(raw, object, path)
+    when "message"            then Message.new(object, path)
+    when "view"               then View.new(object, path)
+    when "message_attachment" then MessageAttachment.new(object, path)
     else                           Unknown.new(type, raw)
     end
-  end
-
-  def initialize(@raw : JSON::Any)
   end
 
   # A block in a message.
@@ -28,8 +23,7 @@ abstract struct Slack::Interactions::Container
     getter channel_id : String
     getter is_ephemeral : Bool?
 
-    def initialize(raw : JSON::Any, object : Hash(String, JSON::Any), path : String)
-      super(raw)
+    def initialize(object : Hash(String, JSON::Any), path : String)
       @message_ts = PayloadAccess.string(object["message_ts"]?, "#{path}.message_ts")
       @channel_id = PayloadAccess.string(object["channel_id"]?, "#{path}.channel_id")
       @is_ephemeral = PayloadAccess.bool?(object["is_ephemeral"]?, "#{path}.is_ephemeral")
@@ -40,8 +34,7 @@ abstract struct Slack::Interactions::Container
   struct View < Container
     getter view_id : String
 
-    def initialize(raw : JSON::Any, object : Hash(String, JSON::Any), path : String)
-      super(raw)
+    def initialize(object : Hash(String, JSON::Any), path : String)
       @view_id = PayloadAccess.string(object["view_id"]?, "#{path}.view_id")
     end
   end
@@ -54,8 +47,7 @@ abstract struct Slack::Interactions::Container
     getter is_ephemeral : Bool?
     getter is_app_unfurl : Bool?
 
-    def initialize(raw : JSON::Any, object : Hash(String, JSON::Any), path : String)
-      super(raw)
+    def initialize(object : Hash(String, JSON::Any), path : String)
       @message_ts = PayloadAccess.string(object["message_ts"]?, "#{path}.message_ts")
       @attachment_id = PayloadAccess.int64(object["attachment_id"]?, "#{path}.attachment_id")
       @channel_id = PayloadAccess.string(object["channel_id"]?, "#{path}.channel_id")
@@ -67,9 +59,9 @@ abstract struct Slack::Interactions::Container
   # A container type this library does not model. `type` is nil when absent or null.
   struct Unknown < Container
     getter type : String?
+    getter raw : JSON::Any
 
-    def initialize(@type : String?, raw : JSON::Any)
-      super(raw)
+    def initialize(@type : String?, @raw : JSON::Any)
     end
   end
 end

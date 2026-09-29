@@ -9,7 +9,7 @@ describe "received radio selections" do
         {"type":"future_choice","selected_option":null,"extra":[]}],
        "state":{"values":{"preferences":{"delivery":{"type":"radio_buttons","selected_option":{"text":{"type":"plain_text","text":"Immediate"},"value":"immediate"},"future_state":"kept"},"future":{"type":"future_choice","extra":null}}}}}
       JSON
-    action = interaction.decoded_actions.first.should be_a(Slack::Interactions::RadioButtonsAction)
+    action = interaction.actions.first.should be_a(Slack::Interactions::RadioButtonsAction)
     action.type.should eq "radio_buttons"
     action.block_id.should eq "preferences"
     action.action_id.should eq "delivery"
@@ -20,16 +20,12 @@ describe "received radio selections" do
     selected.text.should eq "*Digest*"
     selected.text_type.should eq "mrkdwn"
     selected.description.try(&.text).should eq "_Daily_"
-    selected.raw["text"]["future_text"].as_bool.should be_false
-    selected.raw["future_option"].as_a.should be_empty
-    action.raw["future_action"].as_bool.should be_false
-    unknown = interaction.decoded_actions.last.should be_a(Slack::Interactions::UnknownAction)
+    unknown = interaction.actions.last.should be_a(Slack::Interactions::UnknownAction)
     unknown.raw.should eq JSON.parse(%({"type":"future_choice","selected_option":null,"extra":[]}))
-    state = interaction.state_map.radio_buttons_value?("preferences", "delivery").should_not be_nil
+    state = interaction.state.radio_buttons_value?("preferences", "delivery").should_not be_nil
     state.selected_option.try(&.value).should eq "immediate"
     state.selected_option_presence.should eq Slack::Interactions::ValuePresence::Present
-    state.raw["future_state"].should eq "kept"
-    unknown_state = interaction.state_map["preferences", "future"]?.should be_a(Slack::Interactions::UnknownStateValue)
+    unknown_state = interaction.state["preferences", "future"]?.should be_a(Slack::Interactions::UnknownStateValue)
     unknown_state.raw.should eq JSON.parse(%({"type":"future_choice","extra":null}))
   end
 
@@ -44,12 +40,12 @@ describe "received radio selections" do
       action.selected_option.try(&.value).should eq(presence.present? ? "" : nil)
       action.action_ts.should be_nil
       submission = Slack::Interaction.from_json(%({"type":"view_submission","view":{"state":{"values":{"b":{"a":{"type":"radio_buttons"#{field}}}}}}})).should be_a(Slack::Interactions::ViewSubmission)
-      state = submission.state_map.radio_buttons_value?("b", "a").should_not be_nil
+      state = submission.state.radio_buttons_value?("b", "a").should_not be_nil
       state.selected_option_presence.should eq presence
       state.selected_option.should eq action.selected_option
-      submission.state_map.radio_buttons_value?("b", "missing").should be_nil
+      submission.state.radio_buttons_value?("b", "missing").should be_nil
       view = submission.view.should_not be_nil
-      view.state_map.radio_buttons_value?("b", "a").should eq state
+      view.state.radio_buttons_value?("b", "a").should eq state
     end
   end
 
@@ -65,8 +61,8 @@ describe "received radio selections" do
     }.each do |override, suffix|
       raw = JSON.parse(%({"type":"radio_buttons","block_id":"b","action_id":"a"})).as_h.merge(JSON.parse(override).as_h)
       interaction = Slack::Interaction.from_json({type: "block_actions", actions: [raw]}.to_json).should be_a(Slack::Interactions::BlockAction)
-      interaction.actions.should eq JSON.parse([raw].to_json)
-      expect_raises(Slack::Interactions::TypeMismatch) { interaction.decoded_actions }.path.should eq "actions[0].#{suffix}"
+      JSON.parse(interaction.to_json)["actions"].should eq JSON.parse([raw].to_json)
+      expect_raises(Slack::Interactions::TypeMismatch) { interaction.actions }.path.should eq "actions[0].#{suffix}"
       if suffix.starts_with?("selected_option")
         map = Slack::Interactions::StateMap.new(JSON.parse({values: {b: {a: raw}}}.to_json))
         expect_raises(Slack::Interactions::TypeMismatch) { map.radio_buttons_value?("b", "a") }.path.should eq %(state.values["b"]["a"].#{suffix})
@@ -84,7 +80,6 @@ describe "received radio selections" do
     selected.text_type.should eq "future_text"
     selected.text.size.should eq 76
     selected.value.size.should eq 151
-    selected.raw.should eq JSON.parse(option.to_json)
     expect_raises(Slack::Interactions::TypeMismatch) { Slack::Interactions::RadioButtonsValue.new(JSON.parse(%({"type":"checkboxes"})), "state") }.path.should eq "state.type"
   end
 end

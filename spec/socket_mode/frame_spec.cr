@@ -64,7 +64,7 @@ describe Slack::SocketMode::Frame do
     envelope.retry_reason.should be_nil
 
     block_action = Slack::Decoder.default.interaction(envelope.payload_json, :json).should be_a(Slack::Interactions::BlockAction)
-    button = block_action.decoded_actions.first.should be_a(Slack::Interactions::ButtonAction)
+    button = block_action.actions.first.should be_a(Slack::Interactions::ButtonAction)
     button.action_id.should eq("deploy.approve")
     button.value.should eq("release-42")
   end

@@ -28,7 +28,7 @@ module OfflineDateTimePickersExample
     payload = %({"type":"block_actions","team":null,"trigger_id":"synthetic-trigger","actions":[{"type":"datepicker","block_id":"schedule","action_id":"date","selected_date":"2028-02-29"}]})
     case interaction = receive(payload)
     when Slack::Interactions::BlockAction
-      case action = interaction.decoded_actions.first
+      case action = interaction.actions.first
       when Slack::Interactions::DatePickerAction
         date = action.selected_date || raise "Absent or cleared date"
         # Real handlers must return each acknowledgment within three seconds.
@@ -53,8 +53,8 @@ module OfflineDateTimePickersExample
     payload = %({"type":"view_submission","team":null,"view":{"callback_id":"schedule","state":{"values":{"schedule.date":{"date":{"type":"datepicker","selected_date":"2028-03-01"}},"schedule.time":{"time":{"type":"timepicker","selected_time":"09:30","timezone":"America/Chicago"}}}}}})
     case interaction = receive(payload)
     when Slack::Interactions::ViewSubmission
-      date_state = interaction.state_map.date_picker_value?("schedule.date", "date") || raise "Missing date state"
-      time_state = interaction.state_map.time_picker_value?("schedule.time", "time") || raise "Missing time state"
+      date_state = interaction.state.date_picker_value?("schedule.date", "date") || raise "Missing date state"
+      time_state = interaction.state.time_picker_value?("schedule.time", "time") || raise "Missing time state"
       date = date_state.selected_date || raise "Absent or cleared date"
       time = time_state.selected_time || raise "Absent or cleared time"
       timezone = time_state.timezone || raise "Missing timezone for this application"

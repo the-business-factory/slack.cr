@@ -37,7 +37,7 @@ module OfflineCheckboxesExample
     payload = %({"type":"block_actions","team":null,"actions":[{"type":"checkboxes","block_id":"preferences","action_id":"notifications","selected_options":[{"text":{"type":"mrkdwn","text":"*Daily digest*"},"value":"digest"}]}]})
     case interaction = receive(payload)
     when Slack::Interactions::BlockAction
-      case action = interaction.decoded_actions.first
+      case action = interaction.actions.first
       when Slack::Interactions::CheckboxesAction
         selected = action.selected_options || raise "Absent or null selection"
         # Real handlers must acknowledge each interaction within three seconds.
@@ -53,7 +53,7 @@ module OfflineCheckboxesExample
     payload = %({"type":"view_submission","team":null,"view":{"state":{"values":{"preferences":{"notifications":{"type":"checkboxes","selected_options":[]}}}}}})
     case interaction = receive(payload)
     when Slack::Interactions::ViewSubmission
-      state = interaction.state_map.checkboxes_value?("preferences", "notifications") || raise "Missing state"
+      state = interaction.state.checkboxes_value?("preferences", "notifications") || raise "Missing state"
       selected = state.selected_options || raise "Absent or null selection"
       raise "Expected cleared selections" unless selected.empty?
       acknowledgement = HTTP::Client::Response.new(200, body: "")

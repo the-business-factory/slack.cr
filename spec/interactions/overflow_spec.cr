@@ -3,7 +3,7 @@ require "../spec_helper"
 describe "received Overflow actions" do
   it "decodes a received selection and retains unknown action, option, and text fields" do
     interaction = Slack::Interaction.from_json(File.read("spec/fixtures/block_kit/overflow_action.json")).should be_a(Slack::Interactions::BlockAction)
-    action = interaction.decoded_actions.first.should be_a(Slack::Interactions::OverflowAction)
+    action = interaction.actions.first.should be_a(Slack::Interactions::OverflowAction)
     action.type.should eq "overflow"
     action.action_id.should eq "request.more"
     action.block_id.should eq "request"
@@ -12,10 +12,7 @@ describe "received Overflow actions" do
     action.selected_option.text.should eq "Details"
     action.selected_option.text_type.should eq "plain_text"
     action.selected_option.url.should eq "https://example.com/requests/42"
-    action.selected_option.raw["future_option"].as_bool.should be_false
-    action.selected_option.raw["text"]["future_text"].should eq "kept"
-    action.raw["future_action"].as_a.should be_empty
-    unknown = interaction.decoded_actions.last.should be_a(Slack::Interactions::UnknownAction)
+    unknown = interaction.actions.last.should be_a(Slack::Interactions::UnknownAction)
     unknown.raw.should eq JSON.parse(%({"type":"future_overflow","value":null}))
   end
 
@@ -25,8 +22,8 @@ describe "received Overflow actions" do
       raw = base.as_h.dup
       raw[field] = value
       interaction = Slack::Interaction.from_json({type: "block_actions", actions: [raw]}.to_json).should be_a(Slack::Interactions::BlockAction)
-      interaction.actions.should eq JSON.parse([raw].to_json)
-      expect_raises(Slack::Interactions::TypeMismatch) { interaction.decoded_actions }.path.should eq "actions[0].#{field}"
+      JSON.parse(interaction.to_json)["actions"].should eq JSON.parse([raw].to_json)
+      expect_raises(Slack::Interactions::TypeMismatch) { interaction.actions }.path.should eq "actions[0].#{field}"
     end
     {"{}" => "value", %({"value":"x","text":null}) => "text"}.each do |option, suffix|
       raw = base.as_h.dup

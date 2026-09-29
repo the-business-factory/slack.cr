@@ -49,7 +49,7 @@ module OfflineExternalSelectExample
     selection = %({"type":"block_actions","team":{"id":"T-SYNTHETIC"},"trigger_id":"synthetic-trigger","actions":[{"type":"external_select","block_id":"assignment","action_id":"project","selected_option":{"text":{"type":"plain_text","text":"Artemis","emoji":true},"value":"artemis"},"action_ts":"1710000001.000001"}]})
     case interaction = Slack::Interactions.parse(VERIFIER.verify(signed(selection, "/interactions")).body)
     when Slack::Interactions::BlockAction
-      action = interaction.decoded_actions.first
+      action = interaction.actions.first
       raise "Expected project selection" unless action.is_a?(Slack::Interactions::ExternalSelectAction)
       project = action.selected_option || raise "Absent or null project"
       # Real handlers must acknowledge each interaction within three seconds.
@@ -63,7 +63,7 @@ module OfflineExternalSelectExample
     submission = %({"type":"view_submission","team":{"id":"T-SYNTHETIC"},"view":{"callback_id":"project.related","state":{"values":{"related":{"projects":{"type":"multi_external_select","selected_options":[{"text":{"type":"plain_text","text":"Artemis"},"value":"artemis"},{"text":{"type":"plain_text","text":"Gemini"},"value":"gemini"}]}}}}}})
     case interaction = Slack::Interactions.parse(VERIFIER.verify(signed(submission, "/interactions")).body)
     when Slack::Interactions::ViewSubmission
-      state = interaction.state_map.multi_external_select_value?("related", "projects") || raise "Missing related state"
+      state = interaction.state.multi_external_select_value?("related", "projects") || raise "Missing related state"
       related = state.selected_options || raise "Absent or null related projects"
       output.puts "Saved related projects: #{related.map(&.value).join(", ")} (acknowledged 200)"
     else

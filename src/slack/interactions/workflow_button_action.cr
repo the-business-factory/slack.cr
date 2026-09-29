@@ -3,9 +3,8 @@
 # Neither Slack nor the Slack SDKs define this action. The library assumes
 # that it echoes the outbound element, so `text` and `workflow` are nilable
 # and `workflow` stays raw JSON (`trigger.url` and
-# `customizable_input_parameters` when present). `raw` keeps the complete action.
+# `customizable_input_parameters` when present).
 struct Slack::Interactions::WorkflowButtonAction
-  getter raw : JSON::Any
   getter action_id : String
   getter block_id : String
   getter action_ts : String?
@@ -13,8 +12,8 @@ struct Slack::Interactions::WorkflowButtonAction
   # The raw workflow object, or nil when absent or null.
   getter workflow : JSON::Any?
 
-  def initialize(@raw : JSON::Any, path : String = "action")
-    object = PayloadAccess.object?(@raw, path) || raise TypeMismatch.new(path, "workflow_button object", "null")
+  def initialize(raw : JSON::Any, path : String = "action")
+    object = PayloadAccess.object?(raw, path) || raise TypeMismatch.new(path, "workflow_button object", "null")
     actual = PayloadAccess.string?(object["type"]?, "#{path}.type")
     unless actual == "workflow_button"
       raise TypeMismatch.new("#{path}.type", "workflow_button", actual || "absent or null")

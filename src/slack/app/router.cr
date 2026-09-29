@@ -51,7 +51,7 @@ class Slack::App::Router
     pattern = action_pattern(action_id)
     @routes << TypedRoute(ActionContext).new(middleware, handler, acknowledge_first: false) do |payload, environment|
       next unless payload.is_a?(Slack::Interactions::BlockAction)
-      action = payload.decoded_actions.first?
+      action = payload.actions.first?
       if action && matches?(pattern, action_id(action)) && (block_id.nil? || block_id == block_id(action))
         ActionContext.new(environment, payload, action)
       end

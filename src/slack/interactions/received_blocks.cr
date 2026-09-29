@@ -25,8 +25,9 @@ alias Slack::Interactions::ReceivedBlock = Slack::Interactions::ReceivedBlocks::
 #
 # Received blocks are read-only views of the payload. They do not apply outbound
 # validation rules, because Slack can send blocks that are older or newer than
-# the library's rules. Each block keeps its `raw` JSON. A block type that this
-# library does not read decodes as `UnknownBlock`.
+# the library's rules. A block type that this library does not read decodes as
+# `UnknownBlock`, which keeps its `raw` JSON. The complete payload stays in the
+# source message or view, and its `to_json` writes it back.
 module Slack::Interactions::ReceivedBlocks
   # Returns an empty array for absent or null blocks. Raises `TypeMismatch` when
   # the blocks are not an array or a known block type has a malformed field.

@@ -39,7 +39,7 @@ module OfflineNumberInputExample
     payload = %({"type":"block_actions","team":null,"actions":[{"type":"number_input","block_id":"booking.seats","action_id":"seats","value":"14"}]})
     interaction = receive(payload)
     raise "Expected block action" unless interaction.is_a?(Slack::Interactions::BlockAction)
-    case action = interaction.decoded_actions.first
+    case action = interaction.actions.first
     when Slack::Interactions::NumberInputAction
       # Real handlers must return each acknowledgment within three seconds.
       acknowledgement = HTTP::Client::Response.new(200, body: "")
@@ -53,7 +53,7 @@ module OfflineNumberInputExample
       payload = %({"type":"view_submission","team":null,"view":{"callback_id":"booking","state":{"values":{"booking.seats":{"seats":{"type":"number_input","value":"#{seats}"}},"booking.budget":{"budget":{"type":"number_input",#{budget_field}}}}}}})
       interaction = receive(payload)
       raise "Expected submission" unless interaction.is_a?(Slack::Interactions::ViewSubmission)
-      acknowledge(interaction.state_map, output)
+      acknowledge(interaction.state, output)
     end
   end
 

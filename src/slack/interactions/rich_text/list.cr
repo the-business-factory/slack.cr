@@ -1,5 +1,4 @@
 struct Slack::Interactions::RichText::List
-  getter raw : JSON::Any
   # Received as sent; the documented values are `bullet` and `ordered`.
   getter style : String
   getter indent : Int32?
@@ -7,8 +6,8 @@ struct Slack::Interactions::RichText::List
   getter border : Int32?
   @elements : Array(Section)
 
-  def initialize(@raw : JSON::Any, path : String)
-    object = Decoder.object(@raw, path)
+  def initialize(raw : JSON::Any, path : String)
+    object = Decoder.object(raw, path)
     @style = PayloadAccess.string(object["style"]?, "#{path}.style")
     @indent = Decoder.int32?(object["indent"]?, "#{path}.indent")
     @offset = Decoder.int32?(object["offset"]?, "#{path}.offset")

@@ -1,7 +1,6 @@
 # A received `card` block.
 # https://docs.slack.dev/reference/block-kit/blocks/card-block/
 struct Slack::Interactions::ReceivedBlocks::Card
-  getter raw : JSON::Any
   getter block_id : String?
   getter hero_image : ElementSummary?
   getter icon : ElementSummary?
@@ -12,7 +11,7 @@ struct Slack::Interactions::ReceivedBlocks::Card
   getter subtext : ReceivedText?
   @actions : Array(ElementSummary)
 
-  def initialize(@raw : JSON::Any, object : Hash(String, JSON::Any), path : String)
+  def initialize(object : Hash(String, JSON::Any), path : String)
     @block_id = Decoder.block_id(object, path)
     @hero_image = Decoder.element?(object, "hero_image", path)
     @icon = Decoder.element?(object, "icon", path)

@@ -1,5 +1,4 @@
 struct Slack::Interactions::RichText::Canvas
-  getter raw : JSON::Any
   getter file_id : String
   getter label : String?
   getter hide_title : Bool?
@@ -10,8 +9,8 @@ struct Slack::Interactions::RichText::Canvas
   getter is_skill_invocation : Bool?
   getter style : Style?
 
-  def initialize(@raw : JSON::Any, path : String)
-    object = Decoder.object(@raw, path)
+  def initialize(raw : JSON::Any, path : String)
+    object = Decoder.object(raw, path)
     @file_id = PayloadAccess.string(object["file_id"]?, "#{path}.file_id")
     @label = PayloadAccess.string?(object["label"]?, "#{path}.label")
     @hide_title = Decoder.bool?(object["hide_title"]?, "#{path}.hide_title")

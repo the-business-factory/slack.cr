@@ -35,8 +35,8 @@ module OfflineHomeExample
     case interaction = Slack::Interaction.from_json(payload)
     when Slack::Interactions::BlockAction
       # Dispatched text actions remain UnknownAction; their state has typed access.
-      raise "Expected raw text action" unless interaction.decoded_actions.first.is_a?(Slack::Interactions::UnknownAction)
-      note = interaction.state_map.plain_text?("note", "text")
+      raise "Expected raw text action" unless interaction.actions.first.is_a?(Slack::Interactions::UnknownAction)
+      note = interaction.state.plain_text?("note", "text")
       raise "Incorrect note" unless note == "Ready to review"
       output.puts "Received Home note: #{note}"
     else

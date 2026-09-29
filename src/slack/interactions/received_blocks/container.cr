@@ -1,7 +1,6 @@
 # A received `container` block. Child blocks decode like top-level blocks.
 # https://docs.slack.dev/reference/block-kit/blocks/container-block
 struct Slack::Interactions::ReceivedBlocks::Container
-  getter raw : JSON::Any
   getter block_id : String?
   getter title : ReceivedText?
   getter rich_text_title : RichText::Block?
@@ -14,7 +13,7 @@ struct Slack::Interactions::ReceivedBlocks::Container
   getter has_header_divider : Bool?
   @child_blocks : Array(ReceivedBlock)
 
-  def initialize(@raw : JSON::Any, object : Hash(String, JSON::Any), path : String)
+  def initialize(object : Hash(String, JSON::Any), path : String)
     @block_id = Decoder.block_id(object, path)
     @title = Decoder.text?(object, "title", path)
     @rich_text_title = Decoder.rich_text?(object, "rich_text_title", path)
