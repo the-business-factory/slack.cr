@@ -2,7 +2,7 @@ require "../../slack"
 require "http"
 require "json"
 require "uri"
-require "../commands/parse"
+require "../decoder"
 require "../events/verified_event"
 require "../interaction"
 require "../interactions/**"
@@ -13,6 +13,7 @@ require "./rotation_service"
 
 module Slack::Auth
   # Verifies signed HTTP bytes with *verifier* before decoding ownership or touching the store.
+  # It decodes the verified bytes with *decoder*; see `Slack::Decoder`.
   class RequestAuthorizer
     getter extractor : QueryExtractor
 
@@ -20,7 +21,8 @@ module Slack::Auth
 
     def initialize(expected_app_id : String, @store : InstallationStore,
                    @transport : Transport, configuration : APIConfiguration,
-                   @verifier : Slack::Webhooks::Verifier, *, @rotation : RotationService? = nil)
+                   @verifier : Slack::Webhooks::Verifier, *, @rotation : RotationService? = nil,
+                   @decoder : Slack::Decoder = Slack::Decoder.default)
       if rotation = @rotation
         unless rotation.store.same?(@store)
           raise ContractError.new(:invalid_configuration)
@@ -67,20 +69,22 @@ module Slack::Auth
       @verifier.verify(request).body
     end
 
+    # A `url_verification` or `app_rate_limited` body carries no event to authorize.
     private def parse_event(body : String) : Slack::VerifiedEvent
-      Slack::VerifiedEvent.from_json(body)
+      envelope = @decoder.event(body)
+      envelope.is_a?(Slack::VerifiedEvent) ? envelope : invalid_payload
     rescue JSON::ParseException | JSON::SerializableError
       invalid_payload
     end
 
     private def parse_command(body : String) : Slack::Command
-      Slack::Commands.parse(body)
+      @decoder.command(body)
     rescue JSON::ParseException | JSON::SerializableError
       invalid_payload
     end
 
     private def parse_interaction(body : String) : Slack::Interaction
-      Slack::Interactions.parse(body)
+      @decoder.interaction(body)
     rescue JSON::ParseException | JSON::SerializableError
       invalid_payload
     end

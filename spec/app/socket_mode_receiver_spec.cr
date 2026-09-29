@@ -108,12 +108,12 @@ private def build_app(authorizer : Slack::App::Authorizer? = nil) : Slack::App
   Slack::App.new(authorizer: authorizer || Slack::App::SingleTokenAuthorizer.new(ApiSupport.client))
 end
 
-private def connect(app : Slack::App) : Harness
+private def connect(app : Slack::App, decoder : Slack::Decoder = Slack::Decoder.default) : Harness
   server = SocketModeSupport::LoopbackServer.new
   transport = SocketModeSupport::Transport.new.enqueue(SocketModeSupport.open_reply("one"))
   client = Slack::SocketMode::Client.new("xapp-synthetic", transport: transport,
     connect: server.connector([] of HTTP::WebSocket))
-  receiver = Slack::App::SocketModeReceiver.new(app, client)
+  receiver = Slack::App::SocketModeReceiver.new(app, client, decoder: decoder)
   finished = Channel(Exception?).new(1)
   spawn do
     receiver.run
@@ -162,6 +162,21 @@ describe Slack::App::SocketModeReceiver do
     harness.next_ack.should eq JSON.parse(%({"envelope_id":"E-FIRST"}))
     release.send(nil)
     SocketModeSupport.receive(deliveries, "the first delivery").should eq "Ev-E-FIRST retry=false  "
+  ensure
+    harness.try(&.stop)
+  end
+
+  it "gives a decoder observer the kind and payload of an envelope before it decodes the payload" do
+    observed = Channel({Slack::Decoder::Kind, String}).new(1)
+    decoder = Slack::Decoders::Stdlib.new(->(kind : Slack::Decoder::Kind, body : String) { observed.send({kind, body}) })
+    harness = connect(build_app, decoder)
+
+    harness.send(command_envelope("E-OBSERVED"))
+
+    kind, body = SocketModeSupport.receive(observed, "the observed payload")
+    kind.should eq Slack::Decoder::Kind::Command
+    JSON.parse(body).should eq JSON.parse(command_envelope("E-OBSERVED"))["payload"]
+    harness.next_ack.should eq JSON.parse(%({"envelope_id":"E-OBSERVED"}))
   ensure
     harness.try(&.stop)
   end

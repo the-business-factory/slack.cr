@@ -1,4 +1,5 @@
 require "../../slack"
+require "../decoder"
 require "./query_extractor"
 
 module Slack::Auth
@@ -9,11 +10,12 @@ module Slack::Auth
     getter owner : InstallationKey
     getter event : Slack::Event
 
-    # Verifies the request bytes before it parses them.
+    # Verifies the request bytes before *decoder* decodes them.
     def self.new(request : HTTP::Request, expected_app_id : String,
-                 verifier : Slack::Webhooks::Verifier, selected_owner : InstallationKey? = nil) : self
+                 verifier : Slack::Webhooks::Verifier, selected_owner : InstallationKey? = nil,
+                 *, decoder : Slack::Decoder = Slack::Decoder.default) : self
       body = verifier.verify(request).body
-      new(parse(body), expected_app_id, selected_owner)
+      new(parse(decoder, body), expected_app_id, selected_owner)
     end
 
     # Takes an envelope that trusted application routing decoded from verified bytes.
@@ -31,8 +33,11 @@ module Slack::Auth
       @event.is_a?(Slack::Events::AppUninstalled)
     end
 
-    private def self.parse(body : String) : Slack::VerifiedEvent
-      Slack::VerifiedEvent.from_json(body)
+    # A `url_verification` or `app_rate_limited` body is not a lifecycle event.
+    private def self.parse(decoder : Slack::Decoder, body : String) : Slack::VerifiedEvent
+      envelope = decoder.event(body)
+      return envelope if envelope.is_a?(Slack::VerifiedEvent)
+      raise RequestAuthorizationError.new(:invalid_payload)
     rescue JSON::ParseException | JSON::SerializableError
       raise RequestAuthorizationError.new(:invalid_payload)
     end

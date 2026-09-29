@@ -61,7 +61,7 @@ Socket Mode needs no request signature verification. Slack authenticates the Web
 | --- | --- | --- |
 | `Hello` | `hello` | `num_connections` (Slack allows up to 10), `app_id`, `approximate_connection_time` (seconds, from `debug_info`; can be nil) |
 | `Disconnect` | `disconnect` | `reason` (`Warning`, `RefreshRequested`, `LinkDisabled`, `Unknown`), `reason_name`, raw `debug_info` |
-| `Envelope` | any frame with an `envelope_id` | `envelope_id`, `kind` (`EventsApi`, `Interactive`, `SlashCommands`, `Unknown`), `type`, `payload`, `accepts_response_payload?`, `retry_attempt`, `retry_reason` |
+| `Envelope` | any frame with an `envelope_id` | `envelope_id`, `kind` (`EventsApi`, `Interactive`, `SlashCommands`, `Unknown`), `type`, `payload`, `payload_json`, `accepts_response_payload?`, `retry_attempt`, `retry_reason` |
 | `UnknownFrame` | other frames | `type`, `raw` |
 
 A malformed field raises `Slack::Interactions::TypeMismatch` with the field path.

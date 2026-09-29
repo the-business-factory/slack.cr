@@ -52,6 +52,18 @@ describe Slack::Auth::CredentialLifecycle do
     uninstall.event_ts.should be_nil
   end
 
+  it "decodes verified lifecycle bytes with the given decoder" do
+    clock = RequestAuthorizerSupport::Clock.new
+    store = CredentialLifecycleSupport::Store.new(clock)
+    RequestAuthorizerSupport.seed(store, RequestAuthorizerSupport.workspace_key)
+    observed = [] of {Slack::Decoder::Kind, String}
+    decoder = Slack::Decoders::Stdlib.new(->(kind : Slack::Decoder::Kind, body : String) { observed << {kind, body}; nil })
+    service = Slack::Auth::CredentialLifecycle.new("A1", store, CredentialLifecycleSpec.verifier(clock), decoder: decoder)
+
+    CredentialLifecycleSpec.prepare(service, clock).uninstall?.should be_false
+    observed.should eq [{Slack::Decoder::Kind::Event, CredentialLifecycleSpec.body}]
+  end
+
   it "removes one user's grant and stops its context while preserving the bot and other user" do
     clock = RequestAuthorizerSupport::Clock.new
     store = CredentialLifecycleSupport::Store.new(clock)

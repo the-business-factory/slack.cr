@@ -12,8 +12,9 @@ module Slack::Auth
     @targets : Hash(GrantKey, Int64)
 
     def self.new(request : HTTP::Request, expected_app_id : String, store : InstallationStore,
-                 verifier : Slack::Webhooks::Verifier, selected_owner : InstallationKey? = nil) : self
-      new(VerifiedLifecycleEvent.new(request, expected_app_id, verifier, selected_owner), store)
+                 verifier : Slack::Webhooks::Verifier, selected_owner : InstallationKey? = nil,
+                 *, decoder : Slack::Decoder = Slack::Decoder.default) : self
+      new(VerifiedLifecycleEvent.new(request, expected_app_id, verifier, selected_owner, decoder: decoder), store)
     end
 
     # :nodoc:

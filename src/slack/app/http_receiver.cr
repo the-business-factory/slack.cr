@@ -19,6 +19,9 @@ require "uri"
 # decode; 401 for a failed verification or authorization; 405 for another
 # method; 415 for another content type; 500 when routing or a listener raises
 # before acknowledging. Logs never contain bodies, headers, or tokens.
+#
+# The receiver decodes verified bodies with *decoder*. Give a decoder with an
+# observer to capture the exact bytes of each payload; see `Slack::Decoder`.
 class Slack::App::HttpReceiver
   include HTTP::Handler
 
@@ -27,7 +30,8 @@ class Slack::App::HttpReceiver
   private JSON_TYPE = "application/json"
   private FORM_TYPE = "application/x-www-form-urlencoded"
 
-  def initialize(@app : App, @verifier : Slack::Webhooks::Verifier, @path : String = "/slack/events")
+  def initialize(@app : App, @verifier : Slack::Webhooks::Verifier, @path : String = "/slack/events",
+                 *, @decoder : Slack::Decoder = Slack::Decoder.default)
   end
 
   def call(context : HTTP::Server::Context) : Nil
@@ -51,7 +55,7 @@ class Slack::App::HttpReceiver
   end
 
   private def answer_events(response : HTTP::Server::Response, request : HTTP::Request, body : String) : Nil
-    case envelope = decode { Slack::Events.parse(body) }
+    case envelope = decode { @decoder.event(body) }
     when Nil                    then finish(response, :bad_request)
     when Slack::UrlVerification then write_json(response, envelope.response.to_json)
     when Slack::VerifiedEvent   then answer(response, @app.dispatch(envelope, Slack::Events::Delivery.from_headers(request.headers)))
@@ -67,9 +71,9 @@ class Slack::App::HttpReceiver
     params = URI::Params.parse(body)
     return finish(response, :ok) if params.has_key?("ssl_check")
     payload = if params.has_key?("payload")
-                decode { Slack::Interactions.parse(body) }
+                decode { @decoder.interaction(body) }
               else
-                decode { Slack::Commands.parse(body) }
+                decode { @decoder.command(body) }
               end
     payload ? answer(response, @app.dispatch(payload)) : finish(response, :bad_request)
   end

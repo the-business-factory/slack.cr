@@ -108,8 +108,14 @@ private def build_app(ack_timeout : Time::Span = 2.5.seconds, authorizer : Slack
   Slack::App.new(authorizer: authorizer || Slack::App::SingleTokenAuthorizer.new(ApiSupport.client), ack_timeout: ack_timeout)
 end
 
-private def receive(app : Slack::App, request : HTTP::Request) : AppSupport::Reply
-  AppSupport.run(Slack::App::HttpReceiver.new(app, AppSupport::VERIFIER), request)
+private def receive(app : Slack::App, request : HTTP::Request,
+                    decoder : Slack::Decoder = Slack::Decoder.default) : AppSupport::Reply
+  AppSupport.run(Slack::App::HttpReceiver.new(app, AppSupport::VERIFIER, decoder: decoder), request)
+end
+
+# A default decoder that records the kind and body of each payload it gets.
+private def observing_decoder(observed : Array({Slack::Decoder::Kind, String})) : Slack::Decoder
+  Slack::Decoders::Stdlib.new(->(kind : Slack::Decoder::Kind, body : String) { observed << {kind, body}; nil })
 end
 
 describe Slack::App::HttpReceiver do
@@ -253,15 +259,29 @@ describe Slack::App::HttpReceiver do
     end
   end
 
+  it "gives a decoder observer the kind and exact bytes of each verified payload" do
+    app = build_app
+    observed = [] of {Slack::Decoder::Kind, String}
+    decoder = observing_decoder(observed)
+    form = URI::Params.encode({"payload" => BLOCK_ACTIONS})
+
+    receive(app, AppSupport.json(APP_MENTION), decoder).status.should eq 200
+    receive(app, AppSupport.signed(form, "application/x-www-form-urlencoded"), decoder).status.should eq 200
+
+    observed.should eq [{Slack::Decoder::Kind::Event, APP_MENTION}, {Slack::Decoder::Kind::Interaction, form}]
+  end
+
   it "rejects an invalid signature before decoding or routing" do
     app = build_app
     ran = false
     app.command("/deploy") { |_ctx| ran = true }
+    observed = [] of {Slack::Decoder::Kind, String}
     request = AppSupport.form(COMMAND)
     request.headers["X-Slack-Signature"] = "v0=#{"0" * 64}"
 
-    receive(app, request).status.should eq 401
+    receive(app, request, observing_decoder(observed)).status.should eq 401
     ran.should be_false
+    observed.should be_empty
   end
 
   it "answers 401 without routing when authorization fails" do

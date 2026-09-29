@@ -29,10 +29,14 @@ require "log"
 # payload does not decode, authorization fails, or routing or a listener
 # raises before the acknowledgment. The HTTP receiver answers these cases with
 # a 4xx or 5xx status. Logs never contain payloads or tokens.
+#
+# The receiver decodes payloads with *decoder*. Give a decoder with an
+# observer to capture the exact bytes of each payload; see `Slack::Decoder`.
 class Slack::App::SocketModeReceiver
   Log = ::Log.for("slack.app.socket_mode_receiver")
 
-  def initialize(@app : App, @client : Slack::SocketMode::Client)
+  def initialize(@app : App, @client : Slack::SocketMode::Client, *,
+                 @decoder : Slack::Decoder = Slack::Decoder.default)
   end
 
   # Receives envelopes until `#close` or until Slack turns Socket Mode off for
@@ -49,9 +53,9 @@ class Slack::App::SocketModeReceiver
 
   private def receive(envelope : Slack::SocketMode::Envelope, acknowledger : Slack::SocketMode::Acknowledger) : Nil
     case envelope.kind
-    in .events_api?     then route(envelope, acknowledger) { envelope.event }
-    in .interactive?    then route(envelope, acknowledger) { envelope.interaction }
-    in .slash_commands? then route(envelope, acknowledger) { envelope.command }
+    in .events_api?     then route(envelope, acknowledger) { @decoder.event(envelope.payload_json) }
+    in .interactive?    then route(envelope, acknowledger) { @decoder.interaction(envelope.payload_json, :json) }
+    in .slash_commands? then route(envelope, acknowledger) { @decoder.command(envelope.payload_json, :json) }
     in .unknown?
       Log.warn { "Acknowledged envelope #{envelope.envelope_id} of unknown type #{envelope.type.inspect}" }
       acknowledger.ack

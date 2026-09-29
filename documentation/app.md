@@ -264,6 +264,27 @@ Envelopes of an unknown type and envelopes without an event get a plain acknowle
 
 The receiver logs with source `slack.app.socket_mode_receiver`. The logs contain envelope IDs, types, and exception classes, but no payloads or tokens.
 
+## Decoders
+
+The receivers decode payloads with a `Slack::Decoder`. The default is `Slack::Decoders::Stdlib`, which uses the standard library `JSON` parser. `HttpReceiver`, `SocketModeReceiver`, `Slack::Auth::RequestAuthorizer`, and `Slack::Auth::CredentialLifecycle` accept another decoder through `decoder:`.
+
+To capture the payloads that Slack sends, for example for a bug report or a test fixture, give the decoder an observer. The decoder calls the observer with the payload kind and body before it decodes the payload. The observer is off by default.
+
+```crystal
+decoder = Slack::Decoders::Stdlib.new(->(kind : Slack::Decoder::Kind, body : String) {
+  Log.debug { "#{kind} payload: #{body}" }
+  nil
+})
+Slack::App::HttpReceiver.new(app, verifier, decoder: decoder)
+Slack::App::SocketModeReceiver.new(app, socket, decoder: decoder)
+```
+
+- Over HTTP, the observer gets the body only after the signature check. The body is the exact request bytes: JSON for an event, and the form for an interaction or a slash command.
+- Over Socket Mode, the observer gets the envelope `payload` as JSON. The frame parser copies it, so whitespace and string escapes can differ from the frame.
+- If the observer raises, the payload is not decoded, and the receiver answers as it does when a listener raises.
+
+Payloads can contain user messages and other private data. Keep captured payloads as you keep other user data.
+
 ## Logging
 
 The app logs with the standard `Log` module: source `slack.app` for routing, authorization, credential cleanup, and listeners, and `slack.app.receiver` for rejected requests. Logs contain payload kinds, IDs such as the command name, and exception classes. They never contain bodies, headers, or tokens.

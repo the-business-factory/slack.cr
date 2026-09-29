@@ -8,14 +8,15 @@ module Slack::Auth
   end
 
   # Credential-free cleanup. No fibers or network calls are started by this service.
+  # It decodes verified request bytes with *decoder*; see `Slack::Decoder`.
   class CredentialLifecycle
     def initialize(@expected_app_id : String, @store : InstallationStore,
-                   @verifier : Slack::Webhooks::Verifier)
+                   @verifier : Slack::Webhooks::Verifier, *, @decoder : Slack::Decoder = Slack::Decoder.default)
       raise ContractError.new(:invalid_configuration) if @expected_app_id.empty?
     end
 
     def prepare(request : HTTP::Request, selected_owner : InstallationKey? = nil) : PreparedLifecycleDelivery
-      PreparedLifecycleDelivery.new(request, @expected_app_id, @store, @verifier, selected_owner)
+      PreparedLifecycleDelivery.new(request, @expected_app_id, @store, @verifier, selected_owner, decoder: @decoder)
     end
 
     def process(request : HTTP::Request, selected_owner : InstallationKey? = nil) : LifecycleOutcome

@@ -19,8 +19,9 @@ module RequestAuthorizerSpec
   def self.authorizer(store : RequestAuthorizerSupport::Store,
                       transport : RequestAuthorizerSupport::Transport,
                       clock : RequestAuthorizerSupport::Clock,
-                      configuration : Slack::Auth::APIConfiguration = CONFIGURATION) : Slack::Auth::RequestAuthorizer
-    Slack::Auth::RequestAuthorizer.new("A1", store, transport, configuration, verifier(clock))
+                      configuration : Slack::Auth::APIConfiguration = CONFIGURATION,
+                      decoder : Slack::Decoder = Slack::Decoder.default) : Slack::Auth::RequestAuthorizer
+    Slack::Auth::RequestAuthorizer.new("A1", store, transport, configuration, verifier(clock), decoder: decoder)
   end
 
   def self.verifier(clock : Slack::Auth::Clock) : Slack::Webhooks::Verifier
@@ -82,6 +83,19 @@ describe Slack::Auth::RequestAuthorizer do
 
     {event_store, command_store, interaction_store}.each(&.acquire_count.should(eq(1)))
     transport.requests.should be_empty
+  end
+
+  it "decodes verified event bytes with the given decoder" do
+    clock = RequestAuthorizerSupport::Clock.new
+    store = RequestAuthorizerSupport::Store.new(clock)
+    RequestAuthorizerSupport.seed(store, RequestAuthorizerSupport.workspace_key("T_OWNER", "E1"))
+    observed = [] of {Slack::Decoder::Kind, String}
+    decoder = Slack::Decoders::Stdlib.new(->(kind : Slack::Decoder::Kind, body : String) { observed << {kind, body}; nil })
+
+    RequestAuthorizerSpec.authorizer(store, RequestAuthorizerSupport::Transport.new, clock, decoder: decoder)
+      .authorize_event(RequestAuthorizerSpec.event_request(clock), Slack::Auth::GrantKey.new(:bot))
+
+    observed.should eq [{Slack::Decoder::Kind::Event, RequestAuthorizerSupport.fixture("event_connect_workspace.json")}]
   end
 
   it "rejects invalid and stale signatures for all categories without store or API calls" do
