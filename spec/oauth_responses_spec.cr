@@ -30,6 +30,7 @@ end
 { {Slack::AuthResponse, "bot_workspace"}, {Slack::RefreshResponse, "refresh_bot"} }.each do |parser, fixture|
   describe "#{parser} input boundary" do
     # A String body is read through the same IO lexer, so one input form is enough.
+    # Status 200 matters: any non-2xx status is rejected even with valid bytes.
     it "rejects invalid UTF-8 with safe typed errors" do
       {
         Bytes[0xff], Bytes[0x80], Bytes[0xc0, 0xaf], Bytes[0xe0, 0x80, 0xaf],
@@ -39,10 +40,10 @@ end
           body = changed_response(fixture) { |data| data[field] = JSON::Any.new("synthetic-encoding-marker") }
             .sub("synthetic-encoding-marker", "synthetic-encoding-secret#{String.new(bytes)}")
           error = expect_raises(Slack::Auth::ResponseError) do
-            parser.parse(body, 503, HTTP::Headers{"Retry-After" => "17", "X-Secret" => "synthetic-header-secret"})
+            parser.parse(body, 200, HTTP::Headers{"Retry-After" => "17", "X-Secret" => "synthetic-header-secret"})
           end
           error.code.should eq(Slack::Auth::ErrorCode::InvalidResponse)
-          error.http_status.should eq(503)
+          error.http_status.should eq(200)
           error.retry_after.should eq(17.seconds)
           error.slack_error.should be_nil
           error.cause.should be_nil
