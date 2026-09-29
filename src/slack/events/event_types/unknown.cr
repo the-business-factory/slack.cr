@@ -11,7 +11,9 @@ struct Slack::Events::Unknown < Slack::Event
   def self.new(pull : JSON::PullParser) : self
     location = pull.location
     raw = JSON::Any.new(pull)
-    new(event_type(raw, location), raw)
+    type = Slack::Discriminated.value(raw, "type", "Slack::Events::Unknown", location) ||
+           raise JSON::SerializableError.new("Missing string JSON discriminator field 'type'", "Slack::Events::Unknown", nil, *location, nil)
+    new(type, raw)
   end
 
   def initialize(@type : String, @raw : JSON::Any)

@@ -70,6 +70,31 @@ describe "Event envelope decoding" do
     challenge.challenge.empty?.should be_false
   end
 
+  it "decodes each event fixture as the type that KNOWN_TYPES or KNOWN_SUBTYPES maps" do
+    types = Set(String).new
+    subtypes = Set(String).new
+    Dir.glob("spec/fixtures/events/**/*.json").sort.each do |path|
+      source = JSON.parse(File.read(path))
+      next unless source["type"]? == "event_callback"
+      type = source["event"]["type"].as_s
+      subtype = source["event"]["subtype"]?.try(&.as_s?)
+      event = Slack::VerifiedEvent.from_json(source.to_json).event
+
+      expected = if type != "message"
+                   Slack::Event::KNOWN_TYPES[type]? || Slack::Events::Unknown
+                 elsif subtype
+                   Slack::Events::MessageFactory::KNOWN_SUBTYPES[subtype]? || Slack::Events::Message::Unmapped
+                 else
+                   Slack::Events::Message
+                 end
+      event.class.should eq(expected), path
+      type == "message" ? subtype.try { |value| subtypes << value } : types << type
+    end
+
+    (Slack::Event::KNOWN_TYPES.keys.to_set - types - Set{"message"}).should be_empty
+    (Slack::Events::MessageFactory::KNOWN_SUBTYPES.keys.to_set - subtypes).should be_empty
+  end
+
   it "rejects an inner event without a string type" do
     [%({}), %({"type":null}), %({"type":1}), %([]), %("app_mention")].each do |json|
       expect_raises(JSON::SerializableError) { Slack::Event.from_json(json) }

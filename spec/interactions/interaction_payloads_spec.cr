@@ -174,6 +174,33 @@ describe "Interaction payload context" do
   end
 end
 
+describe "Interaction type dispatch" do
+  it "keeps an unmapped interaction type as Unknown with its shared fields and raw JSON" do
+    json = <<-JSON
+      {"type":"synthetic_future_interaction","api_app_id":"A1","is_enterprise_install":false,
+       "team":{"id":"T1","domain":"synthetic"},"enterprise":null,"user":{"id":"U1","team_id":"T1"},
+       "detail":{"state":"ready"}}
+      JSON
+    unknown = Slack::Interaction.from_json(json).should be_a(Slack::Interactions::Unknown)
+
+    unknown.type.should eq "synthetic_future_interaction"
+    unknown.api_app_id.should eq "A1"
+    unknown.is_enterprise_install.should be_false
+    unknown.team.should_not(be_nil).id.should eq "T1"
+    unknown.enterprise.should be_nil
+    unknown.user.should_not(be_nil).id.should eq "U1"
+    unknown.raw["detail"]["state"].as_s.should eq "ready"
+    JSON.parse(unknown.to_json).should eq JSON.parse(json)
+  end
+
+  it "rejects a payload without a string type and an Unknown with a malformed user" do
+    [%({}), %({"type":null}), %({"type":1}), %([])].each do |json|
+      expect_raises(JSON::SerializableError) { Slack::Interaction.from_json(json) }
+    end
+    expect_raises(JSON::SerializableError) { Slack::Interaction.from_json(%({"type":"synthetic_future_interaction","user":{}})) }
+  end
+end
+
 describe "Slack::Interactions.parse" do
   it "requires exactly one payload field in a verified form body" do
     ["", "other=1", "payload=%7B%7D&payload=%7B%7D"].each do |body|

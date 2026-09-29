@@ -174,6 +174,10 @@ Slack retries a delivery up to three times when the app does not return HTTP 2xx
 | `view_submission` | `ViewSubmission` | A submitted modal |
 | `view_closed` | `ViewClosed` | A closed modal, when `notify_on_close` is true |
 
+An interaction type that the library does not map decodes as `Slack::Interactions::Unknown`: `type` gives the interaction type, `raw` keeps the complete payload, and `api_app_id`, `team`, `enterprise`, and `user` are read from it. `Slack::App` finds no listener for it and answers HTTP 200 with an empty body. Authorization runs first: when the authorizer rejects the payload, for example because `user` is missing, the answer is HTTP 401. Do not log `raw`: it can hold a `response_url`.
+
+`Slack::Event::KNOWN_TYPES`, `Slack::Events::MessageFactory::KNOWN_SUBTYPES`, and `Slack::Interaction::KNOWN_TYPES` map each supported `type` or `subtype` string to the struct that it decodes as.
+
 ### Read actions and state
 
 `BlockAction#decoded_actions` gives typed ButtonAction, StaticSelectAction, MultiStaticSelectAction, ExternalSelectAction, MultiExternalSelectAction, OverflowAction, CheckboxesAction, RadioButtonsAction, UsersSelectAction, MultiUsersSelectAction, ChannelsSelectAction, MultiChannelsSelectAction, ConversationsSelectAction, MultiConversationsSelectAction, DatePickerAction, TimePickerAction, DatetimePickerAction, NumberInputAction, UrlInputAction, EmailInputAction, and RichTextInputAction values with block/action IDs, selections, and raw JSON. A dispatched `plain_text_input` action stays `UnknownAction`; read its text through `state_map`. Unknown action and state families keep raw JSON for application inspection.

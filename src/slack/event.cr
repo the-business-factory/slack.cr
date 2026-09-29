@@ -7,6 +7,7 @@
 abstract struct Slack::Event
   include JSON::Serializable
   include Slack::JSONRecords
+  include Slack::Discriminated
 
   property type : String
 
@@ -19,60 +20,44 @@ abstract struct Slack::Event
   @[JSON::Field(key: "user_team", emit_null: false)]
   property user_team_id : String?
 
-  # Keep the explicit type dispatch together rather than split the discriminator mapping.
-  # ameba:disable Metrics/CyclomaticComplexity
-  def self.new(pull : JSON::PullParser) : Slack::Event
-    location = pull.location
-    raw = JSON::Any.new(pull)
-    type = event_type(raw, location)
-    json = raw.to_json
-
-    case type
-    when "agent_session_stopped"            then Slack::Events::AgentSessionStopped.from_json(json)
-    when "agent_session_title_changed"      then Slack::Events::AgentSessionTitleChanged.from_json(json)
-    when "app_context_changed"              then Slack::Events::AppContextChanged.from_json(json)
-    when "app_deleted"                      then Slack::Events::AppDeleted.from_json(json)
-    when "app_home_opened"                  then Slack::Events::AppHomeOpened.from_json(json)
-    when "app_installed"                    then Slack::Events::AppInstalled.from_json(json)
-    when "app_mention"                      then Slack::Events::AppMentioned.from_json(json)
-    when "app_requested"                    then Slack::Events::AppRequested.from_json(json)
-    when "app_uninstalled"                  then Slack::Events::AppUninstalled.from_json(json)
-    when "assistant_thread_context_changed" then Slack::Events::AssistantThreadContextChanged.from_json(json)
-    when "assistant_thread_started"         then Slack::Events::AssistantThreadStarted.from_json(json)
-    when "channel_archive"                  then Slack::Events::ChannelArchive.from_json(json)
-    when "channel_created"                  then Slack::Events::ChannelCreated.from_json(json)
-    when "channel_deleted"                  then Slack::Events::ChannelDeleted.from_json(json)
-    when "channel_rename"                   then Slack::Events::ChannelRename.from_json(json)
-    when "channel_unarchive"                then Slack::Events::ChannelUnarchive.from_json(json)
-    when "emoji_changed"                    then Slack::Events::EmojiChanged.from_json(json)
-    when "function_executed"                then Slack::Events::FunctionExecuted.from_json(json)
-    when "link_shared"                      then Slack::Events::LinkShared.from_json(json)
-    when "member_joined_channel"            then Slack::Events::MemberJoinedChannel.from_json(json)
-    when "member_left_channel"              then Slack::Events::MemberLeftChannel.from_json(json)
-    when "message"                          then Slack::Events::MessageFactory.from_json(json)
-    when "message_metadata_deleted"         then Slack::Events::MessageMetadataDeleted.from_json(json)
-    when "message_metadata_posted"          then Slack::Events::MessageMetadataPosted.from_json(json)
-    when "message_metadata_updated"         then Slack::Events::MessageMetadataUpdated.from_json(json)
-    when "pin_added"                        then Slack::Events::PinAdded.from_json(json)
-    when "pin_removed"                      then Slack::Events::PinRemoved.from_json(json)
-    when "reaction_added"                   then Slack::Events::ReactionAdded.from_json(json)
-    when "reaction_removed"                 then Slack::Events::ReactionRemoved.from_json(json)
-    when "subteam_created"                  then Slack::Events::SubteamCreated.from_json(json)
-    when "subteam_members_changed"          then Slack::Events::SubteamMembersChanged.from_json(json)
-    when "subteam_self_added"               then Slack::Events::SubteamSelfAdded.from_json(json)
-    when "subteam_self_removed"             then Slack::Events::SubteamSelfRemoved.from_json(json)
-    when "subteam_updated"                  then Slack::Events::SubteamUpdated.from_json(json)
-    when "team_join"                        then Slack::Events::TeamJoin.from_json(json)
-    when "tokens_revoked"                   then Slack::Events::TokensRevoked.from_json(json)
-    when "user_change"                      then Slack::Events::UserChange.from_json(json)
-    when "user_status_changed"              then Slack::Events::UserStatusChanged.from_json(json)
-    else                                         Slack::Events::Unknown.new(type, raw)
-    end
-  end
-
-  private def self.event_type(raw : JSON::Any, location : Tuple(Int32, Int32)) : String
-    object = raw.as_h? || raise JSON::SerializableError.new("Expected a JSON object for an event", "Slack::Event", nil, *location, nil)
-    object["type"]?.try(&.as_s?) ||
-      raise JSON::SerializableError.new("Missing string JSON discriminator field 'type'", "Slack::Event", nil, *location, nil)
-  end
+  discriminated_by "type", {
+    agent_session_stopped:            Slack::Events::AgentSessionStopped,
+    agent_session_title_changed:      Slack::Events::AgentSessionTitleChanged,
+    app_context_changed:              Slack::Events::AppContextChanged,
+    app_deleted:                      Slack::Events::AppDeleted,
+    app_home_opened:                  Slack::Events::AppHomeOpened,
+    app_installed:                    Slack::Events::AppInstalled,
+    app_mention:                      Slack::Events::AppMentioned,
+    app_requested:                    Slack::Events::AppRequested,
+    app_uninstalled:                  Slack::Events::AppUninstalled,
+    assistant_thread_context_changed: Slack::Events::AssistantThreadContextChanged,
+    assistant_thread_started:         Slack::Events::AssistantThreadStarted,
+    channel_archive:                  Slack::Events::ChannelArchive,
+    channel_created:                  Slack::Events::ChannelCreated,
+    channel_deleted:                  Slack::Events::ChannelDeleted,
+    channel_rename:                   Slack::Events::ChannelRename,
+    channel_unarchive:                Slack::Events::ChannelUnarchive,
+    emoji_changed:                    Slack::Events::EmojiChanged,
+    function_executed:                Slack::Events::FunctionExecuted,
+    link_shared:                      Slack::Events::LinkShared,
+    member_joined_channel:            Slack::Events::MemberJoinedChannel,
+    member_left_channel:              Slack::Events::MemberLeftChannel,
+    message:                          Slack::Events::MessageFactory,
+    message_metadata_deleted:         Slack::Events::MessageMetadataDeleted,
+    message_metadata_posted:          Slack::Events::MessageMetadataPosted,
+    message_metadata_updated:         Slack::Events::MessageMetadataUpdated,
+    pin_added:                        Slack::Events::PinAdded,
+    pin_removed:                      Slack::Events::PinRemoved,
+    reaction_added:                   Slack::Events::ReactionAdded,
+    reaction_removed:                 Slack::Events::ReactionRemoved,
+    subteam_created:                  Slack::Events::SubteamCreated,
+    subteam_members_changed:          Slack::Events::SubteamMembersChanged,
+    subteam_self_added:               Slack::Events::SubteamSelfAdded,
+    subteam_self_removed:             Slack::Events::SubteamSelfRemoved,
+    subteam_updated:                  Slack::Events::SubteamUpdated,
+    team_join:                        Slack::Events::TeamJoin,
+    tokens_revoked:                   Slack::Events::TokensRevoked,
+    user_change:                      Slack::Events::UserChange,
+    user_status_changed:              Slack::Events::UserStatusChanged,
+  }, fallback: Slack::Events::Unknown
 end

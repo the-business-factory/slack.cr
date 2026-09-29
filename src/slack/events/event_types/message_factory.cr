@@ -3,43 +3,24 @@
 # A message without a subtype decodes as `Slack::Events::Message`. A subtype
 # that this library does not map decodes as `Slack::Events::Message::Unmapped`.
 struct Slack::Events::MessageFactory
-  # Keep the explicit type dispatch together rather than split the discriminator mapping.
-  # ameba:disable Metrics/CyclomaticComplexity
-  def self.new(pull : JSON::PullParser) : Slack::Event
-    location = pull.location
-    raw = JSON::Any.new(pull)
-    subtype = subtype(raw, location)
-    json = raw.to_json
+  include Slack::Discriminated
 
-    case subtype
-    when nil                    then Slack::Events::Message.from_json(json)
-    when "assistant_app_thread" then Slack::Events::Message::AssistantAppThread.from_json(json)
-    when "bot_add"              then Slack::Events::Message::BotAdd.from_json(json)
-    when "bot_message"          then Slack::Events::Message::BotMessage.from_json(json)
-    when "channel_join"         then Slack::Events::Message::ChannelJoin.from_json(json)
-    when "channel_leave"        then Slack::Events::Message::ChannelLeave.from_json(json)
-    when "channel_name"         then Slack::Events::Message::ChannelName.from_json(json)
-    when "channel_purpose"      then Slack::Events::Message::ChannelPurpose.from_json(json)
-    when "channel_topic"        then Slack::Events::Message::ChannelTopic.from_json(json)
-    when "file_share"           then Slack::Events::Message::FileShare.from_json(json)
-    when "me_message"           then Slack::Events::Message::MeMessage.from_json(json)
-    when "message_changed"      then Slack::Events::Message::MessageChanged.from_json(json)
-    when "message_deleted"      then Slack::Events::Message::MessageDeleted.from_json(json)
-    when "message_replied"      then Slack::Events::Message::MessageReplied.from_json(json)
-    when "pinned_item"          then Slack::Events::Message::PinnedItem.from_json(json)
-    when "thread_broadcast"     then Slack::Events::Message::ThreadBroadcast.from_json(json)
-    when "unpinned_item"        then Slack::Events::Message::UnpinnedItem.from_json(json)
-    else                             Slack::Events::Message::Unmapped.new(subtype, raw)
-    end
-  end
-
-  # :nodoc:
-  # Returns the `subtype` of the message object *raw*, or nil when it is
-  # missing or null. Raises `JSON::SerializableError` for another JSON type.
-  def self.subtype(raw : JSON::Any, location : Tuple(Int32, Int32)) : String?
-    object = raw.as_h? || raise JSON::SerializableError.new("Expected a JSON object for a message event", "Slack::Events::MessageFactory", nil, *location, nil)
-    value = object["subtype"]?
-    return if value.nil? || value.raw.nil?
-    value.as_s? || raise JSON::SerializableError.new("Message field 'subtype' must be a string", "Slack::Events::MessageFactory", nil, *location, nil)
-  end
+  discriminated_by "subtype", {
+    assistant_app_thread: Slack::Events::Message::AssistantAppThread,
+    bot_add:              Slack::Events::Message::BotAdd,
+    bot_message:          Slack::Events::Message::BotMessage,
+    channel_join:         Slack::Events::Message::ChannelJoin,
+    channel_leave:        Slack::Events::Message::ChannelLeave,
+    channel_name:         Slack::Events::Message::ChannelName,
+    channel_purpose:      Slack::Events::Message::ChannelPurpose,
+    channel_topic:        Slack::Events::Message::ChannelTopic,
+    file_share:           Slack::Events::Message::FileShare,
+    me_message:           Slack::Events::Message::MeMessage,
+    message_changed:      Slack::Events::Message::MessageChanged,
+    message_deleted:      Slack::Events::Message::MessageDeleted,
+    message_replied:      Slack::Events::Message::MessageReplied,
+    pinned_item:          Slack::Events::Message::PinnedItem,
+    thread_broadcast:     Slack::Events::Message::ThreadBroadcast,
+    unpinned_item:        Slack::Events::Message::UnpinnedItem,
+  }, fallback: Slack::Events::Message::Unmapped, default: Slack::Events::Message
 end

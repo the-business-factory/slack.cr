@@ -10,7 +10,7 @@ struct Slack::Events::Message::Unmapped < Slack::Event
   def self.new(pull : JSON::PullParser) : self
     location = pull.location
     raw = JSON::Any.new(pull)
-    subtype = Slack::Events::MessageFactory.subtype(raw, location) ||
+    subtype = Slack::Discriminated.value(raw, "subtype", "Slack::Events::Message::Unmapped", location) ||
               raise JSON::SerializableError.new("Missing string message field 'subtype'", "Slack::Events::Message::Unmapped", nil, *location, nil)
     new(subtype, raw)
   end

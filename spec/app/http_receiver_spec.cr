@@ -95,6 +95,14 @@ private MESSAGE_SHORTCUT = <<-JSON
    "trigger_id":"1789232400.synthetic.trigger","response_url":"https://hooks.slack.com/app/T-SYNTHETIC/1/synthetic"}
   JSON
 
+# An interaction `type` that this library does not map. It carries `user`,
+# because authorization runs before routing and requires the actor.
+private FUTURE_INTERACTION = <<-JSON
+  {"type":"synthetic_future_interaction","api_app_id":"A-SYNTHETIC",
+   "team":{"id":"T-SYNTHETIC","domain":"synthetic"},"user":{"id":"U-SYNTHETIC","team_id":"T-SYNTHETIC"},
+   "callback_id":"deploy.from_message","action_id":"deploy.approve","trigger_id":"1789232400.synthetic.trigger"}
+  JSON
+
 private class FailingAuthorizer < Slack::App::Authorizer
   def authorize(payload : Slack::App::Payload) : Slack::Api::Client
     raise Slack::Auth::ContractError.new(:missing_installation)
@@ -258,6 +266,22 @@ describe Slack::App::HttpReceiver do
       reply.body.should be_empty
       logs.check(:info, "No listener matched command /deploy")
     end
+  end
+
+  it "acknowledges an unmapped interaction type with an empty 200 and runs no listener" do
+    app = build_app
+    seen = [] of String
+    app.action("deploy.approve") { seen << "action" }
+    app.shortcut("deploy.from_message") { seen << "shortcut" }
+
+    Log.capture("slack.app") do |logs|
+      reply = receive(app, AppSupport.interaction(FUTURE_INTERACTION))
+
+      reply.status.should eq 200
+      reply.body.should be_empty
+      logs.check(:info, "No listener matched synthetic_future_interaction")
+    end
+    seen.should be_empty
   end
 
   it "gives a decoder observer the kind and exact bytes of each verified payload" do
