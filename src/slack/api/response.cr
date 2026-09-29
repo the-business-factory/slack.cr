@@ -6,8 +6,9 @@ require "./envelope"
 require "./decoded_response"
 
 module Slack::Api
-  # The parsed Web API envelope and the response model `M`. `parse` reads
-  # both from one parse of the body, also for an error body.
+  # The parsed Web API envelope and the response model `M`. `parse` reads a
+  # success body once. A body that does not decode as the model, such as an
+  # error body, is parsed a second time for the envelope fields alone.
   #
   # See https://docs.slack.dev/apis/web-api/ for `ok`, `error`, and `warning`,
   # and https://docs.slack.dev/apis/web-api/pagination for `response_metadata`.

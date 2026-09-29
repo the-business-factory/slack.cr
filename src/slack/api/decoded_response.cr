@@ -1,12 +1,13 @@
 require "json"
 require "./envelope_metadata"
+require "./envelope_body"
 
 module Slack::Api
   # :nodoc:
-  # The result of one parse of a Web API response body: the envelope values
-  # and, when the body decodes as the model, the model. `Response` classifies
-  # the envelope before it uses the model, so an error body without the
-  # model's required fields still gives its Slack error.
+  # The decoded Web API response body: the envelope values and, when the body
+  # decodes as the model, the model. `Response` classifies the envelope before
+  # it uses the model, so an error body that does not match the model still
+  # gives its Slack error.
   struct DecodedResponse(M)
     getter model : M?
     # Nil when the body has no boolean `ok`, or does not parse.
@@ -27,6 +28,16 @@ module Slack::Api
     # A body that does not parse, with no model and no envelope values.
     def self.unreadable : self
       new(nil, nil, nil, nil, nil, nil, false)
+    end
+
+    # Reads the envelope fields alone, for a body that does not decode as the
+    # model. This is a second parse, so only such bodies, which are usually
+    # small error bodies, pay for it.
+    def self.envelope_only(body : String) : self
+      envelope = EnvelopeBody.from_json(body)
+      new(nil, envelope.ok, envelope.error, envelope.warning, envelope.response_metadata, envelope.errors, false)
+    rescue JSON::ParseException
+      unreadable
     end
 
     # Reads the envelope values from a parsed raw response. A value of the

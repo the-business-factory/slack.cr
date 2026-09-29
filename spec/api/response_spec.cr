@@ -38,23 +38,47 @@ module ResponseSpec
     Slack::Auth::TransportResponse.new(status, HTTP::Headers.new, body)
   end
 
+  def self.error(body : String, type : T.class, status : Int32 = 200) : Slack::Api::Error forall T
+    expect_raises(Slack::Api::Error) { Slack::Api::Response(T).parse(response(body, status)) }
+  end
+
+  # Sends an `ok: false` body with *data* before and after the envelope, at
+  # HTTP 200 and 500, and expects Slack's error code and messages.
+  def self.keeps_slack_error(type : T.class, data : String) : Nil forall T
+    envelope = %("ok":false,"error":"fatal_error","response_metadata":{"messages":["[ERROR] canary-detail"]})
+    [%({#{envelope},#{data}}), %({#{data},#{envelope}})].each do |body|
+      {200, 500}.each do |status|
+        error = error(body, type, status)
+        {error.code, error.http_status, error.messages}.should eq({"fatal_error", status, ["[ERROR] canary-detail"]})
+      end
+    end
+  end
+
+  def self.redacted_invalid_response(type : T.class, body : String) : Nil forall T
+    error = error(body, type)
+    error.code.should eq "invalid_response"
+    error.cause.should be_nil
+    error.message.to_s.should_not contain("canary")
+    error.inspect.should_not contain("canary")
+  end
+
   def self.error_code(body : String, type : T.class, status : Int32 = 200) : String forall T
-    expect_raises(Slack::Api::Error) { Slack::Api::Response(T).parse(response(body, status)) }.code
+    error(body, type, status).code
   end
 end
 
 describe Slack::Api::Response do
-  it "parses a success, an error body without model fields, and a flagged outcome once each" do
+  it "parses a success body once and an error body that does not match the model twice" do
     success = %({"ok":true,"channel":"C1","ts":"1.1"})
     ResponseSpec.counting do
       Slack::Api::Response(Slack::Models::Chat::Delete).parse(ResponseSpec.response(success)).model.channel.should eq "C1"
     end.should eq [success]
 
-    [%({"ok":false,"error":"channel_not_found"}), %({"error":"channel_not_found","ok":false})].each do |failure|
-      ResponseSpec.counting do
-        ResponseSpec.error_code(failure, Slack::Models::Chat::Delete).should eq "channel_not_found"
-      end.should eq [failure]
-    end
+    # The model attempt fails without `channel` and `ts`; the envelope is then parsed alone.
+    failure = %({"ok":false,"error":"channel_not_found"})
+    ResponseSpec.counting do
+      ResponseSpec.error_code(failure, Slack::Models::Chat::Delete).should eq "channel_not_found"
+    end.should eq [failure, failure]
 
     outcome = %({"ok":false,"not_in_channel":true})
     ResponseSpec.counting do
@@ -80,8 +104,20 @@ describe Slack::Api::Response do
       {% for model in models %}
         ResponseSpec.error_code(body, {{ model }}).should eq "channel_not_found"
       {% end %}
-      {{ models.size }}.should be > 40
     {% end %}
+  end
+
+  it "keeps the Slack error of an error body with model data that does not decode" do
+    ResponseSpec.keeps_slack_error(Slack::Models::Chat::Delete, %("channel":17))
+    ResponseSpec.keeps_slack_error(Slack::Models::Team, %("team":{}))
+    ResponseSpec.keeps_slack_error(Slack::Models::ConversationsHistory, %("messages":[{}]))
+    ResponseSpec.keeps_slack_error(Slack::Models::Chat::ScheduleMessage, %("post_at":"canary-non-numeric"))
+  end
+
+  it "reports malformed model data in a success body as invalid_response without the remote value" do
+    ResponseSpec.redacted_invalid_response(Slack::Models::Chat::Delete, %({"ok":true,"channel":17,"ts":"1.1"}))
+    ResponseSpec.redacted_invalid_response(Slack::Models::Chat::ScheduleMessage,
+      %({"ok":true,"channel":"C1","scheduled_message_id":"Q1","post_at":"canary-non-numeric","message":{}}))
   end
 
   it "rejects a success without the model's required fields or with a wrong envelope type" do
