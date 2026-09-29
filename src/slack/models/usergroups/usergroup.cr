@@ -19,12 +19,16 @@ module Slack::Models
     # :nodoc:
     # Slack sends `user_count` as a JSON string in its documented examples and
     # as a number in other responses. Both read as `Int32`; it writes a number.
+    # A malformed or out-of-range count raises `JSON::ParseException`.
     module CountConverter
       def self.from_json(pull : JSON::PullParser) : Int32
-        case pull.kind
-        when .string? then pull.read_string.to_i
-        else               pull.read_int.to_i32
-        end
+        location = pull.location
+        count = pull.kind.string? ? pull.read_string.to_i? : int32?(pull.read_int)
+        count || raise JSON::ParseException.new("Expected an Int32 count", *location)
+      end
+
+      private def self.int32?(value : Int64) : Int32?
+        value.to_i32 if Int32::MIN <= value <= Int32::MAX
       end
 
       def self.to_json(value : Int32, json : JSON::Builder) : Nil

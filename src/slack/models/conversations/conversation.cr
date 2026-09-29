@@ -6,7 +6,7 @@ abstract struct Slack::Models::Conversation < Slack::Model
   property num_members : Int32?
   property locale : String?
 
-  @[JSON::Field(converter: Time::EpochConverter)]
+  @[JSON::Field(converter: Slack::EpochConverter)]
   property created : Time
 
   # Reads the `channel` object of a `conversations.info` response as its conversation type.

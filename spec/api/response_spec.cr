@@ -120,6 +120,21 @@ describe Slack::Api::Response do
       %({"ok":true,"channel":"C1","scheduled_message_id":"Q1","post_at":"canary-non-numeric","message":{}}))
   end
 
+  it "keeps the Slack error of an error body with an out-of-range Unix time" do
+    ResponseSpec.keeps_slack_error(Slack::Models::Chat::ScheduleMessage, %("post_at":9223372036854775807))
+  end
+
+  it "reports an out-of-range Unix time in a success body as invalid_response without the value" do
+    schedule = %({"ok":true,"channel":"C1","scheduled_message_id":"Q1","post_at":9223372036854775807,"message":{}})
+    conversation = JSON.parse(File.read("spec/fixtures/api/conversations-info-C032TLM43GA.json"))
+    conversation["channel"].as_h["created"] = JSON::Any.new(9223372036854775807_i64)
+    {ResponseSpec.error(schedule, Slack::Models::Chat::ScheduleMessage),
+     ResponseSpec.error(conversation.to_json, Slack::Models::Conversation)}.each do |error|
+      {error.code, error.http_status, error.cause}.should eq({"invalid_response", 200, nil})
+      error.message.to_s.should_not contain("9223372036854775807")
+    end
+  end
+
   it "rejects a success without the model's required fields or with a wrong envelope type" do
     ResponseSpec.error_code(%({"ok":true}), Slack::Models::Chat::Delete).should eq "invalid_response"
     ResponseSpec.error_code(%({"ok":true}), Slack::Models::Conversation).should eq "invalid_response"
