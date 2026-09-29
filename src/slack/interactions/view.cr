@@ -116,9 +116,13 @@ struct Slack::Interactions::View
     PayloadAccess.bool?(@payload["notify_on_close"]?, "view.notify_on_close")
   end
 
+  @decoded_blocks : Array(ReceivedBlock)? = nil
+
   # Decodes the view blocks. Returns an empty array when the view has none.
+  # The first call decodes and keeps the result. A copy of this struct made
+  # before the first call decodes again.
   def blocks : Array(ReceivedBlock)
-    ReceivedBlocks.decode(@payload["blocks"]?, "view.blocks")
+    @decoded_blocks ||= ReceivedBlocks.decode(@payload["blocks"]?, "view.blocks")
   end
 
   def state_map : StateMap

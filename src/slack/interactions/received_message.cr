@@ -32,9 +32,13 @@ struct Slack::Interactions::ReceivedMessage
     string?("user")
   end
 
+  @decoded_blocks : Array(ReceivedBlock)? = nil
+
   # Decodes the message blocks. Returns an empty array when the message has none.
+  # The first call decodes and keeps the result. A copy of this struct made
+  # before the first call decodes again.
   def blocks : Array(ReceivedBlock)
-    ReceivedBlocks.decode(object["blocks"]?, "message.blocks")
+    @decoded_blocks ||= ReceivedBlocks.decode(object["blocks"]?, "message.blocks")
   end
 
   private def string?(key : String) : String?

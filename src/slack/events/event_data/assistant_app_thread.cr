@@ -11,9 +11,14 @@ struct Slack::EventData::AssistantAppThread
   @[JSON::Field(emit_null: false)]
   getter artifacts : JSON::Any?
 
+  @[JSON::Field(ignore: true)]
+  @decoded_title_blocks : Array(Slack::Interactions::ReceivedBlock)? = nil
+
   # Decodes the title blocks. Returns an empty array when there are none.
   # Raises `Slack::Interactions::TypeMismatch` for a malformed known block.
+  # The first call decodes and keeps the result. A copy of this struct made
+  # before the first call decodes again.
   def title_blocks : Array(Slack::Interactions::ReceivedBlock)
-    Slack::Interactions::ReceivedBlocks.decode(@title_blocks_raw, "assistant_app_thread.title_blocks")
+    @decoded_title_blocks ||= Slack::Interactions::ReceivedBlocks.decode(@title_blocks_raw, "assistant_app_thread.title_blocks")
   end
 end

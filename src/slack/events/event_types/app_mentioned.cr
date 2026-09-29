@@ -33,9 +33,14 @@ struct Slack::Events::AppMentioned < Slack::Event
 
   getter document_mention : DocumentMention?
 
+  @[JSON::Field(ignore: true)]
+  @decoded_blocks : Array(Slack::Interactions::ReceivedBlock)? = nil
+
   # Decodes the message blocks. Returns an empty array when the mention has none.
   # Raises `Slack::Interactions::TypeMismatch` for a malformed known block.
+  # The first call decodes and keeps the result. A copy of this struct made
+  # before the first call decodes again.
   def blocks : Array(Slack::Interactions::ReceivedBlock)
-    Slack::Interactions::ReceivedBlocks.decode(@blocks_raw, "event.blocks")
+    @decoded_blocks ||= Slack::Interactions::ReceivedBlocks.decode(@blocks_raw, "event.blocks")
   end
 end

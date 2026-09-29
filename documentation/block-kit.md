@@ -1096,7 +1096,7 @@ when Slack::Interactions::BlockAction
 end
 ```
 
-The getters decode when called and return an empty array when blocks are absent or null. A missing required field or a wrong JSON type in a known block raises `TypeMismatch` with the JSON path, such as `event.blocks[2].text`. The event or interaction itself still decodes. Received blocks do not apply outbound rules, such as length limits or placement, because Slack can send blocks from other apps or other versions.
+The getters decode on the first call, keep the result, and return an empty array when blocks are absent or null. A getter such as `ctx.event` returns a copy of the event, and a copy made before the first call decodes again. To decode once, put the event in a variable and read `blocks` from that variable. A missing required field or a wrong JSON type in a known block raises `TypeMismatch` with the JSON path, such as `event.blocks[2].text`. The event or interaction itself still decodes. Received blocks do not apply outbound rules, such as length limits or placement, because Slack can send blocks from other apps or other versions.
 
 Received blocks are read-only. They do not convert to `Slack::UI` values. To send a changed message, build a new message with `Slack::UI`. `conversations.history` messages keep raw blocks.
 

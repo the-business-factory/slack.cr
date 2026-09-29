@@ -236,6 +236,20 @@ module ReceivedBlocksSpec
       changed.previous_message.should_not(be_nil).blocks.size.should eq 1
     end
 
+    it "decodes blocks once per instance and keeps them out of to_json" do
+      json = <<-JSON
+        {"type":"message","channel":"C1","channel_type":"channel","team":"T1","text":"hi","user":"U1","ts":"1.1",
+         "blocks":[{"type":"divider","block_id":"d1"}]}
+        JSON
+      message = Slack::Event.from_json(json).should be_a(Slack::Events::Message)
+
+      message.blocks.should be(message.blocks)
+      JSON.parse(message.to_json).should eq JSON.parse(json)
+
+      received = Slack::Interactions::ReceivedMessage.from_json(%({"ts":"1.2","blocks":[{"type":"divider"}]}))
+      received.blocks.should be(received.blocks)
+    end
+
     it "keeps a message event readable when its blocks are malformed" do
       # This captured file_share event carries a rich text section serialized as a string.
       event = Slack::VerifiedEvent.from_json(File.read("spec/fixtures/events/message/file_share.json")).event
