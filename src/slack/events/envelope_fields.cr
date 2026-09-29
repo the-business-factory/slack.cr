@@ -31,7 +31,7 @@ module Slack::Events::EnvelopeFields
     @[JSON::Field(emit_null: false)]
     properties_with_initializer is_ext_shared_channel : Bool? = nil
 
-    @[JSON::Field(converter: Time::EpochConverter)]
+    @[JSON::Field(converter: Slack::EpochConverter)]
     properties_with_initializer event_time : Time
   end
 end

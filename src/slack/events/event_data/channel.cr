@@ -5,7 +5,7 @@ struct Slack::EventData::Channel
   getter id : String
   getter name : String
 
-  @[JSON::Field(converter: Time::EpochConverter)]
+  @[JSON::Field(converter: Slack::EpochConverter)]
   getter created : Time
 
   # The user who created the channel. `channel_rename` does not send it.

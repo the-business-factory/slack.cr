@@ -11,6 +11,6 @@ struct Slack::AppRateLimited
   getter api_app_id : String
 
   # The minute when Slack started to limit events for `team_id`.
-  @[JSON::Field(converter: Time::EpochConverter)]
+  @[JSON::Field(converter: Slack::EpochConverter)]
   getter minute_rate_limited : Time
 end

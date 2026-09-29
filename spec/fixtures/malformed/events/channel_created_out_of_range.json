@@ -1,0 +1,17 @@
+{
+  "token": "synthetic-legacy-token",
+  "team_id": "T-SYNTHETIC",
+  "api_app_id": "A-SYNTHETIC",
+  "event": {
+    "type": "channel_created",
+    "channel": {
+      "id": "C-CREATED",
+      "name": "fun",
+      "created": 9223372036854775807,
+      "creator": "U-CREATOR"
+    }
+  },
+  "type": "event_callback",
+  "event_id": "Ev-OUT-OF-RANGE",
+  "event_time": 1789232400
+}

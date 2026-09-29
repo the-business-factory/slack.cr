@@ -265,6 +265,12 @@ module DecoderContract
         parsing Slack::Events::Message::ChannelTopic#topic at line 1, column 1
         parsing Slack::VerifiedEvent#event at line 5, column 3
       ERROR
+    "malformed/events/channel_created_out_of_range.json" => <<-ERROR,
+      JSON::SerializableError: Unix time out of range at line 1, column 78
+        parsing Slack::EventData::Channel#created at line 1, column 68
+        parsing Slack::Events::ChannelCreated#channel at line 1, column 27
+        parsing Slack::VerifiedEvent#event at line 5, column 3
+      ERROR
     "malformed/events/url_verification_missing_challenge.json" => <<-ERROR,
       JSON::SerializableError: Missing JSON attribute: challenge
         parsing Slack::UrlVerification#challenge at line 1, column 1

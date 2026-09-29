@@ -41,6 +41,13 @@ private TEXTLESS_MESSAGE = <<-JSON
             "ts":"1789232400.000500","event_ts":"1789232400.000500","channel_type":"channel"},
    "type":"event_callback","event_id":"Ev-TEXTLESS","event_time":1789232400}
   JSON
+# An `app_mention` whose `event_time` is outside the `Time` range.
+private OUT_OF_RANGE_EVENT_TIME = <<-JSON
+  {"token":"synthetic-legacy-token","team_id":"T-SYNTHETIC","api_app_id":"A-SYNTHETIC",
+   "event":{"type":"app_mention","user":"U-SYNTHETIC","text":"<@U-BOT> deploy","ts":"1789232400.000700",
+            "channel":"C-SYNTHETIC","event_ts":"1789232400.000700"},
+   "type":"event_callback","event_id":"Ev-OUT-OF-RANGE","event_time":9223372036854775807}
+  JSON
 # An event type that this library does not map.
 private FUTURE_EVENT = <<-JSON
   {"token":"synthetic-legacy-token","team_id":"T-SYNTHETIC","api_app_id":"A-SYNTHETIC",
@@ -198,6 +205,15 @@ describe Slack::App::HttpReceiver do
     app.event(Slack::Event) { |_ctx| routed << "event listener" }
 
     receive(app, AppSupport.json(TEXTLESS_MESSAGE)).status.should eq 400
+    routed.should be_empty
+  end
+
+  it "answers 400 and runs no listener for an event_time outside the Time range" do
+    app = build_app
+    routed = [] of String
+    app.event(Slack::Event) { |_ctx| routed << "event listener" }
+
+    receive(app, AppSupport.json(OUT_OF_RANGE_EVENT_TIME)).status.should eq 400
     routed.should be_empty
   end
 

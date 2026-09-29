@@ -16,10 +16,10 @@ struct Slack::Events::FunctionDefinition
   getter input_parameters : Array(FunctionParameter) = [] of FunctionParameter
   getter output_parameters : Array(FunctionParameter) = [] of FunctionParameter
 
-  @[JSON::Field(converter: Time::EpochConverter)]
+  @[JSON::Field(converter: Slack::EpochConverter)]
   getter date_created : Time
 
-  @[JSON::Field(converter: Time::EpochConverter)]
+  @[JSON::Field(converter: Slack::EpochConverter)]
   getter date_updated : Time
 
   # Slack sends 0 for a function that is not deleted.

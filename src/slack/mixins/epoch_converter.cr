@@ -3,7 +3,8 @@ require "json"
 # :nodoc:
 # Reads Unix seconds sent as a JSON integer, like `Time::EpochConverter`. A
 # value outside the `Time` range raises `JSON::ParseException`, as other
-# malformed values do, so a Web API response reports it as malformed data.
+# malformed values do. Thus a Web API response reports it as malformed data,
+# and the HTTP receiver answers 400 for an Events API payload that has it.
 module Slack::EpochConverter
   def self.from_json(pull : JSON::PullParser) : Time
     location = pull.location
