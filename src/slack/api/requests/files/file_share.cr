@@ -72,10 +72,7 @@ module Slack::Api
       timestamp = @thread_ts
       return unless timestamp
 
-      unless FieldChecks.timestamp?(timestamp)
-        issues << issue("thread_ts.invalid", "thread_ts",
-          "Thread timestamp must contain digits, a decimal point, and fractional digits.")
-      end
+      FieldChecks.timestamp_issue(issues, "file_share", "thread_ts", timestamp, "Thread timestamp")
       unless channel_count == 1
         issues << issue("thread_ts.single_channel_required", "thread_ts",
           "A thread reply must be shared to exactly one channel.")
