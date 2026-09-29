@@ -10,13 +10,14 @@ struct Slack::UI::BlockElements::MultiChannelsSelect
 
   def initialize(
     *,
-    @action_id : String? = nil,
+    action_id : (String | Slack::UI::ActionId)? = nil,
     initial_channels : Enumerable(T)? = nil,
     @max_selected_items : Int32? = nil,
     @placeholder : Slack::UI::CompositionObjects::PlainText? = nil,
     @confirm : Slack::UI::CompositionObjects::Confirmation? = nil,
     @focus_on_load : Bool? = nil,
   ) forall T
+    @action_id = Slack::UI::ActionId.value_of(action_id)
     @initial_channels = if initial_channels
                           copied = [] of String
                           initial_channels.each { |channel| copied << channel }

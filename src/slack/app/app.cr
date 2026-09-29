@@ -77,7 +77,8 @@ class Slack::App
   end
 
   # Listens for `block_actions` whose action has *action_id* and, when given, *block_id*.
-  def action(action_id : String | Regex, block_id : String? = nil, *,
+  # Give a `Slack::UI::ActionId` to use the same constant as the element.
+  def action(action_id : String | Regex | Slack::UI::ActionId, block_id : String? = nil, *,
              middleware : Array(Middleware) = [] of Middleware, &handler : ActionContext ->) : Nil
     @router.action(action_id, block_id, middleware, handler)
   end
@@ -95,7 +96,8 @@ class Slack::App
   end
 
   # Listens for `block_suggestion` requests from the external select *action_id*.
-  def options(action_id : String | Regex, *, middleware : Array(Middleware) = [] of Middleware,
+  # Give a `Slack::UI::ActionId` to use the same constant as the element.
+  def options(action_id : String | Regex | Slack::UI::ActionId, *, middleware : Array(Middleware) = [] of Middleware,
               &handler : OptionsContext ->) : Nil
     @router.options(action_id, middleware, handler)
   end

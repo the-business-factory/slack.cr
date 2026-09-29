@@ -11,8 +11,9 @@ struct Slack::UI::BlockElements::FeedbackButtons
     *,
     @positive_button : CompositionObjects::FeedbackButton,
     @negative_button : CompositionObjects::FeedbackButton,
-    @action_id : String? = nil,
+    action_id : (String | Slack::UI::ActionId)? = nil,
   )
+    @action_id = Slack::UI::ActionId.value_of(action_id)
     validate!
   end
 

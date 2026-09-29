@@ -8,8 +8,9 @@ struct Slack::UI::BlockElements::Overflow
   getter action_id : String?
   getter confirm : Slack::UI::CompositionObjects::Confirmation?
 
-  def initialize(*, options : Enumerable(T), @action_id : String? = nil,
+  def initialize(*, options : Enumerable(T), action_id : (String | Slack::UI::ActionId)? = nil,
                  @confirm : Slack::UI::CompositionObjects::Confirmation? = nil) forall T
+    @action_id = Slack::UI::ActionId.value_of(action_id)
     @options = [] of Option
     options.each { |option| @options << option }
     validate!

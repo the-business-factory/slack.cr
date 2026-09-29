@@ -14,7 +14,7 @@ struct Slack::UI::BlockElements::MultiExternalSelect
 
   def initialize(
     *,
-    @action_id : String? = nil,
+    action_id : (String | Slack::UI::ActionId)? = nil,
     @placeholder : Slack::UI::CompositionObjects::PlainText? = nil,
     initial_options : Enumerable(T)? = nil,
     @min_query_length : Int32? = nil,
@@ -22,6 +22,7 @@ struct Slack::UI::BlockElements::MultiExternalSelect
     @confirm : Slack::UI::CompositionObjects::Confirmation? = nil,
     @focus_on_load : Bool? = nil,
   ) forall T
+    @action_id = Slack::UI::ActionId.value_of(action_id)
     @initial_options = Slack::UI::OptionCollection.copy(initial_options)
     validate!
   end

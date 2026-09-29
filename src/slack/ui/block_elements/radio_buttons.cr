@@ -11,9 +11,10 @@ struct Slack::UI::BlockElements::RadioButtons
   getter focus_on_load : Bool?
 
   def initialize(*, options : Enumerable(T), @initial_option : Option? = nil,
-                 @action_id : String? = nil,
+                 action_id : (String | Slack::UI::ActionId)? = nil,
                  @confirm : Slack::UI::CompositionObjects::Confirmation? = nil,
                  @focus_on_load : Bool? = nil) forall T
+    @action_id = Slack::UI::ActionId.value_of(action_id)
     @options = [] of Option
     options.each { |option| @options << option }
     validate!

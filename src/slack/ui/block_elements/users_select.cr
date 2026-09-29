@@ -9,12 +9,13 @@ struct Slack::UI::BlockElements::UsersSelect
 
   def initialize(
     *,
-    @action_id : String? = nil,
+    action_id : (String | Slack::UI::ActionId)? = nil,
     @initial_user : String? = nil,
     @placeholder : Slack::UI::CompositionObjects::PlainText? = nil,
     @confirm : Slack::UI::CompositionObjects::Confirmation? = nil,
     @focus_on_load : Bool? = nil,
   )
+    @action_id = Slack::UI::ActionId.value_of(action_id)
     validate!
   end
 

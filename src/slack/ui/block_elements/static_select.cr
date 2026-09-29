@@ -6,12 +6,13 @@ struct Slack::UI::BlockElements::StaticSelect
   def initialize(
     *,
     options : Enumerable(T),
-    @action_id : String? = nil,
+    action_id : (String | Slack::UI::ActionId)? = nil,
     @placeholder : Slack::UI::CompositionObjects::PlainText? = nil,
     @confirm : Slack::UI::CompositionObjects::Confirmation? = nil,
     @focus_on_load : Bool? = nil,
     @initial_option : Option? = nil,
   ) forall T
+    @action_id = Slack::UI::ActionId.value_of(action_id)
     @options = Slack::UI::OptionCollection.copy(options)
     @option_groups = nil
     validate!
@@ -20,12 +21,13 @@ struct Slack::UI::BlockElements::StaticSelect
   def initialize(
     *,
     option_groups : Enumerable(T),
-    @action_id : String? = nil,
+    action_id : (String | Slack::UI::ActionId)? = nil,
     @placeholder : Slack::UI::CompositionObjects::PlainText? = nil,
     @confirm : Slack::UI::CompositionObjects::Confirmation? = nil,
     @focus_on_load : Bool? = nil,
     @initial_option : Option? = nil,
   ) forall T
+    @action_id = Slack::UI::ActionId.value_of(action_id)
     @options = nil
     @option_groups = copy_groups(option_groups)
     validate!

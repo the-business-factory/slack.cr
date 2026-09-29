@@ -17,7 +17,7 @@ struct Slack::UI::BlockElements::Button
 
   def initialize(
     @text : Slack::UI::CompositionObjects::PlainText,
-    @action_id : String? = nil,
+    action_id : (String | Slack::UI::ActionId)? = nil,
     @url : String? = nil,
     @value : String? = nil,
     @style : ButtonStyle? = nil,
@@ -25,6 +25,7 @@ struct Slack::UI::BlockElements::Button
     @accessibility_label : String? = nil,
     @agent_prompt : String? = nil,
   )
+    @action_id = Slack::UI::ActionId.value_of(action_id)
     validate!
   end
 

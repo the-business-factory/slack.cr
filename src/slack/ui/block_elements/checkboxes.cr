@@ -11,9 +11,10 @@ struct Slack::UI::BlockElements::Checkboxes
   getter focus_on_load : Bool?
 
   def initialize(*, options : Enumerable(T), initial_options : Enumerable(U)? = nil,
-                 @action_id : String? = nil,
+                 action_id : (String | Slack::UI::ActionId)? = nil,
                  @confirm : Slack::UI::CompositionObjects::Confirmation? = nil,
                  @focus_on_load : Bool? = nil) forall T, U
+    @action_id = Slack::UI::ActionId.value_of(action_id)
     @options = [] of Option
     options.each { |option| @options << option }
     @initial_options = if initial_options

@@ -13,13 +13,14 @@ struct Slack::UI::BlockElements::ExternalSelect
 
   def initialize(
     *,
-    @action_id : String? = nil,
+    action_id : (String | Slack::UI::ActionId)? = nil,
     @placeholder : Slack::UI::CompositionObjects::PlainText? = nil,
     @initial_option : Slack::UI::CompositionObjects::Option? = nil,
     @min_query_length : Int32? = nil,
     @confirm : Slack::UI::CompositionObjects::Confirmation? = nil,
     @focus_on_load : Bool? = nil,
   )
+    @action_id = Slack::UI::ActionId.value_of(action_id)
     validate!
   end
 

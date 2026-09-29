@@ -11,12 +11,13 @@ struct Slack::UI::BlockElements::UrlInput
 
   def initialize(
     *,
-    @action_id : String? = nil,
+    action_id : (String | Slack::UI::ActionId)? = nil,
     @initial_value : String? = nil,
     @dispatch_action_config : Slack::UI::CompositionObjects::DispatchActionConfig? = nil,
     @focus_on_load : Bool? = nil,
     @placeholder : Slack::UI::CompositionObjects::PlainText? = nil,
   )
+    @action_id = Slack::UI::ActionId.value_of(action_id)
     validate!
   end
 

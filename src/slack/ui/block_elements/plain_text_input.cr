@@ -11,7 +11,7 @@ struct Slack::UI::BlockElements::PlainTextInput
   getter placeholder : Slack::UI::CompositionObjects::PlainText?
 
   def initialize(
-    @action_id : String? = nil,
+    action_id : (String | Slack::UI::ActionId)? = nil,
     @initial_value : String? = nil,
     @multiline : Bool? = nil,
     @min_length : Int32? = nil,
@@ -20,6 +20,7 @@ struct Slack::UI::BlockElements::PlainTextInput
     @focus_on_load : Bool? = nil,
     @placeholder : Slack::UI::CompositionObjects::PlainText? = nil,
   )
+    @action_id = Slack::UI::ActionId.value_of(action_id)
     validate!
   end
 

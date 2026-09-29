@@ -14,10 +14,11 @@ struct Slack::UI::BlockElements::WorkflowButton
     *,
     @text : Slack::UI::CompositionObjects::PlainText,
     @workflow : Slack::UI::CompositionObjects::Workflow,
-    @action_id : String,
+    action_id : String | Slack::UI::ActionId,
     @style : ButtonStyle? = nil,
     @accessibility_label : String? = nil,
   )
+    @action_id = Slack::UI::ActionId.value_of(action_id)
     validate!
   end
 

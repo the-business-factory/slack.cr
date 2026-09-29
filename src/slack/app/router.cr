@@ -46,12 +46,13 @@ class Slack::App::Router
     end
   end
 
-  def action(action_id : String | Regex, block_id : String?, middleware : Array(Middleware),
+  def action(action_id : String | Regex | Slack::UI::ActionId, block_id : String?, middleware : Array(Middleware),
              handler : Proc(ActionContext, Nil)) : Nil
+    pattern = action_pattern(action_id)
     @routes << TypedRoute(ActionContext).new(middleware, handler, acknowledge_first: false) do |payload, environment|
       next unless payload.is_a?(Slack::Interactions::BlockAction)
       action = payload.decoded_actions.first?
-      if action && matches?(action_id, action_id(action)) && (block_id.nil? || block_id == block_id(action))
+      if action && matches?(pattern, action_id(action)) && (block_id.nil? || block_id == block_id(action))
         ActionContext.new(environment, payload, action)
       end
     end
@@ -73,9 +74,10 @@ class Slack::App::Router
     end
   end
 
-  def options(action_id : String | Regex, middleware : Array(Middleware), handler : Proc(OptionsContext, Nil)) : Nil
+  def options(action_id : String | Regex | Slack::UI::ActionId, middleware : Array(Middleware), handler : Proc(OptionsContext, Nil)) : Nil
+    pattern = action_pattern(action_id)
     @routes << TypedRoute(OptionsContext).new(middleware, handler, acknowledge_first: false) do |payload, environment|
-      if payload.is_a?(Slack::Interactions::BlockSuggestion) && matches?(action_id, payload.action_id)
+      if payload.is_a?(Slack::Interactions::BlockSuggestion) && matches?(pattern, payload.action_id)
         OptionsContext.new(environment, payload)
       end
     end
@@ -96,6 +98,10 @@ class Slack::App::Router
         ViewClosedContext.new(environment, payload)
       end
     end
+  end
+
+  private def action_pattern(action_id : String | Regex | Slack::UI::ActionId) : String | Regex
+    action_id.is_a?(Slack::UI::ActionId) ? action_id.value : action_id
   end
 
   # A string matches the whole value; a regex matches anywhere in it.

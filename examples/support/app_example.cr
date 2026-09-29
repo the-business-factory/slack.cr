@@ -10,6 +10,8 @@ module OfflineAppExample
   alias UI = Slack::UI
 
   SIGNING_SECRET = Slack::Auth::Secret.new("synthetic-signing-secret")
+  # One value names the Approve button and its listener.
+  APPROVE = UI::ActionId.new("deploy.approve")
 
   # Independently authored from the app_mention and block_actions references.
   MENTION = %q({"token":"synthetic-legacy-token","team_id":"T-SYNTHETIC","api_app_id":"A-SYNTHETIC","event":{"type":"app_mention","user":"U-SYNTHETIC","text":"<@U-BOT> deploy api","ts":"1789232400.000100","channel":"C-DEPLOYS","event_ts":"1789232400.000100"},"type":"event_callback","event_id":"Ev-MENTION","event_time":1789232400,"authorizations":[{"team_id":"T-SYNTHETIC","user_id":"U-BOT","is_bot":true,"is_enterprise_install":false}]})
@@ -28,7 +30,7 @@ module OfflineAppExample
       ctx.client.call(Slack::Api::ChatPostMessage.new(channel: mention.channel, message: approval_request("api")))
     end
 
-    app.action("deploy.approve") do |ctx|
+    app.action(APPROVE) do |ctx|
       ctx.ack
       button = ctx.action
       channel = ctx.payload.channel
@@ -55,7 +57,7 @@ module OfflineAppExample
   def self.approval_request(service : String) : UI::Message
     UI.message(fallback_text: "Approve the #{service} deploy?") do |builder|
       builder.section(UI.mrkdwn("Approve the *#{service}* deploy?"), block_id: "deploy.summary")
-      approve = UI::BlockElements::Button.new(text: UI.plain("Approve"), action_id: "deploy.approve", value: service)
+      approve = UI::BlockElements::Button.new(text: UI.plain("Approve"), action_id: APPROVE, value: service)
       builder.actions(elements: [approve], block_id: "deploy.controls")
     end
   end
@@ -161,7 +163,7 @@ module OfflineAppExample
     app = Slack::App.new(authorizer: Slack::App::InstallationAuthorizer.new(request_authorizer, Slack::Auth::GrantKey.new(:bot)))
     app.error { |error, ctx| ctx.log.error { error.message } }
 
-    app.action("deploy.approve") do |ctx|
+    app.action(APPROVE) do |ctx|
       ctx.ack
       approver = ctx.payload.user.try(&.id)
       message = ctx.payload.container

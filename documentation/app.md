@@ -50,6 +50,7 @@ Register listeners before the app receives requests. Each registration method gi
 Matching rules:
 
 - A string ID matches the complete value. A `Regex` matches when it finds a match in the value.
+- `action` and `options` also take a `Slack::UI::ActionId`. It matches as its string does. Give the same constant to the element `action_id:` and to the listener.
 - A string `message` pattern matches text that contains it, as in Bolt. A `Regex` matches the text. Nil matches every message.
 - `action` uses the first action of the payload. Slack sends one action for each click.
 - For each request, only the first matching listener runs, in registration order.

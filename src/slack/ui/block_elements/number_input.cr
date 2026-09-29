@@ -16,7 +16,7 @@ struct Slack::UI::BlockElements::NumberInput
   def initialize(
     *,
     @is_decimal_allowed : Bool,
-    @action_id : String? = nil,
+    action_id : (String | Slack::UI::ActionId)? = nil,
     @initial_value : String? = nil,
     @min_value : String? = nil,
     @max_value : String? = nil,
@@ -24,6 +24,7 @@ struct Slack::UI::BlockElements::NumberInput
     @focus_on_load : Bool? = nil,
     @placeholder : Slack::UI::CompositionObjects::PlainText? = nil,
   )
+    @action_id = Slack::UI::ActionId.value_of(action_id)
     validate!
   end
 

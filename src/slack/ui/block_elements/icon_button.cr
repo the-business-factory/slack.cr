@@ -16,12 +16,13 @@ struct Slack::UI::BlockElements::IconButton
     @icon : IconButtonIcon,
     *,
     @text : CompositionObjects::PlainText,
-    @action_id : String? = nil,
+    action_id : (String | Slack::UI::ActionId)? = nil,
     @value : String? = nil,
     @confirm : CompositionObjects::Confirmation? = nil,
     @accessibility_label : String? = nil,
     visible_to_user_ids : Enumerable(T)? = nil,
   ) forall T
+    @action_id = Slack::UI::ActionId.value_of(action_id)
     @visible_to_user_ids = if visible_to_user_ids
                              user_ids = [] of String
                              visible_to_user_ids.each { |user_id| append_user_id(user_ids, user_id) }

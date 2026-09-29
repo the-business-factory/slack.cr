@@ -781,7 +781,7 @@ describe "documented Block Kit workflows" do
                                  "skipped synthetic_future_block"]
   end
 
-  it "serves a signed mention and a button click through the app receiver" do
+  it "builds the button and its listener from one ActionId and runs the listener on the click" do
     output = IO::Memory.new
     result = OfflineAppExample.run(output)
     output.to_s.lines.should eq ["Mention acknowledged: 200", "Click acknowledged: 200"]

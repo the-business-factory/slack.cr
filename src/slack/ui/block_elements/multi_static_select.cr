@@ -7,13 +7,14 @@ struct Slack::UI::BlockElements::MultiStaticSelect
   def initialize(
     *,
     options : Enumerable(T),
-    @action_id : String? = nil,
+    action_id : (String | Slack::UI::ActionId)? = nil,
     @placeholder : Slack::UI::CompositionObjects::PlainText? = nil,
     @confirm : Slack::UI::CompositionObjects::Confirmation? = nil,
     @focus_on_load : Bool? = nil,
     initial_options : Enumerable(U)? = nil,
     @max_selected_items : Int32? = nil,
   ) forall T, U
+    @action_id = Slack::UI::ActionId.value_of(action_id)
     @options = Slack::UI::OptionCollection.copy(options)
     @option_groups = nil
     @initial_options = Slack::UI::OptionCollection.copy(initial_options)
@@ -23,13 +24,14 @@ struct Slack::UI::BlockElements::MultiStaticSelect
   def initialize(
     *,
     option_groups : Enumerable(T),
-    @action_id : String? = nil,
+    action_id : (String | Slack::UI::ActionId)? = nil,
     @placeholder : Slack::UI::CompositionObjects::PlainText? = nil,
     @confirm : Slack::UI::CompositionObjects::Confirmation? = nil,
     @focus_on_load : Bool? = nil,
     initial_options : Enumerable(U)? = nil,
     @max_selected_items : Int32? = nil,
   ) forall T, U
+    @action_id = Slack::UI::ActionId.value_of(action_id)
     @options = nil
     @option_groups = copy_groups(option_groups)
     @initial_options = Slack::UI::OptionCollection.copy(initial_options)

@@ -12,7 +12,7 @@ struct Slack::UI::BlockElements::RichTextInput
 
   def initialize(
     *,
-    @action_id : String,
+    action_id : String | Slack::UI::ActionId,
     @initial_value : Slack::UI::Blocks::RichText? = nil,
     @dispatch_action_config : Slack::UI::CompositionObjects::DispatchActionConfig? = nil,
     @focus_on_load : Bool? = nil,
@@ -20,6 +20,7 @@ struct Slack::UI::BlockElements::RichTextInput
     @min_lines : Int32? = nil,
     @max_lines : Int32? = nil,
   )
+    @action_id = Slack::UI::ActionId.value_of(action_id)
     validate!
   end
 

@@ -10,10 +10,11 @@ struct Slack::UI::BlockElements::FileInput
 
   def initialize(
     *,
-    @action_id : String? = nil,
+    action_id : (String | Slack::UI::ActionId)? = nil,
     filetypes : Enumerable(T)? = nil,
     @max_files : Int32? = nil,
   ) forall T
+    @action_id = Slack::UI::ActionId.value_of(action_id)
     @filetypes = if filetypes
                    copied = [] of String
                    filetypes.each { |filetype| copied << filetype }

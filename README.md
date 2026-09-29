@@ -72,15 +72,21 @@ The token must have the scope that each Slack method requires. A Slack error rai
 `Slack::UI` builds validated, immutable Block Kit values. Construction needs no credentials, and the surface type rejects a block that Slack does not allow there:
 
 ```crystal
+APPROVE = Slack::UI::ActionId.new("request.approve")
+
 message = Slack::UI.message(fallback_text: "Request 42 needs approval.") do |builder|
   builder.section(Slack::UI.mrkdwn("*Request 42* needs approval"))
   builder.actions(elements: [
     Slack::UI::BlockElements::Button.new(
-      text: Slack::UI.plain("Approve"), action_id: "request.approve", value: "42"),
+      text: Slack::UI.plain("Approve"), action_id: APPROVE, value: "42"),
   ])
 end
 client.call(Slack::Api::ChatPostMessage.new(channel: "C123", message: message))
+
+app.action(APPROVE) { |ctx| ctx.ack }
 ```
+
+An `action_id:` argument takes a `String` or a `Slack::UI::ActionId`. `app.action` and `app.options` also take an `ActionId`. Use one `ActionId` constant for an element and its listener. Then the two cannot use different IDs.
 
 Use `message.to_pretty_json` to inspect the payload locally. See [Block Kit](documentation/block-kit.md) for surfaces, blocks, elements, modals, Home, and received blocks.
 
