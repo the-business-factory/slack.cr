@@ -1,6 +1,8 @@
 require "json"
 require "./type_mismatch"
 
+# :nodoc:
+#
 # Runtime shape checks for external JSON, separate from outbound validation.
 # Each check raises `Slack::TypeMismatch` with the field path.
 module Slack::PayloadAccess
