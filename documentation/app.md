@@ -51,7 +51,12 @@ Register listeners before the app receives requests. Each registration method gi
 Matching rules:
 
 - `event(T)` matches when the decoded event is a `T`. Give an event type, such as `Slack::Events::AppMentioned`, a message subtype, such as `Slack::Events::Message::ChannelTopic`, `Slack::Events::MessageSubtype` for all typed subtypes, or `Slack::Event` for all events. A misspelled type does not compile.
-- Each `type` in `Slack::Event::KNOWN_TYPES` has an `on_<type>` method that is the same as `event(T)`, for example `on_app_mention` for `event(Slack::Events::AppMentioned)`. `message` has no `on_message`: use `message`, which also matches text.
+- Each `type` in `Slack::Event::KNOWN_TYPES` has an `on_<type>` method that is the same as `event(T)`, for example `on_app_mention` for `event(Slack::Events::AppMentioned)`. Four types have no `on_<type>` method, because a dedicated listener does more than `EventContext`:
+  - `message`: use `message`, which also matches text.
+  - `function_executed`: use `function`, which gives the workflow token client, `complete`, and `fail`.
+  - `assistant_thread_started` and `assistant_thread_context_changed`: use `assistant`, which saves the thread context and says in the thread.
+
+  `event(T)` with these types gives an ordinary event listener. It does not do the work of the dedicated listener. Because only the first matching listener runs, register it after the dedicated listener.
 - `event(Slack::Events::Unknown, type: "future_type")` matches an event of a type that the library does not map yet. `event(Slack::Events::Unknown)` matches all of them.
 - A string ID matches the complete value. A `Regex` matches when it finds a match in the value.
 - `action` and `options` also take a `Slack::UI::ActionId`. It matches as its string does. Give the same constant to the element `action_id:` and to the listener.
@@ -68,6 +73,16 @@ Every context also gives:
 - `log`: the app `Log` (source `slack.app`).
 - `delivery`: the Events API retry headers (`Slack::Events::Delivery`), or nil for other requests.
 - `store`: a `Hash(String, String)` that middleware uses to give values to later steps of the same request.
+
+### Migrate from string event listeners
+
+Event listeners take an event type, not a string. Make these changes:
+
+- Replace `event("app_mention")` with `event(Slack::Events::AppMentioned)` or `on_app_mention`. Remove the `is_a?` check on `ctx.event`.
+- In `message` listeners, replace `ctx.message` with `ctx.event`.
+- Replace a `MessageContext` annotation with `EventContext(Slack::Events::Message)`, and a broad `EventContext` annotation with `EventContext(Slack::Event)`.
+- `event("message")` matched messages with and without a subtype. `message` matches only messages without a subtype. For subtypes, also add `event(Slack::Events::MessageSubtype)` and `event(Slack::Events::Message::Unmapped)`.
+- For an event type that the library does not map, use `event(Slack::Events::Unknown, type: "future_type")`.
 
 ## Acknowledge within three seconds
 

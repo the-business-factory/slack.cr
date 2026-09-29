@@ -68,8 +68,9 @@ class Slack::App
   # end
   # ```
   #
-  # Each type in `Slack::Event::KNOWN_TYPES` also has an `on_*` method, for
-  # example `#on_app_mention`. For `message` events, use `#message`.
+  # Most types in `Slack::Event::KNOWN_TYPES` also have an `on_*` method, for
+  # example `#on_app_mention`. For `message` events, use `#message`. See the
+  # `on_*` exclusions below.
   def event(event_type : T.class, *, middleware : Array(Middleware) = [] of Middleware,
             &handler : EventContext(T) ->) : Nil forall T
     {% unless T <= ::Slack::Event || ::Slack::Event.all_subclasses.any? { |event| event <= T } %}
@@ -101,10 +102,18 @@ class Slack::App
     @router.message(pattern, middleware, handler)
   end
 
-  # `message` has no `on_message`: `#message` is the listener for plain
-  # messages, and it also matches text.
+  # Some types have no `on_*` method, because a dedicated listener gives them
+  # behavior that `EventContext` does not have:
+  # - `message`: `#message` is the listener for plain messages and also
+  #   matches text.
+  # - `function_executed`: `#function` gives the workflow token client and
+  #   `complete` and `fail`.
+  # - `assistant_thread_started` and `assistant_thread_context_changed`:
+  #   `#assistant` saves the thread context and says in the thread.
+  #
+  # `event(T)` with these types still gives an ordinary event listener.
   {% for type_name, event_type in Slack::Event::KNOWN_TYPES %}
-    {% unless type_name == "message" %}
+    {% unless %w[message function_executed assistant_thread_started assistant_thread_context_changed].includes?(type_name) %}
       # Listens for `{{ type_name.id }}` events. Same as `event({{ event_type }})`.
       def on_{{ type_name.id }}(*, middleware : Array(Middleware) = [] of Middleware,
                                 &handler : EventContext({{ event_type }}) ->) : Nil

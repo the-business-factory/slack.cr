@@ -170,6 +170,15 @@ describe Slack::App::HttpReceiver do
     routed.receive.should eq "ekm_access_denied"
   end
 
+  it "has no on_* shortcut for events that have a dedicated listener" do
+    app = build_app
+    app.responds_to?(:on_app_mention).should be_true
+    app.responds_to?(:on_message).should be_false
+    app.responds_to?(:on_function_executed).should be_false
+    app.responds_to?(:on_assistant_thread_started).should be_false
+    app.responds_to?(:on_assistant_thread_context_changed).should be_false
+  end
+
   it "routes an unmapped event type only to the listener for that type string" do
     app = build_app
     routed = Channel(String).new(1)
