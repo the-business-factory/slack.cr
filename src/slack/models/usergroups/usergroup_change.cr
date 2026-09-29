@@ -5,6 +5,7 @@ module Slack::Models::Usergroups
   # `usergroup` as optional in these responses.
   struct UsergroupChange
     include JSON::Serializable
+    include Slack::Api::Envelope
 
     getter usergroup : Slack::Models::Usergroup?
   end

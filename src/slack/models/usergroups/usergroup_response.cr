@@ -5,6 +5,7 @@ module Slack::Models::Usergroups
   # `usergroups.update`, and `usergroups.users.update`.
   struct UsergroupResponse
     include JSON::Serializable
+    include Slack::Api::Envelope
 
     getter usergroup : Slack::Models::Usergroup
   end

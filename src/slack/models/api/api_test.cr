@@ -4,6 +4,7 @@ module Slack::Models
   # The `api.test` result: the arguments that Slack received.
   struct ApiTest
     include JSON::Serializable
+    include Slack::Api::Envelope
 
     getter args : Hash(String, String) = {} of String => String
   end

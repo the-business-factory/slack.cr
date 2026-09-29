@@ -3,6 +3,7 @@ require "json"
 module Slack::Models::Emoji
   # The `emoji.list` result.
   struct EmojiList
+    include Slack::Api::Envelope
     ALIAS_PREFIX = "alias:"
 
     include JSON::Serializable

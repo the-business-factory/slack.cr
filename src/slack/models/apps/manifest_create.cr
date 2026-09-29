@@ -6,6 +6,7 @@ module Slack::Models::Apps
   # the URL that installs it.
   struct ManifestCreate
     include JSON::Serializable
+    include Slack::Api::Envelope
 
     getter app_id : String
     getter credentials : AppCredentials

@@ -8,7 +8,14 @@ module Slack::Models::Conversations
   # with `"ok": false` and no `error`. `Client#call` returns both forms.
   struct LeaveResponse
     include JSON::Serializable
+    include Slack::Api::Envelope
 
     getter? not_in_channel : Bool = false
+
+    # Slack answers `{"ok": false, "not_in_channel": true}` for a caller that
+    # is not a member. That is an outcome, not a failure.
+    def flagged_outcome? : Bool
+      not_in_channel?
+    end
   end
 end

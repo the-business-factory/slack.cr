@@ -15,8 +15,11 @@ struct Slack::Models::Team < Slack::Model
   getter enterprise_id : String?
   getter enterprise_name : String?
 
-  # Reads the `team` object of a `team.info` response.
-  def self.from_json(json : String | IO)
-    keyed_json_object(json, find_key: "team")
+  # :nodoc:
+  # Reads the `team` object of a `team.info` response, and the response's
+  # envelope fields.
+  def self.from_api_response(body : String) : {Team, Api::Envelope}
+    response = TeamBody.from_json(body)
+    {response.team, response}
   end
 end

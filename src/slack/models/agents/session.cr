@@ -8,6 +8,7 @@ module Slack::Models::Agents
   # new Slack value does not make a successful call fail to decode.
   struct Session
     include JSON::Serializable
+    include Slack::Api::Envelope
 
     getter status : String
     getter agent_status : String

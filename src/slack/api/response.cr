@@ -3,9 +3,11 @@ require "../auth/transport"
 require "./error"
 require "./rate_limited"
 require "./envelope"
+require "./envelope_body"
 
 module Slack::Api
-  # The parsed Web API envelope and the response model `M`.
+  # The parsed Web API envelope and the response model `M`. `parse` reads
+  # both from one parse of the body.
   #
   # See https://docs.slack.dev/apis/web-api/ for `ok`, `error`, and `warning`,
   # and https://docs.slack.dev/apis/web-api/pagination for `response_metadata`.
@@ -18,45 +20,57 @@ module Slack::Api
     end
 
     # Raises `RateLimited` for HTTP 429 and `Error` for any other failure.
-    # *outcome_flags* are the request's `Request#outcome_flags`.
-    def self.parse(response : Auth::TransportResponse, outcome_flags : Array(String) = [] of String) : self
+    def self.parse(response : Auth::TransportResponse) : self
       status = response.status
       # Do not parse a 429 body: the status and header carry the contract.
       raise RateLimited.new(retry_after(response.headers)) if status == 429
 
-      envelope = parse_envelope(response.body, status)
+      body = response.body
+      decoded = decode(body)
+      envelope = decoded ? decoded[1] : parse_envelope(body, status)
+      # Every Web API response has `ok`. A body without it is not one.
+      raise Error.new(success?(status) ? "invalid_response" : "http_error", status) unless envelope.ok_present?
       metadata = envelope.response_metadata
-      unless envelope.ok? || flagged_outcome?(envelope, response.body, outcome_flags)
+      unless envelope.ok? || flagged_outcome?(envelope)
         raise Error.new(envelope.error || "unknown_error", status, metadata.try(&.messages) || [] of String,
           details: details(envelope))
       end
       raise Error.new("http_error", status) unless success?(status)
+      # Converters such as String#to_f raise with the remote value in the
+      # message, so no decode error becomes the cause.
+      raise Error.new("invalid_response", status) unless decoded
 
-      new(parse_model(response.body, status), warnings(envelope), metadata.try(&.next_cursor).presence)
+      new(decoded[0], warnings(envelope), metadata.try(&.next_cursor).presence)
+    end
+
+    # Parses the body once into the model and its envelope fields. Returns nil
+    # when the body does not decode as the model, such as an error body
+    # without the model's required fields.
+    private def self.decode(body : String) : {M, Envelope}?
+      decode(body, M)
+    rescue JSON::ParseException | TypeCastError | ArgumentError
+      nil
+    end
+
+    private def self.decode(body : String, type : JSON::Any.class) : {JSON::Any, Envelope}
+      raw = JSON.parse(body)
+      {raw, EnvelopeBody.new(raw)}
+    end
+
+    private def self.decode(body : String, type : T.class) : {T, Envelope} forall T
+      type.from_api_response(body)
     end
 
     private def self.parse_envelope(body : String, status : Int32) : Envelope
-      Envelope.from_json(body)
+      EnvelopeBody.from_json(body)
     rescue JSON::ParseException
       raise Error.new(success?(status) ? "invalid_response" : "http_error", status)
     end
 
-    # True when Slack answers `ok: false` with no `error` and one of the request's
-    # flag fields set, such as `{"ok": false, "not_in_channel": true}`.
-    private def self.flagged_outcome?(envelope : Envelope, body : String, outcome_flags : Array(String)) : Bool
-      return false if envelope.error || outcome_flags.empty?
-
-      # The envelope parsed, so the body is a JSON object.
-      fields = JSON.parse(body)
-      outcome_flags.any? { |flag| fields[flag]?.try(&.as_bool?) == true }
-    end
-
-    private def self.parse_model(body : String, status : Int32) : M
-      M.from_json(body)
-    rescue JSON::ParseException | TypeCastError | ArgumentError
-      # Converters such as String#to_f raise ArgumentError with the remote value in
-      # the message. Replace it without a cause so no response text escapes.
-      raise Error.new("invalid_response", status)
+    # True when Slack answers `ok: false` with no `error` and the model's
+    # outcome flag set, such as `{"ok": false, "not_in_channel": true}`.
+    private def self.flagged_outcome?(envelope : Envelope) : Bool
+      envelope.error.nil? && envelope.flagged_outcome?
     end
 
     private def self.details(envelope : Envelope) : Array(ErrorDetail)

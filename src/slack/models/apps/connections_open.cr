@@ -6,6 +6,7 @@ module Slack::Models::Apps
   # The URL works for one connection; call the method again to reconnect.
   struct ConnectionsOpen
     include JSON::Serializable
+    include Slack::Api::Envelope
 
     getter url : URI
 

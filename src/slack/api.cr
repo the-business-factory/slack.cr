@@ -1,5 +1,6 @@
 # Web API client, requests, and response models, in dependency order.
 # Later API slices append their request files here.
+require "./api/envelope"
 require "./model"
 require "./models/**"
 require "./api/error"
@@ -10,7 +11,6 @@ require "./api/rate_limits"
 require "./api/request"
 require "./api/json_body"
 require "./api/form_body"
-require "./api/envelope"
 require "./api/response"
 require "./api/generic_request"
 require "./api/client"

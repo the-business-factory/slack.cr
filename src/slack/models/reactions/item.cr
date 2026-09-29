@@ -6,6 +6,7 @@ module Slack::Models::Reactions
   # a file item has `file`. Legacy file comments are not read.
   struct Item
     include JSON::Serializable
+    include Slack::Api::Envelope
 
     getter type : String?
     getter channel : String?

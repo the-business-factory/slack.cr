@@ -3,6 +3,7 @@ require "json"
 module Slack::Models::Auth
   struct Test
     include JSON::Serializable
+    include Slack::Api::Envelope
 
     getter user_id : String
     getter bot_id : String?

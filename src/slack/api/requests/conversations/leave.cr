@@ -24,9 +24,5 @@ module Slack::Api
     def tier : RateLimitTier
       RateLimitTier::Tier3
     end
-
-    def outcome_flags : Array(String)
-      ["not_in_channel"]
-    end
   end
 end

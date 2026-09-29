@@ -5,6 +5,7 @@ module Slack::Models::Apps
   # see https://docs.slack.dev/reference/app-manifest.
   struct ManifestExport
     include JSON::Serializable
+    include Slack::Api::Envelope
 
     getter manifest : JSON::Any
   end

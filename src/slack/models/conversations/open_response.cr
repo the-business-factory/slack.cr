@@ -9,6 +9,7 @@ module Slack::Models::Conversations
   # are true when the conversation was open before the call.
   struct OpenResponse
     include JSON::Serializable
+    include Slack::Api::Envelope
 
     @[JSON::Field(converter: Slack::Models::Conversations::OpenedChannelConverter)]
     getter channel : Conversation | ConversationRef

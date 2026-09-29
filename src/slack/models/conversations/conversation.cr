@@ -9,9 +9,12 @@ abstract struct Slack::Models::Conversation < Slack::Model
   @[JSON::Field(converter: Time::EpochConverter)]
   property created : Time
 
-  # Reads the `channel` object of a `conversations.info` response as its conversation type.
-  def self.from_json(json : String | IO) : Conversation
-    keyed_json_object(json, "channel") { |pull| ConversationFactory.read(pull) }
+  # :nodoc:
+  # Reads the `channel` object of a `conversations.info` response as its
+  # conversation type, and the response's envelope fields.
+  def self.from_api_response(body : String) : {Conversation, Api::Envelope}
+    response = ConversationBody.from_json(body)
+    {response.channel, response}
   end
 
   # Reads one conversation object, such as an item of `conversations.list`, as its type.

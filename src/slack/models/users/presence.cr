@@ -8,6 +8,7 @@ module Slack::Models::Users
   # the token's user asks for their own presence.
   struct Presence
     include JSON::Serializable
+    include Slack::Api::Envelope
 
     getter presence : String
     getter online : Bool?

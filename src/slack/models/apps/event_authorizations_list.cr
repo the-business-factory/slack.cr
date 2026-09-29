@@ -5,6 +5,7 @@ module Slack::Models::Apps
   # the event. `Client#each_page` reads the next cursor.
   struct EventAuthorizationsList
     include JSON::Serializable
+    include Slack::Api::Envelope
 
     getter authorizations : Array(Slack::Events::Authorization)
   end

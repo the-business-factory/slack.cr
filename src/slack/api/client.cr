@@ -120,7 +120,7 @@ module Slack::Api
       @rate_limits.wait(request.method_path, request.tier)
       transport_response = @transport.execute(
         Auth::TransportRequest.new("POST", uri, headers(request.content_type), body))
-      response = Response(M).parse(transport_response, request.outcome_flags)
+      response = Response(M).parse(transport_response)
       log_warnings(request.method_path, response.warnings)
       response
     end

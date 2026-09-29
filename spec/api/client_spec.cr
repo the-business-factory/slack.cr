@@ -1,5 +1,6 @@
 require "../spec_helper"
 require "../support/auth/fakes"
+require "log/spec"
 
 private def recording_client(*bodies, status : Int32 = 200,
                              headers : HTTP::Headers = HTTP::Headers.new,
@@ -89,6 +90,28 @@ describe Slack::Api::Client do
 
     error.code.should eq "cant_invite"
     error.details.should be_empty
+  end
+
+  it "logs warnings of a response whose model is a nested object" do
+    client, _transport = recording_client(<<-JSON)
+      {"ok":true,"warning":"already_in_channel","response_metadata":{"warnings":["already_in_channel","superfluous_charset"]},
+       "channel":{"id":"C1","name":"general","is_channel":true,"is_group":false,"is_im":false,"created":1449252889,
+       "creator":"U1","is_archived":false,"is_general":true,"name_normalized":"general","is_member":true,
+       "is_private":false,"is_mpim":false,"topic":{"value":"","creator":"","last_set":0},
+       "purpose":{"value":"","creator":"","last_set":0},"previous_names":[]}}
+      JSON
+
+    Log.capture("slack.api") do |logs|
+      client.call(Slack::Api::ConversationsJoin.new("C1")).id.should eq "C1"
+      logs.check(:warn, "conversations.join returned warnings: already_in_channel, superfluous_charset")
+    end
+  end
+
+  it "reads the envelope of a raw JSON response" do
+    client, _transport = recording_client(%({"ok":false,"error":"channel_not_found"}), %("canary"))
+
+    expect_raises(Slack::Api::Error) { client.call("conversations.info") }.code.should eq "channel_not_found"
+    expect_raises(Slack::Api::Error) { client.call("conversations.info") }.code.should eq "invalid_response"
   end
 
   it "maps HTTP 429 to RateLimited with Retry-After and without reading the body" do
