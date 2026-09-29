@@ -1,0 +1,8 @@
+{
+  "type": "block_actions",
+  "api_app_id": "A-SYNTHETIC",
+  "team": {"id": "T-SYNTHETIC", "domain": "example"},
+  "user": "U-SYNTHETIC",
+  "trigger_id": "1.2.synthetic",
+  "actions": []
+}

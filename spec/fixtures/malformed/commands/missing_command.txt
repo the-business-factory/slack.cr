@@ -1,0 +1,1 @@
+api_app_id=A-SYNTHETIC&team_id=T-SYNTHETIC&channel_id=C-SYNTHETIC&channel_name=general&user_id=U-SYNTHETIC&user_name=synthetic.user&text=release-42&response_url=https%3A%2F%2Fhooks.slack.com%2Fcommands%2FT-SYNTHETIC%2F1%2Fsynthetic&trigger_id=1.2.synthetic
