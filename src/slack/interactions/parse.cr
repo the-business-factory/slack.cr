@@ -9,6 +9,7 @@ module Slack::Interactions
     Slack::Interaction.from_json(form_payload(body))
   end
 
+  # :nodoc:
   # Returns the JSON in the one `payload` field of an interaction form body.
   # Raises `Slack::Auth::RequestAuthorizationError` with `invalid_payload`
   # when the body does not have exactly one `payload` field.

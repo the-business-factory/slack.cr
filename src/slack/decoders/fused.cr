@@ -73,10 +73,13 @@ class Slack::Decoders::Fused < Slack::Decoder
     FusedJSON.from_json(body, Envelope(E)).to_verified_event
   end
 
-  # Selects the interaction type from `Slack::Interaction::KNOWN_TYPES`.
+  # Selects the interaction type from `Slack::Interaction::KNOWN_TYPES`. A
+  # root that is not an object, or a missing or irregular `type`, goes
+  # through the `Slack::Interaction` selector, which raises the same errors
+  # as `Slack::Decoders::Stdlib`.
   private def interaction_json(json : String) : Slack::Interaction
-    discriminators = Discriminators.scan(json)
-    return FusedJSON.from_json(json, Slack::Interaction) unless discriminators.regular?
+    discriminators = Discriminators.scan_object?(json)
+    return FusedJSON.from_json(json, Slack::Interaction) unless discriminators && discriminators.regular?
 
     {% begin %}
       case discriminators.type

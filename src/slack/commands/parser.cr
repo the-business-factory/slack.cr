@@ -32,6 +32,7 @@ module Slack::Commands::Parser
     from_json_object(JSON::PullParser.new(json))
   end
 
+  # :nodoc:
   # Reads a slash command JSON object from *pull* with the rules of
   # `.from_json_object(json)`.
   def self.from_json_object(pull : JSON::PullParser) : Slack::Command

@@ -18,9 +18,24 @@ struct Slack::Decoders::Fused::Discriminators
   # Scans *body*. Raises `JSON::ParseException` when *body* is not one JSON
   # object.
   def self.scan(body : String) : self
+    read(FusedJSON::PullParser.new(body))
+  end
+
+  # Scans *body*, or returns nil when *body* is one valid JSON value that is
+  # not an object, so that the typed decode can report the schema error.
+  # Raises `JSON::ParseException` when *body* is not valid JSON.
+  def self.scan_object?(body : String) : self?
+    pull = FusedJSON::PullParser.new(body)
+    return read(pull) if pull.kind.begin_object?
+
+    pull.skip
+    pull.finish
+    nil
+  end
+
+  private def self.read(pull : FusedJSON::PullParser) : self
     type = event_type = subtype = nil
     type_regular = event_regular = true
-    pull = FusedJSON::PullParser.new(body)
     pull.read_object do |key|
       case key
       when "type"  then type, type_regular = read_discriminator(pull)

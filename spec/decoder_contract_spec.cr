@@ -258,6 +258,7 @@ module DecoderContract
     "malformed/events/channel_topic_missing_topic.json"        => "JSON::SerializableError",
     "malformed/events/url_verification_missing_challenge.json" => "JSON::SerializableError",
     "malformed/interactions/missing_type.json"                 => "JSON::SerializableError",
+    "malformed/interactions/array_root.json"                   => "JSON::SerializableError",
     "malformed/interactions/block_actions_string_user.json"    => "JSON::SerializableError",
     "malformed/interactions/unknown_empty_user.json"           => "JSON::SerializableError",
     "malformed/interactions/duplicate_payload.txt"             => "Slack::Auth::RequestAuthorizationError (invalid_payload)",
@@ -302,6 +303,10 @@ module DecoderContract
       ERROR
     "malformed/interactions/missing_type.json" => <<-ERROR,
       JSON::SerializableError: Missing string JSON discriminator field 'type'
+        parsing Slack::Interaction at line 1, column 1
+      ERROR
+    "malformed/interactions/array_root.json" => <<-ERROR,
+      JSON::SerializableError: Expected a JSON object
         parsing Slack::Interaction at line 1, column 1
       ERROR
     "malformed/interactions/block_actions_string_user.json" => <<-ERROR,
@@ -358,6 +363,10 @@ module DecoderContract
       ERROR
     "malformed/interactions/missing_type.json" => <<-ERROR,
       JSON::SerializableError: Missing string JSON discriminator field 'type'
+        parsing Slack::Interaction at line 1, column 1
+      ERROR
+    "malformed/interactions/array_root.json" => <<-ERROR,
+      JSON::SerializableError: Expected a JSON object
         parsing Slack::Interaction at line 1, column 1
       ERROR
     "malformed/interactions/block_actions_string_user.json" => <<-ERROR,
