@@ -64,7 +64,7 @@ Socket Mode needs no request signature verification. Slack authenticates the Web
 | `Envelope` | any frame with an `envelope_id` | `envelope_id`, `kind` (`EventsApi`, `Interactive`, `SlashCommands`, `Unknown`), `type`, `payload_json`, `accepts_response_payload?`, `retry_attempt`, `retry_reason` |
 | `UnknownFrame` | other frames | `type`, `raw` |
 
-A malformed field raises `Slack::Interactions::TypeMismatch` with the field path.
+A malformed field raises `Slack::TypeMismatch` with the field path.
 
 `retry_attempt` and `retry_reason` are SDK-sourced (Bolt JS socket-mode client); they are not on the Slack reference page. They are nil when absent.
 
@@ -85,7 +85,7 @@ if envelope.is_a?(Slack::SocketMode::Envelope)
 end
 ```
 
-When your code expects one kind, give the kind to `payload_json`. For another kind, it raises `Slack::Interactions::TypeMismatch`:
+When your code expects one kind, give the kind to `payload_json`. For another kind, it raises `Slack::TypeMismatch`:
 
 ```crystal
 command = decoder.command(envelope.payload_json(:slash_commands), :json)
@@ -108,7 +108,7 @@ Slack::SocketMode::Acknowledgment.new(envelope.envelope_id, errors).to_json
 # => {"envelope_id":"...","payload":{"response_action":"errors","errors":{...}}}
 ```
 
-The payload can be `ModalErrors`, `ModalPush`, `ModalUpdate`, `ModalClear`, `BlockSuggestionResponse`, or `Slack::Commands::Response`. Send a payload only when `accepts_response_payload?` is true.
+The payload can be any type that includes `Slack::SocketMode::ResponsePayload`: `ModalErrors`, `ModalPush`, `ModalUpdate`, `ModalClear`, `BlockSuggestionResponse`, or `Slack::Commands::Response`. Send a payload only when `accepts_response_payload?` is true.
 
 The specs use synthetic frames. They do not prove live frame shapes, delivery, or timing.
 

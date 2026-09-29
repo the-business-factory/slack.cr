@@ -84,12 +84,12 @@ describe Slack::SocketMode::Frame do
     events = envelope("events_api_app_mention")
     events.payload_json(:events_api).should eq(events.payload_json)
 
-    error = expect_raises(Slack::Interactions::TypeMismatch) { events.payload_json(:interactive) }
+    error = expect_raises(Slack::TypeMismatch) { events.payload_json(:interactive) }
     error.path.should eq("type")
     error.expected.should eq("interactive")
     error.actual.should eq("events_api")
 
-    error = expect_raises(Slack::Interactions::TypeMismatch) { envelope("slash_commands").payload_json(:events_api) }
+    error = expect_raises(Slack::TypeMismatch) { envelope("slash_commands").payload_json(:events_api) }
     error.expected.should eq("events_api")
     error.actual.should eq("slash_commands")
   end
@@ -101,7 +101,7 @@ describe Slack::SocketMode::Frame do
     envelope.kind.should eq(Slack::SocketMode::Envelope::Kind::Unknown)
     envelope.type.should eq("future_kind")
     JSON.parse(envelope.payload_json).should eq(JSON.parse(%({"a":1})))
-    expect_raises(Slack::Interactions::TypeMismatch) { envelope.payload_json(:events_api) }
+    expect_raises(Slack::TypeMismatch) { envelope.payload_json(:events_api) }
   end
 
   it "returns other frames raw" do
@@ -121,7 +121,7 @@ describe Slack::SocketMode::Frame do
   end
 
   it "reports a malformed envelope field by path" do
-    error = expect_raises(Slack::Interactions::TypeMismatch) do
+    error = expect_raises(Slack::TypeMismatch) do
       Slack::SocketMode::Frame.parse(%({"type":"interactive","envelope_id":7,"payload":{}}))
     end
     error.path.should eq("envelope_id")

@@ -1,8 +1,11 @@
+require "../socket_mode/response_payload"
+
 # Outbound JSON body for a block_suggestion request. Return it in an HTTP 200
 # `application/json` response within three seconds. Slack accepts up to 100
 # options, or up to 100 option groups of up to 100 options each. An empty
 # options list shows no results for the query.
 struct Slack::Interactions::BlockSuggestionResponse
+  include Slack::SocketMode::ResponsePayload
   include Slack::UI::ValueValidation
 
   alias Option = Slack::UI::CompositionObjects::Option

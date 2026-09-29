@@ -1,3 +1,5 @@
+require "../type_mismatch"
+
 # A frame that carries one event, interaction, or slash command. The app must
 # acknowledge every envelope with its `envelope_id`; see `Acknowledgment`.
 #
@@ -49,13 +51,13 @@ struct Slack::SocketMode::Envelope
   end
 
   # Returns `#payload_json` when the envelope is of the *expected* kind.
-  # Raises `Slack::Interactions::TypeMismatch` for another kind.
+  # Raises `Slack::TypeMismatch` for another kind.
   #
   # ```
   # decoder.command(envelope.payload_json(:slash_commands), :json)
   # ```
   def payload_json(expected : Kind) : String
     return @payload_json if @kind == expected
-    raise Slack::Interactions::TypeMismatch.new("type", expected.to_s.underscore, @type)
+    raise Slack::TypeMismatch.new("type", expected.to_s.underscore, @type)
   end
 end

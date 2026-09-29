@@ -239,7 +239,7 @@ module Slack::SocketMode
       in Hello        then ready(frame)
       in UnknownFrame then Log.debug { "Ignored a Socket Mode #{frame.type.inspect} frame" }
       end
-    rescue error : JSON::ParseException | Interactions::TypeMismatch
+    rescue error : JSON::ParseException | Slack::TypeMismatch
       Log.warn { "Ignored a malformed Socket Mode frame (#{error.class})" }
     end
 

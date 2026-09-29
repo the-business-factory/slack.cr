@@ -1,7 +1,10 @@
+require "../socket_mode/response_payload"
+
 # Outbound JSON acknowledgment that pushes a new view after view_submission.
 # The application returns this JSON in its HTTP 200 response within three
 # seconds. Slack owns the view stack and enforces its three-view limit.
 struct Slack::Interactions::ModalPush
+  include Slack::SocketMode::ResponsePayload
   include Slack::UI::ValueValidation
 
   @view : Slack::UI::Modal

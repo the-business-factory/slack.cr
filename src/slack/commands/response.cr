@@ -1,3 +1,5 @@
+require "../socket_mode/response_payload"
+
 # Outbound JSON body for a slash command. Return it in an HTTP 200
 # `application/json` response within three seconds. To acknowledge without a
 # message, return an empty HTTP 200 instead.
@@ -9,6 +11,7 @@
 #
 # https://docs.slack.dev/interactivity/implementing-slash-commands
 struct Slack::Commands::Response
+  include Slack::SocketMode::ResponsePayload
   include Slack::UI::ValueValidation
 
   getter response_type : Slack::Interactions::ResponseType

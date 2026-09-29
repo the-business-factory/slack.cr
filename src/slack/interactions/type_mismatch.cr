@@ -1,10 +1,5 @@
-# Raised by typed interaction accessors; raw payloads remain available.
-class Slack::Interactions::TypeMismatch < Exception
-  getter path : String
-  getter expected : String
-  getter actual : String
+require "../type_mismatch"
 
-  def initialize(@path : String, @expected : String, @actual : String)
-    super("#{@path}: expected #{@expected}, got #{@actual}.")
-  end
-end
+# The name that interaction accessors used before `Slack::TypeMismatch` moved
+# out of `Slack::Interactions`. Rescues of either name catch the same error.
+alias Slack::Interactions::TypeMismatch = Slack::TypeMismatch

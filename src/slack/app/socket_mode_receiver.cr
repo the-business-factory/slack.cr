@@ -82,7 +82,7 @@ class Slack::App::SocketModeReceiver
 
   private def decode(envelope : Slack::SocketMode::Envelope, &)
     yield
-  rescue error : JSON::ParseException | JSON::SerializableError | Slack::Interactions::TypeMismatch | Slack::Auth::RequestAuthorizationError
+  rescue error : JSON::ParseException | JSON::SerializableError | Slack::TypeMismatch | Slack::Auth::RequestAuthorizationError
     Log.warn { "Left envelope #{envelope.envelope_id} unacknowledged: the payload does not decode (#{error.class})" }
     nil
   end

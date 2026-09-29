@@ -1,3 +1,5 @@
+require "./response_payload"
+
 # The frame that acknowledges one `Envelope`. Send it within three seconds of
 # receipt. It has a `payload` only when one is given.
 #
@@ -6,14 +8,9 @@
 # ack.to_json # => %({"envelope_id":"..."})
 # ```
 struct Slack::SocketMode::Acknowledgment
-  # Response bodies that the HTTP path also returns. Send one only when
+  # A response body, such as a `Slack::Commands::Response`. Send one only when
   # `Envelope#accepts_response_payload?` is true.
-  alias Payload = Slack::Interactions::ModalErrors |
-                  Slack::Interactions::ModalPush |
-                  Slack::Interactions::ModalUpdate |
-                  Slack::Interactions::ModalClear |
-                  Slack::Interactions::BlockSuggestionResponse |
-                  Slack::Commands::Response
+  alias Payload = ResponsePayload
 
   getter envelope_id : String
   getter payload : Payload?

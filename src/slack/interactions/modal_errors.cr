@@ -1,8 +1,11 @@
+require "../socket_mode/response_payload"
+
 # Outbound JSON acknowledgment for a view_submission with invalid input.
 # Keys are Input block IDs; values are plain-text messages, not text objects.
 # The application must return this JSON in its HTTP 200 response within three
 # seconds and ensure the IDs belong to the submitted view's Input blocks.
 struct Slack::Interactions::ModalErrors
+  include Slack::SocketMode::ResponsePayload
   include Slack::UI::ValueValidation
 
   @errors : Hash(String, String)

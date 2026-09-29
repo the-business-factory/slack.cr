@@ -1,7 +1,10 @@
+require "../socket_mode/response_payload"
+
 # Outbound JSON acknowledgment that updates the submitted modal view.
 # The application must return this JSON in its HTTP 200 response to a
 # view_submission within three seconds. This value makes no Web API request.
 struct Slack::Interactions::ModalUpdate
+  include Slack::SocketMode::ResponsePayload
   include Slack::UI::ValueValidation
 
   @snapshot : Slack::UI::Modal
