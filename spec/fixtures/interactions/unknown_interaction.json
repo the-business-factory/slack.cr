@@ -1,0 +1,10 @@
+{
+  "type": "synthetic_future_interaction",
+  "api_app_id": "A-SYNTHETIC",
+  "is_enterprise_install": false,
+  "team": {"id": "T-SYNTHETIC", "domain": "example"},
+  "enterprise": null,
+  "user": {"id": "U-SYNTHETIC", "team_id": "T-SYNTHETIC"},
+  "trigger_id": "3456.7890.synthetic",
+  "detail": {"state": "ready", "note": null, "steps": []}
+}

@@ -4,21 +4,25 @@ require "./spec_helper"
 # defines the examples for one decoder, so a second decoder runs the same
 # examples with one more call at the end of this file.
 #
-# A decoded payload re-encodes to the input when the two JSON values are
-# equivalent. Two JSON values are equivalent when:
+# For each fixture, the decoder must give the type in `EVENT_TYPES` or
+# `INTERACTION_TYPES`, and the decoded payload must re-encode to the input.
+# A payload re-encodes to the input when the two JSON values are equivalent.
+# Two JSON values are equivalent when:
 #
 # - Two scalars are equal. JSON value equality ignores key order and
 #   whitespace.
 # - Two arrays have the same size and equivalent items in the same order.
-# - For each key of two objects, one of these is true:
-#   - Both values are present and equivalent. A `null` value is the same as
-#     an absent key, because the typed models omit a `nil` field.
-#   - Only the output has the key, and its value is `false` or `[]`: the
-#     default of a field that Slack left out.
-#   - Only the input has the key, and `KNOWN_DIFFERENCES` lists the path.
+# - For each key of two objects, both values are present and equivalent. A
+#   `null` value is the same as an absent key, because the typed models omit
+#   a `nil` field.
 #
-# Any other difference fails the example. A listed difference that does not
-# occur also fails, so the list stays current when a model gains a field.
+# The payload of a fallback type (`Events::Unknown`, `Message::Unmapped`, and
+# `Interactions::Unknown`) keeps its JSON, so there a `null` value and an
+# absent key are different.
+#
+# Each other difference fails the example, unless `KNOWN_DIFFERENCES` lists
+# it for that fixture. A listed difference that does not occur also fails, so
+# the list stays current when a model gains a field.
 module DecoderContract
   extend Spec::Methods
 
@@ -49,6 +53,9 @@ module DecoderContract
       "$.event.previous_message.thread_ts: dropped",
       "$.event.previous_message.type: dropped",
       "$.event.previous_message.user: dropped",
+      # Declared defaults.
+      "$.event.message.attachments: added []",
+      "$.event.previous_message.attachments: added []",
     ],
     "events/message/bot_message.json"  => ["$.event.icons: dropped"],
     "events/message/channel_join.json" => ["$.event.user: dropped"],
@@ -56,6 +63,8 @@ module DecoderContract
       "$.event.client_msg_id: dropped",
       "$.event.display_as_bot: dropped",
       "$.event.upload: dropped",
+      # Declared defaults.
+      "$.authorizations: added []",
     ],
     "events/message/message_changed.json" => [
       "$.event.message.attachments[2].image_bytes: dropped",
@@ -66,6 +75,8 @@ module DecoderContract
       "$.event.message.user: dropped",
       "$.event.previous_message.type: dropped",
       "$.event.previous_message.user: dropped",
+      # Declared defaults.
+      "$.event.previous_message.attachments: added []",
     ],
     "events/message/message_replied.json" => [
       "$.event.message.replies: dropped",
@@ -73,6 +84,8 @@ module DecoderContract
       "$.event.message.thread_ts: dropped",
       "$.event.message.type: dropped",
       "$.event.message.user: dropped",
+      # Declared defaults.
+      "$.event.message.attachments: added []",
     ],
     "events/subteam_members_changed.json" => [
       "$.event.added_users_count: dropped",
@@ -85,7 +98,18 @@ module DecoderContract
       "$.event.client_msg_id: dropped",
       "$.event.text: dropped",
       "$.event.user: dropped",
+      # Declared defaults.
+      "$.authorizations: added []",
     ],
+    # A declared default: the model writes `false` or `[]` when Slack leaves
+    # the field out or sends `null`. Other nilable fields stay absent.
+    "credential_lifecycle/bot_revoked.json"    => ["$.event.tokens.oauth: added []"],
+    "credential_lifecycle/tokens_revoked.json" => ["$.authorizations: added []"],
+    "events/app_uninstalled.json"              => ["$.authorizations: added []"],
+    "events/emoji_changed.json"                => ["$.event.names: added []"],
+    "events/link_shared_composer.json"         => ["$.event.is_unfurl_refresh: added false"],
+    "events/tokens_revoked.json"               => ["$.authorizations: added []"],
+    "block_kit/phase_5_submission.json"        => ["$.response_urls: added []"],
     # A workflow token is a secret. The models read it but do not write it,
     # so logs and `to_json` output do not show it.
     "events/function_executed.json"                 => ["$.event.bot_access_token: dropped"],
@@ -108,6 +132,115 @@ module DecoderContract
       "$.token: dropped",
     ],
   }
+
+  # The type that each event fixture decodes to. For a `Slack::VerifiedEvent`,
+  # this is the type of its `event`.
+  EVENT_TYPES = {
+    "credential_lifecycle/app_uninstalled.json"        => Slack::Events::AppUninstalled,
+    "credential_lifecycle/bot_revoked.json"            => Slack::Events::TokensRevoked,
+    "credential_lifecycle/tokens_revoked.json"         => Slack::Events::TokensRevoked,
+    "events/agent_session_stopped.json"                => Slack::Events::AgentSessionStopped,
+    "events/agent_session_title_changed.json"          => Slack::Events::AgentSessionTitleChanged,
+    "events/app_context_changed.json"                  => Slack::Events::AppContextChanged,
+    "events/app_deleted.json"                          => Slack::Events::AppDeleted,
+    "events/app_home_opened.json"                      => Slack::Events::AppHomeOpened,
+    "events/app_installed.json"                        => Slack::Events::AppInstalled,
+    "events/app_mention.json"                          => Slack::Events::AppMentioned,
+    "events/app_mention_document.json"                 => Slack::Events::AppMentioned,
+    "events/app_mention_thread.json"                   => Slack::Events::AppMentioned,
+    "events/app_rate_limited.json"                     => Slack::AppRateLimited,
+    "events/app_requested.json"                        => Slack::Events::AppRequested,
+    "events/app_uninstalled.json"                      => Slack::Events::AppUninstalled,
+    "events/assistant_thread_context_changed.json"     => Slack::Events::AssistantThreadContextChanged,
+    "events/assistant_thread_started.json"             => Slack::Events::AssistantThreadStarted,
+    "events/channel_archive.json"                      => Slack::Events::ChannelArchive,
+    "events/channel_created.json"                      => Slack::Events::ChannelCreated,
+    "events/channel_deleted.json"                      => Slack::Events::ChannelDeleted,
+    "events/channel_rename.json"                       => Slack::Events::ChannelRename,
+    "events/channel_unarchive.json"                    => Slack::Events::ChannelUnarchive,
+    "events/emoji_changed.json"                        => Slack::Events::EmojiChanged,
+    "events/emoji_removed.json"                        => Slack::Events::EmojiChanged,
+    "events/function_executed.json"                    => Slack::Events::FunctionExecuted,
+    "events/link_shared.json"                          => Slack::Events::LinkShared,
+    "events/link_shared_composer.json"                 => Slack::Events::LinkShared,
+    "events/member_joined_channel.json"                => Slack::Events::MemberJoinedChannel,
+    "events/member_left_channel.json"                  => Slack::Events::MemberLeftChannel,
+    "events/message.json"                              => Slack::Events::Message,
+    "events/message/assistant_app_thread.json"         => Slack::Events::Message::AssistantAppThread,
+    "events/message/assistant_app_thread_changed.json" => Slack::Events::Message::MessageChanged,
+    "events/message/bot_add.json"                      => Slack::Events::Message::BotAdd,
+    "events/message/bot_message.json"                  => Slack::Events::Message::BotMessage,
+    "events/message/channel_join.json"                 => Slack::Events::Message::ChannelJoin,
+    "events/message/channel_leave.json"                => Slack::Events::Message::ChannelLeave,
+    "events/message/channel_name.json"                 => Slack::Events::Message::ChannelName,
+    "events/message/channel_purpose.json"              => Slack::Events::Message::ChannelPurpose,
+    "events/message/channel_topic.json"                => Slack::Events::Message::ChannelTopic,
+    "events/message/file_share.json"                   => Slack::Events::Message::FileShare,
+    "events/message/group_topic.json"                  => Slack::Events::Message::Unmapped,
+    "events/message/me_message.json"                   => Slack::Events::Message::MeMessage,
+    "events/message/message_changed.json"              => Slack::Events::Message::MessageChanged,
+    "events/message/message_deleted.json"              => Slack::Events::Message::MessageDeleted,
+    "events/message/message_replied.json"              => Slack::Events::Message::MessageReplied,
+    "events/message/pinned_item.json"                  => Slack::Events::Message::PinnedItem,
+    "events/message/unmapped_subtype.json"             => Slack::Events::Message::Unmapped,
+    "events/message/unpinned_item.json"                => Slack::Events::Message::UnpinnedItem,
+    "events/message_metadata_deleted.json"             => Slack::Events::MessageMetadataDeleted,
+    "events/message_metadata_posted.json"              => Slack::Events::MessageMetadataPosted,
+    "events/message_metadata_updated.json"             => Slack::Events::MessageMetadataUpdated,
+    "events/pin_added.json"                            => Slack::Events::PinAdded,
+    "events/pin_removed.json"                          => Slack::Events::PinRemoved,
+    "events/reaction_added.json"                       => Slack::Events::ReactionAdded,
+    "events/reaction_added_file.json"                  => Slack::Events::ReactionAdded,
+    "events/reaction_added_file_comment.json"          => Slack::Events::ReactionAdded,
+    "events/reaction_added_unknown_item.json"          => Slack::Events::ReactionAdded,
+    "events/reaction_added_webhook_message.json"       => Slack::Events::ReactionAdded,
+    "events/reaction_removed.json"                     => Slack::Events::ReactionRemoved,
+    "events/reaction_removed_file.json"                => Slack::Events::ReactionRemoved,
+    "events/subteam_created.json"                      => Slack::Events::SubteamCreated,
+    "events/subteam_members_changed.json"              => Slack::Events::SubteamMembersChanged,
+    "events/subteam_self_added.json"                   => Slack::Events::SubteamSelfAdded,
+    "events/subteam_self_removed.json"                 => Slack::Events::SubteamSelfRemoved,
+    "events/subteam_updated.json"                      => Slack::Events::SubteamUpdated,
+    "events/team_join.json"                            => Slack::Events::TeamJoin,
+    "events/thread_broadcast.json"                     => Slack::Events::Message::ThreadBroadcast,
+    "events/tokens_revoked.json"                       => Slack::Events::TokensRevoked,
+    "events/unknown_event.json"                        => Slack::Events::Unknown,
+    "events/url_verification.json"                     => Slack::UrlVerification,
+    "events/user_change.json"                          => Slack::Events::UserChange,
+    "events/user_status_changed.json"                  => Slack::Events::UserStatusChanged,
+    "request_authorizer/event_connect_workspace.json"  => Slack::Events::ReactionAdded,
+    "request_authorizer/event_org_context.json"        => Slack::Events::ReactionRemoved,
+    "socket_mode/events_api_app_mention.json"          => Slack::Events::AppMentioned,
+  }
+
+  # The type that each interaction fixture decodes to.
+  INTERACTION_TYPES = {
+    "block_kit/checkboxes_action.json"                    => Slack::Interactions::BlockAction,
+    "block_kit/overflow_action.json"                      => Slack::Interactions::BlockAction,
+    "block_kit/phase_4_home_action.json"                  => Slack::Interactions::BlockAction,
+    "block_kit/phase_5_home_action.json"                  => Slack::Interactions::BlockAction,
+    "block_kit/phase_5_message_action.json"               => Slack::Interactions::BlockAction,
+    "block_kit/phase_5_modal_action.json"                 => Slack::Interactions::BlockAction,
+    "block_kit/phase_5_submission.json"                   => Slack::Interactions::ViewSubmission,
+    "interactions/block_actions_attachment.json"          => Slack::Interactions::BlockAction,
+    "interactions/block_actions_context_clicks.json"      => Slack::Interactions::BlockAction,
+    "interactions/block_actions_message.json"             => Slack::Interactions::BlockAction,
+    "interactions/block_actions_view_function.json"       => Slack::Interactions::BlockAction,
+    "interactions/message_action.json"                    => Slack::Interactions::MessageAction,
+    "interactions/unknown_interaction.json"               => Slack::Interactions::Unknown,
+    "interactions/view_closed_cleared.json"               => Slack::Interactions::ViewClosed,
+    "interactions/view_submission_response_urls.json"     => Slack::Interactions::ViewSubmission,
+    "request_authorizer/interaction_block_message.json"   => Slack::Interactions::BlockAction,
+    "request_authorizer/interaction_block_view.json"      => Slack::Interactions::BlockAction,
+    "request_authorizer/interaction_global_shortcut.json" => Slack::Interactions::Shortcut,
+    "request_authorizer/interaction_message_action.json"  => Slack::Interactions::MessageAction,
+    "request_authorizer/interaction_view_closed.json"     => Slack::Interactions::ViewClosed,
+    "request_authorizer/interaction_view_submission.json" => Slack::Interactions::ViewSubmission,
+    "socket_mode/interactive_block_actions.json"          => Slack::Interactions::BlockAction,
+  }
+
+  # The types that keep their payload JSON unchanged.
+  FALLBACK_TYPES = [Slack::Events::Unknown, Slack::Events::Message::Unmapped, Slack::Interactions::Unknown]
 
   # The error that each malformed fixture raises: the class, the message, and
   # for `Slack::Auth::RequestAuthorizationError` the reason.
@@ -166,32 +299,53 @@ module DecoderContract
 
   def self.verify(decoder : Slack::Decoder) : Nil
     describe "#{decoder.class} decoder contract" do
-      describe "re-encodes each event fixture" do
+      describe "decodes and re-encodes each event fixture" do
+        it "has an expected type for each event fixture" do
+          EVENT_TYPES.keys.sort!.should eq(event_fixtures + ["socket_mode/events_api_app_mention.json"])
+        end
+
         event_fixtures.each do |path|
           it path do
             body = read(path)
-            assert_round_trip(path, body, decoder.event(body))
+            assert_event(path, body, decoder.event(body))
           end
         end
 
         it "socket_mode/events_api_app_mention.json" do
           body = socket_mode_payload("socket_mode/events_api_app_mention.json")
-          assert_round_trip("socket_mode/events_api_app_mention.json", body, decoder.event(body))
+          assert_event("socket_mode/events_api_app_mention.json", body, decoder.event(body))
         end
       end
 
-      describe "re-encodes each interaction fixture as a form and as JSON" do
+      describe "decodes and re-encodes each interaction fixture as a form and as JSON" do
+        it "has an expected type for each interaction fixture" do
+          INTERACTION_TYPES.keys.sort!.should eq(interaction_fixtures + ["socket_mode/interactive_block_actions.json"])
+        end
+
         interaction_fixtures.each do |path|
           it path do
             body = read(path)
-            assert_round_trip(path, body, decoder.interaction(form_payload(body)))
-            assert_round_trip(path, body, decoder.interaction(body, :json))
+            assert_interaction(path, body, decoder.interaction(form_payload(body)))
+            assert_interaction(path, body, decoder.interaction(body, :json))
           end
         end
 
         it "socket_mode/interactive_block_actions.json" do
           body = socket_mode_payload("socket_mode/interactive_block_actions.json")
-          assert_round_trip("socket_mode/interactive_block_actions.json", body, decoder.interaction(body, :json))
+          assert_interaction("socket_mode/interactive_block_actions.json", body, decoder.interaction(body, :json))
+        end
+      end
+
+      # `to_json` leaves out these secrets, so the round trip cannot check them.
+      it "decodes the workflow tokens that to_json leaves out" do
+        envelope = decoder.event(read("events/function_executed.json")).should be_a(Slack::VerifiedEvent)
+        event = envelope.event.should be_a(Slack::Events::FunctionExecuted)
+        event.bot_access_token.value.should eq("xwfp-synthetic-function-token")
+
+        body = read("interactions/block_actions_view_function.json")
+        [decoder.interaction(form_payload(body)), decoder.interaction(body, :json)].each do |decoded|
+          action = decoded.should be_a(Slack::Interactions::BlockAction)
+          action.bot_access_token.should_not(be_nil).value.should eq("xwfp-synthetic-workflow-token")
         end
       end
 
@@ -222,48 +376,51 @@ module DecoderContract
     end
   end
 
-  # Returns the differences between *input* and *output*, sorted. See the
-  # module documentation for the rules.
-  def self.differences(input : JSON::Any, output : JSON::Any) : Array(String)
+  # Returns the differences between *input* and *output*, sorted. The subtree
+  # at *strict_path* keeps `null` values. See the module documentation for the
+  # rules.
+  def self.differences(input : JSON::Any, output : JSON::Any, strict_path : String? = nil) : Array(String)
     differences = [] of String
-    collect(input, output, "$", differences)
+    collect(input, output, "$", strict_path == "$", strict_path, differences)
     differences.sort
   end
 
-  private def self.collect(input : JSON::Any, output : JSON::Any, path : String, differences : Array(String)) : Nil
+  private def self.collect(input : JSON::Any, output : JSON::Any, path : String, strict : Bool,
+                           strict_path : String?, differences : Array(String)) : Nil
     input_object = input.as_h?
     output_object = output.as_h?
-    return collect_object(input_object, output_object, path, differences) if input_object && output_object
+    return collect_object(input_object, output_object, path, strict, strict_path, differences) if input_object && output_object
 
     input_array = input.as_a?
     output_array = output.as_a?
-    return collect_array(input_array, output_array, path, differences) if input_array && output_array
+    return collect_array(input_array, output_array, path, strict, strict_path, differences) if input_array && output_array
 
     differences << "#{path}: #{input.to_json} became #{output.to_json}" unless input == output
   end
 
-  private def self.collect_object(input : Hash(String, JSON::Any), output : Hash(String, JSON::Any),
-                                  path : String, differences : Array(String)) : Nil
+  private def self.collect_object(input : Hash(String, JSON::Any), output : Hash(String, JSON::Any), path : String,
+                                  strict : Bool, strict_path : String?, differences : Array(String)) : Nil
     (input.keys | output.keys).each do |key|
-      input_value = present(input, key)
-      output_value = present(output, key)
       key_path = "#{path}.#{key}"
+      key_strict = strict || key_path == strict_path
+      input_value = key_strict ? input[key]? : present(input, key)
+      output_value = key_strict ? output[key]? : present(output, key)
       if input_value && output_value
-        collect(input_value, output_value, key_path, differences)
+        collect(input_value, output_value, key_path, key_strict, strict_path, differences)
       elsif input_value
         differences << "#{key_path}: dropped"
-      elsif output_value && !default?(output_value)
+      elsif output_value
         differences << "#{key_path}: added #{output_value.to_json}"
       end
     end
   end
 
-  private def self.collect_array(input : Array(JSON::Any), output : Array(JSON::Any),
-                                 path : String, differences : Array(String)) : Nil
+  private def self.collect_array(input : Array(JSON::Any), output : Array(JSON::Any), path : String,
+                                 strict : Bool, strict_path : String?, differences : Array(String)) : Nil
     return differences << "#{path}: #{input.size} items became #{output.size}" unless input.size == output.size
 
     input.each_with_index do |item, index|
-      collect(item, output[index], "#{path}[#{index}]", differences)
+      collect(item, output[index], "#{path}[#{index}]", strict, strict_path, differences)
     end
   end
 
@@ -272,12 +429,23 @@ module DecoderContract
     value unless value.nil? || value.raw.nil?
   end
 
-  private def self.default?(value : JSON::Any) : Bool
-    value.raw == false || value.as_a?.try(&.empty?) || false
+  private def self.assert_event(path : String, input : String,
+                                decoded : Slack::VerifiedEvent | Slack::UrlVerification | Slack::AppRateLimited) : Nil
+    expected = EVENT_TYPES[path]?
+    actual = decoded.is_a?(Slack::VerifiedEvent) ? decoded.event.class : decoded.class
+    actual.should eq(expected)
+    assert_round_trip(path, input, decoded, FALLBACK_TYPES.includes?(expected) ? "$.event" : nil)
   end
 
-  private def self.assert_round_trip(path : String, input : String, decoded : JSON::Serializable) : Nil
-    actual = differences(JSON.parse(input), JSON.parse(decoded.to_json))
+  private def self.assert_interaction(path : String, input : String, decoded : Slack::Interaction) : Nil
+    expected = INTERACTION_TYPES[path]?
+    decoded.class.should eq(expected)
+    assert_round_trip(path, input, decoded, FALLBACK_TYPES.includes?(expected) ? "$" : nil)
+  end
+
+  private def self.assert_round_trip(path : String, input : String, decoded : JSON::Serializable,
+                                     strict_path : String? = nil) : Nil
+    actual = differences(JSON.parse(input), JSON.parse(decoded.to_json), strict_path)
     actual.should eq(KNOWN_DIFFERENCES.fetch(path, [] of String).sort)
   end
 
