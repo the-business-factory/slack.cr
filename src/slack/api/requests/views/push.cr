@@ -15,11 +15,7 @@ struct Slack::Api::ViewsPush < Slack::Api::Request(Slack::Models::ViewsPush)
 
   def validate : Array(Slack::UI::ValidationIssue)
     issues = @snapshot.validate.map(&.at("view"))
-    if @trigger_id.blank?
-      issues << Slack::UI::ValidationIssue.new(
-        "views_push.trigger_id.blank", "trigger_id", "Trigger ID must not be blank."
-      )
-    end
+    Slack::Api::FieldChecks.blank_issue(issues, "views_push", "trigger_id", @trigger_id, "Trigger ID")
     issues
   end
 

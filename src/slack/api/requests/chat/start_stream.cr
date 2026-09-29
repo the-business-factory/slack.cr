@@ -38,10 +38,8 @@ struct Slack::Api::ChatStartStream < Slack::Api::Request(Slack::Models::Chat::St
 
   def validate : Array(Slack::UI::ValidationIssue)
     issues = [] of Slack::UI::ValidationIssue
-    if @channel.blank?
-      issues << Slack::UI::ValidationIssue.new("chat_start_stream.channel.blank", "channel", "Channel must not be blank.")
-    end
-    if (thread_ts = @thread_ts) && !Streaming.timestamp?(thread_ts)
+    Slack::Api::FieldChecks.blank_issue(issues, "chat_start_stream", "channel", @channel, "Channel")
+    if (thread_ts = @thread_ts) && !FieldChecks.timestamp?(thread_ts)
       issues << Slack::UI::ValidationIssue.new("chat_start_stream.thread_ts.invalid", "thread_ts",
         "Thread timestamp must contain digits, a decimal point, and fractional digits. Use nil for a top-level stream.")
     end

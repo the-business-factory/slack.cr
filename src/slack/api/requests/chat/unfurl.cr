@@ -70,12 +70,12 @@ struct Slack::Api::ChatUnfurl < Slack::Api::Request(Slack::Models::DefaultRespon
 
   def validate : Array(Slack::UI::ValidationIssue)
     issues = [] of Slack::UI::ValidationIssue
-    Slack::Api::ChatChecks.blank_issue(issues, "chat_unfurl", "channel", @channel, "Channel")
-    Slack::Api::ChatChecks.timestamp_issue(issues, "chat_unfurl", "ts", @ts)
-    Slack::Api::ChatChecks.blank_issue(issues, "chat_unfurl", "unfurl_id", @unfurl_id, "Unfurl ID")
+    Slack::Api::FieldChecks.blank_issue(issues, "chat_unfurl", "channel", @channel, "Channel")
+    Slack::Api::FieldChecks.timestamp_issue(issues, "chat_unfurl", "ts", @ts)
+    Slack::Api::FieldChecks.blank_issue(issues, "chat_unfurl", "unfurl_id", @unfurl_id, "Unfurl ID")
     unfurl_issues(issues)
-    Slack::Api::ChatChecks.blank_issue(issues, "chat_unfurl", "user_auth_message", @user_auth_message, "User auth message")
-    Slack::Api::ChatChecks.blank_issue(issues, "chat_unfurl", "user_auth_url", @user_auth_url, "User auth URL")
+    Slack::Api::FieldChecks.blank_issue(issues, "chat_unfurl", "user_auth_message", @user_auth_message, "User auth message")
+    Slack::Api::FieldChecks.blank_issue(issues, "chat_unfurl", "user_auth_url", @user_auth_url, "User auth URL")
     @user_auth_blocks.try { |message| issues.concat(message.validate.map(&.at("user_auth_blocks"))) }
     issues
   end

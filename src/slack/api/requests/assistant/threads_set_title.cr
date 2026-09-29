@@ -22,16 +22,9 @@ module Slack::Api
 
     def validate : Array(UI::ValidationIssue)
       issues = [] of UI::ValidationIssue
-      if @channel_id.blank?
-        issues << issue("channel_id.blank", "channel_id", "Channel ID must not be blank.")
-      end
-      unless Streaming.timestamp?(@thread_ts)
-        issues << issue("thread_ts.invalid", "thread_ts",
-          "Thread timestamp must contain digits, a decimal point, and fractional digits.")
-      end
-      if @title.blank?
-        issues << issue("title.blank", "title", "Title must not be blank.")
-      end
+      FieldChecks.blank_issue(issues, "assistant_threads_set_title", "channel_id", @channel_id, "Channel ID")
+      FieldChecks.timestamp_issue(issues, "assistant_threads_set_title", "thread_ts", @thread_ts, "Thread timestamp")
+      FieldChecks.blank_issue(issues, "assistant_threads_set_title", "title", @title, "Title")
       issues
     end
 
@@ -50,10 +43,6 @@ module Slack::Api
 
     def tier : RateLimitTier
       RateLimitTier::Tier4
-    end
-
-    private def issue(code : String, path : String, message : String) : UI::ValidationIssue
-      UI::ValidationIssue.new("assistant_threads_set_title.#{code}", path, message)
     end
   end
 end

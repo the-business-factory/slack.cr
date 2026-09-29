@@ -74,8 +74,8 @@ struct Slack::Api::ChatScheduleMessage < Slack::Api::Request(Slack::Models::Chat
 
   def validate : Array(Slack::UI::ValidationIssue)
     issues = @content.validate("chat_schedule_message")
-    Slack::Api::ChatChecks.blank_issue(issues, "chat_schedule_message", "channel", @channel, "Channel")
-    Slack::Api::ChatChecks.timestamp_issue(issues, "chat_schedule_message", "thread_ts", @thread_ts)
+    Slack::Api::FieldChecks.blank_issue(issues, "chat_schedule_message", "channel", @channel, "Channel")
+    Slack::Api::FieldChecks.timestamp_issue(issues, "chat_schedule_message", "thread_ts", @thread_ts)
     Slack::Api::ChatChecks.broadcast_issue(issues, "chat_schedule_message", @reply_broadcast, @thread_ts)
     issues
   end

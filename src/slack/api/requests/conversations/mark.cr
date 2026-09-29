@@ -23,7 +23,7 @@ module Slack::Api
 
     def validate : Array(UI::ValidationIssue)
       issues = [] of UI::ValidationIssue
-      ChatChecks.timestamp_issue(issues, "conversations_mark", "ts", @ts)
+      FieldChecks.timestamp_issue(issues, "conversations_mark", "ts", @ts)
       issues
     end
   end

@@ -18,12 +18,8 @@ module Slack::Api
 
     def validate : Array(UI::ValidationIssue)
       issues = [] of UI::ValidationIssue
-      if @title.blank?
-        issues << UI::ValidationIssue.new("suggested_prompt.title.blank", "title", "Prompt title must not be blank.")
-      end
-      if @message.blank?
-        issues << UI::ValidationIssue.new("suggested_prompt.message.blank", "message", "Prompt message must not be blank.")
-      end
+      FieldChecks.blank_issue(issues, "suggested_prompt", "title", @title, "Prompt title")
+      FieldChecks.blank_issue(issues, "suggested_prompt", "message", @message, "Prompt message")
       issues
     end
 

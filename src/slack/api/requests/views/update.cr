@@ -28,12 +28,7 @@ struct Slack::Api::ViewsUpdate < Slack::Api::Request(Slack::Models::ViewsUpdate)
       issues << Slack::UI::ValidationIssue.new(
         "views_update.target.ambiguous", "external_id", "Supply only one target selector.")
     end
-    if view_id = @view_id
-      if view_id.blank?
-        issues << Slack::UI::ValidationIssue.new(
-          "views_update.view_id.blank", "view_id", "View ID must not be blank.")
-      end
-    end
+    Slack::Api::FieldChecks.blank_issue(issues, "views_update", "view_id", @view_id, "View ID")
     if external_id = @external_id
       if external_id.blank?
         issues << Slack::UI::ValidationIssue.new(

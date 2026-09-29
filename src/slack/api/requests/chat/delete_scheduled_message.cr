@@ -12,8 +12,8 @@ struct Slack::Api::ChatDeleteScheduledMessage < Slack::Api::Request(Slack::Model
 
   def validate : Array(Slack::UI::ValidationIssue)
     issues = [] of Slack::UI::ValidationIssue
-    Slack::Api::ChatChecks.blank_issue(issues, "chat_delete_scheduled_message", "channel", @channel, "Channel")
-    Slack::Api::ChatChecks.blank_issue(issues, "chat_delete_scheduled_message", "scheduled_message_id",
+    Slack::Api::FieldChecks.blank_issue(issues, "chat_delete_scheduled_message", "channel", @channel, "Channel")
+    Slack::Api::FieldChecks.blank_issue(issues, "chat_delete_scheduled_message", "scheduled_message_id",
       @scheduled_message_id, "Scheduled message ID")
     issues
   end

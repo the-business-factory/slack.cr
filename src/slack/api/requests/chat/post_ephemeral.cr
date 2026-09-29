@@ -68,10 +68,10 @@ struct Slack::Api::ChatPostEphemeral < Slack::Api::Request(Slack::Models::Chat::
 
   def validate : Array(Slack::UI::ValidationIssue)
     issues = @content.validate("chat_post_ephemeral")
-    Slack::Api::ChatChecks.blank_issue(issues, "chat_post_ephemeral", "channel", @channel, "Channel")
-    Slack::Api::ChatChecks.blank_issue(issues, "chat_post_ephemeral", "user", @user, "User")
-    Slack::Api::ChatChecks.timestamp_issue(issues, "chat_post_ephemeral", "thread_ts", @thread_ts)
-    Slack::Api::ChatChecks.blank_issue(issues, "chat_post_ephemeral", "username", @username, "Username")
+    Slack::Api::FieldChecks.blank_issue(issues, "chat_post_ephemeral", "channel", @channel, "Channel")
+    Slack::Api::FieldChecks.blank_issue(issues, "chat_post_ephemeral", "user", @user, "User")
+    Slack::Api::FieldChecks.timestamp_issue(issues, "chat_post_ephemeral", "thread_ts", @thread_ts)
+    Slack::Api::FieldChecks.blank_issue(issues, "chat_post_ephemeral", "username", @username, "Username")
     issues
   end
 
