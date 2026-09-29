@@ -238,7 +238,7 @@ module ReceivedBlocksSpec
 
     it "decodes blocks once per instance and keeps them out of to_json" do
       json = <<-JSON
-        {"type":"message","channel":"C1","channel_type":"channel","team":"T1","text":"hi","user":"U1","ts":"1.1",
+        {"type":"message","channel":"C1","channel_type":"channel","team":"T1","text":"hi","user":"U1","ts":"1.1","event_ts":"1.1",
          "blocks":[{"type":"divider","block_id":"d1"}]}
         JSON
       message = Slack::Event.from_json(json).should be_a(Slack::Events::Message)
