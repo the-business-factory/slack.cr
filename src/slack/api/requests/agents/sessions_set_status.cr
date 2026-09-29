@@ -38,10 +38,7 @@ module Slack::Api
 
     def validate : Array(UI::ValidationIssue)
       issues = [] of UI::ValidationIssue
-      if (thread_ts = @thread_ts) && !Streaming.timestamp?(thread_ts)
-        issues << UI::ValidationIssue.new("agents_sessions_set_status.thread_ts.invalid", "thread_ts",
-          "Thread timestamp must contain digits, a decimal point, and fractional digits.")
-      end
+      FieldChecks.timestamp_issue(issues, "agents_sessions_set_status", "thread_ts", @thread_ts, "Thread timestamp")
       length_issue(issues, @title, MAX_TITLE_SIZE, "agents_sessions_set_status.title.too_long", "title")
       length_issue(issues, @username, MAX_USERNAME_SIZE, "agents_sessions_set_status.username.too_long", "username")
       issues

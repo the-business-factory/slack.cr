@@ -72,8 +72,7 @@ module Slack::Api
       timestamp = @thread_ts
       return unless timestamp
 
-      # Same shape check as chat.postMessage: digits, a decimal point, and fractional digits.
-      unless /\A[0-9]+\.[0-9]+\z/.matches?(timestamp)
+      unless FieldChecks.timestamp?(timestamp)
         issues << issue("thread_ts.invalid", "thread_ts",
           "Thread timestamp must contain digits, a decimal point, and fractional digits.")
       end

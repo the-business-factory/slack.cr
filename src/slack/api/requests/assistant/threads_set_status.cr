@@ -40,17 +40,10 @@ module Slack::Api
 
     def validate : Array(UI::ValidationIssue)
       issues = [] of UI::ValidationIssue
-      if @channel_id.blank?
-        issues << issue("channel_id.blank", "channel_id", "Channel ID must not be blank.")
-      end
-      unless Streaming.timestamp?(@thread_ts)
-        issues << issue("thread_ts.invalid", "thread_ts",
-          "Thread timestamp must contain digits, a decimal point, and fractional digits.")
-      end
+      FieldChecks.blank_issue(issues, "assistant_threads_set_status", "channel_id", @channel_id, "Channel ID")
+      FieldChecks.timestamp_issue(issues, "assistant_threads_set_status", "thread_ts", @thread_ts, "Thread timestamp")
       loading_message_issue(issues)
-      if (username = @username) && username.blank?
-        issues << issue("username.blank", "username", "Username must not be blank.")
-      end
+      FieldChecks.blank_issue(issues, "assistant_threads_set_status", "username", @username, "Username")
       issues
     end
 

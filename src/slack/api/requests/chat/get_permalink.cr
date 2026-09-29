@@ -13,8 +13,8 @@ struct Slack::Api::ChatGetPermalink < Slack::Api::Request(Slack::Models::Chat::P
 
   def validate : Array(Slack::UI::ValidationIssue)
     issues = [] of Slack::UI::ValidationIssue
-    Slack::Api::ChatChecks.blank_issue(issues, "chat_get_permalink", "channel", @channel, "Channel")
-    Slack::Api::ChatChecks.timestamp_issue(issues, "chat_get_permalink", "message_ts", @message_ts)
+    Slack::Api::FieldChecks.blank_issue(issues, "chat_get_permalink", "channel", @channel, "Channel")
+    Slack::Api::FieldChecks.timestamp_issue(issues, "chat_get_permalink", "message_ts", @message_ts)
     issues
   end
 

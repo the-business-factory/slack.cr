@@ -75,11 +75,8 @@ struct Slack::Api::ChatUpdate < Slack::Api::Request(Slack::Models::Chat::UpdateM
 
   def validate : Array(Slack::UI::ValidationIssue)
     issues = @content.validate("chat_update")
-    Slack::Api::ChatChecks.blank_issue(issues, "chat_update", "channel", @channel, "Channel")
-    unless Slack::Api::ChatChecks.timestamp?(@ts)
-      issues << Slack::UI::ValidationIssue.new(
-        "chat_update.ts.invalid", "ts", "Message timestamp must contain digits, a decimal point, and fractional digits.")
-    end
+    Slack::Api::FieldChecks.blank_issue(issues, "chat_update", "channel", @channel, "Channel")
+    Slack::Api::FieldChecks.timestamp_issue(issues, "chat_update", "ts", @ts, "Message timestamp")
     fallback_issue(issues)
     issues
   end

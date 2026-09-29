@@ -37,9 +37,7 @@ module Slack::Api
 
     def validate : Array(UI::ValidationIssue)
       issues = [] of UI::ValidationIssue
-      if (name = @name) && name.blank?
-        issues << UI::ValidationIssue.new("usergroups.name.blank", "name", "Name must not be blank.")
-      end
+      FieldChecks.blank_issue(issues, "usergroups", "name", @name, "Name")
       issues.concat(channel_issues)
     end
 

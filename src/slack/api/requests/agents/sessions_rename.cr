@@ -27,14 +27,9 @@ module Slack::Api
 
     def validate : Array(UI::ValidationIssue)
       issues = [] of UI::ValidationIssue
-      if @title.blank?
-        issues << UI::ValidationIssue.new("agents_sessions_rename.title.blank", "title", "Title must not be blank.")
-      end
+      FieldChecks.blank_issue(issues, "agents_sessions_rename", "title", @title, "Title")
       length_issue(issues, @title, MAX_TITLE_SIZE, "agents_sessions_rename.title.too_long", "title")
-      if (thread_ts = @thread_ts) && !Streaming.timestamp?(thread_ts)
-        issues << UI::ValidationIssue.new("agents_sessions_rename.thread_ts.invalid", "thread_ts",
-          "Thread timestamp must contain digits, a decimal point, and fractional digits.")
-      end
+      FieldChecks.timestamp_issue(issues, "agents_sessions_rename", "thread_ts", @thread_ts, "Thread timestamp")
       issues
     end
 

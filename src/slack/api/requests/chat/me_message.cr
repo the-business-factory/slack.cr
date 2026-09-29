@@ -11,7 +11,7 @@ struct Slack::Api::ChatMeMessage < Slack::Api::Request(Slack::Models::Chat::MeMe
 
   def validate : Array(Slack::UI::ValidationIssue)
     issues = [] of Slack::UI::ValidationIssue
-    Slack::Api::ChatChecks.blank_issue(issues, "chat_me_message", "channel", @channel, "Channel")
+    Slack::Api::FieldChecks.blank_issue(issues, "chat_me_message", "channel", @channel, "Channel")
     if @text.empty?
       issues << Slack::UI::ValidationIssue.new("chat_me_message.text.empty", "text", "Text must not be empty.")
     end

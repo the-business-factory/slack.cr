@@ -134,9 +134,9 @@ struct Slack::Api::ChatPostMessage < Slack::Api::Request(Slack::Models::Chat::Po
         message: "Channel must not be empty."
       )
     end
-    Slack::Api::ChatChecks.timestamp_issue(issues, "chat_post_message", "thread_ts", @thread_ts)
+    Slack::Api::FieldChecks.timestamp_issue(issues, "chat_post_message", "thread_ts", @thread_ts)
     Slack::Api::ChatChecks.broadcast_issue(issues, "chat_post_message", @reply_broadcast, @thread_ts)
-    Slack::Api::ChatChecks.blank_issue(issues, "chat_post_message", "username", @username, "Username")
+    Slack::Api::FieldChecks.blank_issue(issues, "chat_post_message", "username", @username, "Username")
     issues
   end
 
