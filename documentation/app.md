@@ -40,7 +40,8 @@ Register listeners before the app receives requests. Each registration method gi
 | `event(Slack::Events::Unknown, type:)` | Event of a `type` that the library does not map | `EventContext(Slack::Events::Unknown)` | Automatic, before the listener runs |
 | `message(pattern = nil)` | `message` event without a subtype | `EventContext(Slack::Events::Message)` | Automatic, before the listener runs |
 | `function(callback_id)` | `function_executed` | `FunctionContext`: `envelope`, `event`, `inputs`, `complete`, `fail` | Automatic, before the listener runs |
-| `action(action_id, block_id = nil)` | `block_actions` | `ActionContext`: `payload`, `action` | `ack` |
+| `action(action_id, block_id = nil)` | `block_actions` | `ActionContext(Slack::Interactions::Action)`: `payload`, `action` | `ack` |
+| `action(T, action_id, block_id = nil)` | `block_actions` whose action is a `T`, for example `Slack::Interactions::ButtonAction` | `ActionContext(T)`: `payload`, `action : T` | `ack` |
 | `command(name)` | Slash command | `CommandContext`: `command` | `ack`, `ack(Commands::Response)` |
 | `shortcut(callback_id)` | Global or message shortcut | `ShortcutContext`: `shortcut` | `ack` |
 | `options(action_id)` | `block_suggestion` | `OptionsContext`: `payload` | `ack(BlockSuggestionResponse)` |
@@ -62,6 +63,7 @@ Matching rules:
 - `action` and `options` also take a `Slack::UI::ActionId`. It matches as its string does. Give the same constant to the element `action_id:` and to the listener.
 - A string `message` pattern matches text that contains it, as in Bolt. A `Regex` matches the text. Nil matches every message.
 - `action` uses the first action of the payload. Slack sends one action for each click.
+- `action(T, action_id)` matches only an action of type `T`. An action with the same ID and another type does not match. `T` must be a `Slack::Interactions::Action` type; another type is a compile error. `action_id` is a `String` or a `Slack::UI::ActionId`.
 - For each request, only the first matching listener runs, in registration order.
 - `assistant` adds the handlers of a `Slack::App::Assistant`. See [Answer app threads with the assistant helper](ai-apps.md#answer-app-threads-with-the-assistant-helper).
 - `ActionContext` and `ViewContext` give `function_execution` for blocks and views that a custom step created. See [Handle a step](workflows.md#handle-a-step).
@@ -128,9 +130,9 @@ app.message("status") do |ctx|
   ctx.say("All green.", thread_ts: ctx.event.thread_ts || ctx.event.ts)
 end
 
-app.action("deploy.approve") do |ctx|
+app.action(Slack::Interactions::ButtonAction, "deploy.approve") do |ctx|
   ctx.ack
-  ctx.respond(Slack::Interactions::ResponseUrlMessage.new(text: "Approved.", replace_original: true))
+  ctx.respond(Slack::Interactions::ResponseUrlMessage.new(text: "Approved #{ctx.action.value}.", replace_original: true))
 end
 ```
 

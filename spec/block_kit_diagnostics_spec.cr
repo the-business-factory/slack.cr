@@ -32,6 +32,7 @@ describe "Block Kit construction and app listener diagnostics" do
     "rich_text_list_item"    => ["RichText::List#append_element", "RichText::Section", "not Slack::UI::RichText::Text"],
     "number_input_message"   => ["MessageBuilder#input", "argument 'element'", "NumberInput"],
     "event_type_typo"        => ["undefined constant Slack::Events::AppMentoined"],
+    "action_type_typo"       => ["undefined constant Slack::Interactions::ButonAction"],
   }.each do |name, fragments|
     it "explains #{name}" do
       result = CompileContracts.compile(root, "spec/fixtures/compile/fail/#{name}.cr")

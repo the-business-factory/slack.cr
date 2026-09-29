@@ -241,6 +241,22 @@ describe Slack::App::HttpReceiver do
     calls.should eq ["deploy.approve=api in C-SYNTHETIC"]
   end
 
+  it "gives a typed action listener the action as its element type and skips other element types" do
+    app = build_app
+    approve = Slack::UI::ActionId.new("deploy.approve")
+    calls = [] of String
+    app.action(Slack::Interactions::StaticSelectAction, approve) { |_ctx| calls << "select" }
+    app.action(Slack::Interactions::ButtonAction, approve) do |ctx|
+      button : Slack::Interactions::ButtonAction = ctx.action
+      calls << "button=#{button.value} in #{button.block_id}"
+    end
+
+    reply = receive(app, AppSupport.interaction(BLOCK_ACTIONS))
+
+    reply.status.should eq 200
+    calls.should eq ["button=api in deploy.actions"]
+  end
+
   it "returns options for a block_suggestion request" do
     app = build_app
     app.options("service.pick") do |ctx|
@@ -399,14 +415,14 @@ describe Slack::App::HttpReceiver do
 
   it "answers 500 when a listener raises before it acknowledges" do
     app = build_app
-    app.action("deploy.approve") { |_ctx| raise "synthetic failure" }
+    app.action(Slack::Interactions::ButtonAction, "deploy.approve") { |_ctx| raise "synthetic failure" }
 
     Log.capture("slack.app") do |logs|
       receive(app, AppSupport.interaction(BLOCK_ACTIONS)).status.should eq 500
       # The listener fiber reports the exception after the receiver has the
       # response; a timed sleep lets the ready listener fiber run first.
       sleep 1.millisecond
-      logs.check(:error, "Listener for Slack::App::ActionContext raised Exception before acknowledging")
+      logs.check(:error, "Listener for Slack::App::ActionContext(Slack::Interactions::ButtonAction) raised Exception before acknowledging")
     end
   end
 

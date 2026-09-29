@@ -130,9 +130,32 @@ class Slack::App
 
   # Listens for `block_actions` whose action has *action_id* and, when given, *block_id*.
   # Give a `Slack::UI::ActionId` to use the same constant as the element.
+  # `ctx.action` is a `Slack::Interactions::Action`; to get the concrete type,
+  # give the action type too.
   def action(action_id : String | Regex | Slack::UI::ActionId, block_id : String? = nil, *,
-             middleware : Array(Middleware) = [] of Middleware, &handler : ActionContext ->) : Nil
-    @router.action(action_id, block_id, middleware, handler)
+             middleware : Array(Middleware) = [] of Middleware,
+             &handler : ActionContext(Slack::Interactions::Action) ->) : Nil
+    @router.action(Slack::Interactions::Action, action_id, block_id, middleware, handler)
+  end
+
+  # Listens for `block_actions` whose action is an *action_type* with *action_id*
+  # and, when given, *block_id*. The listener gets the action as that type. An
+  # action with the same ID but another type does not match.
+  #
+  # ```
+  # APPROVE = Slack::UI::ActionId.new("deploy.approve")
+  #
+  # app.action(Slack::Interactions::ButtonAction, APPROVE) do |ctx|
+  #   ctx.ack
+  #   ctx.log.info { "Approved #{ctx.action.value}" }
+  # end
+  # ```
+  def action(action_type : T.class, action_id : String | Slack::UI::ActionId, block_id : String? = nil, *,
+             middleware : Array(Middleware) = [] of Middleware, &handler : ActionContext(T) ->) : Nil forall T
+    {% unless T <= ::Slack::Interactions::Action %}
+      {% raise "App#action takes a Slack::Interactions::Action type, such as Slack::Interactions::ButtonAction, not #{T}" %}
+    {% end %}
+    @router.action(action_type, action_id, block_id, middleware, handler)
   end
 
   # Listens for the slash command *name*, for example `"/deploy"`.

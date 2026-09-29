@@ -28,13 +28,13 @@ module OfflineAppExample
       ctx.client.call(Slack::Api::ChatPostMessage.new(channel: ctx.event.channel, message: approval_request("api")))
     end
 
-    app.action(APPROVE) do |ctx|
+    # The listener gets the click as a ButtonAction, so `value` needs no type check.
+    app.action(Slack::Interactions::ButtonAction, APPROVE) do |ctx|
       ctx.ack
-      button = ctx.action
       channel = ctx.payload.channel
-      next unless button.is_a?(Slack::Interactions::ButtonAction) && channel
+      next unless channel
       ctx.client.call(Slack::Api::ChatPostMessage.new(channel: channel.id,
-        text: "#{button.value} approved by <@#{ctx.payload.user.try(&.id)}>."))
+        text: "#{ctx.action.value} approved by <@#{ctx.payload.user.try(&.id)}>."))
     end
     app
   end

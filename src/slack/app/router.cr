@@ -59,14 +59,15 @@ class Slack::App::Router
     end
   end
 
-  def action(action_id : String | Regex | Slack::UI::ActionId, block_id : String?, middleware : Array(Middleware),
-             handler : Proc(ActionContext, Nil)) : Nil
+  # Matches actions that are a *T*. *T* is `Slack::Interactions::Action` for every action type.
+  def action(action_type : T.class, action_id : String | Regex | Slack::UI::ActionId, block_id : String?,
+             middleware : Array(Middleware), handler : Proc(ActionContext(T), Nil)) : Nil forall T
     pattern = action_pattern(action_id)
-    @routes << TypedRoute(ActionContext).new(middleware, handler, acknowledge_first: false) do |payload, environment|
+    @routes << TypedRoute(ActionContext(T)).new(middleware, handler, acknowledge_first: false) do |payload, environment|
       next unless payload.is_a?(Slack::Interactions::BlockAction)
       action = payload.actions.first?
-      if action && matches?(pattern, action_id(action)) && (block_id.nil? || block_id == block_id(action))
-        ActionContext.new(environment, payload, action)
+      if action.is_a?(T) && matches?(pattern, action_id(action)) && (block_id.nil? || block_id == block_id(action))
+        ActionContext(T).new(environment, payload, action)
       end
     end
   end

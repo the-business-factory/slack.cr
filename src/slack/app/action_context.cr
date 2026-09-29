@@ -1,16 +1,20 @@
 # The context of an `App#action` listener for a `block_actions` payload.
 # `#action` is the first action in the payload; Slack sends one per click.
-struct Slack::App::ActionContext < Slack::App::Context
+#
+# *T* is the action type. A listener registered with an element type, such as
+# `App#action(Slack::Interactions::ButtonAction, "deploy.approve")`, gets an
+# `ActionContext(Slack::Interactions::ButtonAction)`. A listener registered
+# with an action ID only gets `ActionContext(Slack::Interactions::Action)`.
+struct Slack::App::ActionContext(T) < Slack::App::Context
   include Acknowledging
   include FunctionInteractivity
   include Saying
   include Responding
 
   getter payload : Slack::Interactions::BlockAction
-  getter action : Slack::Interactions::Action
+  getter action : T
 
-  def initialize(environment : Environment, @payload : Slack::Interactions::BlockAction,
-                 @action : Slack::Interactions::Action)
+  def initialize(environment : Environment, @payload : Slack::Interactions::BlockAction, @action : T)
     super(environment)
   end
 

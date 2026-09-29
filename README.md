@@ -32,9 +32,9 @@ app.command("/deploy") do |ctx|
   ctx.ack(Slack::Commands::Response.new(text: "Deploying #{ctx.command.text}."))
 end
 
-app.action("deploy.approve") do |ctx|
+app.action(Slack::Interactions::ButtonAction, "deploy.approve") do |ctx|
   ctx.ack
-  ctx.respond(Slack::Interactions::ResponseUrlMessage.new(text: "Approved.", replace_original: true))
+  ctx.respond(Slack::Interactions::ResponseUrlMessage.new(text: "Approved #{ctx.action.value}.", replace_original: true))
 end
 
 verifier = Slack::Webhooks::Verifier.new(Slack::Auth::Secret.new(ENV["SLACK_SIGNING_SECRET"]))
@@ -81,10 +81,15 @@ message = Slack::UI.message(fallback_text: "Request 42 needs approval.") do |bui
 end
 client.call(Slack::Api::ChatPostMessage.new(channel: "C123", message: message))
 
-app.action(APPROVE) { |ctx| ctx.ack }
+app.action(Slack::Interactions::ButtonAction, APPROVE) do |ctx|
+  ctx.ack
+  ctx.log.info { "Approved request #{ctx.action.value}" }
+end
 ```
 
 An `action_id:` argument takes a `String` or a `Slack::UI::ActionId`. `app.action` and `app.options` also take an `ActionId`. Use one `ActionId` constant for an element and its listener. Then the two cannot use different IDs.
+
+Give `app.action` the element's action type to get `ctx.action` as that type. An action with the same ID and another type does not run the listener. Without the type, `ctx.action` is the `Slack::Interactions::Action` union.
 
 Use `message.to_pretty_json` to inspect the payload locally. See [Block Kit](documentation/block-kit.md) for surfaces, blocks, elements, modals, Home, and received blocks.
 
