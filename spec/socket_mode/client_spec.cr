@@ -64,7 +64,7 @@ describe Slack::SocketMode::Client do
     client = Slack::SocketMode::Client.new("xapp-synthetic", transport: transport, connect: connect)
 
     finished = start(client) do |envelope, ack|
-      ack.ack(Slack::Commands::Response.new(text: "Deploying #{envelope.command.text}")) if envelope.accepts_response_payload?
+      ack.ack(Slack::Commands::Response.new(text: "Deploying #{Slack::Decoder.default.command(envelope.payload_json, :json).text}")) if envelope.accepts_response_payload?
       ack.ack unless envelope.accepts_response_payload?
     end
 

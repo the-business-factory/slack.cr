@@ -2,13 +2,18 @@ require "./commands/parse"
 require "./events/parse"
 require "./interactions/parse"
 
-# Decodes verified Slack payload bytes into typed values. `Slack::App::HttpReceiver`,
-# `Slack::App::SocketModeReceiver`, `Slack::Auth::RequestAuthorizer`, and
-# `Slack::Auth::CredentialLifecycle` take a decoder. The default is
+# Decodes Slack payloads into typed values. The decoder does not verify
+# signatures: HTTP callers verify a request before they give its body to the
+# decoder, and Slack authenticates a Socket Mode connection with the app-level
+# token.
+#
+# `Slack::App::HttpReceiver`, `Slack::App::SocketModeReceiver`,
+# `Slack::Auth::RequestAuthorizer`, and `Slack::Auth::CredentialLifecycle`
+# take a decoder. The default is
 # `Slack::Decoders::Stdlib`.
 #
-# Give an observer to see the exact bytes of each payload before the decoder
-# decodes them, for example to keep a payload for a bug report or a test fixture:
+# Give an observer to see each payload before the decoder decodes it, for
+# example to keep a payload for a bug report or a test fixture:
 #
 # ```
 # decoder = Slack::Decoders::Stdlib.new(->(kind : Slack::Decoder::Kind, body : String) {
@@ -18,9 +23,17 @@ require "./interactions/parse"
 # Slack::App::HttpReceiver.new(app, verifier, decoder: decoder)
 # ```
 #
-# The observer gets the payload bytes after signature verification. It runs in
-# the fiber that decodes the payload. If the observer raises, the decoder does
-# not decode the payload and the exception goes to the caller.
+# The observer gets the body that the caller gives the decoder:
+#
+# - Over HTTP, the exact request bytes, after signature verification: JSON for
+#   an event, and the form for an interaction or a slash command.
+# - Over Socket Mode, `SocketMode::Envelope#payload_json`. `SocketMode::Frame.parse`
+#   copies it from the frame, so whitespace and string escapes can differ from
+#   the frame bytes.
+#
+# The observer runs in the fiber that decodes the payload. If the observer
+# raises, the decoder does not decode the payload and the exception goes to
+# the caller.
 #
 # To make a decoder, inherit this class and implement the protected `decode_*`
 # methods. Each one must raise `JSON::ParseException`, `JSON::SerializableError`,

@@ -24,7 +24,7 @@ module OfflineSocketModeClientExample
 
     client.run do |envelope, ack|
       next ack.ack unless envelope.kind.slash_commands?
-      command = envelope.command
+      command = Slack::Decoder.default.command(envelope.payload_json(:slash_commands), :json)
       ack.ack(Slack::Commands::Response.new(text: "Deploying #{command.text}"))
       output.puts "Acknowledged #{command.command} #{command.text}"
     end

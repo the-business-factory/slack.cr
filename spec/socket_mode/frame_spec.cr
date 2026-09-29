@@ -46,9 +46,9 @@ describe Slack::SocketMode::Frame do
     envelope.accepts_response_payload?.should be_false
     envelope.retry_attempt.should eq(1)
     envelope.retry_reason.should eq("timeout")
-    envelope.payload["event_id"].should eq("Ev-SYNTHETIC")
+    JSON.parse(envelope.payload_json)["event_id"].should eq("Ev-SYNTHETIC")
 
-    verified = envelope.event.should be_a(Slack::VerifiedEvent)
+    verified = Slack::Decoder.default.event(envelope.payload_json).should be_a(Slack::VerifiedEvent)
     verified.team_id.should eq("T-SYNTHETIC")
     mention = verified.event.should be_a(Slack::Events::AppMentioned)
     mention.channel.should eq("C-SYNTHETIC")
@@ -63,7 +63,7 @@ describe Slack::SocketMode::Frame do
     envelope.retry_attempt.should be_nil
     envelope.retry_reason.should be_nil
 
-    block_action = envelope.interaction.should be_a(Slack::Interactions::BlockAction)
+    block_action = Slack::Decoder.default.interaction(envelope.payload_json, :json).should be_a(Slack::Interactions::BlockAction)
     button = block_action.decoded_actions.first.should be_a(Slack::Interactions::ButtonAction)
     button.action_id.should eq("deploy.approve")
     button.value.should eq("release-42")
@@ -73,22 +73,25 @@ describe Slack::SocketMode::Frame do
     envelope = envelope("slash_commands")
 
     envelope.kind.should eq(Slack::SocketMode::Envelope::Kind::SlashCommands)
-    command = envelope.command
+    command = Slack::Decoder.default.command(envelope.payload_json, :json)
     command.command.should eq("/deploy")
     command.api_app_id.should eq("A-SYNTHETIC")
     command.is_enterprise_install.should be_false
     command.decoded_usernames.map(&.id).should eq(["U0REVIEWER"])
   end
 
-  it "raises TypeMismatch when the payload is read as the wrong kind" do
+  it "returns the payload for the expected kind and raises TypeMismatch for another kind" do
     events = envelope("events_api_app_mention")
-    error = expect_raises(Slack::Interactions::TypeMismatch) { events.interaction }
+    events.payload_json(:events_api).should eq(events.payload_json)
+
+    error = expect_raises(Slack::Interactions::TypeMismatch) { events.payload_json(:interactive) }
     error.path.should eq("type")
     error.expected.should eq("interactive")
     error.actual.should eq("events_api")
 
-    expect_raises(Slack::Interactions::TypeMismatch) { events.command }
-    expect_raises(Slack::Interactions::TypeMismatch) { envelope("slash_commands").event }
+    error = expect_raises(Slack::Interactions::TypeMismatch) { envelope("slash_commands").payload_json(:events_api) }
+    error.expected.should eq("events_api")
+    error.actual.should eq("slash_commands")
   end
 
   it "keeps an envelope of an unknown kind so that it can be acknowledged" do
@@ -97,8 +100,8 @@ describe Slack::SocketMode::Frame do
 
     envelope.kind.should eq(Slack::SocketMode::Envelope::Kind::Unknown)
     envelope.type.should eq("future_kind")
-    envelope.payload.should eq(JSON.parse(%({"a":1})))
-    expect_raises(Slack::Interactions::TypeMismatch) { envelope.event }
+    JSON.parse(envelope.payload_json).should eq(JSON.parse(%({"a":1})))
+    expect_raises(Slack::Interactions::TypeMismatch) { envelope.payload_json(:events_api) }
   end
 
   it "returns other frames raw" do
@@ -109,11 +112,11 @@ describe Slack::SocketMode::Frame do
     frame.raw.should eq(JSON.parse(%({"type":"future_frame","detail":true})))
   end
 
-  it "rejects a command payload with a duplicate routing field" do
+  it "keeps a duplicate routing field in the payload so that the command decoder rejects it" do
     duplicate = socket_frame("slash_commands").sub(%("team_id": "T-SYNTHETIC",), %("team_id": "T-SYNTHETIC", "team_id": "T-OTHER",))
     envelope = Slack::SocketMode::Frame.parse(duplicate).should be_a(Slack::SocketMode::Envelope)
 
-    error = expect_raises(Slack::Auth::RequestAuthorizationError) { envelope.command }
+    error = expect_raises(Slack::Auth::RequestAuthorizationError) { Slack::Decoder.default.command(envelope.payload_json, :json) }
     error.reason.should eq(:duplicate_routing_field)
   end
 

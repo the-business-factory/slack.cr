@@ -27,17 +27,19 @@ module OfflineSocketModeExample
     end
   end
 
+  # Decodes each payload with the same rules as the HTTP path.
   private def self.respond(envelope : Slack::SocketMode::Envelope, output : IO) : Slack::SocketMode::Acknowledgment::Payload?
+    decoder = Slack::Decoder.default
     case envelope.kind
     in .events_api?
-      if (verified = envelope.event).is_a?(Slack::VerifiedEvent) && (mention = verified.event).is_a?(Slack::Events::AppMentioned)
+      if (verified = decoder.event(envelope.payload_json)).is_a?(Slack::VerifiedEvent) && (mention = verified.event).is_a?(Slack::Events::AppMentioned)
         output.puts "Mentioned in #{mention.channel}"
       end
     in .slash_commands?
-      command = envelope.command
+      command = decoder.command(envelope.payload_json, :json)
       output.puts "Command #{command.command}: #{command.text}"
     in .interactive?
-      review(envelope.interaction, output)
+      review(decoder.interaction(envelope.payload_json, :json), output)
     in .unknown?
       nil
     end

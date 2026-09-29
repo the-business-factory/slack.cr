@@ -1,9 +1,18 @@
 # A frame that carries one event, interaction, or slash command. The app must
 # acknowledge every envelope with its `envelope_id`; see `Acknowledgment`.
 #
-# The envelope keeps the payload bytes, so `#event`, `#interaction`, and
-# `#command` decode them with the same rules as the HTTP path. For example,
-# `#command` rejects a duplicate routing field.
+# The envelope keeps the payload as JSON text and does not decode it. Decode
+# it with a `Slack::Decoder`, as `Slack::App::SocketModeReceiver` does:
+#
+# ```
+# decoder = Slack::Decoder.default
+# case envelope.kind
+# in .events_api?     then decoder.event(envelope.payload_json)
+# in .interactive?    then decoder.interaction(envelope.payload_json, :json)
+# in .slash_commands? then decoder.command(envelope.payload_json, :json)
+# in .unknown?        then nil
+# end
+# ```
 struct Slack::SocketMode::Envelope
   enum Kind
     EventsApi
@@ -17,7 +26,6 @@ struct Slack::SocketMode::Envelope
   getter kind : Kind
   # The envelope type exactly as Slack sent it.
   getter type : String
-  getter payload : JSON::Any
   # True when the acknowledgment can carry a response payload.
   getter? accepts_response_payload : Bool
   # SDK-sourced (Bolt JS socket-mode client); not on the Slack reference page.
@@ -32,7 +40,6 @@ struct Slack::SocketMode::Envelope
   def initialize(@envelope_id : String, @type : String, @payload_json : String,
                  @accepts_response_payload : Bool = false,
                  @retry_attempt : Int32? = nil, @retry_reason : String? = nil)
-    @payload = JSON.parse(@payload_json)
     @kind = case @type
             when "events_api"     then Kind::EventsApi
             when "interactive"    then Kind::Interactive
@@ -41,28 +48,14 @@ struct Slack::SocketMode::Envelope
             end
   end
 
-  # Decodes an `events_api` payload. Raises `Slack::Interactions::TypeMismatch`
-  # for another kind.
-  def event : Slack::VerifiedEvent | Slack::UrlVerification | Slack::AppRateLimited
-    require_kind(Kind::EventsApi, "events_api")
-    Slack::Events.parse(@payload_json)
-  end
-
-  # Decodes an `interactive` payload. Raises `Slack::Interactions::TypeMismatch`
-  # for another kind.
-  def interaction : Slack::Interaction
-    require_kind(Kind::Interactive, "interactive")
-    Slack::Interaction.from_json(@payload_json)
-  end
-
-  # Decodes a `slash_commands` payload. Raises `Slack::Interactions::TypeMismatch`
-  # for another kind.
-  def command : Slack::Command
-    require_kind(Kind::SlashCommands, "slash_commands")
-    Slack::Commands::Parser.from_json_object(@payload_json)
-  end
-
-  private def require_kind(expected : Kind, name : String) : Nil
-    raise Slack::Interactions::TypeMismatch.new("type", name, @type) unless @kind == expected
+  # Returns `#payload_json` when the envelope is of the *expected* kind.
+  # Raises `Slack::Interactions::TypeMismatch` for another kind.
+  #
+  # ```
+  # decoder.command(envelope.payload_json(:slash_commands), :json)
+  # ```
+  def payload_json(expected : Kind) : String
+    return @payload_json if @kind == expected
+    raise Slack::Interactions::TypeMismatch.new("type", expected.to_s.underscore, @type)
   end
 end

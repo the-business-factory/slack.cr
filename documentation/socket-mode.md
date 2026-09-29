@@ -11,7 +11,7 @@ client = Slack::SocketMode::Client.new(ENV["SLACK_APP_TOKEN"])
 client.run do |envelope, ack|
   case envelope.kind
   in .slash_commands?
-    command = envelope.command
+    command = Slack::Decoder.default.command(envelope.payload_json, :json)
     ack.ack(Slack::Commands::Response.new(text: "Deploying #{command.text}"))
   in .events_api?, .interactive?, .unknown?
     ack.ack
@@ -61,7 +61,7 @@ Socket Mode needs no request signature verification. Slack authenticates the Web
 | --- | --- | --- |
 | `Hello` | `hello` | `num_connections` (Slack allows up to 10), `app_id`, `approximate_connection_time` (seconds, from `debug_info`; can be nil) |
 | `Disconnect` | `disconnect` | `reason` (`Warning`, `RefreshRequested`, `LinkDisabled`, `Unknown`), `reason_name`, raw `debug_info` |
-| `Envelope` | any frame with an `envelope_id` | `envelope_id`, `kind` (`EventsApi`, `Interactive`, `SlashCommands`, `Unknown`), `type`, `payload`, `payload_json`, `accepts_response_payload?`, `retry_attempt`, `retry_reason` |
+| `Envelope` | any frame with an `envelope_id` | `envelope_id`, `kind` (`EventsApi`, `Interactive`, `SlashCommands`, `Unknown`), `type`, `payload_json`, `accepts_response_payload?`, `retry_attempt`, `retry_reason` |
 | `UnknownFrame` | other frames | `type`, `raw` |
 
 A malformed field raises `Slack::Interactions::TypeMismatch` with the field path.
@@ -70,21 +70,30 @@ A malformed field raises `Slack::Interactions::TypeMismatch` with the field path
 
 ## Payloads
 
-Decode the payload with the method for the envelope kind. The wrong method raises `Slack::Interactions::TypeMismatch`.
+The envelope keeps the payload as JSON text in `payload_json` and does not decode it. Decode it with a `Slack::Decoder`. Interaction and command payloads are JSON objects, so give the `:json` format. The decoder applies the same rules as it does for HTTP payloads.
 
 ```crystal
+decoder = Slack::Decoder.default
 envelope = Slack::SocketMode::Frame.parse(text)
 if envelope.is_a?(Slack::SocketMode::Envelope)
   case envelope.kind
-  in .events_api?     then envelope.event       # Slack::VerifiedEvent | Slack::UrlVerification | Slack::AppRateLimited
-  in .interactive?    then envelope.interaction # Slack::Interaction
-  in .slash_commands? then envelope.command     # Slack::Command
+  in .events_api?     then decoder.event(envelope.payload_json)              # Slack::VerifiedEvent | Slack::UrlVerification | Slack::AppRateLimited
+  in .interactive?    then decoder.interaction(envelope.payload_json, :json) # Slack::Interaction
+  in .slash_commands? then decoder.command(envelope.payload_json, :json)     # Slack::Command
   in .unknown?        then nil
   end
 end
 ```
 
-The command payload is a JSON object. `Slack::Commands::Parser.from_json_object` applies the form parser rules: a repeated routing field raises `Slack::Auth::RequestAuthorizationError`, and `is_enterprise_install` must be `"true"` or `"false"` (a JSON boolean is also accepted).
+When your code expects one kind, give the kind to `payload_json`. For another kind, it raises `Slack::Interactions::TypeMismatch`:
+
+```crystal
+command = decoder.command(envelope.payload_json(:slash_commands), :json)
+```
+
+`Frame.parse` copies the payload from the frame, so whitespace and string escapes in `payload_json` can differ from the frame bytes.
+
+For a command payload, the default decoder uses `Slack::Commands::Parser.from_json_object`. It applies the form parser rules: a repeated routing field raises `Slack::Auth::RequestAuthorizationError`, and `is_enterprise_install` must be `"true"` or `"false"` (a JSON boolean is also accepted).
 
 ## Acknowledgments
 
