@@ -256,6 +256,7 @@ module DecoderContract
     "malformed/events/missing_event.json"                      => "JSON::SerializableError",
     "malformed/events/app_mention_numeric_ts.json"             => "JSON::SerializableError",
     "malformed/events/channel_topic_missing_topic.json"        => "JSON::SerializableError",
+    "malformed/events/channel_created_out_of_range.json"       => "JSON::SerializableError",
     "malformed/events/url_verification_missing_challenge.json" => "JSON::SerializableError",
     "malformed/interactions/missing_type.json"                 => "JSON::SerializableError",
     "malformed/interactions/array_root.json"                   => "JSON::SerializableError",
@@ -356,6 +357,12 @@ module DecoderContract
       JSON::SerializableError: Missing JSON attribute: topic
         parsing Slack::Events::Message::ChannelTopic#topic at line 5, column 12
         parsing Slack::Decoders::Fused::Envelope(Slack::Events::Message::ChannelTopic)#event at line 5, column 3
+      ERROR
+    "malformed/events/channel_created_out_of_range.json" => <<-ERROR,
+      JSON::SerializableError: Unix time out of range at line 10, column 18
+        parsing Slack::EventData::Channel#created at line 10, column 7
+        parsing Slack::Events::ChannelCreated#channel at line 7, column 5
+        parsing Slack::Decoders::Fused::Envelope(Slack::Events::ChannelCreated)#event at line 5, column 3
       ERROR
     "malformed/events/url_verification_missing_challenge.json" => <<-ERROR,
       JSON::SerializableError: Missing JSON attribute: challenge
