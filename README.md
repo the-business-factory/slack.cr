@@ -47,7 +47,7 @@ Set the Events API, Interactivity, and slash command Request URLs to `https://<y
 
 ## Decoders
 
-The receivers decode payloads with a `Slack::Decoder`. The default, `Slack::Decoders::Fused`, uses the [FusedJSON](https://github.com/wyhaines/fused-json.cr) parser, which the shard installs as a dependency. `Slack::Decoders::Stdlib` uses the standard library `JSON` parser. Both decode each payload to the same value. Give a decoder with `decoder:`:
+The receivers decode payloads with a `Slack::Decoder`. The default, `Slack::Decoders::Fused`, uses the [FusedJSON](https://github.com/wyhaines/fused-json.cr) parser, which the shard installs as a dependency. `Slack::Decoders::Stdlib` uses the standard library `JSON` parser. Both decode the payloads that Slack sends to the same values. They can differ on JSON that Slack does not send: for example, when a key is repeated with values of different types, the stdlib decoder keeps the last value and FusedJSON rejects the payload. Give a decoder with `decoder:`:
 
 ```crystal
 Slack::App::HttpReceiver.new(app, verifier, decoder: Slack::Decoders::Stdlib.new)

@@ -1,0 +1,9 @@
+{
+  "token": "synthetic-legacy-token",
+  "team_id": "T-SYNTHETIC",
+  "api_app_id": "A-SYNTHETIC",
+  "event": {"type": "message", "channel": "C-SYNTHETIC", "user": "U-SYNTHETIC", "text": 42, "text": "hello", "ts": "1789232400.000100", "event_ts": "1789232400.000100", "channel_type": "channel"},
+  "type": "event_callback",
+  "event_id": "Ev-SYNTHETIC",
+  "event_time": 1789232400
+}

@@ -393,9 +393,27 @@ module DecoderContract
       ERROR
   }
 
+  # A message whose `text` is a number and then a string. Slack does not send
+  # duplicate keys, so the decoders may differ here, and do: the stdlib
+  # decoder keeps the last value, and FusedJSON rejects the first one while
+  # it decodes. The per-decoder outcome pins the difference, so a change in
+  # either parser shows.
+  DUPLICATE_FIELD = "malformed/events/message_duplicate_text.json"
+
+  # The outcome of `DUPLICATE_FIELD` with `Slack::Decoders::Stdlib`.
+  STDLIB_DUPLICATE_FIELD = "decoded text: hello"
+
+  # The outcome of `DUPLICATE_FIELD` with `Slack::Decoders::Fused`.
+  FUSED_DUPLICATE_FIELD = <<-ERROR
+    JSON::SerializableError: expected String, found Int at line 5, column 89
+      parsing Slack::Events::Message#text at line 5, column 81
+      parsing Slack::Decoders::Fused::Envelope(Slack::Events::Message)#event at line 5, column 3
+    ERROR
+
   # Defines the contract examples for *decoder*. *errors* gives the full
   # error, as `describe_error` writes it, for each `MALFORMED` fixture.
-  def self.verify(decoder : Slack::Decoder, errors : Hash(String, String)) : Nil
+  # *duplicate_field* gives the outcome for `DUPLICATE_FIELD`.
+  def self.verify(decoder : Slack::Decoder, errors : Hash(String, String), duplicate_field : String) : Nil
     describe "#{decoder.class} decoder contract" do
       describe "decodes and re-encodes each event fixture" do
         it "has an expected type for each event fixture" do
@@ -475,6 +493,10 @@ module DecoderContract
             end
           end
         end
+      end
+
+      it "gives its own outcome for a duplicate field of another JSON type (#{DUPLICATE_FIELD})" do
+        duplicate_field_outcome(decoder).should eq(duplicate_field)
       end
     end
   end
@@ -564,6 +586,14 @@ module DecoderContract
     end
   end
 
+  private def self.duplicate_field_outcome(decoder : Slack::Decoder) : String
+    envelope = decoder.event(read(DUPLICATE_FIELD)).should be_a(Slack::VerifiedEvent)
+    message = envelope.event.should be_a(Slack::Events::Message)
+    "decoded text: #{message.text}"
+  rescue error : JSON::ParseException
+    describe_error(error)
+  end
+
   private def self.capture(&) : Exception
     yield
   rescue error
@@ -634,5 +664,5 @@ module DecoderContract
   end
 end
 
-DecoderContract.verify(Slack::Decoder.default, DecoderContract::FUSED_ERRORS)
-DecoderContract.verify(Slack::Decoders::Stdlib.new, DecoderContract::STDLIB_ERRORS)
+DecoderContract.verify(Slack::Decoder.default, DecoderContract::FUSED_ERRORS, DecoderContract::FUSED_DUPLICATE_FIELD)
+DecoderContract.verify(Slack::Decoders::Stdlib.new, DecoderContract::STDLIB_ERRORS, DecoderContract::STDLIB_DUPLICATE_FIELD)

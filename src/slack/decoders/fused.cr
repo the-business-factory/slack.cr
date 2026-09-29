@@ -7,7 +7,9 @@ require "../decoder"
 # For each payload, a scan reads only the discriminators: the `type` field,
 # and for an Events API body the `type` and `subtype` of `event`. The scan
 # selects the concrete type, and one typed parse decodes the payload into it.
-# `Slack::Decoders::Stdlib` decodes the same payloads to the same values.
+# `Slack::Decoders::Stdlib` decodes the payloads that Slack sends to the same
+# values. The two can differ on JSON that Slack does not send, such as a key
+# that is repeated with values of different types.
 #
 # FusedJSON is strict JSON: for example, it rejects a trailing comma. Error
 # messages about malformed JSON can differ from the standard library ones.

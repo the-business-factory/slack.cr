@@ -307,7 +307,7 @@ The receivers decode payloads with a `Slack::Decoder`. `HttpReceiver`, `SocketMo
 - `Slack::Decoders::Fused`, the default. It uses the [FusedJSON](https://github.com/wyhaines/fused-json.cr) parser. A scan reads only the `type` fields, and one typed parse then decodes the payload into the selected type.
 - `Slack::Decoders::Stdlib`. It uses the standard library `JSON` parser.
 
-Both decode each payload to the same value and raise the same error classes for a payload that does not decode. The error messages can differ: for example, FusedJSON gives lines and columns in the original payload. FusedJSON is strict JSON and rejects, for example, a trailing comma.
+Both decode the payloads that Slack sends to the same values and raise the same error classes for a payload that does not decode. They can differ on JSON that Slack does not send. For example, when an object repeats a key with values of different types, such as `"text":42,"text":"hello"`, the stdlib decoder keeps the last value and FusedJSON rejects the payload. The error messages can differ: for example, FusedJSON gives lines and columns in the original payload. FusedJSON is strict JSON and rejects, for example, a trailing comma.
 
 ```crystal
 Slack::App::HttpReceiver.new(app, verifier, decoder: Slack::Decoders::Stdlib.new)
