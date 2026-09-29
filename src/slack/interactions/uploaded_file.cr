@@ -8,6 +8,8 @@ struct Slack::Interactions::UploadedFile
   getter filetype : String?
   getter url_private : String?
   getter url_private_download : String?
+  # The file size in bytes.
+  getter size : Int64?
 
   def initialize(@raw : JSON::Any, path : String)
     object = PayloadAccess.object?(@raw, path) || raise TypeMismatch.new(path, "file object", "null")
@@ -18,5 +20,6 @@ struct Slack::Interactions::UploadedFile
     @filetype = PayloadAccess.string?(object["filetype"]?, "#{path}.filetype")
     @url_private = PayloadAccess.string?(object["url_private"]?, "#{path}.url_private")
     @url_private_download = PayloadAccess.string?(object["url_private_download"]?, "#{path}.url_private_download")
+    @size = PayloadAccess.int64?(object["size"]?, "#{path}.size")
   end
 end

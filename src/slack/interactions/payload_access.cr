@@ -21,6 +21,12 @@ module Slack::Interactions::PayloadAccess
     value
   end
 
+  def self.int64?(raw : JSON::Any?, path : String) : Int64?
+    return if raw.nil? || raw.raw.nil?
+    return raw.as_i64 if raw.raw.is_a?(Int64)
+    raise TypeMismatch.new(path, "integer or null", raw.raw.class.to_s)
+  end
+
   def self.int64(raw : JSON::Any?, path : String) : Int64
     return raw.as_i64 if raw && raw.raw.is_a?(Int64)
     raise TypeMismatch.new(path, "integer", raw.nil? ? "absent" : raw.raw.class.to_s)

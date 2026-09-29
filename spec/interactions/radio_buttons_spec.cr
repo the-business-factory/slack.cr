@@ -19,7 +19,7 @@ describe "received radio selections" do
     selected.value.should eq "digest"
     selected.text.should eq "*Digest*"
     selected.text_type.should eq "mrkdwn"
-    selected.raw["description"]["text"].should eq "_Daily_"
+    selected.description.try(&.text).should eq "_Daily_"
     selected.raw["text"]["future_text"].as_bool.should be_false
     selected.raw["future_option"].as_a.should be_empty
     action.raw["future_action"].as_bool.should be_false

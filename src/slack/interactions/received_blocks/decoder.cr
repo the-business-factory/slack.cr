@@ -51,6 +51,16 @@ module Slack::Interactions::ReceivedBlocks::Decoder
     items(object, key, path).map_with_index { |item, index| ElementSummary.new(item, "#{path}.#{key}[#{index}]") }
   end
 
+  def self.slack_icon?(object : Hash(String, JSON::Any), key : String, path : String) : SlackIcon?
+    raw = object[key]?
+    SlackIcon.new(raw, "#{path}.#{key}") if raw && !raw.raw.nil?
+  end
+
+  def self.sources(object : Hash(String, JSON::Any), path : String) : Array(TaskCard::Source)
+    return [] of TaskCard::Source if absent?(object, "sources")
+    items(object, "sources", path).map_with_index { |item, index| TaskCard::Source.new(item, "#{path}.sources[#{index}]") }
+  end
+
   def self.blocks(object : Hash(String, JSON::Any), key : String, path : String) : Array(ReceivedBlock)
     items(object, key, path).map_with_index { |item, index| block(item, "#{path}.#{key}[#{index}]") }
   end

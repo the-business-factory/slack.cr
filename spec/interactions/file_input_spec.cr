@@ -26,7 +26,7 @@ describe "received file input state" do
     receipt.filetype.should eq "pdf"
     receipt.url_private.should eq "https://files.slack.com/files-pri/T-ONE-F-ONE/receipt.pdf"
     receipt.url_private_download.should eq "https://files.slack.com/files-pri/T-ONE-F-ONE/download/receipt.pdf"
-    receipt.raw["size"].as_i.should eq 1024
+    receipt.size.should eq 1024_i64
     files[1].name.should be_nil
     files[1].url_private.should be_nil
     files.clear

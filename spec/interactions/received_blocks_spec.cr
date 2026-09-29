@@ -113,7 +113,7 @@ module ReceivedBlocksSpec
       card = carousel.elements.first.should be_a(RB::Card)
       {card.block_id, card.title.try(&.text), card.subtitle.try(&.text), card.body.try(&.text), card.subtext.try(&.text)}
         .should eq({"team.api", "*API*", "Platform", "2 deploys", "On call: Morgan"})
-      {card.slack_icon.try(&.raw["name"].as_s), card.hero_image.try(&.type), card.icon}.should eq({"code", "image", nil})
+      {card.slack_icon.try(&.name), card.hero_image.try(&.type), card.icon}.should eq({"code", "image", nil})
       card.actions.map { |action| {action.type, action.action_id} }.should eq [{"button", "team.open"}]
 
       feedback = blocks[6].should be_a(RB::ContextActions)
@@ -123,12 +123,21 @@ module ReceivedBlocksSpec
       plan = blocks[7].should be_a(RB::Plan)
       {plan.block_id, plan.title, plan.tasks[0]["task_id"].as_s}.should eq({"report.plan", "Next steps", "t1"})
       task = blocks[8].should be_a(RB::TaskCard)
-      {task.task_id, task.title, task.status, task.raw["sources"][0]["url"].as_s}.should eq({"t2", "Summarize", "in_progress", "https://example.com/log"})
+      {task.task_id, task.title, task.status}.should eq({"t2", "Summarize", "in_progress"})
+      task.sources.map { |source| {source.type, source.url, source.text} }.should eq [{"url", "https://example.com/log", "log"}]
     end
 
     it "returns an empty list for absent or null blocks" do
       RB.decode(nil, "message.blocks").should be_empty
       RB.decode(JSON::Any.new(nil), "message.blocks").should be_empty
+    end
+
+    it "reads an absent or null task card source list as empty" do
+      blocks = decode(<<-JSON)
+        [{"type":"task_card","task_id":"t1","title":"Plan","status":"pending"},
+         {"type":"task_card","task_id":"t2","title":"Run","status":"pending","sources":null}]
+        JSON
+      blocks.map(&.should(be_a(RB::TaskCard)).sources).should eq [[] of RB::TaskCard::Source, [] of RB::TaskCard::Source]
     end
 
     it "returns copies of received collections" do
@@ -157,17 +166,19 @@ module ReceivedBlocksSpec
 
     it "rejects malformed known blocks with the failing path" do
       {
-        %({"type":"section"})                                             => {"message.blocks", "array"},
-        %([{"type":"actions","elements":{}}])                             => {"message.blocks[0].elements", "array"},
-        %([{"type":"header"}])                                            => {"message.blocks[0].text", "text object"},
-        %([{"type":"input","label":{"type":"plain_text","text":"L"}}])    => {"message.blocks[0].element", "element object"},
-        %([{"type":"actions","elements":[{"action_id":"a"}]}])            => {"message.blocks[0].elements[0].type", "string"},
-        %([{"type":"section","block_id":7}])                              => {"message.blocks[0].block_id", "string or null"},
-        %([{"type":"container","child_blocks":[{"type":"markdown"}]}])    => {"message.blocks[0].child_blocks[0].text", "string"},
-        %([{"type":"table","rows":[[{"type":"raw_number","text":"1"}]]}]) => {"message.blocks[0].rows[0][0].value", "number"},
-        %([{"type":"table","rows":[{"type":"raw_text"}]}])                => {"message.blocks[0].rows[0]", "array"},
-        %([{"type":"plan","title":"Next"}])                               => {"message.blocks[0].tasks", "array"},
-        %(["divider"])                                                    => {"message.blocks[0]", "object"},
+        %({"type":"section"})                                                                                          => {"message.blocks", "array"},
+        %([{"type":"actions","elements":{}}])                                                                          => {"message.blocks[0].elements", "array"},
+        %([{"type":"header"}])                                                                                         => {"message.blocks[0].text", "text object"},
+        %([{"type":"input","label":{"type":"plain_text","text":"L"}}])                                                 => {"message.blocks[0].element", "element object"},
+        %([{"type":"actions","elements":[{"action_id":"a"}]}])                                                         => {"message.blocks[0].elements[0].type", "string"},
+        %([{"type":"section","block_id":7}])                                                                           => {"message.blocks[0].block_id", "string or null"},
+        %([{"type":"container","child_blocks":[{"type":"markdown"}]}])                                                 => {"message.blocks[0].child_blocks[0].text", "string"},
+        %([{"type":"table","rows":[[{"type":"raw_number","text":"1"}]]}])                                              => {"message.blocks[0].rows[0][0].value", "number"},
+        %([{"type":"table","rows":[{"type":"raw_text"}]}])                                                             => {"message.blocks[0].rows[0]", "array"},
+        %([{"type":"plan","title":"Next"}])                                                                            => {"message.blocks[0].tasks", "array"},
+        %([{"type":"task_card","task_id":"t","title":"T","status":"pending","sources":[{"type":"url","text":"log"}]}]) => {"message.blocks[0].sources[0].url", "string"},
+        %([{"type":"card","slack_icon":{"type":"icon"}}])                                                              => {"message.blocks[0].slack_icon.name", "string"},
+        %(["divider"])                                                                                                 => {"message.blocks[0]", "object"},
       }.each do |json, (path, expected)|
         error = expect_raises(Slack::Interactions::TypeMismatch) { decode(json) }
         {error.path, error.expected}.should eq({path, expected})

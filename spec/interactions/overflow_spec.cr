@@ -11,7 +11,7 @@ describe "received Overflow actions" do
     action.selected_option.value.should eq "details"
     action.selected_option.text.should eq "Details"
     action.selected_option.text_type.should eq "plain_text"
-    action.selected_option.raw["url"].should eq "https://example.com/requests/42"
+    action.selected_option.url.should eq "https://example.com/requests/42"
     action.selected_option.raw["future_option"].as_bool.should be_false
     action.selected_option.raw["text"]["future_text"].should eq "kept"
     action.raw["future_action"].as_a.should be_empty

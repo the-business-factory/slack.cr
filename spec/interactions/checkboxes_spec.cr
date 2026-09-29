@@ -12,7 +12,7 @@ describe "received checkbox selections" do
     selected.map(&.value).should eq ["digest"]
     selected[0].text.should eq "*Daily digest*"
     selected[0].text_type.should eq "mrkdwn"
-    selected[0].raw["description"]["text"].should eq "_Once a day_"
+    selected[0].description.try(&.text).should eq "_Once a day_"
     selected[0].raw["text"]["future_text"].as_bool.should be_false
     selected[0].raw["future_option"].as_a.should be_empty
     action.raw["future_action"].as_bool.should be_false
