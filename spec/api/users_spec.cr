@@ -1,28 +1,9 @@
 require "../spec_helper"
 require "../support/api/webmock_client"
 
-private def stub_form(method : String, form : String, response : String) : Nil
-  WebMock.stub(:post, "https://slack.com/api/#{method}")
-    .with(headers: {"Authorization" => "Bearer xoxb-synthetic",
-                    "Content-Type"  => "application/x-www-form-urlencoded"})
-    .to_return do |request|
-      URI::Params.parse(request.body.to_s).should eq URI::Params.parse(form)
-      HTTP::Client::Response.new(200, body: response)
-    end
-end
-
-private def stub_json(method : String, expected : String, response : String = %({"ok":true})) : Nil
-  WebMock.stub(:post, "https://slack.com/api/#{method}")
-    .with(headers: {"Content-Type" => "application/json; charset=utf-8"})
-    .to_return do |request|
-      JSON.parse(request.body.to_s).should eq JSON.parse(expected)
-      HTTP::Client::Response.new(200, body: response)
-    end
-end
-
 describe Slack::Api::UsersInfo do
   it "reads a user and its profile and ignores unknown fields" do
-    stub_form("users.info", "user=W012A3CDE&include_locale=true",
+    ApiSupport.stub_form("users.info", "user=W012A3CDE&include_locale=true",
       File.read("spec/fixtures/api/users-info-success.json"))
 
     user = ApiSupport.client.call(Slack::Api::UsersInfo.new("W012A3CDE", include_locale: true)).user
@@ -45,7 +26,7 @@ describe Slack::Api::UsersInfo do
   end
 
   it "reads a bot user whose optional fields are missing" do
-    stub_form("users.info", "user=U0BOT", <<-JSON)
+    ApiSupport.stub_form("users.info", "user=U0BOT", <<-JSON)
       {"ok":true,"user":{"id":"U0BOT","name":"deploybot","deleted":false,"is_bot":true,
        "profile":{"bot_id":"B0BOT","real_name":"Deploy Bot"}}}
       JSON
@@ -60,7 +41,7 @@ describe Slack::Api::UsersInfo do
   end
 
   it "raises the Slack error code for an unknown user" do
-    stub_form("users.info", "user=U404", %({"ok":false,"error":"user_not_found"}))
+    ApiSupport.stub_form("users.info", "user=U404", %({"ok":false,"error":"user_not_found"}))
 
     error = expect_raises(Slack::Api::Error) { ApiSupport.client.call(Slack::Api::UsersInfo.new("U404")) }
     error.code.should eq "user_not_found"
@@ -101,7 +82,7 @@ describe Slack::Api::UsersList do
   end
 
   it "sends an empty form by default and rejects a limit above 1000 before sending" do
-    stub_form("users.list", "", %({"ok":true,"members":[]}))
+    ApiSupport.stub_form("users.list", "", %({"ok":true,"members":[]}))
 
     ApiSupport.client.call(Slack::Api::UsersList.new).members.should be_empty
     error = expect_raises(Slack::UI::ValidationError) do
@@ -113,7 +94,7 @@ end
 
 describe Slack::Api::UsersLookupByEmail do
   it "sends the email and reads the user" do
-    stub_form("users.lookupByEmail", "email=spengler%40ghostbusters.example.com",
+    ApiSupport.stub_form("users.lookupByEmail", "email=spengler%40ghostbusters.example.com",
       File.read("spec/fixtures/api/users-info-success.json"))
 
     request = Slack::Api::UsersLookupByEmail.new("spengler@ghostbusters.example.com")
@@ -124,7 +105,7 @@ end
 describe Slack::Api::UsersConversations do
   it "sends the user and types and reads conversations by type" do
     form = "user=U1&types=public_channel%2Cim&exclude_archived=true&exclude_muted=true&team_id=T1&limit=50"
-    stub_form("users.conversations", form, <<-JSON)
+    ApiSupport.stub_form("users.conversations", form, <<-JSON)
       {"ok":true,"channels":[
         {"id":"C1","name":"general","is_channel":true,"is_group":false,"is_im":false,"created":1449252889,
          "creator":"U2","is_archived":false,"is_general":true,"unlinked":0,"name_normalized":"general",
@@ -158,7 +139,7 @@ end
 
 describe Slack::Api::UsersProfileGet do
   it "sends the options and reads the profile" do
-    stub_form("users.profile.get", "user=U1&include_labels=true", <<-JSON)
+    ApiSupport.stub_form("users.profile.get", "user=U1&include_labels=true", <<-JSON)
       {"ok":true,"profile":{"title":"Head of Coffee","phone":"","real_name":"Ana Ruiz",
        "display_name":"ana","status_text":"Brewing","status_emoji":":coffee:","status_expiration":1532627506,
        "email":"ana@example.test","first_name":"Ana","last_name":"Ruiz","image_192":"https://avatars.example.test/ana_192.jpg",
@@ -182,7 +163,7 @@ describe Slack::Api::UsersProfileSet do
       {"profile":{"status_text":"Watching cold brew steep","status_emoji":":coffee:","status_expiration":0},
        "user":"U1"}
       JSON
-    stub_json("users.profile.set", expected,
+    ApiSupport.stub_json("users.profile.set", expected,
       %({"ok":true,"profile":{"status_text":"Watching cold brew steep","status_emoji":":coffee:"}}))
 
     request = Slack::Api::UsersProfileSet.new(
@@ -192,7 +173,7 @@ describe Slack::Api::UsersProfileSet do
   end
 
   it "sends one field as name and value" do
-    stub_json("users.profile.set", %({"name":"title","value":"Barista"}), %({"ok":true,"profile":{"title":"Barista"}}))
+    ApiSupport.stub_json("users.profile.set", %({"name":"title","value":"Barista"}), %({"ok":true,"profile":{"title":"Barista"}}))
 
     ApiSupport.client.call(Slack::Api::UsersProfileSet.new(name: "title", value: "Barista"))
       .profile.title.should eq "Barista"
@@ -214,7 +195,7 @@ end
 
 describe Slack::Api::UsersGetPresence do
   it "reads the short presence of another user" do
-    stub_form("users.getPresence", "user=U2", %({"ok":true,"presence":"away"}))
+    ApiSupport.stub_form("users.getPresence", "user=U2", %({"ok":true,"presence":"away"}))
 
     presence = ApiSupport.client.call(Slack::Api::UsersGetPresence.new(user: "U2"))
 
@@ -224,7 +205,7 @@ describe Slack::Api::UsersGetPresence do
   end
 
   it "reads the connection details of the calling user" do
-    stub_form("users.getPresence", "", <<-JSON)
+    ApiSupport.stub_form("users.getPresence", "", <<-JSON)
       {"ok":true,"presence":"active","online":true,"auto_away":false,"manual_away":false,
        "connection_count":1,"last_activity":1419027078}
       JSON
@@ -241,11 +222,11 @@ end
 
 describe Slack::Api::UsersSetPresence do
   it "sends auto or away" do
-    stub_form("users.setPresence", "presence=away", %({"ok":true}))
+    ApiSupport.stub_form("users.setPresence", "presence=away", %({"ok":true}))
     ApiSupport.client.call(Slack::Api::UsersSetPresence.new(:away)).ok?.should be_true
 
     WebMock.reset
-    stub_form("users.setPresence", "presence=auto", %({"ok":true}))
+    ApiSupport.stub_form("users.setPresence", "presence=auto", %({"ok":true}))
     ApiSupport.client.call(Slack::Api::UsersSetPresence.new(:auto)).ok?.should be_true
   end
 end

@@ -46,15 +46,16 @@ module CompileContracts
     raise "expected #{result.fixture} to compile:\n#{result.output}"
   end
 
-  def self.assert_fail(result : Result, diagnostic : String) : Nil
+  def self.assert_fail(result : Result, diagnostics : Array(String)) : Nil
     raise "compiler crashed for #{result.fixture}:\n#{result.output}" if compiler_crash?(result)
     raise "expected #{result.fixture} to fail compilation" if result.status.success?
     if dependency_failure?(result.output)
       raise "dependency failure is not a compile contract:\n#{result.output}"
     end
-    return if result.output.includes?(diagnostic)
+    missing = diagnostics.reject { |diagnostic| result.output.includes?(diagnostic) }
+    return if missing.empty?
 
-    raise "expected diagnostic #{diagnostic.inspect} for #{result.fixture}:\n#{result.output}"
+    raise "expected diagnostics #{missing.inspect} for #{result.fixture}:\n#{result.output}"
   end
 
   private def self.join(process : Process, timeout : Time::Span) : Process::Status

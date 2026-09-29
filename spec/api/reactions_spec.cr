@@ -1,16 +1,6 @@
 require "../spec_helper"
 require "../support/api/webmock_client"
 
-private def stub_form(method : String, form : String, response : String = %({"ok":true})) : Nil
-  WebMock.stub(:post, "https://slack.com/api/#{method}")
-    .with(headers: {"Authorization" => "Bearer xoxb-synthetic",
-                    "Content-Type"  => "application/x-www-form-urlencoded"})
-    .to_return do |request|
-      URI::Params.parse(request.body.to_s).should eq URI::Params.parse(form)
-      HTTP::Client::Response.new(200, body: response)
-    end
-end
-
 describe Slack::Api::ReactionsAdd do
   it "raises already_reacted when the reaction is already on the message" do
     WebMock.stub(:post, "https://slack.com/api/reactions.add")
@@ -25,20 +15,20 @@ end
 
 describe Slack::Api::ReactionsRemove do
   it "removes a reaction from a message" do
-    stub_form("reactions.remove", "name=eyes&channel=C1&timestamp=1710000000.000100")
+    ApiSupport.stub_form("reactions.remove", "name=eyes&channel=C1&timestamp=1710000000.000100")
 
     request = Slack::Api::ReactionsRemove.new("eyes", channel: "C1", timestamp: "1710000000.000100")
     ApiSupport.client.call(request).ok?.should be_true
   end
 
   it "removes a reaction from a file" do
-    stub_form("reactions.remove", "name=thumbsup&file=F1")
+    ApiSupport.stub_form("reactions.remove", "name=thumbsup&file=F1")
 
     ApiSupport.client.call(Slack::Api::ReactionsRemove.new("thumbsup", file: "F1")).ok?.should be_true
   end
 
   it "raises no_reaction when the reaction is not on the item" do
-    stub_form("reactions.remove", "name=eyes&channel=C1&timestamp=1710000000.000100",
+    ApiSupport.stub_form("reactions.remove", "name=eyes&channel=C1&timestamp=1710000000.000100",
       %({"ok":false,"error":"no_reaction"}))
 
     error = expect_raises(Slack::Api::Error) do
@@ -62,7 +52,7 @@ end
 
 describe Slack::Api::ReactionsGet do
   it "reads the reactions of a message" do
-    stub_form("reactions.get", "channel=C1&timestamp=1710000000.000100&full=true", <<-JSON)
+    ApiSupport.stub_form("reactions.get", "channel=C1&timestamp=1710000000.000100&full=true", <<-JSON)
       {"ok":true,"type":"message","channel":"C1",
        "message":{"type":"message","text":"Deploy done","user":"U1","ts":"1710000000.000100",
         "reactions":[{"name":"tada","users":["U2","U3"],"count":2},{"name":"eyes","users":["U4"],"count":1}],
@@ -83,7 +73,7 @@ describe Slack::Api::ReactionsGet do
   end
 
   it "reads the reactions of a file" do
-    stub_form("reactions.get", "file=F1", <<-JSON)
+    ApiSupport.stub_form("reactions.get", "file=F1", <<-JSON)
       {"ok":true,"type":"file",
        "file":{"id":"F1","name":"report.pdf","reactions":[{"name":"white_check_mark","users":["U1"],"count":1}]}}
       JSON
@@ -160,7 +150,7 @@ describe Slack::Api::ReactionsList do
   end
 
   it "sends an empty form by default" do
-    stub_form("reactions.list", "", %({"ok":true,"items":[]}))
+    ApiSupport.stub_form("reactions.list", "", %({"ok":true,"items":[]}))
 
     ApiSupport.client.call(Slack::Api::ReactionsList.new).items.should be_empty
   end

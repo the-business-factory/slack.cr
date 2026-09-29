@@ -1,16 +1,6 @@
 require "../spec_helper"
 require "../support/api/webmock_client"
 
-private def stub_form(method : String, form : String, response : String = %({"ok":true})) : Nil
-  WebMock.stub(:post, "https://slack.com/api/#{method}")
-    .with(headers: {"Authorization" => "Bearer xoxb-synthetic",
-                    "Content-Type"  => "application/x-www-form-urlencoded"})
-    .to_return do |request|
-      URI::Params.parse(request.body.to_s).should eq URI::Params.parse(form)
-      HTTP::Client::Response.new(200, body: response)
-    end
-end
-
 private BOOKMARK_JSON = <<-JSON
   {"id":"Bk01","channel_id":"C1","title":"Runbook","link":"https://example.test/runbook",
    "emoji":":books:","icon_url":"https://example.test/favicon.ico","type":"link","entity_id":null,
@@ -20,7 +10,7 @@ private BOOKMARK_JSON = <<-JSON
 
 describe Slack::Api::BookmarksAdd do
   it "adds a link bookmark with an emoji and a parent folder" do
-    stub_form("bookmarks.add",
+    ApiSupport.stub_form("bookmarks.add",
       "channel_id=C1&title=Runbook&type=link&link=https%3A%2F%2Fexample.test%2Frunbook&emoji=%3Abooks%3A&parent_id=Bk00",
       %({"ok":true,"bookmark":#{BOOKMARK_JSON}}))
 
@@ -47,7 +37,7 @@ describe Slack::Api::BookmarksAdd do
   end
 
   it "raises the Slack error code for a rejected link" do
-    stub_form("bookmarks.add", "channel_id=C1&title=Bad&type=link&link=ftp%3A%2F%2Fx",
+    ApiSupport.stub_form("bookmarks.add", "channel_id=C1&title=Bad&type=link&link=ftp%3A%2F%2Fx",
       %({"ok":false,"error":"invalid_link"}))
 
     error = expect_raises(Slack::Api::Error) do
@@ -59,7 +49,7 @@ end
 
 describe Slack::Api::BookmarksEdit do
   it "sends only the changed fields" do
-    stub_form("bookmarks.edit", "channel_id=C1&bookmark_id=Bk01&title=Runbook+v2",
+    ApiSupport.stub_form("bookmarks.edit", "channel_id=C1&bookmark_id=Bk01&title=Runbook+v2",
       %({"ok":true,"bookmark":#{BOOKMARK_JSON}}))
 
     request = Slack::Api::BookmarksEdit.new("C1", "Bk01", title: "Runbook v2")
@@ -81,7 +71,7 @@ end
 
 describe Slack::Api::BookmarksList do
   it "reads the bookmarks of a channel" do
-    stub_form("bookmarks.list", "channel_id=C1", %({"ok":true,"bookmarks":[#{BOOKMARK_JSON}]}))
+    ApiSupport.stub_form("bookmarks.list", "channel_id=C1", %({"ok":true,"bookmarks":[#{BOOKMARK_JSON}]}))
 
     bookmarks = ApiSupport.client.call(Slack::Api::BookmarksList.new("C1")).bookmarks
 
@@ -91,11 +81,11 @@ end
 
 describe Slack::Api::BookmarksRemove do
   it "removes a bookmark and raises not_found for an unknown one" do
-    stub_form("bookmarks.remove", "channel_id=C1&bookmark_id=Bk01")
+    ApiSupport.stub_form("bookmarks.remove", "channel_id=C1&bookmark_id=Bk01")
     ApiSupport.client.call(Slack::Api::BookmarksRemove.new("C1", "Bk01")).ok?.should be_true
 
     WebMock.reset
-    stub_form("bookmarks.remove", "channel_id=C1&bookmark_id=Bk99", %({"ok":false,"error":"not_found"}))
+    ApiSupport.stub_form("bookmarks.remove", "channel_id=C1&bookmark_id=Bk99", %({"ok":false,"error":"not_found"}))
     error = expect_raises(Slack::Api::Error) do
       ApiSupport.client.call(Slack::Api::BookmarksRemove.new("C1", "Bk99"))
     end
