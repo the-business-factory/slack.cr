@@ -176,7 +176,13 @@ Slack retries a delivery up to three times when the app does not return HTTP 2xx
 
 An interaction type that the library does not map decodes as `Slack::Interactions::Unknown`: `type` gives the interaction type, `raw` keeps the complete payload, and `api_app_id`, `team`, `enterprise`, and `user` are read from it. `Slack::App` finds no listener for it and answers HTTP 200 with an empty body. Authorization runs first: when the authorizer rejects the payload, for example because `user` is missing, the answer is HTTP 401. Do not log `raw`: it can hold a `response_url`.
 
-`Slack::Event::KNOWN_TYPES`, `Slack::Events::MessageFactory::KNOWN_SUBTYPES`, and `Slack::Interaction::KNOWN_TYPES` map each supported `type` or `subtype` string to the struct that it decodes as.
+`Slack::Event::KNOWN_TYPES`, `Slack::Events::MessageFactory::KNOWN_SUBTYPES`, and `Slack::Interaction::KNOWN_TYPES` map each supported `type` or `subtype` string to a struct that it decodes as. In `Slack::Event::KNOWN_TYPES`, `message` maps to `Slack::Events::Message`, the struct for a message without a `subtype`. A message with a `subtype` decodes as the struct in `KNOWN_SUBTYPES` instead.
+
+```crystal
+Slack::Event::KNOWN_TYPES["app_mention"]                       # => Slack::Events::AppMentioned
+Slack::Event::KNOWN_TYPES["message"]                           # => Slack::Events::Message
+Slack::Events::MessageFactory::KNOWN_SUBTYPES["channel_topic"] # => Slack::Events::Message::ChannelTopic
+```
 
 ### Read actions and state
 

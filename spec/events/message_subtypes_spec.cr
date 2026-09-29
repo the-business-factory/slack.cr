@@ -36,6 +36,13 @@ describe "Message subtypes" do
     replied.event_ts.should eq "1789232400.002000"
   end
 
+  it "decodes a bot message with its bot ID and username" do
+    bot = message_event("bot_message").should be_a(Slack::Events::Message::BotMessage)
+    bot.bot_id.should eq "B-SYNTHETIC"
+    bot.username.should eq "github"
+    bot.text.should eq "Pushing is the answer"
+  end
+
   it "decodes a /me message and reads its channel type when Slack sends one" do
     me = message_event("me_message").should be_a(Slack::Events::Message::MeMessage)
     me.text.should eq "is doing that thing"

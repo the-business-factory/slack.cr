@@ -1,3 +1,7 @@
+# `KNOWN_TYPES` publishes the plain message type for `message`, so the message
+# selector must be defined before `discriminated_by` expands.
+require "./events/event_types/message_factory"
+
 # An inner event from an Events API `event_callback` envelope.
 #
 # Decoding selects a typed struct by the `type` field. A `type` that this

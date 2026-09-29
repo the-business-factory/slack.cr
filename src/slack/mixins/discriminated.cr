@@ -10,16 +10,35 @@ module Slack::Discriminated
   # given, a missing or null field decodes as *default*; otherwise it raises
   # `JSON::SerializableError`.
   #
-  # Also defines `KNOWN_<FIELD>S`, the mapping as a Hash constant. A concrete
-  # (not abstract) type that only selects other types gets no return type
+  # Also defines `KNOWN_<FIELD>S`, the mapping as a Hash constant. When a
+  # mapped type is itself discriminated with a *default*, the constant gives
+  # that default type (its `Default` alias), so each value is a decoded type.
+  # The mapped type must be defined before this macro expands.
+  #
+  # With *default*, also defines the alias `Default`. A concrete (not
+  # abstract) type that only selects other types gets no return type
   # restriction, because it does not return itself.
   macro discriminated_by(field, mapping, *, fallback, default = nil)
     {% unless mapping.is_a?(NamedTupleLiteral) %}
       {% mapping.raise "mapping must be a NamedTupleLiteral, not #{mapping.class_name.id}" %}
     {% end %}
 
+    {% if default %}
+      # The type that an object without a `{{ field.id }}` decodes as.
+      alias Default = {{ default }}
+    {% end %}
+
     # The `{{ field.id }}` values that decode as a mapped type.
-    KNOWN_{{ field.id.upcase }}S = { {% for key, value in mapping %} {{ key.id.stringify }} => {{ value }}, {% end %} }
+    KNOWN_{{ field.id.upcase }}S = {
+      {% for key, value in mapping %}
+        {% resolved = value.resolve? %}
+        {% if resolved && resolved.ancestors.includes?(::Slack::Discriminated.resolve) && resolved.has_constant?("Default") %}
+          {{ key.id.stringify }} => {{ value }}::Default,
+        {% else %}
+          {{ key.id.stringify }} => {{ value }},
+        {% end %}
+      {% end %}
+    }
 
     # Decodes a JSON object as the type that its `{{ field.id }}` field selects.
     # See `KNOWN_{{ field.id.upcase }}S`.
