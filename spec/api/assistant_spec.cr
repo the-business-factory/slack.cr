@@ -135,6 +135,19 @@ describe Slack::Api::AssistantThreadsSetSuggestedPrompts do
     end.should eq ["assistant_threads_set_suggested_prompts.prompts.empty"]
   end
 
+  it "reports a blank channel, a malformed thread timestamp, and no prompts in order" do
+    error = expect_raises(Slack::UI::ValidationError) do
+      Slack::Api::AssistantThreadsSetSuggestedPrompts.new(channel_id: " ", thread_ts: "1786543",
+        prompts: suggested_prompts(0)).validate!
+    end
+    error.issues.map { |issue| {issue.code, issue.path, issue.message} }.should eq [
+      {"assistant_threads_set_suggested_prompts.channel_id.blank", "channel_id", "Channel ID must not be blank."},
+      {"assistant_threads_set_suggested_prompts.thread_ts.invalid", "thread_ts",
+       "Thread timestamp must contain digits, a decimal point, and fractional digits."},
+      {"assistant_threads_set_suggested_prompts.prompts.empty", "prompts", "Prompts must contain at least one prompt."},
+    ]
+  end
+
   it "rejects a prompt with a blank title or message" do
     validation_codes do
       Slack::Api::SuggestedPrompt.new(title: " ", message: "")
