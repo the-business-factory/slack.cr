@@ -1,16 +1,6 @@
 require "../spec_helper"
 require "../support/api/webmock_client"
 
-private def stub_form(method : String, form : String, response : String) : Nil
-  WebMock.stub(:post, "https://slack.com/api/#{method}")
-    .with(headers: {"Authorization" => "Bearer xoxb-synthetic",
-                    "Content-Type"  => "application/x-www-form-urlencoded"})
-    .to_return do |request|
-      URI::Params.parse(request.body.to_s).should eq URI::Params.parse(form)
-      HTTP::Client::Response.new(200, body: response)
-    end
-end
-
 # The documented usergroups.create example, with users and an unknown field added.
 private MARKETING = <<-JSON
   {"ok":true,"usergroup":{"id":"S0615G0KT","team_id":"T060RNRCH","is_usergroup":true,
@@ -23,7 +13,7 @@ private MARKETING = <<-JSON
 
 describe Slack::Api::UsergroupsCreate do
   it "sends the group fields and reads the created group" do
-    stub_form("usergroups.create",
+    ApiSupport.stub_form("usergroups.create",
       "name=Marketing+Team&channels=C1%2CC2&additional_channels=C3&description=Marketing+gurus" \
       "&handle=marketing-team&include_count=true&team_id=T060RNRCH&enable_section=true", MARKETING)
 
@@ -62,7 +52,7 @@ end
 
 describe Slack::Api::UsergroupsUpdate do
   it "sends only the changed fields" do
-    stub_form("usergroups.update", "usergroup=S0615G0KT&name=Marketing&handle=mktg", MARKETING)
+    ApiSupport.stub_form("usergroups.update", "usergroup=S0615G0KT&name=Marketing&handle=mktg", MARKETING)
 
     request = Slack::Api::UsergroupsUpdate.new("S0615G0KT", name: "Marketing", handle: "mktg")
     ApiSupport.client.call(request).usergroup.name.should eq "Marketing Team"
@@ -75,7 +65,7 @@ describe Slack::Api::UsergroupsUpdate do
   end
 
   it "reads a numeric user_count" do
-    stub_form("usergroups.update", "usergroup=S1&include_count=true", <<-JSON)
+    ApiSupport.stub_form("usergroups.update", "usergroup=S1&include_count=true", <<-JSON)
       {"ok":true,"usergroup":{"id":"S1","team_id":"T1","name":"Ops","handle":"ops","date_create":1,
        "date_update":2,"date_delete":0,"user_count":3}}
       JSON
@@ -97,7 +87,7 @@ end
 
 describe Slack::Api::UsergroupsList do
   it "sends the options and reads every group" do
-    stub_form("usergroups.list", "include_count=true&include_disabled=true&include_users=true&team_id=T1", <<-JSON)
+    ApiSupport.stub_form("usergroups.list", "include_count=true&include_disabled=true&include_users=true&team_id=T1", <<-JSON)
       {"ok":true,"usergroups":[
         {"id":"S0614TZR7","team_id":"T060RNRCH","is_usergroup":true,"name":"Team Admins",
          "description":"A group of all Administrators on your team.","handle":"admins","is_external":false,
@@ -122,7 +112,7 @@ end
 
 describe Slack::Api::UsergroupsUsersList do
   it "reads the member IDs" do
-    stub_form("usergroups.users.list", "usergroup=S0604QSJC&include_disabled=true",
+    ApiSupport.stub_form("usergroups.users.list", "usergroup=S0604QSJC&include_disabled=true",
       %({"ok":true,"users":["U060R4BJ4","W123A4BC5"]}))
 
     request = Slack::Api::UsergroupsUsersList.new("S0604QSJC", include_disabled: true)
@@ -132,7 +122,7 @@ end
 
 describe Slack::Api::UsergroupsUsersUpdate do
   it "sends the full member list and reads the group" do
-    stub_form("usergroups.users.update",
+    ApiSupport.stub_form("usergroups.users.update",
       "usergroup=S0615G0KT&users=U060R4BJ4%2CW123A4BC5&include_count=true&additional_channels=C3&is_shared=true",
       MARKETING)
 
@@ -151,7 +141,7 @@ end
 
 describe Slack::Api::UsergroupsDisable do
   it "reads the disabled group when Slack returns it" do
-    stub_form("usergroups.disable", "usergroup=S1&include_count=true&team_id=T1", <<-JSON)
+    ApiSupport.stub_form("usergroups.disable", "usergroup=S1&include_count=true&team_id=T1", <<-JSON)
       {"ok":true,"usergroup":{"id":"S1","team_id":"T1","name":"Ops","handle":"ops","date_create":1,
        "date_update":2,"date_delete":1446670400,"user_count":0}}
       JSON
@@ -164,7 +154,7 @@ end
 
 describe Slack::Api::UsergroupsEnable do
   it "accepts a response without a group" do
-    stub_form("usergroups.enable", "usergroup=S1", %({"ok":true}))
+    ApiSupport.stub_form("usergroups.enable", "usergroup=S1", %({"ok":true}))
 
     ApiSupport.client.call(Slack::Api::UsergroupsEnable.new("S1")).usergroup.should be_nil
   end

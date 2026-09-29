@@ -1,17 +1,7 @@
 require "../spec_helper"
 require "../support/api/webmock_client"
 
-# Stubs *method* and checks that the request body is the expected JSON object.
-private def stub_json(method : String, expected : String, response : String = %({"ok":true})) : Nil
-  WebMock.stub(:post, "https://slack.com/api/#{method}")
-    .with(headers: {"Authorization" => "Bearer xoxb-synthetic",
-                    "Content-Type"  => "application/json; charset=utf-8"})
-    .to_return do |request|
-      JSON.parse(request.body || fail("Expected a JSON request body")).should eq JSON.parse(expected)
-      HTTP::Client::Response.new(200, body: response)
-    end
-end
-
+# Stubs *method* to answer with the Slack error *code*.
 private def stub_error(method : String, code : String) : Nil
   WebMock.stub(:post, "https://slack.com/api/#{method}").to_return(body: %({"ok":false,"error":"#{code}"}))
 end
@@ -33,7 +23,7 @@ private ENDEAVOR = <<-JSON
 
 describe Slack::Api::ConversationsOpen do
   it "opens a group direct message with a comma-separated user list" do
-    stub_json("conversations.open", %({"users":"U1,U2","prevent_creation":true}),
+    ApiSupport.stub_json("conversations.open", %({"users":"U1,U2","prevent_creation":true}),
       %({"ok":true,"no_op":true,"already_open":true,"channel":{"id":"G069C7QFK"}}))
 
     response = ApiSupport.client.call(Slack::Api::ConversationsOpen.new(users: %w[U1 U2], prevent_creation: true))
@@ -45,7 +35,7 @@ describe Slack::Api::ConversationsOpen do
   end
 
   it "resumes a direct message and reads the full IM definition" do
-    stub_json("conversations.open", %({"channel":"D069C7QFK","return_im":true}), <<-JSON)
+    ApiSupport.stub_json("conversations.open", %({"channel":"D069C7QFK","return_im":true}), <<-JSON)
       {"ok":true,"no_op":true,"already_open":true,"channel":{"id":"D069C7QFK","created":1460147748,
        "is_im":true,"is_org_shared":false,"user":"U069C7QF3","last_read":"0000000000.000000",
        "latest":null,"unread_count":0,"unread_count_display":0,"is_open":true,"priority":0}}
@@ -60,7 +50,7 @@ describe Slack::Api::ConversationsOpen do
   end
 
   it "reads the full group direct message definition" do
-    stub_json("conversations.open", %({"users":"U1,U2","return_im":true}), <<-JSON)
+    ApiSupport.stub_json("conversations.open", %({"users":"U1,U2","return_im":true}), <<-JSON)
       {"ok":true,"channel":{"id":"G024BE91L","name":"mpdm-user1--user2--user3-1","is_mpim":true,
        "is_group":false,"is_im":false,"is_private":true,"created":1360782804,"creator":"U024BE7LH",
        "members":["U024BE7LH","U1","U2"],"latest":null}}
@@ -75,7 +65,7 @@ describe Slack::Api::ConversationsOpen do
   end
 
   it "reads a response without no_op or already_open as a new conversation" do
-    stub_json("conversations.open", %({"users":"U1"}), %({"ok":true,"channel":{"id":"D1"}}))
+    ApiSupport.stub_json("conversations.open", %({"users":"U1"}), %({"ok":true,"channel":{"id":"D1"}}))
 
     response = ApiSupport.client.call(Slack::Api::ConversationsOpen.new(users: ["U1"]))
 
@@ -102,7 +92,7 @@ end
 
 describe Slack::Api::ConversationsCreate do
   it "creates a private channel for a workspace and reads it" do
-    stub_json("conversations.create", %({"name":"endeavor","is_private":true,"team_id":"T1"}), ENDEAVOR)
+    ApiSupport.stub_json("conversations.create", %({"name":"endeavor","is_private":true,"team_id":"T1"}), ENDEAVOR)
 
     channel = ApiSupport.client.call(Slack::Api::ConversationsCreate.new("endeavor", is_private: true, team_id: "T1"))
 
@@ -112,7 +102,7 @@ describe Slack::Api::ConversationsCreate do
   end
 
   it "sends only the name for a public channel" do
-    stub_json("conversations.create", %({"name":"endeavor"}), ENDEAVOR)
+    ApiSupport.stub_json("conversations.create", %({"name":"endeavor"}), ENDEAVOR)
 
     ApiSupport.client.call(Slack::Api::ConversationsCreate.new("endeavor")).id.should eq "C0EAQDV4Z"
   end
@@ -134,7 +124,7 @@ end
 
 describe Slack::Api::ConversationsRename do
   it "renames a conversation and reads the renamed channel" do
-    stub_json("conversations.rename", %({"channel":"C012AB3CD","name":"general"}), <<-JSON)
+    ApiSupport.stub_json("conversations.rename", %({"channel":"C012AB3CD","name":"general"}), <<-JSON)
       {"ok":true,"channel":{"id":"C012AB3CD","name":"general","is_channel":true,"is_group":false,
        "is_im":false,"created":1449252889,"creator":"W012A3BCD","is_archived":false,"is_general":true,
        "name_normalized":"general","is_private":false,"is_mpim":false,"is_member":true,
@@ -158,7 +148,7 @@ end
 
 describe Slack::Api::ConversationsJoin do
   it "joins a channel and reads it when Slack warns that the app is already a member" do
-    stub_json("conversations.join", %({"channel":"C061EG9SL"}), <<-JSON)
+    ApiSupport.stub_json("conversations.join", %({"channel":"C061EG9SL"}), <<-JSON)
       {"ok":true,"channel":{"id":"C061EG9SL","name":"general","is_channel":true,"is_group":false,
        "is_im":false,"created":1449252889,"creator":"U061F7AUR","is_archived":false,"is_general":true,
        "name_normalized":"general","is_member":true,"is_private":false,"is_mpim":false,
@@ -177,7 +167,7 @@ end
 
 describe Slack::Api::ConversationsInvite do
   it "invites users as a comma-separated list and reads the channel" do
-    stub_json("conversations.invite", %({"channel":"C0EAQDV4Z","users":"U1,U2","force":true}), ENDEAVOR)
+    ApiSupport.stub_json("conversations.invite", %({"channel":"C0EAQDV4Z","users":"U1,U2","force":true}), ENDEAVOR)
 
     request = Slack::Api::ConversationsInvite.new("C0EAQDV4Z", %w[U1 U2], force: true)
     ApiSupport.client.call(request).id.should eq "C0EAQDV4Z"
@@ -212,7 +202,7 @@ end
 
 describe Slack::Api::ConversationsKick do
   it "removes one user from a conversation" do
-    stub_json("conversations.kick", %({"channel":"C1","user":"U1"}), %({"ok":true,"errors":{}}))
+    ApiSupport.stub_json("conversations.kick", %({"channel":"C1","user":"U1"}), %({"ok":true,"errors":{}}))
 
     ApiSupport.client.call(Slack::Api::ConversationsKick.new("C1", "U1")).ok?.should be_true
   end
@@ -228,19 +218,19 @@ end
 
 describe Slack::Api::ConversationsLeave do
   it "leaves a conversation" do
-    stub_json("conversations.leave", %({"channel":"C1"}))
+    ApiSupport.stub_json("conversations.leave", %({"channel":"C1"}))
 
     ApiSupport.client.call(Slack::Api::ConversationsLeave.new("C1")).not_in_channel?.should be_false
   end
 
   it "reads the not_in_channel flag of a successful response" do
-    stub_json("conversations.leave", %({"channel":"C1"}), %({"ok":true,"not_in_channel":true}))
+    ApiSupport.stub_json("conversations.leave", %({"channel":"C1"}), %({"ok":true,"not_in_channel":true}))
 
     ApiSupport.client.call(Slack::Api::ConversationsLeave.new("C1")).not_in_channel?.should be_true
   end
 
   it "returns the documented unsuccessful not_in_channel form, which has no error name" do
-    stub_json("conversations.leave", %({"channel":"C1"}), %({"ok":false,"not_in_channel":true}))
+    ApiSupport.stub_json("conversations.leave", %({"channel":"C1"}), %({"ok":false,"not_in_channel":true}))
 
     ApiSupport.client.call(Slack::Api::ConversationsLeave.new("C1")).not_in_channel?.should be_true
   end
@@ -274,10 +264,10 @@ end
 
 describe "conversation state requests" do
   it "sends the channel and value of each request as JSON" do
-    stub_json("conversations.archive", %({"channel":"C1"}))
-    stub_json("conversations.unarchive", %({"channel":"C1"}))
-    stub_json("conversations.setPurpose", %({"channel":"C1","purpose":"Deploy coordination"}))
-    stub_json("conversations.mark", %({"channel":"C1","ts":"1593473566.000200"}))
+    ApiSupport.stub_json("conversations.archive", %({"channel":"C1"}))
+    ApiSupport.stub_json("conversations.unarchive", %({"channel":"C1"}))
+    ApiSupport.stub_json("conversations.setPurpose", %({"channel":"C1","purpose":"Deploy coordination"}))
+    ApiSupport.stub_json("conversations.mark", %({"channel":"C1","ts":"1593473566.000200"}))
 
     client = ApiSupport.client
     client.call(Slack::Api::ConversationsArchive.new("C1")).ok?.should be_true
@@ -303,7 +293,7 @@ describe "conversation state requests" do
   end
 
   it "sets a topic and reads the channel with the new topic" do
-    stub_json("conversations.setTopic", %({"channel":"C12345678","topic":"Apply topically for best effects"}), <<-JSON)
+    ApiSupport.stub_json("conversations.setTopic", %({"channel":"C12345678","topic":"Apply topically for best effects"}), <<-JSON)
       {"ok":true,"channel":{"id":"C12345678","name":"tips-and-tricks","is_channel":true,"is_group":false,
        "is_im":false,"is_mpim":false,"is_private":false,"created":1649195947,"is_archived":false,
        "is_general":false,"name_normalized":"tips-and-tricks","creator":"U12345678","is_member":true,

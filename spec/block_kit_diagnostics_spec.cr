@@ -1,8 +1,9 @@
 require "./spec_helper"
 require "./support/compile_contracts"
 
-# One fixture per contract. Surface placement is one mechanism, so it is covered
-# once per diagnostic wording rather than once per block type.
+# One fixture per rule that a single parameter type does not show: a
+# diagnostic that the library writes, or a required or exclusive argument
+# pair. Placement through a typed append is one mechanism and is covered once.
 describe "Block Kit construction and app listener diagnostics" do
   root = File.expand_path("..", __DIR__)
   positive_checked = false
@@ -16,27 +17,18 @@ describe "Block Kit construction and app listener diagnostics" do
   end
 
   {
-    "overflow_static_option" => ["OverflowOption", "CompositionObjects::Option"],
-    "overflow_input"         => ["Input.new", "argument 'element'", "Overflow"],
-    "input_label"            => ["Input.new", "argument 'label'", "PlainText", "Mrkdwn"],
-    "section_content"        => ["Section.new", "text :", "fields :"],
-    "form_submit"            => ["FormModal.new", "missing argument: submit", "submit :"],
-    "display_input"          => ["DisplayModal", "Input", "FormModal with submit"],
-    "select_sources"         => ["StaticSelect.new", "options :", "option_groups :"],
-    "datetime_accessory"     => ["Section.new", "accessory", "DatetimePicker"],
-    "home_file"              => ["Home#append_block", "Blocks::File"],
-    "display_table"          => ["DisplayModal rejects Table blocks", "messages and Home tabs only"],
-    "message_alert"          => ["Messages and Home tabs reject Alert blocks", "modals only"],
-    "container_title"        => ["Container.new", "title : CompositionObjects::PlainText", "rich_text_title : RichText,"],
-    "data_table_rich_header" => ["DataTable#append_header_cell", "Table::RawText", "Table::RawNumber"],
-    "rich_text_list_item"    => ["RichText::List#append_element", "RichText::Section", "not Slack::UI::RichText::Text"],
-    "number_input_message"   => ["MessageBuilder#input", "argument 'element'", "NumberInput"],
-    "event_type_typo"        => ["undefined constant Slack::Events::AppMentoined"],
-    "action_type_typo"       => ["undefined constant Slack::Interactions::ButonAction"],
+    "section_content" => ["Section.new", "text :", "fields :"],
+    "select_sources"  => ["StaticSelect.new", "options :", "option_groups :"],
+    "container_title" => ["Container.new", "title : CompositionObjects::PlainText", "rich_text_title : RichText,"],
+    "form_submit"     => ["FormModal.new", "missing argument: submit", "submit :"],
+    "display_input"   => ["DisplayModal", "Input", "FormModal with submit"],
+    "display_table"   => ["DisplayModal rejects Table blocks", "messages and Home tabs only"],
+    "message_alert"   => ["Messages and Home tabs reject Alert blocks", "modals only"],
+    "home_file"       => ["Home#append_block", "Blocks::File"],
   }.each do |name, fragments|
     it "explains #{name}" do
       result = CompileContracts.compile(root, "spec/fixtures/compile/fail/#{name}.cr")
-      fragments.each { |fragment| CompileContracts.assert_fail(result, fragment) }
+      CompileContracts.assert_fail(result, fragments)
     end
   end
 end
