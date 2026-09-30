@@ -303,6 +303,17 @@ receiver = Slack::App::SocketModeReceiver.new(app, socket)
 receiver.run # Returns after receiver.close or when Slack turns Socket Mode off.
 ```
 
+When Slack rejects the app-level token, `receiver.run` raises the `Slack::Api::Error` from `apps.connections.open`. `error.code` is the Slack error name, for example `invalid_auth`. Rescue it to stop with one clear line. For the codes and for the errors that the client retries, see [When Slack rejects the app token](socket-mode.md#when-slack-rejects-the-app-token).
+
+```crystal
+begin
+  receiver.run
+rescue error : Slack::Api::Error
+  STDERR.puts "Slack did not open a Socket Mode connection: #{error.code}"
+  exit 1
+end
+```
+
 Slack authenticates the WebSocket with the app-level token. The receiver does not verify signatures, and it needs no signing secret.
 
 For each envelope, the receiver:

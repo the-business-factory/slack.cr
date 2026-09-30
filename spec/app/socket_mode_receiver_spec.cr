@@ -1,9 +1,11 @@
 require "../spec_helper"
+require "../../src/slack/testing"
 require "../support/api/webmock_client"
 require "../support/socket_mode/loopback"
 
 # Envelopes and payloads below are authored independently from the Slack references:
 # https://docs.slack.dev/apis/events-api/using-socket-mode
+# https://docs.slack.dev/reference/methods/apps.connections.open
 # https://docs.slack.dev/reference/events/app_mention
 # https://docs.slack.dev/interactivity/implementing-slash-commands
 # https://docs.slack.dev/reference/interaction-payloads/block_actions-payload
@@ -287,5 +289,18 @@ describe Slack::App::SocketModeReceiver do
     end
   ensure
     harness.try(&.stop)
+  end
+
+  it "raises the apps.connections.open error from run without opening a socket" do
+    transport = Slack::Testing::RecordingTransport.new
+    transport.respond(%({"ok":false,"error":"invalid_auth"}))
+    connect = ->(_uri : URI) : HTTP::WebSocket { raise "must not connect" }
+    client = Slack::SocketMode::Client.new("xapp-synthetic", transport: transport, connect: connect)
+    receiver = Slack::App::SocketModeReceiver.new(build_app, client)
+
+    error = expect_raises(Slack::Api::Error) { receiver.run }
+
+    error.code.should eq "invalid_auth"
+    transport.requests.map(&.uri.path).should eq ["/api/apps.connections.open"]
   end
 end

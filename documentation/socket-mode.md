@@ -33,11 +33,46 @@ If the block raises, the client logs the exception class and does not acknowledg
 2. On a `disconnect` frame with `warning`, `refresh_requested`, or an unknown reason, the client opens a new connection first, then closes the old one.
 3. On a `disconnect` frame with `link_disabled`, `run` stops.
 4. When the connection closes without a `disconnect` frame, the client waits, then opens a new one.
-5. When an open fails with a network or TLS error, a transport error, or `Slack::Api::RateLimited`, the client waits and tries again. Other Slack errors, such as `invalid_auth`, stop `run` and raise.
+5. When an open fails with a network or TLS error, a transport error, or `Slack::Api::RateLimited`, the client waits and tries again. Other Slack errors, such as `invalid_auth` or `not_allowed_token_type`, stop `run` and raise `Slack::Api::Error`. See [When Slack rejects the app token](#when-slack-rejects-the-app-token).
 
 Failed opens and unexpected closes count as failures until a connection receives `hello`. The wait after failure *n* is 1, 2, 4, … seconds, at most 30, or the `Retry-After` time. The client limits DNS, TCP connect, TLS, and the WebSocket handshake to 10 seconds each.
 
 `close` asks `run` to stop. It ends a wait or a handshake in progress. Before `run` returns, it waits for the running blocks and sends their acknowledgments. A block that never returns keeps `run` from returning.
+
+### When Slack rejects the app token
+
+When `apps.connections.open` fails with an error that the client does not retry, `run` raises `Slack::Api::Error`. `error.code` is the Slack error name. The client does not retry this error, and it does not exit the process. Rescue the error around `run`:
+
+```crystal
+begin
+  receiver.run
+rescue error : Slack::Api::Error
+  STDERR.puts "Slack did not open a Socket Mode connection: #{error.code}"
+  exit 1
+end
+```
+
+Before `run` raises, the client stops its fibers and closes its channels. If connections were open before, it first waits for the running blocks, sends their acknowledgments, and closes the connection.
+
+The client calls `apps.connections.open` again for each reconnect. If Slack rejects the token on a reconnect, `run` raises the same error in the same way. Thus one rescue covers a start that fails and a token that stops working later.
+
+The [`apps.connections.open` reference](https://docs.slack.dev/reference/methods/apps.connections.open) lists the error codes. These codes are about the token:
+
+- `invalid_auth`: the app-level token is not valid.
+- `not_allowed_token_type`: the token is not an app-level (`xapp-`) token, for example a bot token.
+- `not_authed`: the request has no token.
+- `token_expired` and `token_revoked`: the token no longer works.
+- `account_inactive`: the token is for a deleted user or workspace.
+
+Other codes on that page also stop `run`, for example `internal_error`, `fatal_error`, and `service_unavailable`. The library codes `invalid_response` and `http_error` stop `run` too.
+
+These errors do not get to the rescue. The client waits and tries again until `close`:
+
+- network and TLS errors (`IO::Error`, `OpenSSL::Error`),
+- transport failures, and
+- rate limits (HTTP 429, `Slack::Api::RateLimited`).
+
+A second call to `run` on the same client raises `ArgumentError`. This is a program error, so do not rescue it.
 
 The client keeps one connection. Slack allows up to 10 for an app and can send each envelope to any of them. `HTTP::WebSocket` answers Slack's ping frames. The client sends all acknowledgments on the current connection, from one writer fiber.
 
