@@ -281,7 +281,17 @@ Requests for other paths go to the next handler. Bolt's custom routes are ordina
 HTTP::Server.new([Slack::App::HttpReceiver.new(app, verifier), HealthCheckHandler.new])
 ```
 
-The receiver does not remove duplicate event deliveries. Use `ctx.envelope.event_id` and `ctx.delivery` for that.
+The receiver does not remove duplicate event deliveries. Slack sends an event again when it gets no 2xx within three seconds. The retry has the same `ctx.envelope.event_id`, and `ctx.delivery.retry?` is true. The original delivery can also get to the listener after its retry, for example when authorization is slow. Thus an app whose work is not safe to repeat records each event ID before the work starts, and returns early for an ID that it already has:
+
+```crystal
+started = Set(String).new
+app.on_reaction_added do |ctx|
+  next unless started.add?(ctx.envelope.event_id)
+  translate(ctx)
+end
+```
+
+The app acknowledges an event before the listener runs, so a retry means that Slack did not get the acknowledgment. It does not mean that the work failed. Thus it is safe to record the ID before the work, and a delivery that arrives while the work is in progress also returns early. Keep the set small, for example the last few hundred IDs. When you run more than one process, share it through your own store, and make the check and the add one atomic operation.
 
 ## Socket Mode receiver
 
