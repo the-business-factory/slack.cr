@@ -101,6 +101,22 @@ binding = Slack::Auth::Secret.new(current_session.id)
 response : Slack::AuthResponse = handler.authenticate_user(request, binding)
 ```
 
+`Slack::App::InstallRoutes` serves these two routes as one `HTTP::Handler`. The application still supplies the binding from its trusted session and still writes the installation to its store. When `session_binding` returns `nil`, both routes answer 400. On a denial, a bad state, or a failed exchange, the handler sends the browser to the `on_failed` path and logs only the error class. Other requests go to the next handler. See [`examples/install_routes.cr`](../examples/install_routes.cr).
+
+```crystal
+routes = Slack::App::InstallRoutes.new(handler,
+  session_binding: ->(context : HTTP::Server::Context) : Slack::Auth::Secret? {
+    current_session(context).try { |session| Slack::Auth::Secret.new(session.id) }
+  },
+  on_installed: ->(response : Slack::AuthResponse) : String {
+    store.store(response.installation_key, response.installation_patch(Slack::Auth::SystemClock.new), nil)
+    "/installed"
+  },
+  on_failed: ->(error : Exception) : String { "/install/failed" },
+  install_path: "/slack/install", callback_path: "/slack/install/callback")
+HTTP::Server.new([routes, Slack::App::HttpReceiver.new(app, verifier)])
+```
+
 State is unique per attempt and consumed once before checking denial or code. A bad session or expired state sends no token request. A valid state remains consumed after denial, malformed code, HTTP error, or storage failure. Start a fresh flow after failure. The handler performs one token exchange without an automatic retry or redirect and parses the actual HTTP status. Application code persists the returned installation.
 
 Use a `StateStore` whose `issue` and `consume` are atomic across every process that can serve these routes. `MemoryStateStore` is synchronized only within one process and loses state on restart. A shared database adapter needs expiry cleanup, access control, and safe logging; a process-local instance cannot coordinate callbacks routed to another process. The memory adapter prunes on issue; schedule `prune_expired` when new install traffic can stop.

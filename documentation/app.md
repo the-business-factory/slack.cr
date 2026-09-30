@@ -351,3 +351,4 @@ The specs and the example run requests in memory with synthetic credentials. The
 | [`custom_step.cr`](../examples/custom_step.cr) | A custom step that waits for a button click, then completes |
 | [`assistant.cr`](../examples/assistant.cr) | An assistant that greets an app thread and streams an answer |
 | [`testing.cr`](../examples/testing.cr) | An offline test of a slash command handler |
+| [`install_routes.cr`](../examples/install_routes.cr) | The OAuth install and callback routes on a local HTTP server, in front of the HTTP receiver |

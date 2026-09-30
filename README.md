@@ -242,6 +242,7 @@ App framework ([guide](documentation/app.md#examples)):
 crystal run examples/app.cr
 crystal run examples/custom_step.cr
 crystal run examples/assistant.cr
+crystal run examples/install_routes.cr
 crystal run examples/testing.cr
 ```
 
