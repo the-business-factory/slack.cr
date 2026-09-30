@@ -2208,3 +2208,17 @@ rules:
     source_section: "User tokens; Bot tokens"
     reviewed_on: "2026-09-28"
     evidence_paths: [src/slack/app/authorizer.cr, src/slack/app/installation_authorizer.cr, src/slack/app/single_token_authorizer.cr, src/slack/app/grant_unavailable.cr, src/slack/app/context.cr, spec/app/grant_client_spec.cr, examples/support/app_example.cr, spec/block_kit_consumers_spec.cr]
+  - id: oidc_sign_in_flow
+    classification: slack_requirement
+    requirement: "Slack::OIDC::SignInHandler#redirect_url issues an AuthorizationAttempt with purpose OIDC, 256-bit random state and nonce, and the configured redirect URI, and sends response_type=code, scope (openid, plus profile and email unless turned off), client_id, redirect_uri, state, nonce, and team when given to https://slack.com/openid/connect/authorize. authenticate_user consumes the state first, then reads error or exactly one code, then posts openid.connect.token with a client that has no token, then verifies the ID token with the attempt's nonce. Slack errors of the exchange map to Auth::ResponseError with allowlisted slack_error values, as for installation. The library stores no session and no refresh token."
+    source_url: https://docs.slack.dev/authentication/sign-in-with-slack
+    source_section: "Implementing the flow: state, nonce, openid.connect.token"
+    reviewed_on: "2026-09-29"
+    evidence_paths: [src/slack/oidc/sign_in_handler.cr, src/slack/oidc/sign_in.cr, src/slack/oidc/user_token.cr, spec/oidc/sign_in_handler_spec.cr, examples/support/sign_in_example.cr, spec/block_kit_consumers_spec.cr, documentation/authentication.md]
+  - id: oidc_id_token_verification
+    classification: library_policy
+    requirement: "IDTokenVerifier accepts only a compact JWS with strict base64url segments, alg RS256, a kid, and no crit header. The key comes from the key set at https://slack.com/openid/connect/keys (24-hour cache, Cache-Control not read, one more fetch for an unknown kid at most every five minutes). The signature is checked through SignatureVerifier (default OpenSSLVerifier) before the payload is parsed. Then iss equals https://slack.com, aud is or contains the client ID (azp required and equal with several audiences), now < exp + 60 s, iat <= now + 60 s, nonce and at_hash match in constant time, and sub, https://slack.com/user_id, and https://slack.com/team_id are present. Requiring at_hash and iat is library policy; the checks follow OpenID Connect Core 1.0 sections 3.1.3.7 and 3.1.3.8. Every failure raises VerificationFailed with no claim in the message."
+    source_url: https://docs.slack.dev/authentication/sign-in-with-slack
+    source_section: "Response: id_token claims; https://slack.com/.well-known/openid-configuration"
+    reviewed_on: "2026-09-29"
+    evidence_paths: [src/slack/oidc/id_token_verifier.cr, src/slack/oidc/key_source.cr, src/slack/oidc/openssl_verifier.cr, spec/oidc/id_token_verifier_spec.cr, spec/oidc/key_source_spec.cr, spec/oidc/openssl_verifier_spec.cr, spec/fixtures/oidc/provenance.yml]

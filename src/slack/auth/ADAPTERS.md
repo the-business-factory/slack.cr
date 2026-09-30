@@ -47,7 +47,7 @@ Revocation and refresh completion follow their atomic order. Revocation first in
 
 ## Transport and errors
 
-`Transport#execute` sends one request and returns status, headers, and body. It does not retry or redirect. Classify only a definitely unsent application request as `TransportFailure`; any partial write or failure after bytes may have left is `UnknownRemoteOutcome`. `TransportFactory#build` validates timeout, proxy, CA, TLS, and endpoint settings. Keep API, OAuth, and future OIDC configuration separate. Endpoint configuration does not verify identity.
+`Transport#execute` sends one request and returns status, headers, and body. It does not retry or redirect. Classify only a definitely unsent application request as `TransportFailure`; any partial write or failure after bytes may have left is `UnknownRemoteOutcome`. `TransportFactory#build` validates timeout, proxy, CA, TLS, and endpoint settings. Keep API, OAuth, and OIDC configuration separate. Endpoint configuration does not verify identity.
 
 `ContractError` carries an allowed error code, optional HTTP status, and retry delay. Do not include remote bodies, raw exceptions, headers, URIs, or tokens in errors or logs. Parse String or IO responses once. `Secret#value` exposes its contents for dispatch or storage; `inspect` and `to_s` redaction do not protect explicit accessors or serialization.
 

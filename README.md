@@ -124,11 +124,13 @@ Use `message.to_pretty_json` to inspect the payload locally. See [Block Kit](doc
 | Socket Mode | `Slack::SocketMode::Client`, `Frame`, `Acknowledgment` | [Socket Mode](documentation/socket-mode.md) |
 | App framework | `Slack::App`, listeners, middleware, `say` and `respond`, HTTP and Socket Mode receivers | [App listeners](documentation/app.md) |
 | OAuth and token rotation | `Slack::AuthHandler`, `Slack::Auth::RequestAuthorizer`, `RotationService`, `CredentialLifecycle`, installation stores | [Authentication](documentation/authentication.md) |
+| Sign in with Slack | `Slack::OIDC::SignInHandler`, `Identity`, `OpenIDConnectUserInfo` | [Sign in with Slack](documentation/authentication.md#sign-in-with-slack) |
 | AI apps | `Client#start_stream`, `MessageStream`, app thread and agent session requests, `Slack::App::Assistant` | [AI apps](documentation/ai-apps.md) |
 | Workflow steps | `Slack::Events::FunctionExecuted`, `FunctionsCompleteSuccess`, `App#function` | [Workflow steps](documentation/workflows.md) |
 | Testing | `Slack::Testing::SignedRequest`, `Slack::Testing::RecordingTransport` | [Testing your app](#testing-your-app) |
 
 The library has no global settings and reads no environment variables. Give each credential to the object that uses it: a token to `Slack::Api::Client`, the signing secret to `Slack::Webhooks::Verifier`, an app-level token to `Slack::SocketMode::Client`, and a `Slack::Auth::OAuthConfiguration` to `Slack::AuthHandler`. Tokens and secrets are `Slack::Auth::Secret` values; `inspect` and `to_s` show `[REDACTED]`.
+To sign people in with Slack, give a `Slack::OIDC::Configuration` to `Slack::OIDC::SignInHandler`.
 
 ## Testing your app
 
@@ -171,6 +173,12 @@ crystal run examples/incident_channel.cr
 crystal run examples/incident_triage.cr
 crystal run examples/file_upload.cr
 crystal run examples/app_manifest.cr
+```
+
+Sign in with Slack ([guide](documentation/authentication.md#sign-in-with-slack)):
+
+```sh
+crystal run examples/sign_in.cr
 ```
 
 Block Kit ([guide](documentation/block-kit.md#offline-examples)):

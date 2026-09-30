@@ -66,6 +66,7 @@ require "../examples/support/app_manifest_example"
 require "../examples/support/custom_step_example"
 require "../examples/support/socket_mode_app_example"
 require "../examples/support/assistant_example"
+require "../examples/support/sign_in_example"
 
 describe "documented Block Kit workflows" do
   around_each do |example|
@@ -878,5 +879,23 @@ describe "documented Block Kit workflows" do
     JSON.parse(bodies[5]).should eq JSON.parse(%({"channel":"D-ASSISTANT","thread_ts":"1729999327.187299","recipient_user_id":"U-USER","recipient_team_id":"T-SYNTHETIC"}))
     JSON.parse(bodies[6]).should eq JSON.parse(%({"channel":"D-ASSISTANT","ts":"1729999501.000100","markdown_text":"Summary of <#C-SALES>: sales grew 4%."}))
     JSON.parse(bodies[7]).should eq JSON.parse(%({"channel":"D-ASSISTANT","ts":"1729999501.000100","session_status":"closed","metadata":{"event_type":"assistant_thread_context","event_payload":{"channel_id":"C-SALES","team_id":"T-SYNTHETIC"}}}))
+  end
+
+  it "signs a person in with Slack and rejects a bad signature" do
+    output = IO::Memory.new
+    transport = OfflineSignInExample.run(output)
+
+    output.to_s.lines.should eq ["Redirect to slack.com/openid/connect/authorize for openid profile email",
+                                 "Signed in U-SYNTHETIC from T-SYNTHETIC (alice@example.test)",
+                                 "Rejected an ID token with a bad signature"]
+    transport.requests.size.should eq 3
+    exchange, keys, second_exchange = transport.requests
+    exchange.uri.to_s.should eq "https://slack.com/api/openid.connect.token"
+    exchange.body.should eq "grant_type=authorization_code&client_id=1234.5678&client_secret=synthetic-secret" \
+                            "&code=synthetic-code&redirect_uri=https%3A%2F%2Fapp.example.test%2Fslack%2Fsign-in%2Fcallback"
+    keys.method.should eq "GET"
+    keys.uri.to_s.should eq "https://slack.com/openid/connect/keys"
+    keys.headers["Authorization"]?.should be_nil
+    second_exchange.uri.to_s.should eq "https://slack.com/api/openid.connect.token"
   end
 end

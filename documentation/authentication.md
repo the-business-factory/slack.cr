@@ -9,6 +9,7 @@ Give each credential to the object that uses it. The library has no global setti
 | App-level token (`xapp-`) | `Slack::SocketMode::Client.new` | Open Socket Mode connections; see [Socket Mode](socket-mode.md) |
 | App configuration token (`xoxe.xoxp-`) | `Slack::Api::Client.new(token:)` | Manage apps through their manifests; see [App manifests](#app-manifests) |
 | Client ID, client secret, redirect URI | `Slack::Auth::OAuthConfiguration` | Install the app with OAuth and refresh rotating tokens |
+| Client ID, client secret, sign-in redirect URI | `Slack::OIDC::Configuration` | Sign people in with Slack; see [Sign in with Slack](#sign-in-with-slack) |
 | Stored installations | `Slack::Auth::InstallationStore` | Select the credential for each request; rotate and revoke grants |
 
 ## Direct tokens and the client
@@ -193,6 +194,82 @@ bot_client.call(Slack::Api::AppsUninstall.new(client_id: client_id, client_secre
 
 `AppsUninstall` keeps the client secret as an `Auth::Secret`. These calls do not change the installation store. After a successful call, Slack sends `tokens_revoked` or `app_uninstalled`; clean up the store through `CredentialLifecycle`, as above. Slack returns `bad_client_secret` or `client_id_token_mismatch` as `Api::Error#code` when the client credentials do not match the token.
 
+## Sign in with Slack
+
+Sign in with Slack lets a person sign in to your application with their Slack account. It uses OpenID Connect. It does not install the app and gives no bot token. The result is a verified identity and a user token (`xoxp-`) that has only the sign-in scopes. See [Sign in with Slack](https://docs.slack.dev/authentication/sign-in-with-slack).
+
+`Slack::OIDC::SignInHandler` does the flow. Give it the configuration, a state store, and a transport:
+
+```crystal
+require "slack"
+
+configuration = Slack::OIDC::Configuration.new(
+  ENV["SLACK_CLIENT_ID"],
+  Slack::Auth::Secret.new(ENV["SLACK_CLIENT_SECRET"]),
+  URI.parse("https://app.example.com/slack/sign-in/callback")
+)
+state_store : Slack::Auth::StateStore = Slack::Auth::MemoryStateStore.new
+transport : Slack::Auth::Transport = Slack::Auth::HTTPTransportFactory.new.build(
+  Slack::Auth::TransportOptions.new
+)
+sign_in_handler = Slack::OIDC::SignInHandler.new(configuration, state_store, transport)
+```
+
+The handler always asks for the `openid` scope. It also asks for `profile` and `email`; set `profile: false` or `email: false` to remove them. The URIs must be absolute HTTPS URIs without user information or fragments. The authorization URI must not set `response_type`, `client_id`, `redirect_uri`, `scope`, `state`, `nonce`, or `team`.
+
+Use two routes and the trusted session binding, as for app installation. Never take the binding from the callback query:
+
+```crystal
+# In GET /slack/sign-in:
+binding = Slack::Auth::Secret.new(current_session.id)
+redirect_url = sign_in_handler.redirect_url(binding)
+# Send a framework redirect response to redirect_url.
+
+# In GET /slack/sign-in/callback, with the same trusted session:
+binding = Slack::Auth::Secret.new(current_session.id)
+sign_in = sign_in_handler.authenticate_user(request, binding)
+sign_in.identity.user_id # "U0R7JM"
+sign_in.identity.team_id # "T0R7GR"
+sign_in.identity.email   # "krane@slack-corp.com", with the email scope
+```
+
+`redirect_url(binding, team: "T0R7GR")` adds Slack's workspace hint. A person who is signed in to that workspace goes through directly. The hint does not restrict the workspace.
+
+`authenticate_user` does these steps in this order:
+
+1. It consumes the state. Bad state sends no request.
+2. It reads the denial or the code. The state stays consumed.
+3. It exchanges the code through `openid.connect.token` with a client that has no token.
+4. It fetches the key set and verifies the ID token.
+
+Verification checks the RS256 signature against Slack's key set. Then it checks `iss`, `aud` (and `azp` when there are several audiences), `exp` and `iat` with 60 seconds of leeway, the `nonce` of the attempt, `at_hash` against the access token, and the user, workspace, and subject claims. The handler reads the payload only after the signature is correct. The library requires `at_hash`; Slack sends it in each documented example.
+
+The handler does not decide what a sign-in allows. Your application must:
+
+- Compare `identity.team_id` with your workspaces, if only some workspaces can sign in.
+- Decide if an email with `email_verified? == false` is enough.
+- Create the session. The handler returns a value and sets no cookie.
+
+Read the profile with the user token:
+
+```crystal
+client = Slack::Api::Client.new(token: sign_in.access_token)
+profile = client.call(Slack::Api::OpenIDConnectUserInfo.new)
+profile.team_name
+```
+
+Errors:
+
+| Error | Cause |
+| --- | --- |
+| `Auth::ContractError` `InvalidState` | Unknown, expired, or used state, another session, or state of an installation attempt |
+| `Auth::ContractError` `ReauthorizationRequired` | The person denied access |
+| `Auth::ContractError` `InvalidResponse` | A malformed callback, or a key set that Slack did not send correctly |
+| `Auth::ContractError` `VerificationFailed` | The ID token failed a check. The error contains no claim and no token |
+| `Auth::ResponseError` | Slack rejected the exchange or sent an exchange response without an ID token. `slack_error` is set only for known codes, such as `invalid_code` (`ReauthorizationRequired`) or `bad_client_secret` (`InvalidResponse`) |
+
+The handler keeps the key set for 24 hours. It does not read `Cache-Control`. A token with an unknown `kid` causes one more fetch, at most once every five minutes. A failed fetch raises and drops the cached keys, so the next sign-in fetches again. `Slack::OIDC::SignatureVerifier` checks the signature; the default `OpenSSLVerifier` uses the OpenSSL library that Crystal links. Give another implementation with `signature_verifier:`. See `examples/sign_in.cr`.
+
 ## App manifests
 
 An app configuration token (`xoxe.xoxp-`) manages apps through their manifests. Give it to the client like any other token. The manifest stays raw JSON (`JSON::Any`); see the [app manifest reference](https://docs.slack.dev/reference/app-manifest). The requests send the manifest as JSON text and keep their own copy.
@@ -245,3 +322,5 @@ client = Slack::Api::Client.new(
 ## Limits of the offline tests
 
 The specs use synthetic credentials, in-memory stores, and local loopback HTTP. They do not prove that Slack accepts an OAuth exchange or a refresh, the scopes of a token, or the timing of `tokens_revoked` and `app_uninstalled` events. Durable adapters need their own tests; see the [storage test instructions](../spec/support/storage/README.md).
+
+The Sign in with Slack specs use tokens that the OpenSSL CLI signed with a synthetic key. They do not prove that Slack accepts the exchange, the live key set, the live claims, or key rotation. GovSlack sign-in is not tested.
