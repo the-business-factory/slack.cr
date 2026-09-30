@@ -268,6 +268,16 @@ Errors:
 | `Auth::ContractError` `VerificationFailed` | The ID token failed a check. The error contains no claim and no token |
 | `Auth::ResponseError` | Slack rejected the exchange or sent an exchange response without an ID token. `slack_error` is set only for known codes, such as `invalid_code` (`ReauthorizationRequired`) or `bad_client_secret` (`InvalidResponse`) |
 
+With token rotation, the sign-in returns `sign_in.refresh_token` and `sign_in.expires_at`, and the user token expires after 12 hours. The library does not store the refresh token; keep it with the session if you refresh. `refresh` returns a new `UserToken`. Store its new refresh token and discard the old one:
+
+```crystal
+token = sign_in_handler.refresh(stored_refresh_token)
+token.access_token # the new user token
+token.refresh_token # store this one
+```
+
+A rejected refresh token raises `Auth::ResponseError` with `ReauthorizationRequired`; sign the person in again. `refresh` does not verify a new ID token. The identity comes from the sign-in.
+
 The handler keeps the key set for 24 hours. It does not read `Cache-Control`. A token with an unknown `kid` causes one more fetch, at most once every five minutes. A failed fetch raises and drops the cached keys, so the next sign-in fetches again. `Slack::OIDC::SignatureVerifier` checks the signature; the default `OpenSSLVerifier` uses the OpenSSL library that Crystal links. Give another implementation with `signature_verifier:`. See `examples/sign_in.cr`.
 
 ## App manifests

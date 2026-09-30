@@ -307,4 +307,37 @@ describe Slack::OIDC::SignInHandler do
       end
     end
   end
+
+  describe "#refresh" do
+    it "sends the refresh grant and returns the new user token" do
+      harness = SignInHandlerSpecSupport.harness
+      harness.transport.respond(%({"ok":true,"access_token":"xoxe.xoxp-synthetic-new","token_type":"Bearer",) +
+                                %("refresh_token":"xoxe-1-synthetic-new","expires_in":43200}))
+
+      token = harness.handler.refresh(Slack::Auth::Secret.new("xoxe-1-synthetic-refresh"))
+
+      request = harness.transport.requests.first
+      harness.transport.requests.size.should eq 1
+      request.uri.to_s.should eq "https://slack.com/api/openid.connect.token"
+      request.headers["Authorization"]?.should be_nil
+      # Authored from https://docs.slack.dev/reference/methods/openid.connect.token.
+      request.body.should eq "grant_type=refresh_token&client_id=1234.5678&client_secret=synthetic-secret" \
+                             "&refresh_token=xoxe-1-synthetic-refresh"
+      token.access_token.value.should eq "xoxe.xoxp-synthetic-new"
+      refresh_token = token.refresh_token.should_not be_nil
+      refresh_token.value.should eq "xoxe-1-synthetic-new"
+      token.expires_at.should eq harness.clock.now + 43200.seconds
+    end
+
+    it "maps a rejected refresh token to ReauthorizationRequired" do
+      harness = SignInHandlerSpecSupport.harness
+      harness.transport.respond(%({"ok":false,"error":"invalid_refresh_token"}))
+
+      error = SignInHandlerSpecSupport.expect_response_error(Slack::Auth::ErrorCode::ReauthorizationRequired) do
+        harness.handler.refresh(Slack::Auth::Secret.new("xoxe-1-synthetic-refresh"))
+      end
+
+      error.slack_error.should eq "invalid_refresh_token"
+    end
+  end
 end

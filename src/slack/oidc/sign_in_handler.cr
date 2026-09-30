@@ -20,6 +20,7 @@ module Slack::OIDC
   # consumes the state, exchanges the code through `openid.connect.token`,
   # verifies the ID token, and returns a `SignIn`. The application owns the
   # session: it gives the same trusted session binding to both calls.
+  # `#refresh` renews a rotating user token.
   #
   # ```
   # handler = Slack::OIDC::SignInHandler.new(configuration, Slack::Auth::MemoryStateStore.new,
@@ -121,6 +122,19 @@ module Slack::OIDC
       nonce = attempt.nonce || raise Auth::ContractError.new(Auth::ErrorCode::InvalidState)
       identity = @verifier.verify(id_token, nonce: nonce, access_token: token.access_token)
       SignIn.new(identity, user_token(token))
+    end
+
+    # Exchanges a refresh token for a new user token, for apps that use token
+    # rotation. Slack returns a new refresh token; store it and drop the old
+    # one. The library does not store either. A new ID token, if Slack sends
+    # one, is not verified or returned: the identity comes from the sign-in.
+    #
+    # Raises `Auth::ResponseError` when Slack rejects the refresh, with
+    # `ReauthorizationRequired` for an unusable refresh token such as
+    # `invalid_refresh_token`. Transport errors pass through.
+    def refresh(refresh_token : Auth::Secret) : UserToken
+      user_token(request_token(Api::OpenIDConnectToken.refresh(client_id: @client_id,
+        client_secret: @client_secret, refresh_token: refresh_token)))
     end
 
     def inspect(io : IO) : Nil
