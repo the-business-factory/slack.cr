@@ -44,11 +44,15 @@ class Slack::App
   # (`bot_access_token`). Give one to set the API configuration or transport.
   # *response_url_transport* sends `respond` posts. They go to Slack's
   # `response_url` hosts, not the Web API, so they do not use the client.
+  # *ignore_self* skips messages without a subtype that this app posted; see
+  # `IgnoreSelf`.
   def initialize(*, @authorizer : Authorizer, @log : ::Log = ::Log.for("slack.app"),
                  @ack_timeout : Time::Span = DEFAULT_ACK_TIMEOUT,
+                 ignore_self : Bool = true,
                  @workflow_client : WorkflowClient = ->(token : Slack::Auth::Secret) { Slack::Api::Client.new(token: token) },
                  @response_url_transport : Slack::Auth::Transport = Slack::Auth::HTTPTransportFactory.new.build(Slack::Auth::TransportOptions.new))
     raise ArgumentError.new("ack_timeout must be positive") unless @ack_timeout.positive?
+    @middleware << IgnoreSelf.middleware if ignore_self
   end
 
   # Adds global middleware. It runs, in registration order, before the

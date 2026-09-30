@@ -18,6 +18,12 @@ struct Slack::App::EventContext(T) < Slack::App::Context
     super(environment)
   end
 
+  # The user ID of the bot authorization in the envelope, or nil when the
+  # envelope has no bot authorization.
+  def bot_user_id : String?
+    @envelope.authorizations.find(&.bot?).try(&.user_id)
+  end
+
   # The conversation of events that happen in one, as in Bolt: messages,
   # mentions, App Home, membership changes, reactions, pins, and shared links.
   private def say_channel : String?

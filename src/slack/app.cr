@@ -1,4 +1,5 @@
 require "./app/app"
+require "./app/ignore_self"
 require "./app/ack_body"
 require "./app/outcome"
 require "./app/already_acknowledged"

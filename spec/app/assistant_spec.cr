@@ -42,10 +42,11 @@ private USER_MESSAGE = <<-JSON
    "type":"event_callback","event_id":"Ev-MESSAGE","event_time":1729999500,#{AUTHORIZATIONS}}
   JSON
 
-# The app's own reply, as a message.im event: a bot ID and no subtype.
+# Another bot's message in the app's direct message: a bot ID and no subtype.
+# The app's own messages never reach listeners; see `Slack::App::IgnoreSelf`.
 private BOT_MESSAGE = <<-JSON
   {"token":"synthetic-legacy-token","team_id":"T-SYNTHETIC","api_app_id":"A-SYNTHETIC",
-   "event":{"type":"message","user":"U-BOT","bot_id":"B-SYNTHETIC","text":"Here is the summary.",
+   "event":{"type":"message","user":"U-OTHER-BOT","bot_id":"B-OTHER","text":"Here is the summary.",
             "ts":"1729999600.000100","thread_ts":"1729999327.187299","channel":"D-ASSISTANT","channel_type":"im",
             "team":"T-SYNTHETIC","event_ts":"1729999600.000100"},
    "type":"event_callback","event_id":"Ev-BOT","event_time":1729999600,#{AUTHORIZATIONS}}
@@ -290,7 +291,7 @@ describe Slack::App::Assistant do
       %({"channel_id":"D-ASSISTANT","thread_ts":"1729999327.187299","title":"Channel summary"}))
   end
 
-  it "leaves the app's own messages, channel messages, and subtypes to other listeners" do
+  it "leaves bot messages, channel messages, and subtypes to other listeners" do
     [BOT_MESSAGE, CHANNEL_MESSAGE, USER_MESSAGE.sub(%("type":"message",), %("type":"message","subtype":"me_message",))].each do |body|
       transport = Slack::Testing::RecordingTransport.new
       assistant = Slack::App::Assistant.new

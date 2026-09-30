@@ -75,6 +75,9 @@ Every context also gives:
 - `log`: the app `Log` (source `slack.app`).
 - `delivery`: the Events API retry headers (`Slack::Events::Delivery`), or nil for other requests.
 - `store`: a `Hash(String, String)` that middleware uses to give values to later steps of the same request.
+- `bot_user_id`, on `EventContext`: the bot user ID from the bot authorization of the envelope, or nil.
+
+`Slack::App` skips a `message` event without a subtype that the app posted itself: one whose `app_id` is the app, or whose `user` is the bot user of the envelope. This is Bolt's `ignoreSelf`. Other events pass, so `on_member_joined_channel` sees the bot join a channel. Message subtypes also pass, so a listener for `Slack::Events::Message::ThreadBroadcast` gets the app's own broadcast replies. `EventContext#bot_user_id` gives the bot user ID from the envelope. Pass `ignore_self: false` to `Slack::App.new` to receive your own messages.
 
 ### Migrate from string event listeners
 
