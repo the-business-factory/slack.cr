@@ -50,6 +50,7 @@ Each typed request is a value in `Slack::Api`. Create it, then give it to `call`
 | App threads and agents | `AssistantThreadsSetStatus`, `AssistantThreadsSetSuggestedPrompts`, `AssistantThreadsSetTitle`, `AgentsSessionsSetStatus`, `AgentsSessionsRename` | [AI apps](ai-apps.md#app-threads) |
 | Workflow steps | `FunctionsCompleteSuccess`, `FunctionsCompleteError` | [Workflow steps](workflows.md) |
 | Apps and auth | `AuthTest`, `AuthRevoke`, `AuthTeamsList`, `AppsUninstall`, `AppsManifest*`, `AppsEventAuthorizationsList`, `AppsConnectionsOpen` | [Authentication](authentication.md) |
+| Sign in with Slack | `OpenIDConnectToken`, `OpenIDConnectUserInfo` | [Authentication](authentication.md) |
 | Workspace | `TeamInfo`, `EmojiList`, `ApiTest` | This guide |
 
 ## Generic call

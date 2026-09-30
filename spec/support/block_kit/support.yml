@@ -1304,6 +1304,17 @@ entries:
     inbound_status: unsupported
     evidence_paths: [src/slack/api/retry_policy.cr, src/slack/api/client.cr, spec/api/retry_policy_spec.cr, examples/support/retry_policy_example.cr, README.md]
 
+  - wire_type: openid.connect.token and openid.connect.userInfo requests
+    kind: endpoint
+    documentation_url: https://docs.slack.dev/reference/methods/openid.connect.token
+    fields_supported: [grant_type, client_id, client_secret, code, redirect_uri, refresh_token, access_token, token_type, id_token, expires_in, sub, https://slack.com/user_id, https://slack.com/team_id, email, email_verified, date_email_verified, name, picture, given_name, family_name, locale, https://slack.com/team_name, https://slack.com/team_domain, https://slack.com/user_image_*, https://slack.com/team_image_*]
+    parents: []
+    surfaces: [sign in with slack]
+    restrictions: "OpenIDConnectToken posts form fields with a client that has no token: grant_type=authorization_code with client_id, client_secret, code, and redirect_uri, or (OpenIDConnectToken.refresh) grant_type=refresh_token with client_id, client_secret, and refresh_token; Tier 4. The client secret and refresh token are Auth::Secret. The model keeps access_token, id_token, and refresh_token as Auth::Secret; the ID token is not verified by the model. OpenIDConnectUserInfo posts an empty form with the user token; Tier 3; every profile field is optional because Slack sends them per granted scope. code_verifier (PKCE) is not sent."
+    implementation_status: supported
+    inbound_status: unsupported
+    evidence_paths: [src/slack/api/requests/openid/connect_token.cr, src/slack/api/requests/openid/connect_user_info.cr, src/slack/models/openid/token.cr, src/slack/models/openid/user_info.cr, spec/api/openid_connect_spec.cr]
+
 # Classification is independent of support status. Missing features are not invalid Slack payloads.
 review_policy:
   cadence: Before each release and at least every 90 days.
