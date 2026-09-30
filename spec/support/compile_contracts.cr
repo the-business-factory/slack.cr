@@ -13,13 +13,17 @@ module CompileContracts
     root : String,
     fixture : String,
     env : Hash(String, String?) = Hash(String, String?).new,
+    *,
+    codegen : Bool = false,
   ) : Result
     output_path = File.tempname("block-kit-compile-output")
     output = IO::Memory.new
     started_at = Time.instant
+    arguments = ["build", "--error-trace", "-o", output_path, fixture]
+    arguments.insert(1, "--no-codegen") unless codegen
     process = Process.new(
       "crystal",
-      ["build", "--no-codegen", "--error-trace", "-o", output_path, fixture],
+      arguments,
       chdir: root,
       env: SpecSupport::CrystalCache.env.merge(env),
       output: output,
@@ -36,6 +40,7 @@ module CompileContracts
         terminate(process)
       end
       File.delete?(output_path)
+      File.delete?("#{output_path}.dwarf")
     end
   end
 

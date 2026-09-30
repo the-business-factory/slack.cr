@@ -338,6 +338,15 @@ describe Slack::App::HttpReceiver do
     end
   end
 
+  # The codegen regression for a program with no listener at all is built by
+  # spec/entrypoints_spec.cr; this executable registers listeners elsewhere.
+  it "acknowledges an event with an empty 200 when the app has no listeners" do
+    reply = receive(build_app, AppSupport.json(APP_MENTION))
+
+    reply.status.should eq 200
+    reply.body.should be_empty
+  end
+
   it "acknowledges an unmapped interaction type with an empty 200 and runs no listener" do
     app = build_app
     seen = [] of String

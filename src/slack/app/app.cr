@@ -203,8 +203,7 @@ class Slack::App
     client = authorize(payload) || return Outcome.unauthorized
     environment = Environment.new(client, @log, delivery, @workflow_client, @response_url_transport, payload, @authorizer)
     listener = find_listener(payload, environment) || return Outcome.acknowledged
-    payload_kind = describe(payload)
-    spawn(name: "slack.app.listener") { run(listener, environment.ack, payload_kind) }
+    start(listener, environment.ack, describe(payload))
     wait(environment.ack)
   rescue error
     @log.error { "Routing #{describe(payload)} raised #{error.class}" }
@@ -222,6 +221,15 @@ class Slack::App
     listener = @router.listener(payload, environment)
     @log.info { "No listener matched #{describe(payload)}" } unless listener
     listener
+  end
+
+  # Runs *listener* in its own fiber. This is a method, not a block in
+  # `#dispatch`: in a program with no listener, `listener` there is `NoReturn`,
+  # and Crystal 1.21.1 codegen fails with "GEP into unsized type" for a closure
+  # that captures it. The compiler does not instantiate a call with a
+  # `NoReturn` argument.
+  private def start(listener : Listener, ack : Ack, payload_kind : String) : Nil
+    spawn(name: "slack.app.listener") { run(listener, ack, payload_kind) }
   end
 
   # Exceptions go to the error handler, or are logged by class only: their

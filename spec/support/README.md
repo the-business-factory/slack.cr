@@ -14,7 +14,7 @@ Run the suite through `scripts/spec`, or export `CRYSTAL_CACHE_DIR=$PWD/.crystal
 Three checks start child processes:
 
 - Compiler diagnostics (`spec/block_kit_diagnostics_spec.cr`): one `crystal build --no-codegen` per contract fixture under `spec/fixtures/compile/fail/`, plus the positive control under `pass/`. Add a fixture only for a rule that one parameter type does not show: a diagnostic that the library writes, or a required or exclusive argument pair. Do not add a fixture that only shows that a declared parameter type rejects another type.
-- Consumer startup (`spec/entrypoints_spec.cr`): type-checks `spec/support/entrypoints/startup.cr`, a program that reaches the library only through `require "slack"` on `CRYSTAL_PATH`.
+- Consumer startup (`spec/entrypoints_spec.cr`): builds `spec/support/entrypoints/startup.cr` with codegen, a program that reaches the library only through `require "slack"` on `CRYSTAL_PATH`.
 - Durable storage and rotation across processes (`spec/auth/durable_storage_spec.cr`, `spec/auth/rotation_process_spec.cr`): `spec/support/processes/probe.cr` is built once per run and started as separate processes for lock, crash, and restart behavior.
 
 Native HTTP transport specs run in this executable against loopback sockets with synthetic TLS credentials; WebMock does not intercept the transport. See [storage test support](storage/README.md) when implementing an installation adapter.
