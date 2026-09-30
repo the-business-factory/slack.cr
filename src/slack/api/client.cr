@@ -20,9 +20,11 @@ module Slack::Api
   # client.call(Slack::Api::ChatDelete.new(channel: "C123", ts: "1710000000.000100"))
   # ```
   #
-  # Each call waits for local per-method pacing, then makes one transport
-  # attempt. Without *retry*, the client does not retry. With a `RetryPolicy`, it
-  # sends again after HTTP 429 or an unsent `TransportFailure`, and each attempt
+  # Each call waits for the client's local pacing (`RateLimits`), then makes one
+  # transport attempt. Give *rate_limits* to replace the default pacing, for
+  # example with `Slack::Testing::InstantRateLimits` in offline specs.
+  #
+  # Without *retry*, the client does not retry. With a `RetryPolicy`, it sends again after HTTP 429 or an unsent `TransportFailure`, and each attempt
   # waits for local pacing. Transport errors (`Auth::ContractError` with
   # `TransportFailure` or `UnknownRemoteOutcome`) that end the call pass through unchanged.
   # Without a token, the client sends no `Authorization` header, so a scoped
@@ -31,12 +33,12 @@ module Slack::Api
     Log = ::Log.for("slack.api")
 
     @token : Auth::Secret?
-    @rate_limits = RateLimits.new
 
     def initialize(*, token : String | Auth::Secret?,
                    @configuration : Auth::APIConfiguration = Auth::APIConfiguration.default,
                    @transport : Auth::Transport = Auth::HTTPTransportFactory.new.build(Auth::TransportOptions.new),
-                   @retry : RetryPolicy? = nil)
+                   @retry : RetryPolicy? = nil,
+                   @rate_limits : RateLimits = RateLimits.new)
       @token = secret(token)
     end
 

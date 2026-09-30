@@ -127,7 +127,7 @@ Use `message.to_pretty_json` to inspect the payload locally. See [Block Kit](doc
 | Sign in with Slack | `Slack::OIDC::SignInHandler`, `Identity`, `OpenIDConnectUserInfo` | [Sign in with Slack](documentation/authentication.md#sign-in-with-slack) |
 | AI apps | `Client#start_stream`, `MessageStream`, app thread and agent session requests, `Slack::App::Assistant` | [AI apps](documentation/ai-apps.md) |
 | Workflow steps | `Slack::Events::FunctionExecuted`, `FunctionsCompleteSuccess`, `App#function` | [Workflow steps](documentation/workflows.md) |
-| Testing | `Slack::Testing::SignedRequest`, `Slack::Testing::RecordingTransport` | [Testing your app](#testing-your-app) |
+| Testing | `Slack::Testing::SignedRequest`, `Slack::Testing::RecordingTransport`, `Slack::Testing::InstantRateLimits` | [Testing your app](#testing-your-app) |
 
 The library has no global settings and reads no environment variables. Give each credential to the object that uses it: a token to `Slack::Api::Client`, the signing secret to `Slack::Webhooks::Verifier`, an app-level token to `Slack::SocketMode::Client`, and a `Slack::Auth::OAuthConfiguration` to `Slack::AuthHandler`. Tokens and secrets are `Slack::Auth::Secret` values; `inspect` and `to_s` show `[REDACTED]`.
 To sign people in with Slack, give a `Slack::OIDC::Configuration` to `Slack::OIDC::SignInHandler`.
@@ -138,6 +138,7 @@ Test handlers offline with `require "slack/testing"`. `require "slack"` does not
 
 - `Slack::Testing::SignedRequest.build` makes a POST request with a valid `X-Slack-Signature` and `X-Slack-Request-Timestamp`. `Webhooks::Verifier` accepts it with the same signing secret.
 - `Slack::Testing::RecordingTransport` is a transport for `Slack::Api::Client`. It records each request and answers with the responses that you queue. A request without a response raises `Slack::Testing::UnstubbedRequest`.
+- `Slack::Testing::InstantRateLimits` is a `Slack::Api::RateLimits` that never waits. Give it to `Slack::Api::Client.new` as `rate_limits:` when a spec makes more calls to one method than the method's burst. See [Rate limits](documentation/web-api.md#rate-limits).
 
 ```crystal
 require "slack"

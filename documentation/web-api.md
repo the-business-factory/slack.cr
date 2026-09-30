@@ -31,6 +31,7 @@ The token must have the scope that each Slack method requires. For example, `tea
 | `configuration:` | `https://slack.com/api/` | An `Auth::APIConfiguration` with a different base URI. |
 | `transport:` | An HTTP transport | An `Auth::Transport`, for example `Slack::Testing::RecordingTransport` in tests. See [transport settings](authentication.md#transport-settings-and-failures). |
 | `retry:` | `nil` (one attempt) | A `RetryPolicy`. See [Retry rate-limited and unsent requests](#retry-rate-limited-and-unsent-requests). |
+| `rate_limits:` | `Slack::Api::RateLimits.new` | The local pacing for this client. See [Rate limits](#rate-limits). |
 
 The library has no global settings and reads no environment variables. Give the token to the client that uses it.
 
@@ -80,6 +81,18 @@ Some methods document an `ok: false` response with a flag field and no `error`. 
 ## Rate limits
 
 The client paces each method locally at its documented [rate limit tier](https://docs.slack.dev/apis/web-api/rate-limits). Pacing waits in the calling fiber and starts no fibers. Local pacing does not guarantee that Slack accepts the call. Without a retry policy, the client makes exactly one attempt.
+
+Each client has its own `Slack::Api::RateLimits`. The first calls to a method, up to the burst of its tier, do not wait. After the burst, each call waits for the tier interval. For example, `chat.postMessage` has a burst of 20, and then one call each second. An offline spec that makes more calls than the burst on one client waits for this pacing. To stop the wait, give `rate_limits: Slack::Testing::InstantRateLimits.new`. This object never waits. Production clients keep the default.
+
+```crystal
+require "slack"
+require "slack/testing"
+
+transport = Slack::Testing::RecordingTransport.new
+client = Slack::Api::Client.new(token: "xoxb-synthetic", transport: transport,
+  rate_limits: Slack::Testing::InstantRateLimits.new)
+app = Slack::App.new(authorizer: Slack::App::SingleTokenAuthorizer.new(client))
+```
 
 ## Retry rate-limited and unsent requests
 
