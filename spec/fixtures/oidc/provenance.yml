@@ -1,0 +1,30 @@
+# Sign in with Slack fixtures. generate.sh reproduces every file with the
+# OpenSSL CLI. All keys, tokens, and identities are synthetic; the key signs
+# nothing but these tests.
+common:
+  origin: synthetic
+  generator: generate.sh (OpenSSL CLI for keys, SHA-256, and RS256 signatures)
+  claim_shape: https://docs.slack.dev/authentication/sign-in-with-slack (example ID token payload)
+  key_shape: https://slack.com/openid/connect/keys (kty, kid, use, alg, n, e)
+  at_hash: https://openid.net/specs/openid-connect-core-1_0.html#CodeIDToken (left half of SHA-256 of xoxp-synthetic-sign-in)
+  time_base: iat 1760000000, exp 1760000300 (the documented example lives 300 seconds)
+  client_id: "1234.5678"
+  nonce: synthetic-nonce
+  live_verified: false
+fixtures:
+  - {file: signing_key.pem, contents: 2048-bit RSA private key for these tests only}
+  - {file: public_key.der, contents: "openssl pkey -pubout -outform DER output, the byte-for-byte oracle for the DER encoder"}
+  - {file: jwks.json, contents: "the public key as Slack shapes it (kid synthetic-kid), after one EC entry that the parser skips; the EC coordinates are placeholder text, not a key"}
+  - {file: id_token_valid.txt, contents: every checked claim valid}
+  - {file: id_token_wrong_nonce.txt, adaptation: nonce another-nonce}
+  - {file: id_token_wrong_audience.txt, adaptation: aud 8765.4321}
+  - {file: id_token_wrong_issuer.txt, adaptation: iss https://slack.example.test}
+  - {file: id_token_audience_array_with_azp.txt, adaptation: "aud [1234.5678, 8765.4321] with azp 1234.5678"}
+  - {file: id_token_audience_array_without_azp.txt, adaptation: "aud [1234.5678, 8765.4321] without azp"}
+  - {file: id_token_missing_at_hash.txt, adaptation: no at_hash}
+  - {file: id_token_other_at_hash.txt, adaptation: at_hash of xoxp-another-token}
+  - {file: id_token_unknown_kid.txt, adaptation: header kid rotated-kid}
+  - {file: id_token_missing_kid.txt, adaptation: header without kid}
+  - {file: id_token_crit_header.txt, adaptation: "header crit [exp]"}
+  - {file: id_token_missing_team_id.txt, adaptation: no https://slack.com/team_id}
+  - {file: id_token_payload_not_json.txt, adaptation: "payload is the JSON array [\"not\",\"an\",\"object\"]"}
