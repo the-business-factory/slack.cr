@@ -422,6 +422,17 @@ describe "Slack::App authorization" do
     (record.nil? || record.deleted?).should be_true
   end
 
+  it "answers a failed cleanup with 500 and no X-Slack-No-Retry, so Slack retries it" do
+    store = FailingOnceStore.new
+    store.store(OWNER, Slack::Auth::InstallationPatch.new(bot: bot_grant), nil)
+    app = installation_app(store, Slack::Testing::RecordingTransport.new)
+    app.lifecycle(Slack::Auth::CredentialLifecycle.new("A-SYNTHETIC", store, AppSupport::VERIFIER))
+
+    reply = receive(app, AppSupport.json(APP_UNINSTALLED))
+    reply.status.should eq 500
+    reply.headers.has_key?("X-Slack-No-Retry").should be_false
+  end
+
   it "does not prepare a retry that it has no preparation for" do
     store = installed_store
     app = installation_app(store, Slack::Testing::RecordingTransport.new)

@@ -18,7 +18,9 @@ require "uri"
 # Responses: 200 with an empty or JSON body; 400 for a payload that does not
 # decode; 401 for a failed verification or authorization; 405 for another
 # method; 415 for another content type; 500 when routing or a listener raises
-# before acknowledging. Logs never contain bodies, headers, or tokens.
+# before acknowledging. A 400 or 401 response carries `X-Slack-No-Retry: 1`,
+# because the same delivery fails the same way again; a 500 does not, so Slack
+# retries it. Logs never contain bodies, headers, or tokens.
 #
 # The receiver decodes verified bodies with *decoder*. Give a decoder with an
 # observer to capture the exact bytes of each payload; see `Slack::Decoder`.
@@ -39,7 +41,7 @@ class Slack::App::HttpReceiver
     return call_next(context) unless request.path == @path
     response = context.response
     return finish(response, :method_not_allowed) unless request.method == "POST"
-    body = verify(request) || return finish(response, :unauthorized)
+    body = verify(request) || return finish_without_retry(response, :unauthorized)
     case media_type(request)
     when JSON_TYPE then answer_events(response, request, body)
     when FORM_TYPE then answer_form(response, body)
@@ -56,7 +58,7 @@ class Slack::App::HttpReceiver
 
   private def answer_events(response : HTTP::Server::Response, request : HTTP::Request, body : String) : Nil
     case envelope = decode { @decoder.event(body) }
-    when Nil                    then finish(response, :bad_request)
+    when Nil                    then finish_without_retry(response, :bad_request)
     when Slack::UrlVerification then write_json(response, envelope.response.to_json)
     when Slack::VerifiedEvent   then answer(response, @app.dispatch(envelope, Slack::Events::Delivery.from_headers(request.headers)))
     else
@@ -75,7 +77,7 @@ class Slack::App::HttpReceiver
               else
                 decode { @decoder.command(body) }
               end
-    payload ? answer(response, @app.dispatch(payload)) : finish(response, :bad_request)
+    payload ? answer(response, @app.dispatch(payload)) : finish_without_retry(response, :bad_request)
   end
 
   private def decode(&)
@@ -93,7 +95,7 @@ class Slack::App::HttpReceiver
       else
         finish(response, :ok)
       end
-    in .unauthorized? then finish(response, :unauthorized)
+    in .unauthorized? then finish_without_retry(response, :unauthorized)
     in .failed?       then finish(response, :internal_server_error)
     end
   end
@@ -110,5 +112,11 @@ class Slack::App::HttpReceiver
 
   private def finish(response : HTTP::Server::Response, status : HTTP::Status) : Nil
     response.status = status
+  end
+
+  # A response that Slack must not retry: the same bytes fail the same way again.
+  private def finish_without_retry(response : HTTP::Server::Response, status : HTTP::Status) : Nil
+    response.headers[Slack::Events::Delivery::NO_RETRY_HEADER] = Slack::Events::Delivery::NO_RETRY_VALUE
+    finish(response, status)
   end
 end

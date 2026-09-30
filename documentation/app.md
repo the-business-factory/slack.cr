@@ -270,6 +270,8 @@ The app keeps the preparation of each lifecycle event in memory, by event ID, an
 3. Answers a `url_verification` challenge with `{"challenge": "..."}`, and an `ssl_check` form with an empty 200. Other envelopes without an event also get an empty 200.
 4. Calls `App#dispatch` and writes the result: 200 with an empty or JSON body, 401, or 500.
 
+A 400 or 401 response carries `X-Slack-No-Retry: 1`, so Slack does not send the same delivery again. A 500 does not, because Slack's retry is wanted after a cleanup failure or a listener that raised before the acknowledgment.
+
 Requests for other paths go to the next handler. Bolt's custom routes are ordinary Crystal handlers in the same server:
 
 ```crystal

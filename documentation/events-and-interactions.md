@@ -158,7 +158,7 @@ The library does not call the app thread or agent session methods for these even
 
 ### Retries
 
-Slack retries a delivery up to three times when the app does not return HTTP 2xx within three seconds. `Slack::Events::Delivery.from_headers` reads `retry_num` and `retry_reason`; `retry?` is true for a retry. To stop retries for a failed delivery, add `Slack::Events::Delivery::NO_RETRY_HEADER` with `NO_RETRY_VALUE` (`X-Slack-No-Retry: 1`) to the non-2xx response. The library does not send responses or remove duplicate deliveries; use `event_id` for that.
+Slack retries a delivery up to three times when the app does not return HTTP 2xx within three seconds. `Slack::Events::Delivery.from_headers` reads `retry_num` and `retry_reason`; `retry?` is true for a retry. To stop retries for a failed delivery, add `Slack::Events::Delivery::NO_RETRY_HEADER` with `NO_RETRY_VALUE` (`X-Slack-No-Retry: 1`) to the non-2xx response. `Slack::App::HttpReceiver` sends this header with a 400 or 401 response; the parsers in this guide do not send responses. The library does not remove duplicate deliveries; use `event_id` for that.
 
 ## Interactions
 

@@ -208,6 +208,17 @@ describe Slack::App::HttpReceiver do
     routed.should be_empty
   end
 
+  it "asks Slack not to retry a delivery that does not decode" do
+    app = build_app
+    event = receive(app, AppSupport.json(TEXTLESS_MESSAGE))
+    interaction = receive(app, AppSupport.interaction(%({"type":"block_actions")))
+
+    {event, interaction}.each do |reply|
+      reply.status.should eq 400
+      reply.headers["X-Slack-No-Retry"]?.should eq "1"
+    end
+  end
+
   it "answers 400 and runs no listener for an event_time outside the Time range" do
     app = build_app
     routed = [] of String
@@ -366,6 +377,22 @@ describe Slack::App::HttpReceiver do
     receive(app, request, observing_decoder(observed)).status.should eq 401
     ran.should be_false
     observed.should be_empty
+  end
+
+  it "asks Slack not to retry a delivery with an invalid signature" do
+    request = AppSupport.json(APP_MENTION)
+    request.headers["X-Slack-Signature"] = "v0=#{"0" * 64}"
+    reply = receive(build_app, request)
+
+    reply.status.should eq 401
+    reply.headers["X-Slack-No-Retry"]?.should eq "1"
+  end
+
+  it "asks Slack not to retry a delivery whose authorization fails" do
+    reply = receive(build_app(authorizer: FailingAuthorizer.new), AppSupport.json(APP_MENTION))
+
+    reply.status.should eq 401
+    reply.headers["X-Slack-No-Retry"]?.should eq "1"
   end
 
   it "answers 401 without routing when authorization fails" do

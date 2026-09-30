@@ -28,7 +28,7 @@ module AppSupport
     request
   end
 
-  record Reply, status : Int32, content_type : String?, body : String
+  record Reply, status : Int32, content_type : String?, body : String, headers : HTTP::Headers
 
   # Runs *request* through *handler* and returns the written response.
   def self.run(handler : HTTP::Handler, request : HTTP::Request) : Reply
@@ -38,6 +38,6 @@ module AppSupport
     handler.call(context)
     response.close
     parsed = HTTP::Client::Response.from_io(output.rewind)
-    Reply.new(parsed.status_code, parsed.headers["Content-Type"]?, parsed.body)
+    Reply.new(parsed.status_code, parsed.headers["Content-Type"]?, parsed.body, parsed.headers)
   end
 end
