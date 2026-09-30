@@ -158,8 +158,8 @@ class Slack::App
     @router.action(action_type, action_id, block_id, middleware, handler)
   end
 
-  # Listens for the slash command *name*, for example `"/deploy"`.
-  def command(name : String, *, middleware : Array(Middleware) = [] of Middleware,
+  # Listens for a slash command. *name* is the complete command, such as `/deploy`, or a `Regex` that the command must match.
+  def command(name : String | Regex, *, middleware : Array(Middleware) = [] of Middleware,
               &handler : CommandContext ->) : Nil
     @router.command(name, middleware, handler)
   end

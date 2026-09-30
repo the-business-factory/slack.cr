@@ -72,9 +72,9 @@ class Slack::App::Router
     end
   end
 
-  def command(name : String, middleware : Array(Middleware), handler : Proc(CommandContext, Nil)) : Nil
+  def command(name : String | Regex, middleware : Array(Middleware), handler : Proc(CommandContext, Nil)) : Nil
     @routes << TypedRoute(CommandContext).new(middleware, handler, acknowledge_first: false) do |payload, environment|
-      CommandContext.new(environment, payload) if payload.is_a?(Slack::Command) && payload.command == name
+      CommandContext.new(environment, payload) if payload.is_a?(Slack::Command) && matches?(name, payload.command)
     end
   end
 

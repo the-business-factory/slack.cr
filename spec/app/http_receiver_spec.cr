@@ -530,4 +530,21 @@ describe Slack::App::HttpReceiver do
 
     steps.should eq ["command response written", "command work finished", "event response written", "event work finished"]
   end
+
+  it "routes a slash command by regex and keeps string names exact" do
+    app = build_app
+    routed = Channel(String).new(2)
+    app.command("/deploy") { |ctx| ctx.ack; routed.send("exact #{ctx.command.command}") }
+    app.command(/^\/toriel-/) { |ctx| ctx.ack; routed.send("regex #{ctx.command.command}") }
+
+    receive(app, AppSupport.form(COMMAND.merge({"command" => "/toriel-restart"}))).status.should eq 200
+    routed.receive.should eq "regex /toriel-restart"
+
+    reply = receive(app, AppSupport.form(COMMAND.merge({"command" => "/deploy-all"})))
+    reply.status.should eq 200
+    select
+    when value = routed.receive then fail "matched #{value} for /deploy-all"
+    when timeout(100.milliseconds) then nil
+    end
+  end
 end

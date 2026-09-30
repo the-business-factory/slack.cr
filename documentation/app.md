@@ -42,7 +42,7 @@ Register listeners before the app receives requests. Each registration method gi
 | `function(callback_id)` | `function_executed` | `FunctionContext`: `envelope`, `event`, `inputs`, `complete`, `fail` | Automatic, before the listener runs |
 | `action(action_id, block_id = nil)` | `block_actions` | `ActionContext(Slack::Interactions::Action)`: `payload`, `action` | `ack` |
 | `action(T, action_id, block_id = nil)` | `block_actions` whose action is a `T`, for example `Slack::Interactions::ButtonAction` | `ActionContext(T)`: `payload`, `action : T` | `ack` |
-| `command(name)` | Slash command | `CommandContext`: `command` | `ack`, `ack(Commands::Response)` |
+| `command(name)` | Slash command whose name is *name* or matches the `Regex` | `CommandContext`: `command` | `ack`, `ack(Commands::Response)` |
 | `shortcut(callback_id)` | Global or message shortcut | `ShortcutContext`: `shortcut` | `ack` |
 | `options(action_id)` | `block_suggestion` | `OptionsContext`: `payload` | `ack(BlockSuggestionResponse)` |
 | `view(callback_id)` | `view_submission` | `ViewContext`: `payload` | `ack`, `ack(ModalErrors \| ModalPush \| ModalUpdate \| ModalClear)` |
@@ -59,7 +59,7 @@ Matching rules:
 
   `event(T)` with these types gives an ordinary event listener. It does not do the work of the dedicated listener. Because only the first matching listener runs, register it after the dedicated listener.
 - `event(Slack::Events::Unknown, type: "future_type")` matches an event of a type that the library does not map yet. `event(Slack::Events::Unknown)` matches all of them.
-- A string ID matches the complete value. A `Regex` matches when it finds a match in the value.
+- In `action`, `command`, `shortcut`, `options`, `view`, and `view_closed`, a string ID matches the complete value. A `Regex` matches when it finds a match in the value. For example, `command("/deploy")` does not match `/deploy-all`, and `command(/^\/deploy/)` matches both.
 - `action` and `options` also take a `Slack::UI::ActionId`. It matches as its string does. Give the same constant to the element `action_id:` and to the listener.
 - A string `message` pattern matches text that contains it, as in Bolt. A `Regex` matches the text. Nil matches every message.
 - `action` uses the first action of the payload. Slack sends one action for each click.
